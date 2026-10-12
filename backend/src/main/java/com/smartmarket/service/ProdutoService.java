@@ -20,7 +20,7 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public Page<ProdutoResponse> buscar(String nome, String categoria, Pageable pageable) {
-        Specification<Produto> spec = Specification.where(null);
+        Specification<Produto> spec = (root, query, cb) -> cb.conjunction();
 
         if (nome != null && !nome.isBlank()) {
             spec = spec.and(ProdutoSpecification.withNome(nome));

@@ -1,8 +1,17 @@
+import React from "react"
+import { Routes, Route, Navigate } from "react-router-dom"
+import Home from "./pages/Home"
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-2xl font-bold">SmartMarket — Front-end</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/catalog" element={<Home />} />
+      <Route path="/list" element={<Home />} />
+      <Route path="/compare" element={<Home />} />
+      <Route path="/admin" element={<Home />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

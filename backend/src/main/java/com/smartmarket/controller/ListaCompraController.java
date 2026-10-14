@@ -1,9 +1,11 @@
 package com.smartmarket.controller;
 
+import com.smartmarket.dto.lista.ComparacaoResponse;
 import com.smartmarket.dto.lista.ItemListaRequest;
 import com.smartmarket.dto.lista.ItemListaResponse;
 import com.smartmarket.dto.lista.ListaRequest;
 import com.smartmarket.dto.lista.ListaResponse;
+import com.smartmarket.service.ComparadorService;
 import com.smartmarket.service.ListaCompraService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ListaCompraController {
 
     private final ListaCompraService listaCompraService;
+    private final ComparadorService comparadorService;
 
     @PostMapping
     public ResponseEntity<ListaResponse> criar(
@@ -85,5 +88,12 @@ public class ListaCompraController {
             @PathVariable Long itemId) {
         listaCompraService.removerItem(jwt.getSubject(), id, itemId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/comparacao")
+    public ResponseEntity<ComparacaoResponse> comparar(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long id) {
+        return ResponseEntity.ok(comparadorService.comparar(jwt.getSubject(), id));
     }
 }

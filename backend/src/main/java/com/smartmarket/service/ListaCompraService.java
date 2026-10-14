@@ -45,6 +45,7 @@ public class ListaCompraService {
         for (ItemListaRequest itemRequest : request.getItens()) {
             Produto produto = buscarProduto(itemRequest.getProdutoId());
             lista.getItens().add(ItemLista.builder()
+                .listaCompra(lista)
                 .produto(produto)
                 .quantidade(itemRequest.getQuantidade())
                 .build());

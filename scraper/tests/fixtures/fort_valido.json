@@ -1,0 +1,9 @@
+{
+  "1815215": [{"hits": [
+    {"id": "arroz-1", "name": "Arroz exemplo 1kg", "brandName": "Marca exemplo", "slug": "arroz-exemplo", "pricing": {"price": 10.5, "promotionalPrice": null, "promotion": false}},
+    {"id": "feijao-1", "name": "Feijão exemplo 1kg", "pricing": {"price": 8, "promotionalPrice": 7.5, "promotion": true}}
+  ], "hasNext": false}],
+  "1815285": [{"hits": [
+    {"id": "leite-1", "name": "Leite exemplo 1L", "pricing": {"price": 5.25}}
+  ], "hasNext": false}]
+}

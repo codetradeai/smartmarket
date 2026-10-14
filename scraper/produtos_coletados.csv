@@ -1,0 +1,41 @@
+nome_bruto,preco,preco_normal,em_promocao,marca,categoria,slug,id_produto_origem,supermercado,data_coleta
+Arroz Branco Tio Urbano Tipo 1 com 1kg,4.79,4.79,False,Urbano,Graos_Arrozes_Feijoes,arroz-branco-tio-urbano-tipo-1-com-1kg,7903064,Fort Atacadista,2026-09-07T19:06:25
+Milho para Pipoca Juréia 400g,3.69,3.69,False,Jureia,Graos_Arrozes_Feijoes,milho-para-pipoca-jureia-400g,7894480,Fort Atacadista,2026-09-07T19:06:25
+Arroz Branco Catarinão 1kg,2.82,2.82,False,Catarinão,Graos_Arrozes_Feijoes,arroz-branco-catarinao-1kg,7896132,Fort Atacadista,2026-09-07T19:06:25
+Milho Verde Quero Lata 170g,4.19,4.19,False,Quero,Graos_Arrozes_Feijoes,milho-verde-quero-lata-170g,7895748,Fort Atacadista,2026-09-07T19:06:25
+Arroz Parboilizado Buriti Tipo 1 5kg,11.85,11.99,True,Buriti,Graos_Arrozes_Feijoes,arroz-parboilizado-buriti-tipo-1-5kg,7894993,Fort Atacadista,2026-09-07T19:06:25
+Feijão Preto Caldão 1kg,5.99,5.99,False,Caldão,Graos_Arrozes_Feijoes,feijao-preto-caldao-1kg,7904524,Fort Atacadista,2026-09-07T19:06:25
+Feijão Carioca Caldão 1kg,9.99,9.99,False,Caldão,Graos_Arrozes_Feijoes,feijao-carioca-caldao-1kg,7904522,Fort Atacadista,2026-09-07T19:06:25
+Arroz Branco Prato Fino Tipo 1 com 5kg,20.98,20.98,False,Prato Fino,Graos_Arrozes_Feijoes,arroz-branco-prato-fino-tipo-1-com-5kg,8064979,Fort Atacadista,2026-09-07T19:06:25
+Arroz Arbório Caldo Bom Tipo 1 Seleção Especial 500g,11.99,11.99,False,Caldo Bom,Graos_Arrozes_Feijoes,arroz-arborio-caldo-bom-tipo-1-selecao-especial-500g,7894105,Fort Atacadista,2026-09-07T19:06:25
+Ervilha Quero Lata 170g,4.39,4.39,False,Quero,Graos_Arrozes_Feijoes,ervilha-quero-lata-170g,7895750,Fort Atacadista,2026-09-07T19:06:25
+Milho para Pipoca Caldão Premium 400g,3.69,3.69,False,Caldão,Graos_Arrozes_Feijoes,milho-para-pipoca-caldao-premium-400g,7897840,Fort Atacadista,2026-09-07T19:06:27
+Ervilha Seara Nature Congelada 300g,6.99,7.99,True,Seara,Graos_Arrozes_Feijoes,ervilha-seara-nature-congelada-300g,7904728,Fort Atacadista,2026-09-07T19:06:27
+Feijão Preto Mãe Véia 1kg,4.48,4.48,False,Mae Veia,Graos_Arrozes_Feijoes,feijao-preto-mae-veia-1kg,7904737,Fort Atacadista,2026-09-07T19:06:27
+Arroz Parboilizado Tio Urbano Tipo 1 com 1kg,3.99,3.99,False,Urbano,Graos_Arrozes_Feijoes,arroz-parboilizado-tio-urbano-tipo-1-com-1kg,7903068,Fort Atacadista,2026-09-07T19:06:27
+Arroz Branco Urbano 1kg,5.12,5.12,False,Urbano,Graos_Arrozes_Feijoes,arroz-branco-urbano-1kg,7895845,Fort Atacadista,2026-09-07T19:06:27
+Arroz Parboilizado Catarinão 1kg,2.27,2.27,False,Catarinão,Graos_Arrozes_Feijoes,arroz-parboilizado-catarinao-1kg,7894352,Fort Atacadista,2026-09-07T19:06:27
+Canjiquinha Yoki 500g,5.99,5.99,False,Yoki,Graos_Arrozes_Feijoes,canjiquinha-yoki-500g,7903705,Fort Atacadista,2026-09-07T19:06:27
+Pipoca para Micro-ondas Yoki Cheddar com Sal 95g,6.99,6.99,False,Yoki,Graos_Arrozes_Feijoes,pipoca-para-microondas-yoki-cheddar-com-sal-95g,7901899,Fort Atacadista,2026-09-07T19:06:27
+Pipoca Pronta Amorita Caramelo 115g,7.9,7.9,False,Amorita,Graos_Arrozes_Feijoes,pipoca-pronta-amorita-caramelo-115g,7899210,Fort Atacadista,2026-09-07T19:06:27
+Pipoca Doce Amorita Ninho Trufada 115g,7.9,7.9,False,Amorita,Graos_Arrozes_Feijoes,pipoca-doce-amorita-ninho-trufada-115g,7899211,Fort Atacadista,2026-09-07T19:06:27
+Leite Italac Uht Integral 1 Litro,5.29,5.29,False,Italac,Leites,leite-italac-uht-integral-1-litro,7893286,Fort Atacadista,2026-09-07T19:06:31
+Leite Condensado Semidesnatado Piracanjuba 395g,4.48,5.95,True,Piracanjuba,Leites,leite-condensado-semidesnatado-piracanjuba-395g,7895252,Fort Atacadista,2026-09-07T19:06:31
+Leite Aurora Uht Integral 1 Litro,5.49,5.49,False,Aurora,Leites,leite-aurora-uht-integral-1-litro,7904229,Fort Atacadista,2026-09-07T19:06:31
+Leite UHT Semidesnatado Zero Lactose Tirol Biociclos + Proteína 1L,8.98,11.98,True,Tirol,Leites,leite-uht-semidesnatado-zero-lactose-tirol-biociclos-proteina-1l,7902010,Fort Atacadista,2026-09-07T19:06:31
+Leite Italac Zero Lactose Semidesnatado 1 Litro,5.59,5.98,True,Italac,Leites,leite-italac-zero-lactose-semidesnatado-1-litro,7893520,Fort Atacadista,2026-09-07T19:06:31
+"Leite Fermentado Frutap 1,2kg",12.49,12.99,True,Frutap,Leites,leite-fermentado-frutap-12kg,7897848,Fort Atacadista,2026-09-07T19:06:31
+Leite Tirol Zero Lactose Integral 1L,5.98,5.98,False,Tirol,Leites,leite-tirol-zero-lactose-integral-1l,7899942,Fort Atacadista,2026-09-07T19:06:31
+Bebida de Amêndoas Nuts Zero Açúcar Original 1L,10.9,10.9,False,Nuts,Leites,bebida-de-amendoas-nuts-zero-acucar-original-1l,7898467,Fort Atacadista,2026-09-07T19:06:31
+Leite em Pó Piracanjuba Integral Lata 300g,18.99,18.99,False,Piracanjuba,Leites,leite-em-po-piracanjuba-integral-lata-300g,7901320,Fort Atacadista,2026-09-07T19:06:31
+Bebida Láctea Starbucks Frappuccino 280ml,9.98,9.98,False,Starbucks,Leites,bebida-lactea-starbucks-frappuccino-280ml,7900493,Fort Atacadista,2026-09-07T19:06:31
+Leite em Pó Ninho Adulto Lata 350g,27.99,27.99,False,Ninho,Leites,leite-em-po-ninho-adulto-lata-350g,7899899,Fort Atacadista,2026-09-07T19:06:34
+Leite UHT Desnatado Zero Lactose Batavo Caixinha 1L,5.48,5.48,False,Batavo,Leites,leite-uht-desnatado-zero-lactose-batavo-caixinha-1l,8075369,Fort Atacadista,2026-09-07T19:06:34
+Molico Zero Lactose Lata 260g,28.99,28.99,False,Molico,Leites,molico-zero-lactose-lata-260g,7894685,Fort Atacadista,2026-09-07T19:06:34
+Leite Tirol Integral Tampa Rosca 1 Litro,5.49,5.49,False,Tirol,Leites,leite-tirol-integral-tampa-rosca-1-litro,7893913,Fort Atacadista,2026-09-07T19:06:34
+Leite Condensado Italac Zero Lactose Tetra Pak 395g,6.99,6.99,False,Italac,Leites,leite-condensado-italac-zero-lactose-tetra-pak-395g,7895459,Fort Atacadista,2026-09-07T19:06:34
+Bebida de Castanha de Caju Possible Orgânico Original 1 Litro,17.98,17.98,False,Possible,Leites,bebida-de-castanha-de-caju-possible-organico-original-1-litro,7897097,Fort Atacadista,2026-09-07T19:06:34
+Leite Molico Desnatado 1 Litro,7.48,7.48,False,Molico,Leites,leite-molico-desnatado-1-litro,7903105,Fort Atacadista,2026-09-07T19:06:34
+Bebida de Amêndoas Nuts Original 1L,10.9,10.9,False,Nuts,Leites,bebida-de-amendoas-nuts-original-1l,7898469,Fort Atacadista,2026-09-07T19:06:34
+Bebida a Base de Amêndoa Almond Breeze Original 1 Litro,19.39,19.39,False,Almond Breeze,Leites,bebida-a-base-de-amendoa-almond-breeze-original-1-litro,7895114,Fort Atacadista,2026-09-07T19:06:34
+Leite em Pó Molico Desnatado Lata 280g,25.99,25.99,False,Molico,Leites,leite-em-po-molico-desnatado-lata-280g,7893164,Fort Atacadista,2026-09-07T19:06:34

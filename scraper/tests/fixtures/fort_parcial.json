@@ -1,0 +1,8 @@
+{
+  "1815215": [{"hits": [
+    null,
+    {"id": "zero", "name": "Preço inválido", "pricing": {"price": 0}},
+    {"id": "arroz-1", "name": "Arroz exemplo 1kg", "pricing": {"price": 10.5, "promotionalPrice": null}}
+  ], "hasNext": false}],
+  "1815285": [{"hits": null}]
+}

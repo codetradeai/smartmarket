@@ -1,0 +1,11 @@
+[run]
+data_file = scraper/.coverage
+branch = True
+source = scraper
+omit =
+    scraper/tests/*
+    scraper/.venv/*
+
+[report]
+show_missing = True
+fail_under = 70

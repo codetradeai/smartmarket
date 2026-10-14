@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+output/
+*.pyc
+.pg-local/
+.coverage
+htmlcov/

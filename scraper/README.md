@@ -79,7 +79,29 @@ Cada execução em um diretório de saída gera:
 
 ---
 
-## 5. Documentos Complementares
+---
 
+## 5. Rotina Automática de Inserção/Atualização na Tabela Preço
+
+Para executar a orquestração completa das duas redes (Fort Atacadista e Carrefour Mercado) com persistência contínua, histórico de preços, idempotência e atualização de disponibilidade:
+
+```bash
+# Execução one-shot com fixtures (offline)
+python scraper/rotina_carga.py --fixture --output-base scraper/output/rotina_teste
+
+# Execução one-shot em produção
+python scraper/rotina_carga.py --intervalo-minutos 0
+
+# Execução contínua agendada (ex: a cada 6 horas = 360 minutos)
+python scraper/rotina_carga.py --intervalo-minutos 360
+```
+
+Para detalhes completos de arquitetura, parâmetros de linha de comando e regras de negócio na tabela `preco`, consulte [`ROTINA-DE-CARGA.md`](ROTINA-DE-CARGA.md).
+
+---
+
+## 6. Documentos Complementares
+
+* [`ROTINA-DE-CARGA.md`](ROTINA-DE-CARGA.md): Orquestração unificada, histórico e atualização contínua na tabela `preco`.
 * [`ENTREGA-SEGUNDA-REDE.md`](ENTREGA-SEGUNDA-REDE.md): Detalhamento da análise e implementação do coletor do Carrefour Mercado.
 * [`ENTREGA-JOAO.md`](ENTREGA-JOAO.md): Detalhamento do pipeline PostgreSQL, idempotência e revisão técnica v2.

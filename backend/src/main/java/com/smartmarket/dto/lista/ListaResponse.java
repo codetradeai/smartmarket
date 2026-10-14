@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +20,7 @@ public class ListaResponse {
     private Long id;
     private String nome;
     private Integer totalItens;
+    private List<ItemListaResponse> itens;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -30,5 +32,11 @@ public class ListaResponse {
             .createdAt(lista.getCreatedAt())
             .updatedAt(lista.getUpdatedAt())
             .build();
+    }
+
+    public static ListaResponse from(ListaCompra lista, int totalItens, List<ItemListaResponse> itens) {
+        ListaResponse response = from(lista, totalItens);
+        response.setItens(itens);
+        return response;
     }
 }

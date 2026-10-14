@@ -102,6 +102,7 @@ Para detalhes completos de arquitetura, parâmetros de linha de comando e regras
 
 ## 6. Documentos Complementares
 
+* [`ENTREGA-PILOTO-FORT-NORMALIZACAO.md`](ENTREGA-PILOTO-FORT-NORMALIZACAO.md): Evidências e validação completa da extração do Supermercado 1 (Fort Atacadista) e normalização com a tabela `produto`.
 * [`ROTINA-DE-CARGA.md`](ROTINA-DE-CARGA.md): Orquestração unificada, histórico e atualização contínua na tabela `preco`.
 * [`ENTREGA-SEGUNDA-REDE.md`](ENTREGA-SEGUNDA-REDE.md): Detalhamento da análise e implementação do coletor do Carrefour Mercado.
 * [`ENTREGA-JOAO.md`](ENTREGA-JOAO.md): Detalhamento do pipeline PostgreSQL, idempotência e revisão técnica v2.

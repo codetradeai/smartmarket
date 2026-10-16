@@ -1,1 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Poppins', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Poppins', sans-serif;
+
+  /* Cores da Marca SmartMarket (Figma Friendly Consumer & Brand Official) */
+  --color-brand-navy: #0D2137;
+  --color-brand-navy-light: #16324F;
+  --color-brand-navy-dark: #081524;
+
+  --color-brand-green: #22A95E;
+  --color-brand-green-hover: #1B8C4D;
+  --color-brand-green-light: #E8F8F0;
+  --color-brand-green-dark: #17864A;
+
+  --color-brand-emerald: #00C853;
+  --color-brand-teal: #1DB4A3;
+  --color-brand-teal-light: #E6F7F5;
+
+  --color-brand-bg: #F4FAF7;
+  --color-brand-card: #FFFFFF;
+  --color-brand-border: #D4E8DC;
+  --color-brand-border-hover: #A8D1BC;
+
+  --color-brand-text: #0D2137;
+  --color-brand-muted: #6B8A7A;
+  --color-brand-muted-light: #9BB8AA;
+
+  --color-brand-error: #D63B3B;
+  --color-brand-error-light: #FDE8E8;
+  --color-brand-amber: #F59E0B;
+  --color-brand-amber-light: #FEF3C7;
+  --color-brand-coral: #FF6B4A;
+
+  /* Raios de borda suaves do Figma */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+}
+
+:root {
+  --color-bg: #F4FAF7;
+  --color-text: #0D2137;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar limpa e moderna */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4DCcf;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6B8A7A;
+}
+
+/* Utilitários visuais de destaque */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.brand-gradient {
+  background: linear-gradient(135deg, #00C853 0%, #00B0FF 50%, #0066FF 100%);
+}
+
+.brand-gradient-green {
+  background: linear-gradient(135deg, #22A95E 0%, #1DB4A3 100%);
+}
+
+.brand-gradient-text {
+  background: linear-gradient(135deg, #00C853 0%, #00B0FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

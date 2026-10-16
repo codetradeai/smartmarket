@@ -13,10 +13,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ListaNaoEncontradaException.class, ItemListaNaoEncontradoException.class,
-            ProdutoNaoEncontradoException.class})
+    @ExceptionHandler({ListaNaoEncontradaException.class, ItemListaNaoEncontradoException.class, 
+                       ProdutoNaoEncontradoException.class})
     public ResponseEntity<Map<String, Object>> naoEncontrado(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(Map.of("erro", ex.getMessage()));
+    }
+
+    @ExceptionHandler(FiltroInvalidoException.class)
+    public ResponseEntity<Map<String, Object>> filtroInvalido(FiltroInvalidoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(Map.of("erro", ex.getMessage()));
     }
 

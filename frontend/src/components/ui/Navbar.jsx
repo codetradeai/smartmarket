@@ -9,6 +9,7 @@ export function Navbar({
   logoUrl,
   navLinks = [
     { label: "Catálogo", href: "/catalog" },
+    { label: "Favoritos", href: "/favorites" },
     { label: "Minha Lista", href: "/list", badgeCount: 3 },
     { label: "Comparador", href: "/compare" },
     { label: "Admin", href: "/admin" },

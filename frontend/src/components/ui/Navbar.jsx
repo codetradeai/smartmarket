@@ -1,24 +1,39 @@
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils"
+import { useAuth } from "../../hooks/useAuth"
 import { Button } from "./Button"
 import { Input } from "./Input"
 
 export function Navbar({
   brandName = "SmartMarket",
   logoUrl,
-  navLinks = [
-    { label: "Catálogo", href: "/catalog" },
-    { label: "Favoritos", href: "/favorites" },
-    { label: "Minha Lista", href: "/list", badgeCount: 3 },
-    { label: "Comparador", href: "/compare" },
-    { label: "Admin", href: "/admin" },
-  ],
-  user,
+  navLinks,
+  user: propUser,
   cartCount = 0,
   onSearch,
   className,
 }) {
+  let authContext
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    authContext = useAuth()
+  } catch {
+    authContext = null
+  }
+
+  const user = propUser || authContext?.user
+  const isAdmin = authContext?.isAdmin || user?.papel === "ADMIN"
+
+  const defaultNavLinks = [
+    { label: "Catálogo", href: "/catalog" },
+    { label: "Favoritos", href: "/favorites" },
+    { label: "Minha Lista", href: "/list", badgeCount: 3 },
+    { label: "Comparador", href: "/compare" },
+    ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
+  ]
+
+  const activeNavLinks = navLinks || defaultNavLinks
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const location = useLocation()
@@ -74,7 +89,7 @@ export function Navbar({
 
           {/* Links Desktop */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
+            {activeNavLinks.map((link) => {
               const isActive = location.pathname === link.href
               return (
                 <Link
@@ -226,7 +241,7 @@ export function Navbar({
           </form>
 
           <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => {
+            {activeNavLinks.map((link) => {
               const isActive = location.pathname === link.href
               return (
                 <Link

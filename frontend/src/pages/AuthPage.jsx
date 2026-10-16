@@ -1,257 +1,343 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import logoImg from '../assets/logo.png'
-
-const C = {
-  navy: '#0D2137', green: '#22A95E', teal: '#1DB4A3',
-  greenDark: '#17864A', bg: '#F4FAF7', muted: '#6B8A7A',
-  border: '#D4E8DC', error: '#D63B3B', errorBg: '#FEF2F2',
-  errorBorder: '#FECACA', white: '#FFFFFF',
-}
-
-function Field({ label, type = 'text', placeholder, value, onChange, error, hint }) {
-  const [focused, setFocused] = useState(false)
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-      <label style={{ fontSize: '13px', fontWeight: 600, color: C.navy }}>{label}</label>
-      <input
-        type={type} placeholder={placeholder} value={value}
-        onChange={e => onChange(e.target.value)}
-        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
-        style={{
-          padding: '12px 16px', borderRadius: '12px',
-          border: `1.5px solid ${error ? C.error : focused ? C.green : C.border}`,
-          background: error ? C.errorBg : C.white,
-          color: C.navy, fontSize: '15px', fontFamily: 'Poppins, sans-serif',
-          outline: 'none', transition: 'border-color 0.18s', width: '100%', boxSizing: 'border-box',
-        }}
-      />
-      {error && hint && <span style={{ fontSize: '11px', color: C.error, fontWeight: 500 }}>{hint}</span>}
-    </div>
-  )
-}
-
-function PasswordStrength({ password }) {
-  const checks = [password.length >= 8, /[A-Z]/.test(password), /[0-9]/.test(password), /[^A-Za-z0-9]/.test(password)]
-  const score = checks.filter(Boolean).length
-  const levels = [
-    { label: 'Muito fraca', color: C.error }, { label: 'Fraca', color: '#F59E0B' },
-    { label: 'Média', color: '#F59E0B' }, { label: 'Forte', color: C.green }, { label: 'Muito forte', color: C.teal },
-  ]
-  const level = levels[score]
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-      <div style={{ display: 'flex', gap: '4px' }}>
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} style={{ flex: 1, height: '3px', borderRadius: '2px', background: i < score ? level.color : C.border, transition: 'background 0.2s' }} />
-        ))}
-      </div>
-      <span style={{ fontSize: '11px', fontWeight: 600, color: level.color }}>Senha {level.label}</span>
-    </div>
-  )
-}
-
-function PrimaryButton({ label }) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <button type="submit"
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-      style={{
-        width: '100%', padding: '13px', borderRadius: '13px',
-        background: `linear-gradient(135deg, ${C.green} 0%, ${C.teal} 100%)`,
-        color: C.white, fontFamily: 'Poppins, sans-serif', fontSize: '15px',
-        fontWeight: 700, border: 'none', cursor: 'pointer',
-        boxShadow: hovered ? '0 6px 20px rgba(34,169,94,0.45)' : '0 2px 10px rgba(34,169,94,0.25)',
-        transform: hovered ? 'translateY(-1px)' : 'translateY(0)',
-        transition: 'all 0.2s',
-      }}
-    >
-      {label}
-    </button>
-  )
-}
-
-function Alert({ type, title, desc }) {
-  const isError = type === 'error'
-  return (
-    <div style={{
-      display: 'flex', gap: '10px', alignItems: 'flex-start',
-      background: isError ? C.errorBg : '#F0FDF4',
-      border: `1px solid ${isError ? C.errorBorder : '#BBF7D0'}`,
-      borderRadius: '12px', padding: '12px 14px',
-    }}>
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: '1px' }}>
-        <circle cx="8" cy="8" r="7" stroke={isError ? C.error : C.green} strokeWidth="1.5"/>
-        {isError
-          ? <><path d="M8 5v3.5" stroke={C.error} strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="11.5" r=".75" fill={C.error}/></>
-          : <path d="M5 8.5l2 2 4-4" stroke={C.green} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>}
-      </svg>
-      <div>
-        <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: isError ? C.error : C.greenDark }}>{title}</p>
-        {desc && <p style={{ margin: '2px 0 0', fontSize: '12px', color: isError ? '#B91C1C' : '#15803D' }}>{desc}</p>}
-      </div>
-    </div>
-  )
-}
+import { useState } from "react"
+import { useNavigate, useLocation, Link } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
+import { Button, Input } from "../components/ui"
+import logoImg from "../assets/logo.png"
 
 export default function AuthPage() {
   const navigate = useNavigate()
-  const [tab, setTab] = useState('login')
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [loginError, setLoginError] = useState(false)
-  const [nome, setNome] = useState('')
-  const [cadEmail, setCadEmail] = useState('')
-  const [cadPassword, setCadPassword] = useState('')
-  const [cadConfirm, setCadConfirm] = useState('')
-  const [cadError, setCadError] = useState(false)
-  const [cadSuccess, setCadSuccess] = useState(false)
+  const location = useLocation()
+  const { login, register, isLoading } = useAuth()
 
-  function switchTab(t) {
-    setTab(t); setLoginError(false); setCadError(false); setCadSuccess(false)
+  // Determina se a URL veio com ?mode=register ou ?mode=login
+  const queryParams = new URLSearchParams(location.search)
+  const initialMode = queryParams.get("mode") === "register" ? "cadastro" : "login"
+  const isSessionExpired = queryParams.get("expired") === "true"
+
+  const [tab, setTab] = useState(initialMode)
+  const [errorMessage, setErrorMessage] = useState(
+    isSessionExpired ? "Sua sessão expirou. Por favor, autentique-se novamente." : ""
+  )
+  const [successMessage, setSuccessMessage] = useState("")
+
+  // Form Login
+  const [loginEmail, setLoginEmail] = useState("")
+  const [loginPassword, setLoginPassword] = useState("")
+
+  // Form Cadastro
+  const [cadNome, setCadNome] = useState("")
+  const [cadEmail, setCadEmail] = useState("")
+  const [cadPassword, setCadPassword] = useState("")
+  const [cadConfirm, setCadConfirm] = useState("")
+
+  // Destino pós-login (ou padrão /catalog)
+  const fromDestination = location.state?.from?.pathname || "/catalog"
+
+  const handleSwitchTab = (newTab) => {
+    setTab(newTab)
+    setErrorMessage("")
+    setSuccessMessage("")
   }
 
-  function handleLogin(e) {
+  // Atalhos de teste para avaliadores
+  const fillCredentials = (type) => {
+    if (type === "admin") {
+      setLoginEmail("davi@smartmarket.com.br")
+      setLoginPassword("admin")
+    } else {
+      setLoginEmail("maria@email.com")
+      setLoginPassword("user")
+    }
+    setTab("login")
+    setErrorMessage("")
+  }
+
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
-    if (!loginEmail || !loginPassword) return setLoginError(true)
-    navigate('/catalog')
+    setErrorMessage("")
+
+    if (!loginEmail || !loginPassword) {
+      setErrorMessage("Por favor, preencha o e-mail e a senha.")
+      return
+    }
+
+    const result = await login(loginEmail, loginPassword)
+    if (result.success) {
+      navigate(fromDestination, { replace: true })
+    } else {
+      setErrorMessage(result.error || "Credenciais inválidas.")
+    }
   }
 
-  function handleCadastro(e) {
+  const handleCadastroSubmit = async (e) => {
     e.preventDefault()
-    if (!nome || !cadEmail || !cadPassword || cadPassword !== cadConfirm) return setCadError(true)
-    setCadError(false); setCadSuccess(true)
-    setTimeout(() => { switchTab('login') }, 1500)
-  }
+    setErrorMessage("")
 
-  const pwMismatch = cadError && cadPassword && cadConfirm && cadPassword !== cadConfirm
+    if (!cadNome || !cadEmail || !cadPassword || !cadConfirm) {
+      setErrorMessage("Por favor, preencha todos os campos obrigatórios.")
+      return
+    }
+
+    if (cadPassword !== cadConfirm) {
+      setErrorMessage("As senhas informadas não coincidem.")
+      return
+    }
+
+    if (cadPassword.length < 6) {
+      setErrorMessage("A senha deve ter no mínimo 6 caracteres.")
+      return
+    }
+
+    const result = await register(cadNome, cadEmail, cadPassword)
+    if (result.success) {
+      setSuccessMessage("Conta criada com sucesso! Redirecionando...")
+      setTimeout(() => {
+        navigate(fromDestination, { replace: true })
+      }, 1000)
+    } else {
+      setErrorMessage(result.error || "Falha ao criar conta.")
+    }
+  }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="auth-grid">
-      <style>{`@media(max-width:768px){.brand-col{display:none!important}.auth-grid{grid-template-columns:1fr!important}}`}</style>
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 font-sans bg-brand-bg">
+      {/* Coluna Esquerda: Marca e Apresentação (Figma) */}
+      <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-br from-brand-navy via-brand-navy-light to-[#0A3D2E] text-white relative overflow-hidden">
+        {/* Elementos visuais de fundo */}
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-brand-green/10 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-brand-teal/15 blur-2xl pointer-events-none" />
 
-      {/* Left — Brand */}
-      <div className="brand-col" style={{
-        background: 'linear-gradient(145deg, #0D2137 0%, #0A3D2E 100%)',
-        padding: '48px 44px', display: 'flex', flexDirection: 'column',
-        justifyContent: 'space-between', position: 'relative', overflow: 'hidden',
-      }}>
-        <div style={{ position: 'absolute', top: -80, right: -80, width: 280, height: 280, borderRadius: '50%', background: C.green, opacity: 0.08 }} />
-        <div style={{ position: 'absolute', bottom: -60, left: -60, width: 220, height: 220, borderRadius: '50%', background: C.teal, opacity: 0.10 }} />
+        <div className="relative z-10">
+          <Link to="/" className="inline-block mb-12">
+            <img
+              src={logoImg}
+              alt="SmartMarket"
+              className="h-12 w-auto object-contain brightness-0 invert"
+            />
+          </Link>
 
-        <div>
-          <img src={logoImg} alt="SmartMarket" style={{ height: '52px', objectFit: 'contain', filter: 'brightness(0) invert(1)', marginBottom: '40px' }} />
-          <h1 style={{ color: C.white, fontSize: '28px', fontWeight: 800, lineHeight: 1.25, marginBottom: '12px', letterSpacing: '-0.5px' }}>
-            Economize em cada<br/>
-            <span style={{ color: C.teal }}>compra de supermercado</span>
+          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight mb-4">
+            Economize em cada <br />
+            <span className="text-brand-teal">compra de supermercado</span>
           </h1>
-          <p style={{ color: '#A0BFB0', fontSize: '15px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '320px' }}>
-            Monte sua lista, compare os preços entre os mercados e saiba exatamente onde comprar mais barato.
+
+          <p className="text-sm text-slate-300 max-w-sm mb-10 leading-relaxed">
+            Monte sua lista de compras, compare os preços entre os supermercados da sua cidade e
+            saiba onde o carrinho total sai mais barato.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {[
-              { icon: '🛒', title: 'Monte sua lista', desc: 'Adicione os produtos que você precisa comprar' },
-              { icon: '📊', title: 'Compare preços', desc: 'Veja o total em cada supermercado da sua região' },
-              { icon: '💰', title: 'Economize de verdade', desc: 'Escolha o mercado mais barato para sua lista' },
-            ].map((b, i) => (
-              <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(29,180,163,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
-                  {b.icon}
-                </div>
-                <div>
-                  <p style={{ color: C.white, fontSize: '14px', fontWeight: 700, margin: 0 }}>{b.title}</p>
-                  <p style={{ color: '#90AFA2', fontSize: '13px', margin: '2px 0 0', lineHeight: 1.5 }}>{b.desc}</p>
-                </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-teal/20 text-brand-teal flex items-center justify-center text-lg shrink-0">
+                🛒
               </div>
-            ))}
+              <div>
+                <h4 className="text-sm font-bold text-white">Monte sua lista</h4>
+                <p className="text-xs text-slate-300">Adicione os produtos essenciais da sua rotina.</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-green/20 text-brand-green flex items-center justify-center text-lg shrink-0">
+                📊
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">Compare preços em tempo real</h4>
+                <p className="text-xs text-slate-300">
+                  Veja o comparativo entre Fort Atacadista, Carrefour e outros mercados.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-lg shrink-0">
+                💰
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">Economia comprovada</h4>
+                <p className="text-xs text-slate-300">
+                  Escolha o mercado mais vantajoso e economize até 30% no mês.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div style={{ marginTop: '48px', padding: '14px 20px', background: 'rgba(255,255,255,0.06)', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.10)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${C.green}, ${C.teal})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>⭐</div>
-          <div>
-            <p style={{ color: C.white, fontSize: '13px', fontWeight: 600, margin: 0 }}>Projeto Acadêmico — Grupo 40</p>
-            <p style={{ color: '#90AFA2', fontSize: '12px', margin: '1px 0 0' }}>Codifica / +praTI · Dev Full Stack Jr 2026</p>
-          </div>
+        <div className="relative z-10 pt-8 border-t border-white/10 flex items-center gap-3 text-xs text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-brand-green" />
+          <span>SmartMarket v1.0 — Gestão com autenticação JWT e segurança de perfis</span>
         </div>
       </div>
 
-      {/* Right — Form */}
-      <div style={{ background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 32px' }}>
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          <div style={{ marginBottom: '28px' }}>
-            <p style={{ fontSize: '12px', color: C.muted, fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              {tab === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
-            </p>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: C.navy, margin: 0, letterSpacing: '-0.3px' }}>
-              {tab === 'login' ? 'Acesse sua conta' : 'Comece a economizar'}
+      {/* Coluna Direita: Formulários de Autenticação */}
+      <div className="flex items-center justify-center p-6 sm:p-10 md:p-12">
+        <div className="w-full max-w-md">
+          {/* Logo Mobile */}
+          <div className="md:hidden flex justify-center mb-6">
+            <Link to="/">
+              <img src={logoImg} alt="SmartMarket" className="h-10 w-auto" />
+            </Link>
+          </div>
+
+          <div className="mb-6 text-center md:text-left">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
+              {tab === "login" ? "Área de Acesso" : "Primeira vez aqui?"}
+            </span>
+            <h2 className="text-2xl font-extrabold text-brand-navy tracking-tight mt-1">
+              {tab === "login" ? "Entre na sua conta" : "Cadastre-se grátis"}
             </h2>
           </div>
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', background: C.white, borderRadius: '14px', padding: '4px', marginBottom: '24px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(13,33,55,0.06)' }}>
-            {['login', 'cadastro'].map(t => (
-              <button key={t} onClick={() => switchTab(t)} style={{
-                flex: 1, padding: '9px', borderRadius: '11px', border: 'none',
-                fontFamily: 'Poppins, sans-serif', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-                transition: 'all 0.2s',
-                background: tab === t ? C.green : 'transparent',
-                color: tab === t ? C.white : C.muted,
-                boxShadow: tab === t ? '0 2px 8px rgba(34,169,94,0.30)' : 'none',
-              }}>
-                {t === 'login' ? 'Entrar' : 'Criar conta'}
-              </button>
-            ))}
+          {/* Seletor de Abas */}
+          <div className="flex bg-white p-1 rounded-2xl border border-brand-border mb-6 shadow-xs">
+            <button
+              type="button"
+              onClick={() => handleSwitchTab("login")}
+              className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
+                tab === "login"
+                  ? "bg-brand-green text-white shadow-xs"
+                  : "text-brand-muted hover:text-brand-navy"
+              }`}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchTab("cadastro")}
+              className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all ${
+                tab === "cadastro"
+                  ? "bg-brand-green text-white shadow-xs"
+                  : "text-brand-muted hover:text-brand-navy"
+              }`}
+            >
+              Criar Conta
+            </button>
           </div>
 
-          {/* Card */}
-          <div style={{ background: C.white, borderRadius: '20px', padding: '28px', boxShadow: '0 4px 24px rgba(13,33,55,0.08)', border: `1px solid ${C.border}` }}>
-            {tab === 'login' ? (
-              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                <Field label="E-mail" type="email" placeholder="seu@email.com" value={loginEmail}
-                  onChange={v => { setLoginEmail(v); setLoginError(false) }} error={loginError && !loginEmail} />
-                <Field label="Senha" type="password" placeholder="••••••••" value={loginPassword}
-                  onChange={v => { setLoginPassword(v); setLoginError(false) }} error={loginError && !loginPassword} />
-                {loginError && <Alert type="error" title="E-mail ou senha inválidos" desc="Verifique seus dados e tente novamente." />}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-6px' }}>
-                  <a href="#" style={{ fontSize: '12px', color: C.green, fontWeight: 600, textDecoration: 'none' }}>Esqueceu a senha?</a>
+          {/* Feedback de Erro ou Sucesso */}
+          {errorMessage && (
+            <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2.5 animate-in fade-in duration-150">
+              <span className="text-sm shrink-0">⚠️</span>
+              <p className="font-medium">{errorMessage}</p>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5 animate-in fade-in duration-150">
+              <span className="text-sm shrink-0">✅</span>
+              <p className="font-medium">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Card do Formulário */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-border/80 shadow-[0_8px_30px_rgba(13,33,55,0.06)]">
+            {tab === "login" ? (
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <Input
+                  label="E-mail"
+                  type="email"
+                  required
+                  placeholder="seu@email.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                />
+
+                <Input
+                  label="Senha"
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                />
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full mt-2"
+                  isLoading={isLoading}
+                >
+                  Entrar no SmartMarket
+                </Button>
+
+                {/* Atalhos para Avaliadores / Demonstração */}
+                <div className="pt-4 border-t border-slate-100">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center mb-2">
+                    Acesso Rápido para Avaliação
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fillCredentials("admin")}
+                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                    >
+                      🛡️ Perfil Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => fillCredentials("user")}
+                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                    >
+                      👤 Perfil Usuário
+                    </button>
+                  </div>
                 </div>
-                <PrimaryButton label="Entrar" />
-                <p style={{ textAlign: 'center', fontSize: '13px', color: C.muted, margin: 0 }}>
-                  Não tem conta?{' '}
-                  <button type="button" onClick={() => switchTab('cadastro')} style={{ background: 'none', border: 'none', color: C.green, fontWeight: 700, cursor: 'pointer', fontFamily: 'Poppins, sans-serif', fontSize: '13px', padding: 0 }}>
-                    Criar conta grátis
-                  </button>
-                </p>
               </form>
             ) : (
-              <form onSubmit={handleCadastro} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <Field label="Nome completo" placeholder="João da Silva" value={nome}
-                  onChange={v => { setNome(v); setCadError(false) }} error={cadError && !nome} hint="Campo obrigatório" />
-                <Field label="E-mail" type="email" placeholder="seu@email.com" value={cadEmail}
-                  onChange={v => { setCadEmail(v); setCadError(false) }} error={cadError && !cadEmail} hint="Campo obrigatório" />
-                <Field label="Senha" type="password" placeholder="Mínimo 8 caracteres" value={cadPassword}
-                  onChange={v => { setCadPassword(v); setCadError(false) }} error={cadError && !cadPassword} hint="Campo obrigatório" />
-                <Field label="Confirmar Senha" type="password" placeholder="Repita a senha" value={cadConfirm}
-                  onChange={v => { setCadConfirm(v); setCadError(false) }} error={!!pwMismatch} hint="As senhas não coincidem" />
-                {cadPassword.length > 0 && <PasswordStrength password={cadPassword} />}
-                {cadError && !pwMismatch && <Alert type="error" title="Preencha todos os campos corretamente." />}
-                {cadSuccess && <Alert type="success" title="Conta criada! Redirecionando para o login…" />}
-                <PrimaryButton label="Criar conta" />
-                <p style={{ textAlign: 'center', fontSize: '13px', color: C.muted, margin: 0 }}>
-                  Já tem conta?{' '}
-                  <button type="button" onClick={() => switchTab('login')} style={{ background: 'none', border: 'none', color: C.green, fontWeight: 700, cursor: 'pointer', fontFamily: 'Poppins, sans-serif', fontSize: '13px', padding: 0 }}>
-                    Entrar
-                  </button>
-                </p>
+              <form onSubmit={handleCadastroSubmit} className="space-y-4">
+                <Input
+                  label="Nome Completo"
+                  required
+                  placeholder="Ex: Davi Souza"
+                  value={cadNome}
+                  onChange={(e) => setCadNome(e.target.value)}
+                />
+
+                <Input
+                  label="E-mail"
+                  type="email"
+                  required
+                  placeholder="seu@email.com"
+                  value={cadEmail}
+                  onChange={(e) => setCadEmail(e.target.value)}
+                />
+
+                <Input
+                  label="Senha"
+                  type="password"
+                  required
+                  placeholder="Mínimo 6 caracteres"
+                  value={cadPassword}
+                  onChange={(e) => setCadPassword(e.target.value)}
+                />
+
+                <Input
+                  label="Confirmar Senha"
+                  type="password"
+                  required
+                  placeholder="Repita a senha"
+                  value={cadConfirm}
+                  onChange={(e) => setCadConfirm(e.target.value)}
+                />
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  className="w-full mt-2"
+                  isLoading={isLoading}
+                >
+                  Criar Conta
+                </Button>
               </form>
             )}
           </div>
 
-          <p style={{ textAlign: 'center', fontSize: '11px', color: '#A0BFB0', marginTop: '16px' }}>
-            Ao continuar, você concorda com os{' '}
-            <a href="#" style={{ color: C.muted, textDecoration: 'underline' }}>Termos de Uso</a>{' '}e a{' '}
-            <a href="#" style={{ color: C.muted, textDecoration: 'underline' }}>Política de Privacidade</a>
+          <p className="text-center text-xs text-brand-muted mt-6">
+            <Link to="/" className="hover:text-brand-green transition-colors">
+              ← Voltar para a Página Inicial
+            </Link>
           </p>
         </div>
       </div>

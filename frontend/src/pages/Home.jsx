@@ -19,7 +19,6 @@ import {
 
 export function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalType, setModalType] = useState("compare")
   const [loadingButton, setLoadingButton] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("todos")
@@ -121,7 +120,6 @@ export function Home() {
               variant="primary"
               size="lg"
               onClick={() => {
-                setModalType("compare")
                 setIsModalOpen(true)
               }}
             >

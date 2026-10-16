@@ -1,4 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
+import ProtectedRoute from "./components/ProtectedRoute"
 import Home from "./pages/Home"
 import Sobre from "./pages/Sobre"
 import AuthPage from "./pages/AuthPage"
@@ -10,29 +12,38 @@ import Layout from "./components/Layout"
 
 function App() {
   return (
-    <Routes>
-      {/* Landing Page pública */}
-      <Route path="/" element={<Home />} />
-      <Route path="/sobre" element={<Sobre />} />
+    <AuthProvider>
+      <Routes>
+        {/* Rotas Públicas */}
+        <Route path="/" element={<Home />} />
+        <Route path="/sobre" element={<Sobre />} />
 
-      {/* Autenticação */}
-      <Route path="/auth" element={<AuthPage />} />
-      <Route path="/login" element={<AuthPage />} />
-      <Route path="/register" element={<AuthPage />} />
+        {/* Autenticação (Login e Cadastro) */}
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/register" element={<AuthPage />} />
 
-      {/* Aplicação interna com Sidebar e Layout */}
-      <Route element={<Layout />}>
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/favoritos" element={<FavoritesPage />} />
-        <Route path="/list" element={<ShoppingListPage />} />
-        <Route path="/compare" element={<ShoppingListPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Route>
+        {/* Rotas Protegidas dentro do Shell com Sidebar */}
+        <Route element={<Layout />}>
+          {/* Rotas de Usuário Autenticado (USER ou ADMIN) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/favoritos" element={<FavoritesPage />} />
+            <Route path="/list" element={<ShoppingListPage />} />
+            <Route path="/compare" element={<ShoppingListPage />} />
+          </Route>
 
-      {/* Redirecionamento de rotas inexistentes */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+          {/* Rota Protegida Restrita para Administradores (ADMIN) */}
+          <Route element={<ProtectedRoute requiredRole="ADMIN" />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+        </Route>
+
+        {/* Redirecionamento de rotas inexistentes */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AuthProvider>
   )
 }
 

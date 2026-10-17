@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PRODUCTS, CATEGORIES } from "../data"
+import { produtoService, mercadoService, adminService } from "../services"
 import {
   Button,
   Input,
@@ -58,6 +59,7 @@ export default function AdminPage() {
   const [products, setProducts] = useState(PRODUCTS)
   const [markets, setMarkets] = useState(INITIAL_MARKETS)
   const [users, setUsers] = useState(INITIAL_USERS)
+  const [stats, setStats] = useState(null)
   const [toastMessage, setToastMessage] = useState("")
 
   // Modais de Produto (Adicionar / Editar)
@@ -94,6 +96,58 @@ export default function AdminPage() {
     setTimeout(() => setToastMessage(""), 3500)
   }
 
+  // Carrega dados dinâmicos do backend com fallback
+  useEffect(() => {
+    let isMounted = true
+
+    async function carregarDadosAdmin() {
+      try {
+        const [prodsData, mktsData, usersData, painelData] = await Promise.allSettled([
+          produtoService.buscarCatalogoComPrecos(),
+          mercadoService.listar(),
+          adminService.listarUsuarios(),
+          adminService.obterPainel(),
+        ])
+
+        if (!isMounted) return
+
+        if (prodsData.status === "fulfilled" && Array.isArray(prodsData.value) && prodsData.value.length > 0) {
+          setProducts(prodsData.value)
+        }
+        if (mktsData.status === "fulfilled" && Array.isArray(mktsData.value) && mktsData.value.length > 0) {
+          setMarkets(mktsData.value)
+        }
+        if (usersData.status === "fulfilled" && usersData.value) {
+          const uList = usersData.value.content || usersData.value
+          if (Array.isArray(uList) && uList.length > 0) {
+            setUsers(
+              uList.map((u) => ({
+                id: u.id,
+                name: u.nome || u.name,
+                email: u.email,
+                role: u.papel || u.role || "USER",
+                createdAt: u.createdAt ? String(u.createdAt).substring(0, 10) : "2026-10-10",
+                lists: u.lists ?? 0,
+                status: u.ativo !== false ? "ATIVO" : "SUSPENSO",
+              }))
+            )
+          }
+        }
+        if (painelData.status === "fulfilled" && painelData.value) {
+          setStats(painelData.value)
+        }
+      } catch (err) {
+        console.warn("Aviso ao carregar dados do painel admin, usando dados locais:", err)
+      }
+    }
+
+    carregarDadosAdmin()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   /* ── Ações de Produtos ────────────────────────────────────────── */
   const openNewProductModal = () => {
     setEditingProduct(null)
@@ -127,7 +181,7 @@ export default function AdminPage() {
     setProductModalOpen(true)
   }
 
-  const handleSaveProduct = (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault()
     if (!productForm.name || !productForm.brand) {
       showToast("Por favor, preencha os campos obrigatórios.")
@@ -138,8 +192,25 @@ export default function AdminPage() {
     const carrefourVal = productForm.priceCarrefour ? parseFloat(productForm.priceCarrefour.replace(",", ".")) : null
     const bigVal = productForm.priceBig ? parseFloat(productForm.priceBig.replace(",", ".")) : null
 
+    const payload = {
+      nome: productForm.name,
+      marca: productForm.brand,
+      categoria: productForm.category,
+      quantidade: 1.0,
+      unidade: productForm.unit || "un",
+      imagemUrl: productForm.image,
+    }
+
     if (editingProduct) {
       // Atualização
+      try {
+        if (typeof editingProduct.id === "number") {
+          await produtoService.atualizar(editingProduct.id, payload)
+        }
+      } catch (err) {
+        console.warn("Aviso ao sincronizar produto com a API:", err)
+      }
+
       setProducts((prev) =>
         prev.map((p) =>
           p.id === editingProduct.id
@@ -164,7 +235,14 @@ export default function AdminPage() {
       showToast(`Produto '${productForm.name}' atualizado com sucesso!`)
     } else {
       // Criação
-      const newId = `p${Date.now()}`
+      let newId = `p${Date.now()}`
+      try {
+        const criado = await produtoService.criar(payload)
+        if (criado && criado.id) newId = criado.id
+      } catch (err) {
+        console.warn("Aviso ao cadastrar produto na API:", err)
+      }
+
       const newProduct = {
         id: newId,
         name: productForm.name,
@@ -186,8 +264,15 @@ export default function AdminPage() {
     setProductModalOpen(false)
   }
 
-  const handleDeleteProduct = (id, name) => {
+  const handleDeleteProduct = async (id, name) => {
     if (window.confirm(`Tem certeza que deseja excluir o produto '${name}'?`)) {
+      try {
+        if (typeof id === "number") {
+          await produtoService.remover(id)
+        }
+      } catch (err) {
+        console.warn("Aviso ao excluir produto via API:", err)
+      }
       setProducts((prev) => prev.filter((p) => p.id !== id))
       showToast(`Produto '${name}' removido do catálogo.`)
     }
@@ -218,11 +303,26 @@ export default function AdminPage() {
     setMarketModalOpen(true)
   }
 
-  const handleSaveMarket = (e) => {
+  const handleSaveMarket = async (e) => {
     e.preventDefault()
     if (!marketForm.name) return
 
+    const payload = {
+      nome: marketForm.name,
+      cidade: marketForm.city,
+      endereco: marketForm.address,
+      ativo: marketForm.active,
+    }
+
     if (editingMarket) {
+      try {
+        if (typeof editingMarket.id === "number") {
+          await mercadoService.atualizar(editingMarket.id, payload)
+        }
+      } catch (err) {
+        console.warn("Aviso ao atualizar mercado via API:", err)
+      }
+
       setMarkets((prev) =>
         prev.map((m) =>
           m.id === editingMarket.id
@@ -235,7 +335,14 @@ export default function AdminPage() {
       )
       showToast(`Rede '${marketForm.name}' atualizada com sucesso!`)
     } else {
-      const newId = marketForm.name.toLowerCase().replace(/\s+/g, "-")
+      let newId = marketForm.name.toLowerCase().replace(/\s+/g, "-")
+      try {
+        const criado = await mercadoService.criar(payload)
+        if (criado && criado.id) newId = criado.id
+      } catch (err) {
+        console.warn("Aviso ao cadastrar mercado via API:", err)
+      }
+
       const newMarket = {
         id: newId,
         ...marketForm,
@@ -262,17 +369,23 @@ export default function AdminPage() {
   }
 
   /* ── Ações de Usuários ────────────────────────────────────────── */
-  const toggleUserRole = (userId) => {
+  const toggleUserRole = async (userId) => {
+    const user = users.find((u) => u.id === userId)
+    if (!user) return
+    const newRole = user.role === "ADMIN" ? "USER" : "ADMIN"
+
+    try {
+      if (typeof userId === "number") {
+        await adminService.alterarPapel(userId, newRole)
+      }
+    } catch (err) {
+      console.warn("Aviso ao alterar papel do usuário via API:", err)
+    }
+
     setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id === userId) {
-          const newRole = u.role === "ADMIN" ? "USER" : "ADMIN"
-          showToast(`Papel do usuário ${u.name} alterado para ${newRole}.`)
-          return { ...u, role: newRole }
-        }
-        return u
-      })
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
     )
+    showToast(`Papel do usuário ${user.name} alterado para ${newRole}.`)
   }
 
   const toggleUserStatus = (userId) => {
@@ -355,7 +468,9 @@ export default function AdminPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
                 Produtos no Catálogo
               </p>
-              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">{products.length}</h3>
+              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">
+                {stats?.produtos ?? products.length}
+              </h3>
               <span className="text-xs text-brand-green font-semibold">● 100% ativos</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-brand-green flex items-center justify-center text-2xl shadow-xs">
@@ -370,7 +485,9 @@ export default function AdminPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
                 Redes Monitoradas
               </p>
-              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">{markets.length}</h3>
+              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">
+                {stats?.mercados ?? markets.length}
+              </h3>
               <span className="text-xs text-brand-teal font-semibold">Fort & Carrefour integrados</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-teal-50 text-brand-teal flex items-center justify-center text-2xl shadow-xs">
@@ -385,7 +502,9 @@ export default function AdminPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
                 Usuários Totais
               </p>
-              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">{users.length}</h3>
+              <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">
+                {stats?.usuarios ?? users.length}
+              </h3>
               <span className="text-xs text-brand-muted font-medium">+3 administradores</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-slate-100 text-brand-navy flex items-center justify-center text-2xl shadow-xs">

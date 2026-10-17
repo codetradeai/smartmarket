@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { CATEGORIES, MARKETS, PRODUCTS } from '../data'
+import { useState, useEffect } from 'react'
+import { CATEGORIES, MARKETS as DEFAULT_MARKETS, PRODUCTS as DEFAULT_PRODUCTS } from '../data'
+import { produtoService, mercadoService, favoritoService } from '../services'
 
 const C = {
   navy: '#0D2137', green: '#22A95E', teal: '#1DB4A3',
@@ -11,19 +12,19 @@ function getList() {
   try { return JSON.parse(sessionStorage.getItem('sm_list') || '{}') } catch { return {} }
 }
 function saveList(l) { sessionStorage.setItem('sm_list', JSON.stringify(l)) }
-function getFavMarkets() {
-  try { return JSON.parse(localStorage.getItem('sm_fav_markets') || '[]') } catch { return [] }
-}
-function saveFavMarkets(ids) { localStorage.setItem('sm_fav_markets', JSON.stringify(ids)) }
-function getFavProducts() {
-  try { return JSON.parse(localStorage.getItem('sm_fav_products') || '[]') } catch { return [] }
-}
-function saveFavProducts(ids) { localStorage.setItem('sm_fav_products', JSON.stringify(ids)) }
 
-function cheapest(product) {
-  const valid = Object.entries(product.prices).filter(([, v]) => v !== null)
+function getPriceForMarket(product, market) {
+  if (!product || !product.prices) return null
+  return product.prices[market.id] ?? product.prices[market.id?.toString()] ?? product.prices[market.name?.toLowerCase().includes('fort') ? 'fort' : market.name?.toLowerCase().includes('carrefour') ? 'carrefour' : 'big'] ?? null
+}
+
+function cheapest(product, markets) {
+  if (!product || !product.prices) return null
+  const valid = markets
+    .map(m => [m.id, getPriceForMarket(product, m)])
+    .filter(([, v]) => v !== null && v !== undefined)
   if (!valid.length) return null
-  return valid.reduce((a, b) => b[1] < a[1] ? b : a)
+  return valid.reduce((a, b) => (b[1] < a[1] ? b : a))
 }
 
 function IconSearch() {
@@ -67,7 +68,7 @@ function IconFilter() {
   )
 }
 
-function FavMarketsStrip({ favs, onToggle }) {
+function FavMarketsStrip({ markets, favs, onToggle }) {
   return (
     <div style={{ background: C.white, borderRadius: '14px', border: `1px solid ${C.border}`, padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -75,7 +76,7 @@ function FavMarketsStrip({ favs, onToggle }) {
         <span style={{ fontSize: '12px', fontWeight: 700, color: C.navy, whiteSpace: 'nowrap' }}>Mercados favoritos</span>
       </div>
       <div style={{ width: '1px', height: '20px', background: C.border, flexShrink: 0 }} />
-      {MARKETS.map(m => {
+      {markets.map(m => {
         const isFav = favs.includes(m.id)
         return (
           <button key={m.id} onClick={() => onToggle(m.id)} style={{
@@ -96,105 +97,170 @@ function FavMarketsStrip({ favs, onToggle }) {
   )
 }
 
-function ProductCard({ product, favMarkets, isFavProduct, onToggleFavProduct, onAdd }) {
+function ProductCard({ product, markets, favMarkets, isFavProduct, onToggleFavProduct, onAdd }) {
   const [added, setAdded] = useState(false)
-  const best = cheapest(product)
-  const bestMkt = best ? MARKETS.find(m => m.id === best[0]) : null
+  const best = cheapest(product, markets)
+  const bestMkt = best ? markets.find(m => m.id === best[0]) : null
 
   const favBest = favMarkets.length > 0
-    ? Object.entries(product.prices).filter(([id, v]) => favMarkets.includes(id) && v !== null).sort((a, b) => a[1] - b[1])[0]
+    ? markets
+        .filter(m => favMarkets.includes(m.id))
+        .map(m => [m.id, getPriceForMarket(product, m)])
+        .filter(([, v]) => v !== null && v !== undefined)
+        .sort((a, b) => a[1] - b[1])[0]
     : null
-  const favBestMkt = favBest ? MARKETS.find(m => m.id === favBest[0]) : null
+  const favBestMkt = favBest ? markets.find(m => m.id === favBest[0]) : null
 
   function handleAdd() {
-    const list = getList(); list[product.id] = (list[product.id] || 0) + 1; saveList(list)
-    onAdd(product.id)
-    setAdded(true); setTimeout(() => setAdded(false), 1600)
+    const list = getList()
+    list[product.id] = (list[product.id] || 0) + 1
+    saveList(list)
+    setAdded(true)
+    onAdd()
+    setTimeout(() => setAdded(false), 1400)
   }
 
   return (
-    <div style={{ background: C.white, borderRadius: '16px', border: `1px solid ${C.border}`, boxShadow: '0 2px 8px rgba(13,33,55,0.05)', display: 'flex', flexDirection: 'column', transition: 'box-shadow 0.18s, transform 0.18s', position: 'relative', overflow: 'hidden' }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(13,33,55,0.12)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(13,33,55,0.05)'; e.currentTarget.style.transform = 'translateY(0)' }}
+    <div style={{
+      background: C.white, borderRadius: '16px', border: `1px solid ${C.border}`,
+      padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px',
+      position: 'relative', transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+      boxShadow: '0 1px 4px rgba(13,33,55,0.04)',
+    }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(13,33,55,0.09)' }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(13,33,55,0.04)' }}
     >
-      {product.promo && (
-        <div style={{ position: 'absolute', top: 0, left: 0, background: C.amber, color: C.white, fontSize: '9px', fontWeight: 800, padding: '3px 10px', borderBottomRightRadius: '10px', letterSpacing: '0.06em' }}>OFERTA</div>
-      )}
-      <div style={{ background: C.bg, height: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '52px', borderBottom: `1px solid ${C.border}`, position: 'relative' }}>
-        {product.image}
-        <button onClick={e => { e.stopPropagation(); onToggleFavProduct(product.id) }} title={isFavProduct ? 'Remover dos favoritos' : 'Favoritar produto'}
-          style={{ position: 'absolute', top: '8px', right: '8px', width: '28px', height: '28px', borderRadius: '50%', background: isFavProduct ? '#FFF1F3' : 'rgba(255,255,255,0.85)', border: `1.5px solid ${isFavProduct ? '#FECDD3' : C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.18s', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-          <IconHeart filled={isFavProduct} />
-        </button>
-      </div>
-      <div style={{ padding: '14px 14px 12px', flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div>
-          <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: C.navy, lineHeight: 1.3 }}>{product.name}</p>
-          <p style={{ margin: '2px 0 0', fontSize: '11px', color: C.muted }}>{product.brand} · {product.unit}</p>
+      <button onClick={() => onToggleFavProduct(product.id)} title={isFavProduct ? "Remover dos favoritos" : "Favoritar produto"}
+        style={{ position: 'absolute', top: '12px', right: '12px', background: isFavProduct ? '#FFF1F2' : C.bg, border: `1px solid ${isFavProduct ? '#FECDD3' : C.border}`, borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.18s' }}>
+        <IconHeart filled={isFavProduct} />
+      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: C.bg, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>
+          {product.image && product.image.length <= 4 ? product.image : '📦'}
         </div>
-        {best && bestMkt && (
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-            <div>
-              <p style={{ margin: 0, fontSize: '9px', color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>Menor preço</p>
-              <p style={{ margin: '1px 0 0', fontSize: '18px', fontWeight: 800, color: C.green, letterSpacing: '-0.3px' }}>R$ {best[1].toFixed(2)}</p>
-              <p style={{ margin: 0, fontSize: '10px', color: C.muted, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: bestMkt.color, display: 'inline-block' }} />
-                {bestMkt.name}
-              </p>
-            </div>
-            {favBest && favBestMkt && favBestMkt.id !== bestMkt.id && (
-              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '4px 8px', textAlign: 'right' }}>
-                <p style={{ margin: 0, fontSize: '9px', color: '#92400E', fontWeight: 700 }}>⭐ {favBestMkt.name}</p>
-                <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#92400E' }}>R$ {favBest[1].toFixed(2)}</p>
-              </div>
-            )}
+        <div style={{ flex: 1, minWidth: 0, paddingRight: '28px' }}>
+          <p style={{ margin: 0, fontSize: '11px', color: C.muted, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{product.brand || 'Geral'}</p>
+          <h3 style={{ margin: '1px 0 0', fontSize: '14px', fontWeight: 700, color: C.navy, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{product.name}</h3>
+          <p style={{ margin: '2px 0 0', fontSize: '11px', color: C.muted }}>{product.unit}</p>
+        </div>
+      </div>
+
+      <div style={{ height: '1px', background: C.border }} />
+
+      {best && bestMkt && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '10px', padding: '8px 12px' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '10px', color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Melhor Preço</p>
+            <p style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: C.green }}>R$ {Number(best[1]).toFixed(2)}</p>
+            <p style={{ margin: 0, fontSize: '10px', color: C.muted, display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: bestMkt.color, display: 'inline-block' }} />
+              {bestMkt.name}
+            </p>
           </div>
-        )}
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          {MARKETS.map(m => {
-            const price = product.prices[m.id]
-            const isBest = best?.[0] === m.id
-            const isFav = favMarkets.includes(m.id)
-            return (
-              <div key={m.id} title={m.name} style={{ padding: '2px 7px', borderRadius: '6px', fontSize: '10px', fontWeight: isBest ? 700 : 400, background: isBest ? '#F0FDF4' : isFav ? '#FFFBEB' : C.bg, color: isBest ? C.green : isFav ? '#92400E' : C.muted, border: `1px solid ${isBest ? '#BBF7D0' : isFav ? '#FDE68A' : C.border}`, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: m.color, display: 'inline-block' }} />
-                {price ? `R$ ${price.toFixed(2)}` : '—'}
-              </div>
-            )
-          })}
+          {favBest && favBestMkt && favBestMkt.id !== bestMkt.id && (
+            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '8px', padding: '4px 8px', textAlign: 'right' }}>
+              <p style={{ margin: 0, fontSize: '9px', color: '#92400E', fontWeight: 700 }}>⭐ {favBestMkt.name}</p>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#92400E' }}>R$ {Number(favBest[1]).toFixed(2)}</p>
+            </div>
+          )}
         </div>
-        <button onClick={handleAdd} style={{ marginTop: 'auto', width: '100%', padding: '9px', borderRadius: '10px', border: 'none', background: added ? '#F0FDF4' : `linear-gradient(135deg, ${C.green}, ${C.teal})`, color: added ? C.green : C.white, fontFamily: 'Poppins, sans-serif', fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: added ? 'none' : '0 2px 8px rgba(34,169,94,0.25)', outline: added ? `1.5px solid #BBF7D0` : 'none' }}>
-          {added ? <>✓ Adicionado!</> : <><IconCart /> Adicionar à lista</>}
-        </button>
+      )}
+
+      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+        {markets.map(m => {
+          const price = getPriceForMarket(product, m)
+          const isBest = best?.[0] === m.id
+          const isFav = favMarkets.includes(m.id)
+          return (
+            <div key={m.id} title={m.name} style={{ padding: '2px 7px', borderRadius: '6px', fontSize: '10px', fontWeight: isBest ? 700 : 400, background: isBest ? '#F0FDF4' : isFav ? '#FFFBEB' : C.bg, color: isBest ? C.green : isFav ? '#92400E' : C.muted, border: `1px solid ${isBest ? '#BBF7D0' : isFav ? '#FDE68A' : C.border}`, display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: m.color, display: 'inline-block' }} />
+              {price !== null && price !== undefined ? `R$ ${Number(price).toFixed(2)}` : '—'}
+            </div>
+          )
+        })}
       </div>
+
+      <button onClick={handleAdd} style={{ marginTop: 'auto', width: '100%', padding: '9px', borderRadius: '10px', border: 'none', background: added ? '#F0FDF4' : `linear-gradient(135deg, ${C.green}, ${C.teal})`, color: added ? C.green : C.white, fontFamily: 'Poppins, sans-serif', fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: added ? 'none' : '0 2px 8px rgba(34,169,94,0.25)', outline: added ? `1.5px solid #BBF7D0` : 'none' }}>
+        {added ? <>✓ Adicionado!</> : <><IconCart /> Adicionar à lista</>}
+      </button>
     </div>
   )
 }
 
 export default function CatalogPage() {
+  const [products, setProducts] = useState(DEFAULT_PRODUCTS)
+  const [markets, setMarkets] = useState(DEFAULT_MARKETS)
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [cat, setCat] = useState('todos')
   const [mktFilter, setMktFilter] = useState('todos')
-  const [favMarkets, setFavMarkets] = useState(getFavMarkets)
-  const [favProducts, setFavProducts] = useState(getFavProducts)
+  const [favMarkets, setFavMarkets] = useState([])
+  const [favProducts, setFavProducts] = useState([])
   const [listCount, setListCount] = useState(() => Object.values(getList()).reduce((a, b) => a + b, 0))
 
-  function toggleFavProduct(id) {
-    const next = favProducts.includes(id) ? favProducts.filter(f => f !== id) : [...favProducts, id]
-    setFavProducts(next); saveFavProducts(next)
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        setLoading(true)
+        const [prodsData, mktsData, favMktsData, favProdsData] = await Promise.all([
+          produtoService.buscarCatalogoComPrecos(),
+          mercadoService.listar(),
+          favoritoService.listarMercados(),
+          favoritoService.listarProdutos(),
+        ])
+        if (prodsData && prodsData.length > 0) setProducts(prodsData)
+        if (mktsData && mktsData.length > 0) setMarkets(mktsData)
+        if (Array.isArray(favMktsData)) {
+          setFavMarkets(favMktsData.map(f => f.mercadoId || f.id || f))
+        }
+        if (Array.isArray(favProdsData)) {
+          setFavProducts(favProdsData.map(f => f.produtoId || f.id || f))
+        }
+      } catch {
+        // Fallback gracioso mantem dados padrao
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregarDados()
+  }, [])
+
+  async function toggleFavProduct(id) {
+    const isFav = favProducts.includes(id)
+    const next = isFav ? favProducts.filter(f => f !== id) : [...favProducts, id]
+    setFavProducts(next)
+    try {
+      if (isFav) await favoritoService.desfavoritarProduto(id)
+      else await favoritoService.favoritarProduto(id)
+    } catch {
+      // silencioso fallback
+    }
   }
-  function toggleFavMarket(id) {
-    const next = favMarkets.includes(id) ? favMarkets.filter(f => f !== id) : [...favMarkets, id]
-    setFavMarkets(next); saveFavMarkets(next)
+
+  async function toggleFavMarket(id) {
+    const isFav = favMarkets.includes(id)
+    const next = isFav ? favMarkets.filter(f => f !== id) : [...favMarkets, id]
+    setFavMarkets(next)
+    try {
+      if (isFav) await favoritoService.desfavoritarMercado(id)
+      else await favoritoService.favoritarMercado(id)
+    } catch {
+      // silencioso fallback
+    }
   }
+
   function onAdd() {
     setListCount(Object.values(getList()).reduce((a, b) => a + b, 0))
   }
 
-  const filtered = PRODUCTS.filter(p => {
-    if (cat !== 'todos' && p.category !== cat) return false
-    if (mktFilter !== 'todos' && p.prices[mktFilter] === null) return false
-    if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.brand.toLowerCase().includes(search.toLowerCase())) return false
+  const filtered = products.filter(p => {
+    if (cat !== 'todos' && p.category?.toLowerCase() !== cat.toLowerCase() && !p.category?.toLowerCase().includes(cat.toLowerCase())) return false
+    if (mktFilter !== 'todos') {
+      const price = getPriceForMarket(p, { id: mktFilter })
+      if (price === null || price === undefined) return false
+    }
+    if (search && !p.name?.toLowerCase().includes(search.toLowerCase()) && !p.brand?.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
@@ -205,7 +271,9 @@ export default function CatalogPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: '18px', fontWeight: 800, color: C.navy, margin: 0, letterSpacing: '-0.3px' }}>Catálogo de Produtos</h1>
-            <p style={{ fontSize: '11px', color: C.muted, margin: '1px 0 0' }}>Busca no banco SmartMarket · GET /api/produtos</p>
+            <p style={{ fontSize: '11px', color: C.muted, margin: '1px 0 0' }}>
+              {loading ? "Carregando catálogo..." : `SmartMarket API Conectada · ${products.length} itens encontrados`}
+            </p>
           </div>
           <div style={{ position: 'relative', flex: 1, maxWidth: '480px' }}>
             <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}><IconSearch /></div>
@@ -220,58 +288,53 @@ export default function CatalogPage() {
             {listCount > 0 && <span style={{ background: 'rgba(255,255,255,0.25)', borderRadius: '20px', padding: '1px 7px', fontSize: '11px', fontWeight: 800, minWidth: '20px', textAlign: 'center' }}>{listCount}</span>}
           </a>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: C.muted, flexShrink: 0 }}>
+
+        <FavMarketsStrip markets={markets} favs={favMarkets} onToggle={toggleFavMarket} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
+          {CATEGORIES.map(c => {
+            const active = cat === c.id
+            return (
+              <button key={c.id} onClick={() => setCat(c.id)} style={{
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '10px', border: 'none',
+                background: active ? C.navy : C.bg, color: active ? C.white : C.navy,
+                fontSize: '12px', fontWeight: active ? 700 : 500, fontFamily: 'Poppins, sans-serif',
+                cursor: 'pointer', transition: 'all 0.15s', whiteSpace: 'nowrap',
+                outline: active ? 'none' : `1px solid ${C.border}`,
+              }}>
+                <span>{c.icon}</span>
+                <span>{c.label}</span>
+              </button>
+            )
+          })}
+
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             <IconFilter />
-            <span style={{ fontSize: '12px', fontWeight: 600 }}>Filtros:</span>
-          </div>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {CATEGORIES.map(c => (
-              <button key={c.id} onClick={() => setCat(c.id)} style={{ padding: '6px 14px', borderRadius: '20px', border: 'none', fontFamily: 'Poppins, sans-serif', fontSize: '12px', fontWeight: cat === c.id ? 700 : 500, cursor: 'pointer', transition: 'all 0.15s', background: cat === c.id ? C.navy : C.bg, color: cat === c.id ? C.white : C.navy, boxShadow: cat === c.id ? '0 2px 6px rgba(13,33,55,0.20)' : 'none', outline: cat === c.id ? 'none' : `1px solid ${C.border}` }}>
-                {c.icon} {c.label.split(',')[0]}
-              </button>
-            ))}
-          </div>
-          <div style={{ width: '1px', height: '20px', background: C.border }} />
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '11px', color: C.muted, fontWeight: 600 }}>Mercado:</span>
-            <button onClick={() => setMktFilter('todos')} style={{ padding: '6px 12px', borderRadius: '20px', border: 'none', fontFamily: 'Poppins, sans-serif', fontSize: '12px', fontWeight: mktFilter === 'todos' ? 700 : 500, cursor: 'pointer', background: mktFilter === 'todos' ? C.teal : C.bg, color: mktFilter === 'todos' ? C.white : C.navy, outline: mktFilter === 'todos' ? 'none' : `1px solid ${C.border}` }}>Todos</button>
-            {MARKETS.map(m => (
-              <button key={m.id} onClick={() => setMktFilter(mktFilter === m.id ? 'todos' : m.id)} style={{ padding: '6px 12px', borderRadius: '20px', border: 'none', fontFamily: 'Poppins, sans-serif', fontSize: '12px', fontWeight: mktFilter === m.id ? 700 : 500, cursor: 'pointer', transition: 'all 0.15s', background: mktFilter === m.id ? m.color : C.bg, color: mktFilter === m.id ? C.white : C.navy, outline: mktFilter === m.id ? 'none' : `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: mktFilter === m.id ? 'rgba(255,255,255,0.7)' : m.color, display: 'inline-block' }} />
-                {m.name}
-              </button>
-            ))}
+            <select value={mktFilter} onChange={e => setMktFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: '8px', border: `1px solid ${C.border}`, background: C.bg, color: C.navy, fontSize: '12px', fontFamily: 'Poppins, sans-serif', cursor: 'pointer', outline: 'none' }}>
+              <option value="todos">Todos os mercados</option>
+              {markets.map(m => <option key={m.id} value={m.id}>Apenas {m.name}</option>)}
+            </select>
           </div>
         </div>
       </div>
 
-      {/* Body */}
-      <div style={{ padding: '20px 28px', flex: 1 }}>
-        <div style={{ marginBottom: '12px' }}>
-          <FavMarketsStrip favs={favMarkets} onToggle={toggleFavMarket} />
+      <div style={{ flex: 1, padding: '24px 28px', background: C.bg }}>
+        <p style={{ margin: '0 0 16px', fontSize: '12px', color: C.muted }}>
+          Exibindo <strong>{filtered.length}</strong> de {products.length} produtos
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+          {filtered.map(p => (
+            <ProductCard
+              key={p.id}
+              product={p}
+              markets={markets}
+              favMarkets={favMarkets}
+              isFavProduct={favProducts.includes(p.id)}
+              onToggleFavProduct={toggleFavProduct}
+              onAdd={onAdd}
+            />
+          ))}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-          <p style={{ margin: 0, fontSize: '13px', color: C.muted }}>
-            {filtered.length === 0 ? 'Nenhum produto encontrado' : <><strong style={{ color: C.navy }}>{filtered.length}</strong> produto{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}</>}
-          </p>
-          {(search || cat !== 'todos' || mktFilter !== 'todos') && (
-            <button onClick={() => { setSearch(''); setCat('todos'); setMktFilter('todos') }} style={{ background: 'none', border: 'none', color: C.green, fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'Poppins, sans-serif' }}>✕ Limpar filtros</button>
-          )}
-        </div>
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: C.muted }}>
-            <p style={{ fontSize: '40px', margin: '0 0 12px' }}>🔍</p>
-            <p style={{ fontSize: '16px', fontWeight: 700, color: C.navy }}>Nenhum produto encontrado</p>
-            <p style={{ fontSize: '14px', margin: '4px 0 0' }}>Tente outra busca ou remova os filtros</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: '16px' }}>
-            {filtered.map(p => (
-              <ProductCard key={p.id} product={p} favMarkets={favMarkets} isFavProduct={favProducts.includes(p.id)} onToggleFavProduct={toggleFavProduct} onAdd={onAdd} />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   )

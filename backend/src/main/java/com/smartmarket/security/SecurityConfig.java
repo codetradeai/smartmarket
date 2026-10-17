@@ -41,6 +41,8 @@ public class SecurityConfig {
     @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
     private String allowedOrigins;
 
+    private final RateLimitingFilter rateLimitingFilter;
+
     // ---------------------------------------------------------------
     // CORS — permite o frontend Vite chamar a API sem bloqueio
     // ---------------------------------------------------------------
@@ -63,6 +65,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
+            .addFilterBefore(rateLimitingFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth

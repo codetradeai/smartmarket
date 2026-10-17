@@ -50,13 +50,16 @@ function persistList(list) {
  * Realiza o cálculo comparativo em todos os supermercados parceiros
  */
 function calculateMarketComparison(list) {
-  return MARKETS.map((market) => {
+  const activeEntries = Object.entries(list).filter(([, qty]) => qty > 0)
+  const totalListProducts = activeEntries.length
+
+  const results = MARKETS.map((market) => {
     let total = 0
     let availableCount = 0
     const missingItems = []
     const itemBreakdown = []
 
-    Object.entries(list).forEach(([productId, qty]) => {
+    activeEntries.forEach(([productId, qty]) => {
       const product = PRODUCTS.find((p) => p.id === productId)
       if (!product) return
 
@@ -76,15 +79,32 @@ function calculateMarketComparison(list) {
       }
     })
 
+    const isComplete = totalListProducts > 0 && availableCount === totalListProducts
+
     return {
       marketId: market.id,
       market,
       total,
       availableCount,
+      totalListProducts,
       missingItems,
+      isComplete,
       itemBreakdown,
     }
-  }).sort((a, b) => a.total - b.total)
+  })
+
+  // Ordenação inteligente e justa para o consumidor:
+  // 1º Cesta completa (100% dos produtos da lista disponíveis) ordenada pelo MENOR total.
+  // 2º Mercados com itens em falta (cesta parcial), ordenados pela maior disponibilidade e depois menor total.
+  return [...results].sort((a, b) => {
+    if (a.isComplete !== b.isComplete) {
+      return a.isComplete ? -1 : 1
+    }
+    if (a.availableCount !== b.availableCount) {
+      return b.availableCount - a.availableCount
+    }
+    return a.total - b.total
+  })
 }
 
 export default function ShoppingListPage() {
@@ -119,26 +139,31 @@ export default function ShoppingListPage() {
     return calculateMarketComparison(list)
   }, [list, items.length])
 
-  // Vencedor (1º colocado mais barato)
+  // Vencedor (1º colocado mais barato, priorizando cesta completa)
   const winner = comparisonResults[0]
-  const runnerUp = comparisonResults[1]
+  // Segundo colocado estritamente diferente do vencedor
+  const runnerUp = comparisonResults.find((r) => r.marketId !== winner?.marketId)
   const worst = comparisonResults[comparisonResults.length - 1]
 
   // Economia total em relação ao mais caro
-  const maxSavings = worst && winner ? worst.total - winner.total : 0
-  const savingsVsRunnerUp = runnerUp && winner ? runnerUp.total - winner.total : 0
+  const maxSavings =
+    worst && winner && worst.marketId !== winner.marketId ? worst.total - winner.total : 0
+  const savingsVsRunnerUp =
+    runnerUp && winner && runnerUp.marketId !== winner.marketId ? runnerUp.total - winner.total : 0
 
-  /* ── Ações na Lista ─────────────────────────────────────────── */
+  /* ── Ações na Lista com Atualização Funcional Atômica ──────── */
   const updateQuantity = (productId, newQty) => {
-    const updated = { ...list }
-    if (newQty <= 0) {
-      delete updated[productId]
-      showToast("Item removido da lista.")
-    } else {
-      updated[productId] = newQty
-    }
-    setList(updated)
-    persistList(updated)
+    setList((prev) => {
+      const updated = { ...prev }
+      if (newQty <= 0) {
+        delete updated[productId]
+        showToast("Item removido da lista.")
+      } else {
+        updated[productId] = newQty
+      }
+      persistList(updated)
+      return updated
+    })
   }
 
   const handleClearList = () => {
@@ -306,9 +331,12 @@ export default function ShoppingListPage() {
 
           {/* COLUNA DIREITA: PAINEL COMPARATIVO DE PREÇOS (5 colunas no desktop) */}
           <div className="lg:col-span-5 flex flex-col gap-6 sticky top-6">
-            {/* CARD 1: DESTAQUE DO SUPERMERCADO MAIS BARATO (VENCEDOR DO FIGMA) */}
+            {/* CARD 1: DESTAQUE DO SUPERMERCADO MAIS BARATO (VENCEDOR) */}
             {winner && (
-              <div className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-brand-green via-brand-green-hover to-brand-teal text-white shadow-xl shadow-brand-green/20 relative overflow-hidden">
+              <div
+                className="rounded-3xl p-6 sm:p-7 bg-gradient-to-br from-brand-green via-brand-green-hover to-brand-teal text-white shadow-xl shadow-brand-green/20 relative overflow-hidden notranslate"
+                translate="no"
+              >
                 {/* Efeito sutil de brilho */}
                 <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/10 blur-xl pointer-events-none" />
 
@@ -345,9 +373,9 @@ export default function ShoppingListPage() {
                     </div>
                   )}
 
-                  {savingsVsRunnerUp > 0 && maxSavings !== savingsVsRunnerUp && (
-                    <p className="text-[11px] text-emerald-100 mt-2">
-                      R$ {savingsVsRunnerUp.toFixed(2)} mais barato que o 2º colocado ({runnerUp?.market.name}).
+                  {runnerUp && runnerUp.marketId !== winner.marketId && savingsVsRunnerUp > 0 && (
+                    <p className="text-[11px] text-emerald-100 mt-2 font-medium">
+                      R$ {savingsVsRunnerUp.toFixed(2)} mais barato que o 2º colocado ({runnerUp.market.name}).
                     </p>
                   )}
                 </div>
@@ -355,7 +383,7 @@ export default function ShoppingListPage() {
             )}
 
             {/* CARD 2: COMPARATIVO COMPLETO ENTRE TODAS AS REDES */}
-            <Card variant="elevated" className="overflow-hidden">
+            <Card variant="elevated" className="overflow-hidden notranslate" translate="no">
               <div className="p-4 sm:p-5 border-b border-brand-border/60 flex items-center justify-between bg-slate-50/50">
                 <span className="text-xs font-bold text-brand-navy uppercase tracking-wider">
                   Ranking Geral por Supermercado
@@ -390,9 +418,9 @@ export default function ShoppingListPage() {
 
                       {/* Nome e Indicador do Mercado */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className="w-2.5 h-2.5 rounded-full"
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: res.market.color }}
                           />
                           <h4 className="text-sm font-bold text-brand-navy truncate">
@@ -403,11 +431,16 @@ export default function ShoppingListPage() {
                               MAIS BARATO
                             </span>
                           )}
+                          {!res.isComplete && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700">
+                              CESTA PARCIAL
+                            </span>
+                          )}
                         </div>
 
                         {res.missingItems.length > 0 && (
                           <p className="text-[10px] text-brand-error mt-0.5 font-semibold">
-                            ⚠️ {res.missingItems.length} item indisponível nesta loja
+                            ⚠️ {res.missingItems.length} item indisponível nesta loja ({res.missingItems.join(", ")})
                           </p>
                         )}
                       </div>
@@ -424,7 +457,7 @@ export default function ShoppingListPage() {
                         {difference > 0 && (
                           <p className="text-[10px] font-bold text-brand-muted mt-0.5">
                             + R$ {difference.toFixed(2)} (+
-                            {((difference / winner.total) * 100).toFixed(1)}%)
+                            {winner.total > 0 ? ((difference / winner.total) * 100).toFixed(1) : "0"}%)
                           </p>
                         )}
                       </div>
@@ -440,18 +473,20 @@ export default function ShoppingListPage() {
                   onClick={() => setShowItemDetails(!showItemDetails)}
                   className="text-xs text-brand-green font-bold hover:underline"
                 >
-                  {showItemDetails ? "▲ Ocultar detalhes item a item" : "▼ Ver quanto custa cada item por mercado"}
+                  {showItemDetails
+                    ? "▲ Ocultar detalhes item a item"
+                    : "▼ Ver quanto custa cada item por mercado"}
                 </button>
               </div>
 
               {/* Tabela Detalhada Item a Item (Expansível) */}
               {showItemDetails && (
                 <div className="p-4 border-t border-slate-100 bg-white overflow-x-auto animate-in fade-in duration-200">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs notranslate" translate="no">
                     <thead>
                       <tr className="border-b border-slate-200 text-brand-muted text-[10px] uppercase font-bold">
                         <th className="pb-2">Item</th>
-                        <th className="pb-2">Qtd</th>
+                        <th className="pb-2 text-center">Qtd</th>
                         {MARKETS.map((m) => (
                           <th key={m.id} className="pb-2 text-right">
                             {m.name.split(" ")[0]}
@@ -461,23 +496,68 @@ export default function ShoppingListPage() {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {items.map(({ product, qty }) => (
-                        <tr key={product.id}>
-                          <td className="py-2 font-medium text-brand-navy truncate max-w-[120px]">
+                        <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="py-2.5 font-medium text-brand-navy truncate max-w-[130px]">
                             {product.name}
                           </td>
-                          <td className="py-2 text-brand-muted font-bold">{qty}x</td>
+                          <td className="py-2.5 text-center font-bold text-brand-navy">
+                            <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-brand-navy text-[11px] font-bold">
+                              {qty}x
+                            </span>
+                          </td>
                           {MARKETS.map((m) => {
                             const unitPrice = product.prices?.[m.id]
-                            const subtotal = unitPrice ? unitPrice * qty : null
+                            const subtotal =
+                              unitPrice !== null && unitPrice !== undefined
+                                ? unitPrice * qty
+                                : null
                             return (
-                              <td key={m.id} className="py-2 text-right font-semibold">
-                                {subtotal ? `R$ ${subtotal.toFixed(2)}` : "—"}
+                              <td key={m.id} className="py-2.5 text-right font-semibold">
+                                {subtotal !== null ? (
+                                  <div>
+                                    <span className="text-brand-navy block">
+                                      R$ {subtotal.toFixed(2)}
+                                    </span>
+                                    {qty > 1 && (
+                                      <span className="text-[10px] text-brand-muted font-normal block">
+                                        R$ {unitPrice.toFixed(2)} un
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-brand-muted/60">—</span>
+                                )}
                               </td>
                             )
                           })}
                         </tr>
                       ))}
                     </tbody>
+                    <tfoot className="border-t-2 border-slate-200 font-extrabold text-brand-navy bg-slate-50/70">
+                      <tr>
+                        <td className="py-3 font-bold uppercase text-[10px] tracking-wider text-brand-muted">
+                          Total por Loja
+                        </td>
+                        <td className="py-3 text-center text-[11px] text-brand-muted font-bold">
+                          {totalUnits} un
+                        </td>
+                        {MARKETS.map((m) => {
+                          const marketRes = comparisonResults.find((r) => r.marketId === m.id)
+                          const total = marketRes ? marketRes.total : 0
+                          const isWinner = winner && winner.marketId === m.id
+                          return (
+                            <td
+                              key={m.id}
+                              className={`py-3 text-right text-xs ${
+                                isWinner ? "text-brand-green font-black" : "text-brand-navy font-bold"
+                              }`}
+                            >
+                              R$ {total.toFixed(2)}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               )}

@@ -1,0 +1,73 @@
+services:
+  # =========================================================
+  # Banco de Dados Relacional - PostgreSQL 16
+  # =========================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartmarket-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: smartmarket
+      POSTGRES_USER: smartmarket
+      POSTGRES_PASSWORD: smartmarket123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartmarket -d smartmarket"]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+    networks:
+      - smartmarket-network
+
+  # =========================================================
+  # Backend API - Spring Boot 3.4 (Java 17)
+  # =========================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartmarket-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smartmarket
+      SPRING_DATASOURCE_USERNAME: smartmarket
+      SPRING_DATASOURCE_PASSWORD: smartmarket123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SMARTMARKET_CORS_ORIGINS: "http://localhost:3000,http://localhost:80,http://localhost:5173"
+      SMARTMARKET_JWT_SECRET: "AuGDB2cOybnJOZ6CzfSQigrjx6Xpf1OcSSTWd8UPo0UrpMkMa7BKrQ4G50Iy8cwC"
+    ports:
+      - "8080:8080"
+    networks:
+      - smartmarket-network
+
+  # =========================================================
+  # Frontend SPA - React 19 + Vite + Nginx
+  # =========================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: smartmarket-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - smartmarket-network
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  smartmarket-network:
+    driver: bridge

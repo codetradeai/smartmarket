@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
 import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
+import { favoritoService, produtoService, mercadoService } from "../services"
 
 // Helpers de persistência
 function getFavProducts() {
@@ -99,6 +100,26 @@ export default function FavoritesPage() {
   const [activeTab, setActiveTab] = useState("produtos") // 'produtos' | 'mercados' | 'alertas'
   const [toastMessage, setToastMessage] = useState("")
 
+  useEffect(() => {
+    async function carregarFavoritos() {
+      try {
+        const [mkts, prods] = await Promise.all([
+          favoritoService.listarMercados(),
+          favoritoService.listarProdutos(),
+        ])
+        if (Array.isArray(mkts) && mkts.length > 0) {
+          setFavMarketIds(mkts.map(m => m.mercadoId || m.id || m))
+        }
+        if (Array.isArray(prods) && prods.length > 0) {
+          setFavProductIds(prods.map(p => p.produtoId || p.id || p))
+        }
+      } catch {
+        // Fallback local
+      }
+    }
+    carregarFavoritos()
+  }, [])
+
   // Estado do Modal de Alerta de Preço
   const [alertModalOpen, setAlertModalOpen] = useState(false)
   const [selectedProductForAlert, setSelectedProductForAlert] = useState(null)
@@ -109,9 +130,10 @@ export default function FavoritesPage() {
     setTimeout(() => setToastMessage(""), 3000)
   }
 
-  const toggleFavProduct = (id) => {
+  const toggleFavProduct = async (id) => {
+    const isFav = favProductIds.includes(id)
     let updated
-    if (favProductIds.includes(id)) {
+    if (isFav) {
       updated = favProductIds.filter((pId) => pId !== id)
       showToast("Produto removido dos favoritos.")
     } else {
@@ -120,11 +142,19 @@ export default function FavoritesPage() {
     }
     setFavProductIds(updated)
     saveFavProducts(updated)
+
+    try {
+      if (isFav) await favoritoService.desfavoritarProduto(id)
+      else await favoritoService.favoritarProduto(id)
+    } catch {
+      // Fallback gracioso mantem atualizacao local
+    }
   }
 
-  const toggleFavMarket = (id) => {
+  const toggleFavMarket = async (id) => {
+    const isFav = favMarketIds.includes(id)
     let updated
-    if (favMarketIds.includes(id)) {
+    if (isFav) {
       updated = favMarketIds.filter((mId) => mId !== id)
       showToast("Mercado removido dos favoritos.")
     } else {
@@ -133,6 +163,13 @@ export default function FavoritesPage() {
     }
     setFavMarketIds(updated)
     saveFavMarkets(updated)
+
+    try {
+      if (isFav) await favoritoService.desfavoritarMercado(id)
+      else await favoritoService.favoritarMercado(id)
+    } catch {
+      // Fallback gracioso mantem atualizacao local
+    }
   }
 
   const addToList = (productId) => {

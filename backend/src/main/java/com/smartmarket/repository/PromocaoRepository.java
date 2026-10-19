@@ -8,4 +8,7 @@ import java.util.List;
 public interface PromocaoRepository extends JpaRepository<Promocao, Long> {
     List<Promocao> findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(
         LocalDate dataAtual1, LocalDate dataAtual2);
+
+    long countByDataInicioLessThanEqualAndDataFimGreaterThanEqual(
+        LocalDate dataAtual1, LocalDate dataAtual2);
 }

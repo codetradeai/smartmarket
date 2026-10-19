@@ -87,10 +87,17 @@ export function AuthProvider({ children }) {
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
-      const message =
-        error.response?.data?.mensagem ||
-        error.response?.data?.message ||
-        "Falha ao realizar login. Verifique seu e-mail e senha."
+      let message = "Falha ao realizar login. Verifique seu e-mail e senha."
+      if (error.response?.data) {
+        const data = error.response.data
+        if (typeof data.erro === "string") {
+          message = data.erro
+        } else if (data.campos && typeof data.campos === "object") {
+          message = Object.values(data.campos).join(". ")
+        } else if (data.mensagem || data.message) {
+          message = data.mensagem || data.message
+        }
+      }
       return { success: false, error: message }
     } finally {
       setIsLoading(false)
@@ -119,10 +126,17 @@ export function AuthProvider({ children }) {
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
-      const message =
-        error.response?.data?.mensagem ||
-        error.response?.data?.message ||
-        "Falha ao cadastrar. Tente novamente com outro e-mail."
+      let message = "Falha ao cadastrar. Tente novamente com outro e-mail."
+      if (error.response?.data) {
+        const data = error.response.data
+        if (typeof data.erro === "string") {
+          message = data.erro
+        } else if (data.campos && typeof data.campos === "object") {
+          message = Object.values(data.campos).join(". ")
+        } else if (data.mensagem || data.message) {
+          message = data.mensagem || data.message
+        }
+      }
       return { success: false, error: message }
     } finally {
       setIsLoading(false)

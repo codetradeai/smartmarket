@@ -16,8 +16,21 @@ public class ProdutoSpecification {
     }
 
     public static Specification<Produto> withCategoria(String categoria) {
-        return (root, query, cb) ->
-            cb.equal(cb.lower(root.get("categoria")), categoria.trim().toLowerCase());
+        return (root, query, cb) -> {
+            String cat = categoria.trim().toLowerCase();
+            String termo = switch (cat) {
+                case "graos", "grao" -> "grão";
+                case "leites", "leite" -> "leite";
+                case "oleos", "oleo" -> "óleo";
+                case "cafe" -> "café";
+                case "higiene" -> "higiene";
+                default -> cat;
+            };
+            return cb.or(
+                cb.equal(cb.lower(root.get("categoria")), cat),
+                cb.like(cb.lower(root.get("categoria")), "%" + termo + "%")
+            );
+        };
     }
 
     public static String normalizar(String texto) {

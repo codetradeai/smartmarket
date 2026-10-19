@@ -6,7 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "alerta")
+@Table(name = "alerta",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id", "produto_id"}))
 @Getter
 @Setter
 @NoArgsConstructor

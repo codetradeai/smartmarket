@@ -48,6 +48,7 @@ public class ProdutoService {
             .unidade(request.getUnidade())
             .codigoBarras(request.getCodigoBarras())
             .categoria(request.getCategoria())
+            .imagemUrl(request.getImagemUrl())
             .build();
 
         return ProdutoResponse.from(produtoRepository.save(produto));
@@ -64,6 +65,7 @@ public class ProdutoService {
         produto.setUnidade(request.getUnidade());
         produto.setCodigoBarras(request.getCodigoBarras());
         produto.setCategoria(request.getCategoria());
+        produto.setImagemUrl(request.getImagemUrl());
 
         return ProdutoResponse.from(produtoRepository.save(produto));
     }

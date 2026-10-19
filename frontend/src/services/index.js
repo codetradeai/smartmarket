@@ -1,0 +1,7 @@
+export { default as api } from "./api"
+export { default as authService } from "./authService"
+export { default as produtoService } from "./produtoService"
+export { default as mercadoService } from "./mercadoService"
+export { default as listaService } from "./listaService"
+export { default as favoritoService } from "./favoritoService"
+export { default as adminService } from "./adminService"

@@ -63,7 +63,7 @@ class ProdutoControllerIntegrationTest {
                 .categoria("laticinios").build()
         ));
 
-        idArroz = produtos.getFirst().getId();
+        idArroz = produtos.get(0).getId();
 
         tokenUser = obterToken("catalogo-user@email.com", "senha123", "Usuario Catalogo", Papel.USER);
         tokenAdmin = obterToken("catalogo-admin@email.com", "senha123", "Admin Catalogo", Papel.ADMIN);

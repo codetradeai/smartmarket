@@ -34,6 +34,9 @@ public class Produto {
 
     private String categoria;
 
+    @Column(name = "imagem_url")
+    private String imagemUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

@@ -69,9 +69,9 @@ class ProdutoServiceTest {
         Page<ProdutoResponse> resultado = produtoService.buscar(null, null, pageable);
 
         assertThat(resultado.getContent()).hasSize(1);
-        assertThat(resultado.getContent().getFirst().getId()).isEqualTo(1L);
-        assertThat(resultado.getContent().getFirst().getNome()).isEqualTo("Arroz Tio Joao 5kg");
-        assertThat(resultado.getContent().getFirst().getCategoria()).isEqualTo("mercearia");
+        assertThat(resultado.getContent().get(0).getId()).isEqualTo(1L);
+        assertThat(resultado.getContent().get(0).getNome()).isEqualTo("Arroz Tio Joao 5kg");
+        assertThat(resultado.getContent().get(0).getCategoria()).isEqualTo("mercearia");
         verify(produtoRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 

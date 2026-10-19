@@ -1,0 +1,10 @@
+# Auto detect text files and perform LF normalization on checkout
+* text=auto
+
+# Scripts shell e Maven Wrapper devem usar estritamente LF (compatibilidade Linux/CI)
+*mvnw text eol=lf
+*.sh text eol=lf
+
+# Batch scripts para Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf

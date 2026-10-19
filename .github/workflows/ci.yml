@@ -2,7 +2,7 @@ name: SmartMarket CI Pipeline
 
 on:
   push:
-    branches: [ "main", "develop", "feature/*" ]
+    branches: [ "main", "develop", "feature/*", "feature/**" ]
   pull_request:
     branches: [ "main", "develop" ]
 
@@ -24,7 +24,9 @@ jobs:
 
       - name: Grant Execute Permission to Maven Wrapper
         working-directory: ./backend
-        run: chmod +x mvnw
+        run: |
+          sed -i 's/\r$//' mvnw
+          chmod +x mvnw
 
       - name: Run Backend Compilation and Tests
         working-directory: ./backend
@@ -47,7 +49,7 @@ jobs:
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm ci || npm install
+        run: npm ci || npm install --legacy-peer-deps
 
       - name: Run Vitest Unit Tests
         working-directory: ./frontend

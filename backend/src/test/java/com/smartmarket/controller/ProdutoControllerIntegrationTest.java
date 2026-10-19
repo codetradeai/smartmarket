@@ -106,9 +106,10 @@ class ProdutoControllerIntegrationTest {
     }
 
     @Test
-    void listar_SemToken_DeveRetornar401() throws Exception {
+    void listar_SemToken_DeveRetornar200PoisCatalogoEPublico() throws Exception {
         mockMvc.perform(get("/api/produtos"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isArray());
     }
 
     @Test

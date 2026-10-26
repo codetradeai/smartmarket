@@ -44,7 +44,7 @@ class AlertaServiceTest {
         when(autenticado.atual()).thenReturn(usuario(1L));
         when(alertas.findByUsuarioIdAndAtivoTrue(1L)).thenReturn(List.of(alerta(1L)));
         when(menorPreco.menorDisponivel(3L)).thenReturn(Optional.empty());
-        assertThat(service.listarMeus().get(0).getAtingido()).isFalse();
+        assertThat(service.listarMeus().get(0).isAtingido()).isFalse();
     }
 
     @Test void listarMeus_AlertaAtingido() {
@@ -52,7 +52,7 @@ class AlertaServiceTest {
         when(alertas.findByUsuarioIdAndAtivoTrue(1L)).thenReturn(List.of(alerta(1L)));
         var preco = Preco.builder().valor(new BigDecimal("8")).mercado(Mercado.builder().id(4L).nome("Fort").build()).build();
         when(menorPreco.menorDisponivel(3L)).thenReturn(Optional.of(preco));
-        assertThat(service.listarMeus().get(0).getAtingido()).isTrue();
+        assertThat(service.listarMeus().get(0).isAtingido()).isTrue();
     }
 
     @Test void listarMeus_PrecoSuperiorNaoAtingido() {
@@ -60,7 +60,7 @@ class AlertaServiceTest {
         when(alertas.findByUsuarioIdAndAtivoTrue(1L)).thenReturn(List.of(alerta(1L)));
         var preco = Preco.builder().valor(new BigDecimal("12")).mercado(Mercado.builder().id(4L).nome("Fort").build()).build();
         when(menorPreco.menorDisponivel(3L)).thenReturn(Optional.of(preco));
-        assertThat(service.listarMeus().get(0).getAtingido()).isFalse();
+        assertThat(service.listarMeus().get(0).isAtingido()).isFalse();
     }
 
     @Test void salvar_ProdutoInexistente() {

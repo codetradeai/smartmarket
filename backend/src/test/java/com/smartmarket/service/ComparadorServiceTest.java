@@ -166,7 +166,7 @@ class ComparadorServiceTest {
 
         ComparacaoResponse response = comparadorService.comparar(EMAIL, 1L);
 
-        var incompleto = response.getComparacoes().get(resultado.getComparacoes().size() - 1);
+        var incompleto = response.getComparacoes().get(response.getComparacoes().size() - 1);
         assertThat(incompleto.getMercadoNome()).isEqualTo("Carrefour");
         assertThat(incompleto.getCompleto()).isFalse();
         assertThat(incompleto.getItensIndisponiveis()).isEqualTo(1);

@@ -16,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -138,5 +139,116 @@ class ListaCompraServiceTest {
         var request = ItemListaRequest.builder().produtoId(99L).quantidade(1).build();
         assertThatThrownBy(() -> service.adicionarItem(3L, request))
             .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test void listarMinhas_SemListas() {
+        when(usuarioAutenticado.atual()).thenReturn(usuario);
+        when(listaCompraRepository.findByUsuarioId(1L)).thenReturn(List.of());
+        assertThat(service.listarMinhas()).isEmpty();
+    }
+
+    @Test void buscarPorId_Inexistente() {
+        when(listaCompraRepository.findById(3L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.buscarPorId(3L)).isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test void criar_ComItemExistente() {
+        when(usuarioAutenticado.atual()).thenReturn(usuario);
+        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
+        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(inv -> inv.getArgument(0));
+        var r = ListaCompraRequest.builder().nome("Feira")
+            .itens(List.of(ItemListaRequest.builder().produtoId(9L).quantidade(2).build())).build();
+        assertThat(service.criar(r).getItens()).hasSize(1);
+        verify(listaCompraRepository, times(2)).save(any(ListaCompra.class));
+    }
+
+    @Test void criar_ProdutoInexistenteNaoSalvaSegundaVez() {
+        when(usuarioAutenticado.atual()).thenReturn(usuario);
+        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(produtoRepository.findById(9L)).thenReturn(Optional.empty());
+        var r = ListaCompraRequest.builder().nome("Feira")
+            .itens(List.of(ItemListaRequest.builder().produtoId(9L).quantidade(2).build())).build();
+        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(ResourceNotFoundException.class);
+        verify(listaCompraRepository, times(1)).save(any(ListaCompra.class));
+    }
+
+    @Test void adicionarItem_NovoComQuantidadeMinima() {
+        permitirAcesso();
+        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
+        when(listaCompraRepository.save(lista)).thenReturn(lista);
+        var r = ItemListaRequest.builder().produtoId(9L).quantidade(0).build();
+        assertThat(service.adicionarItem(3L, r).getItens()).singleElement()
+            .satisfies(item -> assertThat(item.getQuantidade()).isEqualTo(1));
+    }
+
+    @Test void adicionarItem_AtualizaProdutoJaPresente() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
+        when(listaCompraRepository.save(lista)).thenReturn(lista);
+        var r = ItemListaRequest.builder().produtoId(9L).quantidade(4).build();
+        assertThat(service.adicionarItem(3L, r).getItens()).singleElement()
+            .satisfies(item -> assertThat(item.getQuantidade()).isEqualTo(4));
+    }
+
+    @Test void removerItem_Existente() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        when(listaCompraRepository.save(lista)).thenReturn(lista);
+        assertThat(service.removerItem(3L, 9L).getItens()).isEmpty();
+    }
+
+    @Test void removerItem_InexistenteNaoAlteraItens() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        when(listaCompraRepository.save(lista)).thenReturn(lista);
+        assertThat(service.removerItem(3L, 10L).getItens()).hasSize(1);
+    }
+
+    @Test void compararCesta_SemMercados() {
+        permitirAcesso();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of());
+        assertThat(service.compararCesta(3L).getMercados()).isEmpty();
+    }
+
+    @Test void compararCesta_MercadoSemProdutoMarcaFalta() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
+        when(mercadoRepository.findByAtivoTrue())
+            .thenReturn(List.of(Mercado.builder().id(11L).nome("Fort").ativo(true).build()));
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercados()).singleElement()
+            .satisfies(cesta -> {
+                assertThat(cesta.getTotal()).isEqualByComparingTo(BigDecimal.ZERO);
+                assertThat(cesta.getItensIndisponiveis()).containsExactly("Arroz");
+            });
+    }
+
+    @Test void compararCesta_DoisMercadosCalculaEconomia() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
+        Mercado fort = Mercado.builder().id(11L).nome("Fort").ativo(true).build();
+        Mercado outro = Mercado.builder().id(12L).nome("Outro").ativo(true).build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(outro, fort));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(
+                Preco.builder().produto(produto).mercado(fort).valor(new BigDecimal("5")).build(),
+                Preco.builder().produto(produto).mercado(outro).valor(new BigDecimal("7")).build()));
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercados()).hasSize(2);
+        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("4");
+    }
+
+    @Test void compararCesta_DoisMercadosMesmaOfertaSemEconomia() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        Mercado a = Mercado.builder().id(11L).nome("A").build();
+        Mercado b = Mercado.builder().id(12L).nome("B").build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(a, b));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(
+                Preco.builder().produto(produto).mercado(a).valor(new BigDecimal("5")).build(),
+                Preco.builder().produto(produto).mercado(b).valor(new BigDecimal("5")).build()));
+        assertThat(service.compararCesta(3L).getEconomiaMaxima()).isEqualByComparingTo("0");
     }
 }

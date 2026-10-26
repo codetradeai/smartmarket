@@ -15,8 +15,9 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProdutoNaoEncontradoException.class)
-    public ResponseEntity<Map<String, Object>> produtoNaoEncontrado(ProdutoNaoEncontradoException ex) {
+    @ExceptionHandler({ListaNaoEncontradaException.class, ItemListaNaoEncontradoException.class,
+                       ProdutoNaoEncontradoException.class})
+    public ResponseEntity<Map<String, Object>> naoEncontrado(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("erro", ex.getMessage()));
     }

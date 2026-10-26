@@ -109,6 +109,7 @@ class PrecoServiceTest {
 
     @Test void criar_DisponivelDefaultTrue() {
         PrecoRequest r = mock(PrecoRequest.class);
+        when(r.getDisponivel()).thenReturn(null);
         when(r.getProdutoId()).thenReturn(1L);
         when(r.getMercadoId()).thenReturn(2L);
         when(r.getValor()).thenReturn(new BigDecimal("10"));

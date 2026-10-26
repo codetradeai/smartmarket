@@ -34,11 +34,26 @@ public class ListaCompraController {
         return ResponseEntity.status(201).body(listaCompraService.criar(request));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ListaCompraResponse> renomear(
+            @PathVariable Long id,
+            @Valid @RequestBody ListaCompraRequest request) {
+        return ResponseEntity.ok(listaCompraService.renomear(id, request));
+    }
+
     @PostMapping("/{id}/itens")
     public ResponseEntity<ListaCompraResponse> adicionarItem(
             @PathVariable Long id,
             @Valid @RequestBody ItemListaRequest request) {
         return ResponseEntity.ok(listaCompraService.adicionarItem(id, request));
+    }
+
+    @PutMapping("/{id}/itens/{itemId}")
+    public ResponseEntity<ListaCompraResponse> atualizarItem(
+            @PathVariable Long id,
+            @PathVariable Long itemId,
+            @Valid @RequestBody ItemListaRequest request) {
+        return ResponseEntity.ok(listaCompraService.atualizarItem(id, itemId, request));
     }
 
     @DeleteMapping("/{id}/itens/{produtoId}")

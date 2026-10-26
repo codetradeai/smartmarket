@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -22,6 +23,7 @@ public class ListaCompraService {
     private final ProdutoRepository produtoRepository;
     private final MercadoRepository mercadoRepository;
     private final PrecoRepository precoRepository;
+    private final PromocaoRepository promocaoRepository;
     private final UsuarioAutenticado usuarioAutenticado;
 
     @Transactional(readOnly = true)
@@ -135,9 +137,29 @@ public class ListaCompraService {
     @Transactional(readOnly = true)
     public ComparacaoCestaResponse compararCesta(Long listaId) {
         ListaCompra lista = buscarEValidarProprietario(listaId);
+        if (lista.getItens().isEmpty()) {
+            return ComparacaoCestaResponse.builder()
+                .listaId(lista.getId())
+                .nomeLista(lista.getNome())
+                .totalItensDistintos(0)
+                .mercados(List.of())
+                .mercadoMaisBarato(null)
+                .economiaMaxima(BigDecimal.ZERO)
+                .build();
+        }
         List<Mercado> mercados = mercadoRepository.findByAtivoTrue();
 
         Map<Long, Map<Long, BigDecimal>> ultimosPrecos = buscarUltimosPrecosPorProduto();
+        List<Long> produtoIds = lista.getItens().stream()
+            .map(item -> item.getProduto().getId()).distinct().toList();
+        LocalDate hoje = LocalDate.now();
+        Map<Long, Map<Long, BigDecimal>> promocoesAtivas = new HashMap<>();
+        for (Promocao promocao : promocaoRepository
+            .findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(produtoIds, hoje, hoje)) {
+            promocoesAtivas
+                .computeIfAbsent(promocao.getProduto().getId(), id -> new HashMap<>())
+                .merge(promocao.getMercado().getId(), promocao.getValorPromocional(), BigDecimal::min);
+        }
 
         List<CestaMercadoResponse> cestasMercado = new ArrayList<>();
 
@@ -152,6 +174,12 @@ public class ListaCompraService {
                 BigDecimal preco = precosPorMercado.get(mercado.getId());
 
                 if (preco != null) {
+                    BigDecimal promocional = promocoesAtivas
+                        .getOrDefault(pid, Map.of()).get(mercado.getId());
+                    if (promocional != null && promocional.compareTo(BigDecimal.ZERO) >= 0
+                        && promocional.compareTo(preco) <= 0) {
+                        preco = promocional;
+                    }
                     BigDecimal subtotal = preco.multiply(BigDecimal.valueOf(item.getQuantidade()));
                     totalCesta = totalCesta.add(subtotal);
                     disponiveis++;
@@ -171,14 +199,21 @@ public class ListaCompraService {
                 .build());
         }
 
-        // Ordenar mercados do menor para o maior preco total
-        cestasMercado.sort(Comparator.comparing(CestaMercadoResponse::getTotal));
+        // Mercados completos primeiro; um total parcial nao representa o preco da cesta inteira.
+        cestasMercado.sort(Comparator
+            .comparing((CestaMercadoResponse cesta) ->
+                cesta.getItensDisponiveis() == cesta.getTotalItensSolicitados()).reversed()
+            .thenComparing(CestaMercadoResponse::getTotal)
+            .thenComparing(CestaMercadoResponse::getMercadoId));
 
-        CestaMercadoResponse maisBarato = cestasMercado.isEmpty() ? null : cestasMercado.get(0);
+        List<CestaMercadoResponse> completos = cestasMercado.stream()
+            .filter(cesta -> cesta.getItensDisponiveis() == cesta.getTotalItensSolicitados())
+            .toList();
+        CestaMercadoResponse maisBarato = completos.isEmpty() ? null : completos.get(0);
         BigDecimal economia = BigDecimal.ZERO;
 
-        if (cestasMercado.size() >= 2 && maisBarato != null) {
-            CestaMercadoResponse maisCaro = cestasMercado.get(cestasMercado.size() - 1);
+        if (completos.size() >= 2) {
+            CestaMercadoResponse maisCaro = completos.get(completos.size() - 1);
             if (maisCaro.getTotal().compareTo(maisBarato.getTotal()) > 0) {
                 economia = maisCaro.getTotal().subtract(maisBarato.getTotal());
             }

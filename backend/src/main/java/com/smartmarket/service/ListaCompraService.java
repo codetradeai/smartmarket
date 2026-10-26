@@ -71,6 +71,26 @@ public class ListaCompraService {
     }
 
     @Transactional
+    public ListaCompraResponse renomear(Long listaId, ListaCompraRequest request) {
+        ListaCompra lista = buscarEValidarProprietario(listaId);
+        lista.setNome(request.getNome().trim());
+        return montarResponse(listaCompraRepository.save(lista));
+    }
+
+    @Transactional
+    public ListaCompraResponse atualizarItem(Long listaId, Long itemId, ItemListaRequest request) {
+        ListaCompra lista = buscarEValidarProprietario(listaId);
+        ItemLista item = itemListaRepository.findByIdAndListaCompraId(itemId, listaId)
+            .orElseThrow(() -> new ResourceNotFoundException("Item da lista", itemId));
+        if (!item.getProduto().getId().equals(request.getProdutoId())) {
+            throw new IllegalArgumentException("O produto de um item existente nao pode ser alterado");
+        }
+        item.setQuantidade(request.getQuantidade());
+        itemListaRepository.save(item);
+        return montarResponse(lista);
+    }
+
+    @Transactional
     public ListaCompraResponse adicionarItem(Long listaId, ItemListaRequest request) {
         ListaCompra lista = buscarEValidarProprietario(listaId);
 

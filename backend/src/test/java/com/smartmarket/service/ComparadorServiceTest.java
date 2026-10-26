@@ -129,7 +129,7 @@ class ComparadorServiceTest {
 
         ComparacaoResponse response = comparadorService.comparar(EMAIL, 1L);
 
-        assertThat(response.getComparacoes().getFirst().getValorTotal()).isEqualByComparingTo("8.00");
+        assertThat(response.getComparacoes().get(0).getValorTotal()).isEqualByComparingTo("8.00");
     }
 
     @Test
@@ -147,7 +147,7 @@ class ComparadorServiceTest {
 
         ComparacaoResponse response = comparadorService.comparar(EMAIL, 1L);
 
-        assertThat(response.getComparacoes().getFirst().getValorTotal()).isEqualByComparingTo("9.00");
+        assertThat(response.getComparacoes().get(0).getValorTotal()).isEqualByComparingTo("9.00");
     }
 
     @Test
@@ -166,7 +166,7 @@ class ComparadorServiceTest {
 
         ComparacaoResponse response = comparadorService.comparar(EMAIL, 1L);
 
-        var incompleto = response.getComparacoes().getLast();
+        var incompleto = response.getComparacoes().get(resultado.getComparacoes().size() - 1);
         assertThat(incompleto.getMercadoNome()).isEqualTo("Carrefour");
         assertThat(incompleto.getCompleto()).isFalse();
         assertThat(incompleto.getItensIndisponiveis()).isEqualTo(1);

@@ -29,6 +29,7 @@ class ListaCompraServiceTest {
     @Mock ProdutoRepository produtoRepository;
     @Mock MercadoRepository mercadoRepository;
     @Mock PrecoRepository precoRepository;
+    @Mock PromocaoRepository promocaoRepository;
     @Mock UsuarioAutenticado usuarioAutenticado;
     @InjectMocks ListaCompraService service;
 
@@ -207,6 +208,7 @@ class ListaCompraServiceTest {
 
     @Test void compararCesta_SemMercados() {
         permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
         when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of());
         assertThat(service.compararCesta(3L).getMercados()).isEmpty();
     }
@@ -250,5 +252,81 @@ class ListaCompraServiceTest {
                 Preco.builder().produto(produto).mercado(a).valor(new BigDecimal("5")).build(),
                 Preco.builder().produto(produto).mercado(b).valor(new BigDecimal("5")).build()));
         assertThat(service.compararCesta(3L).getEconomiaMaxima()).isEqualByComparingTo("0");
+    }
+
+    @Test void compararCesta_ListaVaziaNaoComparaMercados() {
+        permitirAcesso();
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercados()).isEmpty();
+        assertThat(resposta.getMercadoMaisBarato()).isNull();
+        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
+        verifyNoInteractions(mercadoRepository, promocaoRepository);
+    }
+
+    @Test void compararCesta_MercadoIncompletoNaoVenceMercadoCompleto() {
+        permitirAcesso();
+        Produto segundo = Produto.builder().id(10L).nome("Feijao").build();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        lista.getItens().add(ItemLista.builder().produto(segundo).quantidade(1).build());
+        Mercado completo = Mercado.builder().id(11L).nome("Completo").build();
+        Mercado parcial = Mercado.builder().id(12L).nome("Parcial").build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(parcial, completo));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(
+                Preco.builder().produto(produto).mercado(completo).valor(new BigDecimal("10")).build(),
+                Preco.builder().produto(segundo).mercado(completo).valor(new BigDecimal("10")).build(),
+                Preco.builder().produto(produto).mercado(parcial).valor(new BigDecimal("1")).build()));
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercadoMaisBarato().getMercadoId()).isEqualTo(11L);
+        assertThat(resposta.getMercados()).extracting(c -> c.getMercadoId()).containsExactly(11L, 12L);
+        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
+    }
+
+    @Test void compararCesta_NenhumMercadoCompletoNaoElegeVencedor() {
+        permitirAcesso();
+        Produto segundo = Produto.builder().id(10L).nome("Feijao").build();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        lista.getItens().add(ItemLista.builder().produto(segundo).quantidade(1).build());
+        Mercado mercado = Mercado.builder().id(11L).nome("Parcial").build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
+                .valor(new BigDecimal("3")).build()));
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercadoMaisBarato()).isNull();
+        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
+        assertThat(resposta.getMercados()).hasSize(1);
+    }
+
+    @Test void compararCesta_PromocaoAtivaReduzCesta() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
+        Mercado mercado = Mercado.builder().id(11L).nome("Fort").build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
+                .valor(new BigDecimal("10")).build()));
+        when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
+            eq(List.of(9L)), any(), any()))
+            .thenReturn(List.of(Promocao.builder().produto(produto).mercado(mercado)
+                .valorPromocional(new BigDecimal("7")).build()));
+        var resposta = service.compararCesta(3L);
+        assertThat(resposta.getMercadoMaisBarato().getTotal()).isEqualByComparingTo("14");
+    }
+
+    @Test void compararCesta_PromocaoInvalidaNaoAumentaPreco() {
+        permitirAcesso();
+        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
+        Mercado mercado = Mercado.builder().id(11L).nome("Fort").build();
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
+        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
+                .valor(new BigDecimal("10")).build()));
+        when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
+            eq(List.of(9L)), any(), any()))
+            .thenReturn(List.of(Promocao.builder().produto(produto).mercado(mercado)
+                .valorPromocional(new BigDecimal("12")).build()));
+        assertThat(service.compararCesta(3L).getMercadoMaisBarato().getTotal())
+            .isEqualByComparingTo("10");
     }
 }

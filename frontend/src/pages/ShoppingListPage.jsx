@@ -5,6 +5,18 @@ import {
 } from "../data";
 import { produtoService, mercadoService } from "../services";
 
+const C = {
+  navy: "#0D2137",
+  green: "#22A95E",
+  teal: "#1DB4A3",
+  greenDark: "#17864A",
+  bg: "#F4FAF7",
+  muted: "#6B8A7A",
+  border: "#D4E8DC",
+  white: "#FFFFFF",
+  error: "#D63B3B",
+};
+
 // Cesta sugerida inicial para que a página nunca abra vazia em testes de primeira viagem
 const INITIAL_DEMO_LIST = {
   p1: 2, // 2x Arroz Branco Tio João 5kg
@@ -139,14 +151,6 @@ export default function ShoppingListPage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full font-sans">
-      {/* Toast Notifier */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-brand-navy text-white px-5 py-3 rounded-2xl shadow-xl border border-brand-green/40 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <span className="w-2.5 h-2.5 rounded-full bg-brand-green animate-pulse" />
-          <span className="text-sm font-semibold">{toastMessage}</span>
-        </div>
-      )}
-
       {/* Header Principal da Página */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -155,7 +159,7 @@ export default function ShoppingListPage() {
               Minha Lista de Compras
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-brand-green">
-              {items.length} produtos · {totalUnits} unidades
+              {items.length} produtos · {totalItems} unidades
             </span>
           </div>
           <p className="text-sm text-brand-muted mt-1">

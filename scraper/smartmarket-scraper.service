@@ -1,0 +1,17 @@
+[Unit]
+Description=SmartMarket - Serviço de Coleta Diária de Preços (RS)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/smartmarket
+ExecStart=/usr/bin/python3 /opt/smartmarket/scraper/agendador_servico.py
+Restart=always
+RestartSec=30
+Environment=PYTHONUNBUFFERED=1
+Environment=HORA_COLETA_DIARIA=4
+Environment=MINUTO_COLETA_DIARIA=0
+
+[Install]
+WantedBy=multi-user.target

@@ -37,6 +37,9 @@ public class Produto {
     @Column(name = "imagem_url")
     private String imagemUrl;
 
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

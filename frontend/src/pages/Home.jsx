@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import {
   Button,
   Input,
@@ -15,75 +16,48 @@ import {
   ModalBody,
   ModalFooter,
   Navbar,
+  ProductImage,
+  ProductDetailModal,
 } from "../components/ui"
+import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
 
 export function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [loadingButton, setLoadingButton] = useState(false)
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("todos")
   const [cartItemsCount, setCartItemsCount] = useState(3)
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null)
+  const [alertTargetPrice, setAlertTargetPrice] = useState("")
 
-  // Produtos de demonstração integrando Fort Atacadista e Carrefour Mercado
-  const demoProducts = [
-    {
-      id: 1,
-      nome: "Arroz Branco Tipo 1 5kg",
-      marca: "Camil",
-      categoria: "graos",
-      unidade: "5kg",
-      fortPrice: 26.90,
-      carrefourPrice: 28.50,
-      melhorMercado: "Fort Atacadista",
-      economia: 1.60,
-    },
-    {
-      id: 2,
-      nome: "Feijão Preto Tipo 1 1kg",
-      marca: "Kicaldo",
-      categoria: "graos",
-      unidade: "1kg",
-      fortPrice: 8.79,
-      carrefourPrice: 7.99,
-      melhorMercado: "Carrefour",
-      economia: 0.80,
-    },
-    {
-      id: 3,
-      nome: "Leite UHT Integral 1L",
-      marca: "Piracanjuba",
-      categoria: "laticinios",
-      unidade: "1L",
-      fortPrice: 4.89,
-      carrefourPrice: 4.89,
-      melhorMercado: "Empate",
-      economia: 0.00,
-    },
-    {
-      id: 4,
-      nome: "Café Torrado e Moído 500g",
-      marca: "Pilão",
-      categoria: "mercearia",
-      unidade: "500g",
-      fortPrice: 19.98,
-      carrefourPrice: 21.49,
-      melhorMercado: "Fort Atacadista",
-      economia: 1.51,
-    },
-  ]
-
-  const filteredProducts = demoProducts.filter((p) => {
+  // Filtra produtos reais do catálogo
+  const filteredProducts = PRODUCTS.filter((p) => {
     const matchesSearch =
-      p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.marca.toLowerCase().includes(searchTerm.toLowerCase())
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.brand.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory =
-      selectedCategory === "todos" || p.categoria === selectedCategory
+      selectedCategory === "todos" || p.category === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const triggerLoading = () => {
-    setLoadingButton(true)
-    setTimeout(() => setLoadingButton(false), 2000)
+  // Obtém melhor preço e economia de um produto entre todos os mercados do RS
+  const getProductInsights = (produto) => {
+    const prices = produto.prices || {}
+    const validEntries = Object.entries(prices).filter(([, val]) => typeof val === "number" && val > 0)
+    if (validEntries.length === 0) return null
+
+    const sorted = [...validEntries].sort((a, b) => a[1] - b[1])
+    const [bestMarketKey, bestPrice] = sorted[0]
+    const highestPrice = sorted[sorted.length - 1][1]
+    const economia = highestPrice - bestPrice
+    const marketObj = MARKETS.find((m) => m.id === bestMarketKey)
+
+    return {
+      bestMarketName: marketObj?.name || bestMarketKey,
+      bestPrice,
+      highestPrice,
+      economia,
+      totalMarkets: validEntries.length,
+    }
   }
 
   return (
@@ -95,268 +69,247 @@ export function Home() {
         user={{ name: "Davi Cardozo", email: "davi@smartmarket.com.br" }}
       />
 
-      {/* 2. HERO / APRESENTAÇÃO DO DESIGN SYSTEM */}
-      <section className="bg-gradient-to-b from-white via-white to-brand-bg border-b border-brand-border/60 py-16 px-4 sm:px-6 lg:px-8">
+      {/* 2. HERO / APRESENTAÇÃO */}
+      <section className="bg-gradient-to-b from-white via-white to-brand-bg border-b border-brand-border/60 py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-green-light border border-brand-green/30 text-brand-green text-xs font-bold tracking-wide uppercase">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-green-light border border-brand-green/30 text-brand-green text-xs font-bold tracking-wide uppercase shadow-xs">
             <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse" />
-            Design System & Tailwind CSS v4 Concluído
+            Cobertura Rio Grande do Sul: 8 Maiores Redes Ativas
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-brand-navy leading-tight">
-            Economize no mercado com{" "}
+            Compare preços no RS com{" "}
             <span className="bg-gradient-to-r from-brand-emerald to-brand-teal bg-clip-text text-transparent">
-              inteligência e agilidade
+              precisão e economia real
             </span>
           </h1>
 
           <p className="text-base sm:text-lg text-brand-muted max-w-2xl mx-auto leading-relaxed">
-            Componentes UI profissionais construídos com base no design oficial do Figma,
-            garantindo consistência visual, máxima performance e acessibilidade.
+            Monitoramento diário com fotos em alta definição, especificações técnicas completas
+            e inteligência para você economizar até 32% nas suas compras de supermercado.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={() => {
-                setIsModalOpen(true)
-              }}
-            >
-              Testar Modal de Comparação
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={triggerLoading}
-              isLoading={loadingButton}
-            >
-              Testar Estado Loading
-            </Button>
+            <Link to="/catalog">
+              <Button variant="primary" size="lg">
+                Explorar Catálogo Completo
+              </Button>
+            </Link>
+            <Link to="/list">
+              <Button variant="outline" size="lg">
+                Montar Lista Inteligente
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 3. SHOWCASE DOS COMPONENTES BASE */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-16">
-        {/* SEÇÃO A: PALETA DE CORES OFICIAIS */}
-        <section className="space-y-4">
-          <div className="border-b border-brand-border/60 pb-3">
-            <h2 className="text-xl font-bold tracking-tight text-brand-navy">
-              1. Cores e Tokens do Tema (Figma)
+      {/* 3. SHOWCASE DAS 8 REDES DO RIO GRANDE DO SUL */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 w-full">
+        <div className="flex items-center justify-between mb-4 border-b border-brand-border/60 pb-3">
+          <div>
+            <h2 className="text-lg font-extrabold tracking-tight text-brand-navy">
+              Redes de Supermercados & Atacados Integradas no RS
             </h2>
             <p className="text-xs text-brand-muted">
-              Cores semânticas configuradas no Tailwind CSS v4 para manter a identidade da marca.
+              Preços raspados e atualizados diretamente dos canais oficiais no Rio Grande do Sul.
             </p>
           </div>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-brand-green border border-emerald-200">
+            8 Redes Online
+          </span>
+        </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            <div className="p-3.5 rounded-2xl bg-brand-navy text-white flex flex-col justify-between h-28 shadow-sm">
-              <span className="text-xs font-bold">Navy (Principal)</span>
-              <span className="text-[11px] opacity-80 font-mono">#0D2137</span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-brand-green text-white flex flex-col justify-between h-28 shadow-sm">
-              <span className="text-xs font-bold">Green (Economia)</span>
-              <span className="text-[11px] opacity-80 font-mono">#22A95E</span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-brand-teal text-white flex flex-col justify-between h-28 shadow-sm">
-              <span className="text-xs font-bold">Teal (Modern)</span>
-              <span className="text-[11px] opacity-80 font-mono">#1DB4A3</span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-brand-green-light border border-brand-green/30 text-brand-green flex flex-col justify-between h-28">
-              <span className="text-xs font-bold">Green Light</span>
-              <span className="text-[11px] opacity-80 font-mono">#E8F8F0</span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-white border border-brand-border text-brand-navy flex flex-col justify-between h-28 shadow-xs">
-              <span className="text-xs font-bold">Border / Card</span>
-              <span className="text-[11px] text-brand-muted font-mono">#D4E8DC</span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-brand-coral text-white flex flex-col justify-between h-28 shadow-sm">
-              <span className="text-xs font-bold">Coral (Alerta/Promo)</span>
-              <span className="text-[11px] opacity-80 font-mono">#FF6B4A</span>
-            </div>
-          </div>
-        </section>
-
-        {/* SEÇÃO B: BUTTONS REUTILIZÁVEIS */}
-        <section className="space-y-4">
-          <div className="border-b border-brand-border/60 pb-3">
-            <h2 className="text-xl font-bold tracking-tight text-brand-navy">
-              2. Componente Button e Variantes
-            </h2>
-            <p className="text-xs text-brand-muted">
-              Variações com transições suaves, múltiplos tamanhos, suporte a ícones e estados de acessibilidade.
-            </p>
-          </div>
-
-          <div className="p-6 bg-white border border-brand-border/80 rounded-2xl space-y-6">
-            <div>
-              <span className="text-xs font-bold text-brand-muted uppercase tracking-wider block mb-3">
-                Variantes de Cor
-              </span>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button variant="primary">Primary (Green)</Button>
-                <Button variant="secondary">Secondary (Navy)</Button>
-                <Button variant="teal">Teal</Button>
-                <Button variant="outline">Outline</Button>
-                <Button variant="subtle">Subtle</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button variant="danger">Danger</Button>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+          {MARKETS.map((m) => (
+            <div
+              key={m.id}
+              className="p-3 rounded-2xl bg-white border border-brand-border/80 shadow-xs hover:shadow-md transition-all flex flex-col items-center text-center group"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-xs font-black shadow-xs mb-2 transition-transform group-hover:scale-105"
+                style={{ backgroundColor: m.color || "#0D2137" }}
+              >
+                {m.name.substring(0, 2).toUpperCase()}
               </div>
-            </div>
-
-            <div className="border-t border-slate-100 pt-4">
-              <span className="text-xs font-bold text-brand-muted uppercase tracking-wider block mb-3">
-                Tamanhos
+              <span className="text-xs font-bold text-brand-navy line-clamp-1">
+                {m.name}
               </span>
-              <div className="flex flex-wrap items-center gap-3">
-                <Button size="sm">Pequeno (sm)</Button>
-                <Button size="md">Médio (md - padrão)</Button>
-                <Button size="lg">Grande (lg)</Button>
-                <Button size="icon" aria-label="Favorito">
-                  <svg className="w-5 h-5 text-amber-500 fill-amber-500" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                </Button>
-              </div>
+              <span className="text-[10px] text-brand-muted line-clamp-1 mt-0.5">
+                {m.city || "RS"}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-brand-green mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
+                Ativo
+              </span>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        {/* SEÇÃO C: INPUTS REUTILIZÁVEIS */}
-        <section className="space-y-4">
-          <div className="border-b border-brand-border/60 pb-3">
-            <h2 className="text-xl font-bold tracking-tight text-brand-navy">
-              3. Componente Input
-            </h2>
-            <p className="text-xs text-brand-muted">
-              Inputs flexíveis com rótulos, ícones internos, limpeza rápida e tratamento de erros.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-white border border-brand-border/80 rounded-2xl">
-            <Input
-              label="Nome do Produto"
-              placeholder="Ex: Arroz Integral 1kg"
-              helperText="Digite para filtrar o catálogo"
-            />
-            <Input
-              label="Busca Especializada"
-              isSearch
-              placeholder="Pesquisar por categoria..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onClear={() => setSearchTerm("")}
-            />
-            <Input
-              label="Validação com Erro"
-              placeholder="Digite um e-mail..."
-              defaultValue="email-invalido@"
-              error="Informe um e-mail válido para receber alertas"
-            />
-          </div>
-        </section>
-
-        {/* SEÇÃO D: CARDS E CATÁLOGO DE COMPARAÇÃO */}
+      {/* 4. SHOWCASE DO CATÁLOGO DE PRODUTOS */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 space-y-12 w-full">
         <section className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border/60 pb-3">
             <div>
               <h2 className="text-xl font-bold tracking-tight text-brand-navy">
-                4. Componente Card (Catálogo & Comparador de Preços)
+                Ofertas & Comparador em Destaque
               </h2>
               <p className="text-xs text-brand-muted">
-                Comparação ao vivo entre Fort Atacadista e Carrefour Mercado.
+                Clique em qualquer produto para abrir a ficha técnica detalhada e o comparativo entre todas as redes.
               </p>
             </div>
 
             {/* Filtro de Categorias */}
-            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-brand-border">
-              {["todos", "graos", "laticinios", "mercearia"].map((cat) => (
+            <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-brand-border overflow-x-auto max-w-full">
+              <button
+                type="button"
+                onClick={() => setSelectedCategory("todos")}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg capitalize transition-colors whitespace-nowrap ${
+                  selectedCategory === "todos"
+                    ? "bg-brand-green text-white"
+                    : "text-brand-muted hover:text-brand-navy"
+                }`}
+              >
+                Todos
+              </button>
+              {CATEGORIES.slice(0, 5).map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1 text-xs font-semibold rounded-lg capitalize transition-colors ${
-                    selectedCategory === cat
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg capitalize transition-colors whitespace-nowrap ${
+                    selectedCategory === cat.id
                       ? "bg-brand-green text-white"
                       : "text-brand-muted hover:text-brand-navy"
                   }`}
                 >
-                  {cat}
+                  {cat.label.split(",")[0]}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((produto) => (
-              <Card key={produto.id} variant="interactive" className="flex flex-col justify-between">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[11px] font-bold text-brand-green bg-brand-green-light px-2 py-0.5 rounded-full uppercase">
-                      {produto.categoria}
-                    </span>
-                    <span className="text-xs text-brand-muted font-medium">
-                      {produto.unidade}
-                    </span>
-                  </div>
-                  <CardTitle className="text-base mt-1">{produto.nome}</CardTitle>
-                  <CardDescription>Marca: {produto.marca}</CardDescription>
-                </CardHeader>
+            {filteredProducts.map((produto) => {
+              const insights = getProductInsights(produto)
 
-                <CardContent className="space-y-2.5">
-                  {/* Linha Fort Atacadista */}
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                    <span className="font-medium text-slate-700">Fort Atacadista</span>
-                    <span className="font-bold text-brand-navy">
-                      R$ {produto.fortPrice.toFixed(2)}
-                    </span>
-                  </div>
-
-                  {/* Linha Carrefour Mercado */}
-                  <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                    <span className="font-medium text-slate-700">Carrefour</span>
-                    <span className="font-bold text-brand-navy">
-                      R$ {produto.carrefourPrice.toFixed(2)}
-                    </span>
-                  </div>
-
-                  {/* Vantagem de Economia */}
-                  {produto.economia > 0 && (
-                    <div className="text-[11px] font-bold text-brand-green flex items-center justify-between pt-1">
-                      <span>Mais barato no {produto.melhorMercado}</span>
-                      <span>-R$ {produto.economia.toFixed(2)}</span>
+              return (
+                <Card
+                  key={produto.id}
+                  variant="interactive"
+                  className="flex flex-col justify-between group overflow-hidden cursor-pointer"
+                  onClick={() => setSelectedProductDetail(produto)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="relative w-full h-44 bg-slate-50 rounded-xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center">
+                      <ProductImage
+                        src={produto.imageUrl || produto.image}
+                        alt={produto.name}
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {produto.promo && (
+                        <span className="absolute top-2 left-2 bg-brand-coral text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+                          Oferta
+                        </span>
+                      )}
+                      <span className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200">
+                        {produto.unit}
+                      </span>
                     </div>
-                  )}
-                </CardContent>
 
-                <CardFooter>
-                  <Button
-                    variant="subtle"
-                    size="sm"
-                    className="w-full text-xs"
-                    onClick={() => {
-                      setCartItemsCount((prev) => prev + 1)
-                    }}
-                  >
-                    + Adicionar à Lista
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-[11px] font-bold text-brand-green bg-brand-green-light px-2 py-0.5 rounded-full uppercase">
+                        {produto.category}
+                      </span>
+                      <span className="text-xs text-brand-muted font-medium">
+                        {produto.brand}
+                      </span>
+                    </div>
+                    <CardTitle className="text-sm mt-1.5 line-clamp-2 leading-snug">
+                      {produto.name}
+                    </CardTitle>
+                    {produto.descricao && (
+                      <CardDescription className="line-clamp-2 text-[11px] mt-1">
+                        {produto.descricao}
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+
+                  <CardContent className="space-y-2 py-2">
+                    {insights ? (
+                      <>
+                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-xs">
+                          <div>
+                            <span className="block text-[10px] font-medium text-emerald-800">
+                              Melhor Preço ({insights.bestMarketName})
+                            </span>
+                            <span className="text-base font-extrabold text-brand-green">
+                              R$ {insights.bestPrice.toFixed(2)}
+                            </span>
+                          </div>
+                          {insights.economia > 0 && (
+                            <span className="text-[10px] font-extrabold text-white bg-brand-green px-2 py-1 rounded-lg">
+                              -R$ {insights.economia.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
+                          <span>Comparado em {insights.totalMarkets} mercados</span>
+                          <span className="text-brand-navy font-bold hover:underline">
+                            Ver todos &rarr;
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="p-2 text-center text-xs text-brand-muted bg-slate-50 rounded-xl">
+                        Consultando preços...
+                      </div>
+                    )}
+                  </CardContent>
+
+                  <CardFooter className="pt-2">
+                    <Button
+                      variant="subtle"
+                      size="sm"
+                      className="w-full text-xs"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setCartItemsCount((prev) => prev + 1)
+                      }}
+                    >
+                      + Adicionar à Lista
+                    </Button>
+                  </CardFooter>
+                </Card>
+              )
+            })}
           </div>
         </section>
       </main>
 
-      {/* 4. MODAL DEMONSTRATIVO */}
+      {/* 5. MODAL DE ESPECIFICAÇÕES E COMPARATIVO COMPLETO DO PRODUTO */}
+      <ProductDetailModal
+        product={selectedProductDetail}
+        isOpen={Boolean(selectedProductDetail)}
+        onClose={() => setSelectedProductDetail(null)}
+        markets={MARKETS}
+        onAddToList={(prod) => {
+          setCartItemsCount((prev) => prev + 1)
+        }}
+      />
+
+      {/* 6. MODAL DEMONSTRATIVO DE ALERTA */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
         size="md"
       >
         <ModalHeader>
-          <ModalTitle>Comparação Detalhada de Preço</ModalTitle>
+          <ModalTitle>Criar Alerta de Preço</ModalTitle>
           <ModalDescription>
-            Visualização de histórico de ofertas coletadas automaticamente pelo scraper.
+            Receba notificações quando o produto atingir o valor desejado em qualquer rede do RS.
           </ModalDescription>
         </ModalHeader>
 
@@ -364,40 +317,38 @@ export function Home() {
           <div className="p-4 rounded-2xl bg-brand-green-light/40 border border-brand-green/20">
             <h4 className="text-sm font-bold text-brand-green">Dica de Economia do SmartMarket</h4>
             <p className="text-xs text-brand-navy mt-1 leading-relaxed">
-              Comprando os itens na loja recomendada, sua lista de compras desta semana fica até
-              <strong> 14% mais barata</strong>.
+              O robô de inteligência de preços verifica os encartes e catálogos diariamente.
             </p>
           </div>
 
           <div className="space-y-2">
-            <Input label="Definir alerta de preço (R$)" placeholder="Ex: 24.90" />
-            <span className="text-[11px] text-brand-muted">
-              Você receberá uma notificação quando o produto atingir este valor.
-            </span>
+            <Input
+              label="Preço Alvo Desejado (R$)"
+              placeholder="Ex: 24.90"
+              value={alertTargetPrice}
+              onChange={(e) => setAlertTargetPrice(e.target.value)}
+            />
           </div>
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
+          <Button variant="outline" size="sm" onClick={() => setIsAlertModalOpen(false)}>
             Cancelar
           </Button>
           <Button
             variant="primary"
             size="sm"
-            onClick={() => {
-              setIsModalOpen(false)
-            }}
+            onClick={() => setIsAlertModalOpen(false)}
           >
             Salvar Alerta
           </Button>
         </ModalFooter>
       </Modal>
 
-      {/* 5. FOOTER */}
+      {/* 7. FOOTER */}
       <footer className="bg-white border-t border-brand-border py-8 px-4 text-center text-xs text-brand-muted">
         <p className="max-w-md mx-auto">
-          SmartMarket &copy; 2026 — Grupo 40 Dev Full Stack. Design System e Componentes UI
-          reutilizáveis desenvolvidos com Tailwind CSS v4 e React 19.
+          SmartMarket &copy; 2026 — Grupo 40 Dev Full Stack. Monitoramento inteligente de preços no Rio Grande do Sul.
         </p>
       </footer>
     </div>
@@ -405,3 +356,4 @@ export function Home() {
 }
 
 export default Home
+

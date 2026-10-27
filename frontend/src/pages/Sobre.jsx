@@ -38,28 +38,36 @@ export default function Sobre() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-12">
           <Card className="p-6">
-            <div className="text-4xl mb-3">🤖</div>
-            <h3 className="text-base font-bold text-brand-navy mb-2">Coleta Automatizada</h3>
+            <div className="text-3xl mb-3">🤖</div>
+            <h3 className="text-sm font-bold text-brand-navy mb-1.5">Coleta Automatizada RS</h3>
             <p className="text-xs text-brand-muted leading-relaxed">
-              Nossos robôs varrem catálogos oficiais e encartes com periodicidade garantida e validação de integridade.
+              Robôs especializados que monitoram VTEX, VipCommerce e APIs oficiais das 8 maiores redes do RS.
             </p>
           </Card>
 
           <Card className="p-6">
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-base font-bold text-brand-navy mb-2">Comparação Cesta a Cesta</h3>
+            <div className="text-3xl mb-3">📸</div>
+            <h3 className="text-sm font-bold text-brand-navy mb-1.5">Fotos em Alta Definição</h3>
             <p className="text-xs text-brand-muted leading-relaxed">
-              Não mostramos apenas itens isolados: calculamos o custo real total da sua lista completa de compras.
+              Catálogo visual enriquecido com imagens originais em até 1000x1000px e especificações técnicas.
             </p>
           </Card>
 
           <Card className="p-6">
-            <div className="text-4xl mb-3">🛡️</div>
-            <h3 className="text-base font-bold text-brand-navy mb-2">Transparência Total</h3>
+            <div className="text-3xl mb-3">📊</div>
+            <h3 className="text-sm font-bold text-brand-navy mb-1.5">Comparação Cesta a Cesta</h3>
             <p className="text-xs text-brand-muted leading-relaxed">
-              Dados neutros, sem favorecimento de marcas, focados 100% no benefício do consumidor final.
+              Calculamos a economia líquida e apontamos o supermercado mais vantajoso para sua compra inteira.
+            </p>
+          </Card>
+
+          <Card className="p-6">
+            <div className="text-3xl mb-3">🛡️</div>
+            <h3 className="text-sm font-bold text-brand-navy mb-1.5">Transparência Total</h3>
+            <p className="text-xs text-brand-muted leading-relaxed">
+              Preços neutros, sem favorecimento de marcas, focados 100% no benefício do consumidor gaúcho.
             </p>
           </Card>
         </div>

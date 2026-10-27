@@ -5,6 +5,7 @@ import {
   PRODUCTS as DEFAULT_PRODUCTS,
 } from "../data";
 import { produtoService, mercadoService, favoritoService } from "../services";
+import { ProductImage, ProductDetailModal } from "../components/ui";
 
 const C = {
   navy: "#0D2137",
@@ -205,6 +206,7 @@ function ProductCard({
   isFavProduct,
   onToggleFavProduct,
   onAdd,
+  onOpenDetail,
 }) {
   const [added, setAdded] = useState(false);
   const best = cheapest(product, markets);
@@ -228,6 +230,15 @@ function ProductCard({
     onAdd();
     setTimeout(() => setAdded(false), 1400);
   }
+
+  const imgSrc =
+    product.imageLocal ||
+    product.imagem_local ||
+    product.imageUrl ||
+    product.imagem_url ||
+    (typeof product.image === "string" && product.image.startsWith("http")
+      ? product.image
+      : null);
 
   return (
     <div
@@ -269,16 +280,26 @@ function ProductCard({
           justifyContent: "center",
           cursor: "pointer",
           transition: "all 0.18s",
+          zIndex: 10,
         }}
       >
         <IconHeart filled={isFavProduct} />
       </button>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div
+        onClick={() => onOpenDetail && onOpenDetail(product)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          cursor: "pointer",
+        }}
+        title="Clique para ver detalhes e fotos em alta resolução"
+      >
         <div
           style={{
-            width: "48px",
-            height: "48px",
+            width: "56px",
+            height: "56px",
             borderRadius: "12px",
             background: C.bg,
             border: `1px solid ${C.border}`,
@@ -287,9 +308,20 @@ function ProductCard({
             justifyContent: "center",
             fontSize: "24px",
             flexShrink: 0,
+            overflow: "hidden",
+            padding: "2px",
           }}
         >
-          {product.image && product.image.length <= 4 ? product.image : "📦"}
+          {imgSrc ? (
+            <ProductImage
+              src={imgSrc}
+              alt={product.name}
+              className="w-full h-full"
+              fallbackIcon={product.image || "📦"}
+            />
+          ) : (
+            product.image || "📦"
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 0, paddingRight: "28px" }}>
           <p
@@ -503,6 +535,7 @@ export default function CatalogPage() {
   const [mktFilter, setMktFilter] = useState("todos");
   const [favMarkets, setFavMarkets] = useState([]);
   const [favProducts, setFavProducts] = useState([]);
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [listCount, setListCount] = useState(() =>
     Object.values(getList()).reduce((a, b) => a + b, 0),
   );
@@ -815,10 +848,27 @@ export default function CatalogPage() {
               isFavProduct={favProducts.includes(p.id)}
               onToggleFavProduct={toggleFavProduct}
               onAdd={onAdd}
+              onOpenDetail={setSelectedProductDetail}
             />
           ))}
         </div>
       </div>
+
+      {/* Modal de Detalhes e Comparativo de Preços em Alta Resolução */}
+      <ProductDetailModal
+        product={selectedProductDetail}
+        markets={markets}
+        isOpen={Boolean(selectedProductDetail)}
+        onClose={() => setSelectedProductDetail(null)}
+        onAddToList={(prod) => {
+          const list = getList();
+          list[prod.id] = (list[prod.id] || 0) + 1;
+          saveList(list);
+          onAdd();
+        }}
+        isFavorite={selectedProductDetail ? favProducts.includes(selectedProductDetail.id) : false}
+        onToggleFavorite={toggleFavProduct}
+      />
     </div>
   );
 }

@@ -1,0 +1,27 @@
+{
+  "arroz": {
+    "success": true,
+    "data": {
+      "produtos": [
+        {
+          "produto_id": 55123,
+          "descricao": "Arroz Branco Tipo 1 Emoções 5kg",
+          "imagem": "e14f112d-1a31-4c8d-8cae-f0fb233ff3ae.jpg",
+          "disponivel": true,
+          "preco": "23.90",
+          "link": "arroz-branco-tipo-1-emocoes-5kg",
+          "codigo_barras": "7896006719999",
+          "sku": "ARR-EMOC-5K",
+          "marca": "Emoções",
+          "em_oferta": true,
+          "oferta": {
+            "oferta_id": 9901,
+            "preco_antigo": "26.90",
+            "preco_oferta": "23.90"
+          }
+        }
+      ],
+      "total": 1
+    }
+  }
+}

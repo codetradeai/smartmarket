@@ -1,0 +1,66 @@
+name: Coleta Diária de Preços SmartMarket (RS)
+
+on:
+  schedule:
+    # Executa todos os dias às 07:00 UTC (04:00 horário de Brasília)
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      notificar:
+        description: 'Enviar notificação ao concluir'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  executar-scrapers:
+    name: Raspagem e Ingestão Diária - 8 Redes RS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instalar Dependências do Scraper
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || pip install psycopg2-binary requests beautifulsoup4
+
+      - name: Executar Suíte de Testes Automatizados
+        run: |
+          python -m unittest discover scraper/tests
+
+      - name: Executar Rotina de Coleta e Carga Diária
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT || '5432' }}
+          DB_NAME: ${{ secrets.DB_NAME || 'smartmarket' }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          OUTPUT_DIR: 'scraper/output'
+        run: |
+          python scraper/rotina_carga.py
+
+      - name: Baixar Novas Imagens em Alta Definição
+        run: |
+          python scraper/download_imagens.py
+
+      - name: Consolidar Catálogo e Script SQL
+        run: |
+          python scraper/gerar_catalogo_e_sql.py
+
+      - name: Arquivar Relatórios de Coleta como Artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: relatorio-coleta-diaria-${{ github.run_id }}
+          path: |
+            scraper/output/*.json
+            backend/database/carga_completa_530_produtos.sql
+          retention-days: 14

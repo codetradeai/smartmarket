@@ -4,6 +4,19 @@ import {
   PRODUCTS as DEFAULT_PRODUCTS,
 } from "../data";
 import { produtoService, mercadoService } from "../services";
+import { ProductImage, ProductDetailModal } from "../components/ui";
+
+const C = {
+  navy: "#0D2137",
+  green: "#22A95E",
+  teal: "#1DB4A3",
+  bg: "#F4FAF7",
+  muted: "#6B8A7A",
+  border: "#D4E8DC",
+  white: "#FFFFFF",
+  amber: "#F59E0B",
+  red: "#EF4444",
+};
 
 // Cesta sugerida inicial para que a página nunca abra vazia em testes de primeira viagem
 const INITIAL_DEMO_LIST = {
@@ -16,9 +29,11 @@ const INITIAL_DEMO_LIST = {
 
 function getStoredList() {
   try {
-    return JSON.parse(sessionStorage.getItem("sm_list") || "{}");
+    const stored = JSON.parse(sessionStorage.getItem("sm_list") || "{}");
+    if (Object.keys(stored).length > 0) return stored;
+    return INITIAL_DEMO_LIST;
   } catch {
-    return {};
+    return INITIAL_DEMO_LIST;
   }
 }
 function saveStoredList(l) {
@@ -78,6 +93,8 @@ export default function ShoppingListPage() {
   const [list, setList] = useState(getStoredList);
   const [compared, setCompared] = useState(false);
   const [results, setResults] = useState([]);
+  const [toastMessage, setToastMessage] = useState("");
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null);
 
   useEffect(() => {
     saveStoredList(list);
@@ -106,11 +123,17 @@ export default function ShoppingListPage() {
     }))
     .filter((i) => i.product);
 
+  function showToast(msg) {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 2500);
+  }
+
   function setQty(id, qty) {
     if (qty <= 0) {
       const next = { ...list };
       delete next[id];
       setList(next);
+      showToast("Item removido da lista.");
     } else {
       setList({ ...list, [id]: qty });
     }
@@ -120,14 +143,16 @@ export default function ShoppingListPage() {
   function clear() {
     setList({});
     setCompared(false);
+    showToast("Lista de compras limpa.");
   }
 
   function compare() {
     setResults(compareMarkets(list, products, markets));
     setCompared(true);
+    showToast("Comparativo de preços atualizado!");
   }
 
-  const totalItems = Object.values(list).reduce((a, b) => a + b, 0);
+  const totalUnits = Object.values(list).reduce((a, b) => a + b, 0);
   const winner = results[0];
   const winnerMarket = winner
     ? markets.find((m) => m.id === winner.marketId)
@@ -311,25 +336,46 @@ export default function ShoppingListPage() {
                     borderBottom: `1px solid ${C.border}`,
                   }}
                 >
+                  {(() => {
+                    const imgSrc = product.imageLocal || product.imagem_local || product.imageUrl || product.imagem_url || (typeof product.image === "string" && product.image.startsWith("http") ? product.image : null);
+                    return (
+                      <div
+                        onClick={() => setSelectedProductDetail(product)}
+                        style={{
+                          width: "48px",
+                          height: "48px",
+                          borderRadius: "10px",
+                          background: C.bg,
+                          border: `1px solid ${C.border}`,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "20px",
+                          flexShrink: 0,
+                          cursor: "pointer",
+                          overflow: "hidden",
+                          padding: "2px",
+                        }}
+                        title="Ver foto e detalhes do produto"
+                      >
+                        {imgSrc ? (
+                          <ProductImage
+                            src={imgSrc}
+                            alt={product.name}
+                            className="w-full h-full"
+                            fallbackIcon={product.image || "📦"}
+                          />
+                        ) : (
+                          product.image || "📦"
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "10px",
-                      background: C.bg,
-                      border: `1px solid ${C.border}`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "20px",
-                      flexShrink: 0,
-                    }}
+                    onClick={() => setSelectedProductDetail(product)}
+                    style={{ flex: 1, minWidth: 0, cursor: "pointer" }}
+                    title="Ver detalhes do produto"
                   >
-                    {product.image && product.image.length <= 4
-                      ? product.image
-                      : "📦"}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
                     <p
                       style={{
                         margin: 0,
@@ -582,6 +628,17 @@ export default function ShoppingListPage() {
           )}
         </div>
       )}
+
+      {/* Modal de Detalhes e Fotos HD do Produto */}
+      <ProductDetailModal
+        product={selectedProductDetail}
+        markets={markets}
+        isOpen={Boolean(selectedProductDetail)}
+        onClose={() => setSelectedProductDetail(null)}
+        onAddToList={(prod) => {
+          setQty(prod.id, (list[prod.id] || 0) + 1);
+        }}
+      />
     </div>
   );
 }

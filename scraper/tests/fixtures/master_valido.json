@@ -1,0 +1,42 @@
+{
+  "arroz": {
+    "success": true,
+    "data": {
+      "produtos": [
+        {
+          "produto_id": 20524,
+          "descricao": "Arroz Parboilizado Tio João Tipo 1 5kg",
+          "imagem": "150eedde-5151-40e6-bd63-083568710beb.jpg",
+          "disponivel": true,
+          "preco": "28.99",
+          "link": "arroz-parboilizado-tio-joao-tp1-5kg",
+          "codigo_barras": "7893500018506",
+          "sku": "ARR-TJ-5K",
+          "marca_id": 102,
+          "marca": "Tio João",
+          "em_oferta": true,
+          "oferta": {
+            "oferta_id": 1001,
+            "preco_antigo": "28.99",
+            "preco_oferta": "25.99"
+          }
+        },
+        {
+          "produto_id": 20525,
+          "descricao": "Arroz Branco Camil Tipo 1 5kg",
+          "imagem": "250eedde-5151-40e6-bd63-083568710bec.jpg",
+          "disponivel": true,
+          "preco": "27.50",
+          "link": "arroz-branco-camil-tp1-5kg",
+          "codigo_barras": "7896006711117",
+          "sku": "ARR-CAM-5K",
+          "marca_id": 103,
+          "marca": "Camil",
+          "em_oferta": false,
+          "oferta": null
+        }
+      ],
+      "total": 2
+    }
+  }
+}

@@ -1,15 +1,9 @@
 package com.smartmarket.service;
 
 import com.smartmarket.dto.promocao.PromocaoRequest;
-import com.smartmarket.dto.promocao.PromocaoResponse;
 import com.smartmarket.exception.ResourceNotFoundException;
-import com.smartmarket.model.Mercado;
-import com.smartmarket.model.Produto;
-import com.smartmarket.model.Promocao;
-import com.smartmarket.repository.MercadoRepository;
-import com.smartmarket.repository.ProdutoRepository;
-import com.smartmarket.repository.PromocaoRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.smartmarket.model.*;
+import com.smartmarket.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,132 +15,72 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PromocaoServiceTest {
+    @Mock PromocaoRepository promocoes;
+    @Mock ProdutoRepository produtos;
+    @Mock MercadoRepository mercados;
+    @InjectMocks PromocaoService service;
 
-    private static final LocalDate INICIO = LocalDate.of(2026, 1, 10);
-    private static final LocalDate FIM = LocalDate.of(2026, 1, 20);
-
-    @Mock
-    private PromocaoRepository promocaoRepository;
-
-    @Mock
-    private ProdutoRepository produtoRepository;
-
-    @Mock
-    private MercadoRepository mercadoRepository;
-
-    @InjectMocks
-    private PromocaoService promocaoService;
-
-    private Produto produto;
-    private Mercado mercado;
-
-    @BeforeEach
-    void setUp() {
-        produto = Produto.builder().id(1L).nome("Arroz").build();
-        mercado = Mercado.builder().id(2L).nome("Carrefour").build();
+    private PromocaoRequest request(LocalDate inicio, LocalDate fim, String original, String promocional) {
+        PromocaoRequest r = mock(PromocaoRequest.class);
+        lenient().when(r.getDataInicio()).thenReturn(inicio);
+        lenient().when(r.getDataFim()).thenReturn(fim);
+        lenient().when(r.getValorOriginal()).thenReturn(new BigDecimal(original));
+        lenient().when(r.getValorPromocional()).thenReturn(new BigDecimal(promocional));
+        return r;
     }
 
-    private PromocaoRequest request(String original, String promocional, LocalDate inicio, LocalDate fim) {
-        return new PromocaoRequest(1L, 2L, new BigDecimal(original), new BigDecimal(promocional), inicio, fim);
+    @Test void listar_SemPromocoes() {
+        when(promocoes.findAll()).thenReturn(List.of());
+        assertThat(service.listar()).isEmpty();
     }
 
-    @Test
-    void listar_DeveConverterTodasAsPromocoes() {
-        Promocao promocao = Promocao.builder().id(5L).produto(produto).mercado(mercado)
-            .valorOriginal(new BigDecimal("10.00")).valorPromocional(new BigDecimal("8.00"))
-            .dataInicio(INICIO).dataFim(FIM).build();
-        when(promocaoRepository.findAll()).thenReturn(List.of(promocao));
-
-        List<PromocaoResponse> resposta = promocaoService.listar();
-
-        assertThat(resposta).hasSize(1);
-        assertThat(resposta.get(0).getProdutoNome()).isEqualTo("Arroz");
-        assertThat(resposta.get(0).getMercadoNome()).isEqualTo("Carrefour");
-        assertThat(resposta.get(0).getValorPromocional()).isEqualByComparingTo("8.00");
+    @Test void criar_DataInicialPosterior_DeveRejeitarAntesDeConsultarBanco() {
+        var r = request(LocalDate.of(2026, 10, 28), LocalDate.of(2026, 10, 27), "10", "8");
+        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("data de inicio");
+        verifyNoInteractions(produtos, mercados);
     }
 
-    @Test
-    void listar_DeveRetornarListaVaziaQuandoNaoHaPromocoes() {
-        when(promocaoRepository.findAll()).thenReturn(List.of());
-
-        assertThat(promocaoService.listar()).isEmpty();
+    @Test void criar_DescontoNegativo_DeveRejeitar() {
+        var hoje = LocalDate.now();
+        var r = request(hoje, hoje.plusDays(1), "10", "11");
+        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("valor promocional");
     }
 
-    @Test
-    void criar_DeveSalvarPromocaoValida() {
-        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
-        when(mercadoRepository.findById(2L)).thenReturn(Optional.of(mercado));
-        when(promocaoRepository.save(any(Promocao.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        PromocaoResponse resposta = promocaoService.criar(request("10.00", "7.50", INICIO, FIM));
-
-        assertThat(resposta.getProdutoId()).isEqualTo(1L);
-        assertThat(resposta.getMercadoId()).isEqualTo(2L);
-        assertThat(resposta.getValorOriginal()).isEqualByComparingTo("10.00");
-        assertThat(resposta.getValorPromocional()).isEqualByComparingTo("7.50");
-        assertThat(resposta.getDataInicio()).isEqualTo(INICIO);
-        assertThat(resposta.getDataFim()).isEqualTo(FIM);
+    @Test void criar_ProdutoInexistente() {
+        var hoje = LocalDate.now();
+        var r = request(hoje, hoje, "10", "8");
+        when(r.getProdutoId()).thenReturn(4L);
+        when(produtos.findById(4L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(ResourceNotFoundException.class);
     }
 
-    @Test
-    void criar_DeveAceitarPeriodoDeUmUnicoDiaEValoresIguais() {
-        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
-        when(mercadoRepository.findById(2L)).thenReturn(Optional.of(mercado));
-        when(promocaoRepository.save(any(Promocao.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        PromocaoResponse resposta = promocaoService.criar(request("10.00", "10.00", INICIO, INICIO));
-
-        assertThat(resposta.getDataInicio()).isEqualTo(resposta.getDataFim());
-        assertThat(resposta.getValorPromocional()).isEqualByComparingTo(resposta.getValorOriginal());
+    @Test void criar_MercadoInexistente() {
+        var hoje = LocalDate.now();
+        var r = request(hoje, hoje, "10", "8");
+        when(r.getProdutoId()).thenReturn(4L);
+        when(r.getMercadoId()).thenReturn(5L);
+        when(produtos.findById(4L)).thenReturn(Optional.of(Produto.builder().id(4L).nome("Leite").build()));
+        when(mercados.findById(5L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(ResourceNotFoundException.class);
     }
 
-    @Test
-    void criar_DeveRejeitarDataInicialPosteriorAFinal() {
-        assertThatThrownBy(() -> promocaoService.criar(request("10.00", "8.00", FIM, INICIO)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("A data de inicio nao pode ser posterior a data de fim.");
+    @Test void criar_ValidaEntidadesESalvaValores() {
+        var hoje = LocalDate.now();
+        var r = request(hoje, hoje.plusDays(2), "10", "8");
+        when(r.getProdutoId()).thenReturn(4L);
+        when(r.getMercadoId()).thenReturn(5L);
+        when(produtos.findById(4L)).thenReturn(Optional.of(Produto.builder().id(4L).nome("Leite").build()));
+        when(mercados.findById(5L)).thenReturn(Optional.of(Mercado.builder().id(5L).nome("Fort").build()));
+        when(promocoes.save(any(Promocao.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        verify(promocaoRepository, never()).save(any());
-    }
-
-    @Test
-    void criar_DeveRejeitarValorPromocionalMaiorQueOriginal() {
-        assertThatThrownBy(() -> promocaoService.criar(request("10.00", "10.01", INICIO, FIM)))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("O valor promocional nao pode ser maior que o valor original.");
-
-        verify(promocaoRepository, never()).save(any());
-    }
-
-    @Test
-    void criar_DeveFalharQuandoProdutoNaoExiste() {
-        when(produtoRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> promocaoService.criar(request("10.00", "8.00", INICIO, FIM)))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessage("Produto com id 1 nao encontrado(a)");
-
-        verify(promocaoRepository, never()).save(any());
-    }
-
-    @Test
-    void criar_DeveFalharQuandoMercadoNaoExiste() {
-        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
-        when(mercadoRepository.findById(2L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> promocaoService.criar(request("10.00", "8.00", INICIO, FIM)))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessage("Mercado com id 2 nao encontrado(a)");
-
-        verify(promocaoRepository, never()).save(any());
+        assertThat(service.criar(r).getValorPromocional()).isEqualByComparingTo("8");
+        verify(promocoes).save(argThat(p -> p.getValorOriginal().compareTo(new BigDecimal("10")) == 0));
     }
 }

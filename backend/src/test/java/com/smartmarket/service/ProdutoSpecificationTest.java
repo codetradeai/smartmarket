@@ -8,125 +8,58 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.jpa.domain.Specification;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-@SuppressWarnings("unchecked")
 class ProdutoSpecificationTest {
 
-    @Mock
-    private Root<Produto> root;
+    @Test void normalizar_RemoveAcentosEspacosEConverteCaixa() {
+        assertThat(ProdutoSpecification.normalizar("  CAFÉ   com  AÇÚCAR  "))
+            .isEqualTo("cafe com acucar");
+        assertThat(ProdutoSpecification.normalizar("ÀÈÌÒÙ Çãõ"))
+            .isEqualTo("aeiou cao");
+    }
 
-    @Mock
-    private CriteriaQuery<?> query;
-
-    @Mock
-    private CriteriaBuilder cb;
-
-    @Mock
-    private Path<String> caminho;
-
-    @Mock
-    private Expression<String> minusculo;
-
-    @Mock
-    private Predicate igual;
-
-    @Mock
-    private Predicate parecido;
-
-    @Mock
-    private Predicate resultado;
-
-    private void stubMinusculo() {
-        when(cb.lower(caminho)).thenReturn(minusculo);
+    @Test void nome_EscapaCaracteresEspeciaisDeLike() {
+        @SuppressWarnings("unchecked") Root<Produto> root = mock(Root.class);
+        @SuppressWarnings("unchecked") CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        @SuppressWarnings("unchecked") Path<String> path = mock(Path.class);
+        @SuppressWarnings("unchecked") Expression<String> lower = mock(Expression.class);
+        Predicate predicate = mock(Predicate.class);
+        when(root.<String>get("nome")).thenReturn(path);
+        when(root.<String>get("nomeNormalizado")).thenReturn(path);
+        when(cb.lower(path)).thenReturn(lower);
+        when(cb.like(eq(lower), anyString())).thenReturn(predicate);
+        when(cb.or(any(Predicate.class), any(Predicate.class))).thenReturn(predicate);
+        assertThat(ProdutoSpecification.withNome("  CAFÉ%_\\  ").toPredicate(root, query, cb))
+            .isSameAs(predicate);
+        verify(cb, times(2)).like(lower, "%cafe\\%\\_\\\\%");
     }
 
     @ParameterizedTest
     @CsvSource({
-        "graos,grão",
-        "grao,grão",
-        "Leites,leite",
-        "leite,leite",
-        "oleos,óleo",
-        "oleo,óleo",
-        "cafe,café",
-        "higiene,higiene",
-        "bebidas,bebidas"
+        "graos,grão", "grao,grão", "leites,leite", "leite,leite",
+        "oleos,óleo", "oleo,óleo", "cafe,café", "higiene,higiene", "outros,outros"
     })
-    void withCategoria_DeveTraduzirApelidosParaOTermoDeBusca(String categoria, String termoEsperado) {
-        stubMinusculo();
-        when(root.<String>get("categoria")).thenReturn(caminho);
-        when(cb.equal(minusculo, categoria.toLowerCase())).thenReturn(igual);
-        when(cb.like(minusculo, "%" + termoEsperado + "%")).thenReturn(parecido);
-        when(cb.or(igual, parecido)).thenReturn(resultado);
-
-        Predicate predicado = ProdutoSpecification.withCategoria(categoria).toPredicate(root, query, cb);
-
-        assertThat(predicado).isSameAs(resultado);
-    }
-
-    @Test
-    void withCategoria_DeveIgnorarEspacosNasExtremidades() {
-        stubMinusculo();
-        when(root.<String>get("categoria")).thenReturn(caminho);
-        when(cb.equal(minusculo, "cafe")).thenReturn(igual);
-        when(cb.like(minusculo, "%café%")).thenReturn(parecido);
-        when(cb.or(igual, parecido)).thenReturn(resultado);
-
-        Predicate predicado = ProdutoSpecification.withCategoria("  CAFE ").toPredicate(root, query, cb);
-
-        assertThat(predicado).isSameAs(resultado);
-    }
-
-    @Test
-    void withNome_DeveBuscarNoNomeENoNomeNormalizadoSemAcentos() {
-        stubMinusculo();
-        Path<String> caminhoNormalizado = org.mockito.Mockito.mock(Path.class);
-        Expression<String> minusculoNormalizado = org.mockito.Mockito.mock(Expression.class);
-        when(root.<String>get("nome")).thenReturn(caminho);
-        when(root.<String>get("nomeNormalizado")).thenReturn(caminhoNormalizado);
-        when(cb.lower(caminhoNormalizado)).thenReturn(minusculoNormalizado);
-        when(cb.like(minusculo, "%acucar cristal%")).thenReturn(igual);
-        when(cb.like(minusculoNormalizado, "%acucar cristal%")).thenReturn(parecido);
-        when(cb.or(igual, parecido)).thenReturn(resultado);
-
-        Predicate predicado = ProdutoSpecification.withNome("  Açúcar   Cristal ").toPredicate(root, query, cb);
-
-        assertThat(predicado).isSameAs(resultado);
-    }
-
-    @Test
-    void withNome_DeveEscaparCaracteresCuringaDoLike() {
-        stubMinusculo();
-        Path<String> caminhoNormalizado = org.mockito.Mockito.mock(Path.class);
-        Expression<String> minusculoNormalizado = org.mockito.Mockito.mock(Expression.class);
-        when(root.<String>get("nome")).thenReturn(caminho);
-        when(root.<String>get("nomeNormalizado")).thenReturn(caminhoNormalizado);
-        when(cb.lower(caminhoNormalizado)).thenReturn(minusculoNormalizado);
-
-        ProdutoSpecification.withNome("100%_a\\b").toPredicate(root, query, cb);
-
-        verify(cb).like(minusculo, "%100\\%\\_a\\\\b%");
-        verify(cb).like(minusculoNormalizado, "%100\\%\\_a\\\\b%");
-    }
-
-    @ParameterizedTest
-    @CsvSource({
-        "'ÀÁÂÃÄÅ èéêë ÌÍÎÏ','aaaaaa eeee iiii'",
-        "'ÒÓÔÕÖ ÙÚÛÜ Ç','ooooo uuuu c'",
-        "'  Arroz    Tipo   1  ','arroz tipo 1'"
-    })
-    void normalizar_DeveRemoverAcentosColapsarEspacosEUsarMinusculas(String entrada, String esperado) {
-        assertThat(ProdutoSpecification.normalizar(entrada)).isEqualTo(esperado);
+    void categoria_ExpandeSinonimos(String entrada, String esperado) {
+        @SuppressWarnings("unchecked") Root<Produto> root = mock(Root.class);
+        @SuppressWarnings("unchecked") CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        CriteriaBuilder cb = mock(CriteriaBuilder.class);
+        @SuppressWarnings("unchecked") Path<String> path = mock(Path.class);
+        @SuppressWarnings("unchecked") Expression<String> lower = mock(Expression.class);
+        Predicate predicate = mock(Predicate.class);
+        when(root.<String>get("categoria")).thenReturn(path);
+        when(cb.lower(path)).thenReturn(lower);
+        when(cb.equal(lower, entrada)).thenReturn(predicate);
+        when(cb.like(lower, "%" + esperado + "%")).thenReturn(predicate);
+        when(cb.or(any(Predicate.class), any(Predicate.class))).thenReturn(predicate);
+        assertThat(ProdutoSpecification.withCategoria(" " + entrada.toUpperCase() + " ")
+            .toPredicate(root, query, cb)).isSameAs(predicate);
+        verify(cb).like(lower, "%" + esperado + "%");
     }
 }

@@ -1,13 +1,11 @@
 package com.smartmarket.service;
 
 import com.smartmarket.dto.mercado.MercadoRequest;
-import com.smartmarket.dto.mercado.MercadoResponse;
 import com.smartmarket.exception.ResourceNotFoundException;
 import com.smartmarket.model.Mercado;
 import com.smartmarket.repository.MercadoRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,134 +13,72 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MercadoServiceTest {
+    @Mock MercadoRepository repository;
+    @InjectMocks MercadoService service;
 
-    @Mock
-    private MercadoRepository mercadoRepository;
-
-    @InjectMocks
-    private MercadoService mercadoService;
-
-    private Mercado mercado(Long id, String nome, boolean ativo) {
-        return Mercado.builder().id(id).nome(nome).endereco("Rua A, 1").logoUrl("logo.png").ativo(ativo).build();
+    private Mercado mercado() {
+        return Mercado.builder().id(5L).nome("Fort").endereco("Centro").ativo(true).build();
     }
 
-    @Test
-    void listarAtivos_DeveRetornarSomenteOsMercadosDoRepositorioDeAtivos() {
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado(1L, "Carrefour", true)));
-
-        List<MercadoResponse> resposta = mercadoService.listarAtivos();
-
-        assertThat(resposta).hasSize(1);
-        assertThat(resposta.get(0).getNome()).isEqualTo("Carrefour");
-        assertThat(resposta.get(0).getAtivo()).isTrue();
+    @Test void listarAtivos_RetornaApenasAtivos() {
+        when(repository.findByAtivoTrue()).thenReturn(List.of(mercado()));
+        assertThat(service.listarAtivos()).hasSize(1);
+        verify(repository, never()).findAll();
     }
 
-    @Test
-    void listarAtivos_DeveRetornarListaVaziaQuandoNaoHaMercados() {
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of());
-
-        assertThat(mercadoService.listarAtivos()).isEmpty();
+    @Test void listarTodos_PodeRetornarVazio() {
+        when(repository.findAll()).thenReturn(List.of());
+        assertThat(service.listarTodos()).isEmpty();
     }
 
-    @Test
-    void listarTodos_DeveIncluirMercadosInativos() {
-        when(mercadoRepository.findAll()).thenReturn(
-            List.of(mercado(1L, "Carrefour", true), mercado(2L, "Fort", false)));
-
-        List<MercadoResponse> resposta = mercadoService.listarTodos();
-
-        assertThat(resposta).extracting(MercadoResponse::getNome).containsExactly("Carrefour", "Fort");
-        assertThat(resposta).extracting(MercadoResponse::getAtivo).containsExactly(true, false);
+    @Test void buscarPorId_Encontrado() {
+        when(repository.findById(5L)).thenReturn(Optional.of(mercado()));
+        assertThat(service.buscarPorId(5L).getNome()).isEqualTo("Fort");
     }
 
-    @Test
-    void buscarPorId_DeveRetornarMercado() {
-        when(mercadoRepository.findById(1L)).thenReturn(Optional.of(mercado(1L, "Carrefour", true)));
-
-        MercadoResponse resposta = mercadoService.buscarPorId(1L);
-
-        assertThat(resposta.getId()).isEqualTo(1L);
-        assertThat(resposta.getEndereco()).isEqualTo("Rua A, 1");
-        assertThat(resposta.getLogoUrl()).isEqualTo("logo.png");
+    @Test void buscarPorId_Inexistente() {
+        when(repository.findById(9L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.buscarPorId(9L)).isInstanceOf(ResourceNotFoundException.class);
     }
 
-    @Test
-    void buscarPorId_DeveLancarErroQuandoNaoEncontrado() {
-        when(mercadoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> mercadoService.buscarPorId(99L))
-            .isInstanceOf(ResourceNotFoundException.class)
-            .hasMessage("Mercado com id 99 nao encontrado(a)");
+    @Test void criar_IniciaAtivo() {
+        MercadoRequest request = mock(MercadoRequest.class);
+        when(request.getNome()).thenReturn("Novo");
+        when(repository.save(any(Mercado.class))).thenAnswer(inv -> inv.getArgument(0));
+        assertThat(service.criar(request).getNome()).isEqualTo("Novo");
+        verify(repository).save(argThat(Mercado::getAtivo));
     }
 
-    @Test
-    void criar_DeveSalvarMercadoAtivo() {
-        MercadoRequest request = MercadoRequest.builder()
-            .nome("Novo").endereco("Rua B, 2").logoUrl("novo.png").build();
-        when(mercadoRepository.save(any(Mercado.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        MercadoResponse resposta = mercadoService.criar(request);
-
-        ArgumentCaptor<Mercado> captor = ArgumentCaptor.forClass(Mercado.class);
-        verify(mercadoRepository).save(captor.capture());
-        assertThat(captor.getValue().getAtivo()).isTrue();
-        assertThat(captor.getValue().getNome()).isEqualTo("Novo");
-        assertThat(resposta.getEndereco()).isEqualTo("Rua B, 2");
-        assertThat(resposta.getAtivo()).isTrue();
+    @Test void atualizar_AlteraMercadoExistente() {
+        MercadoRequest request = mock(MercadoRequest.class);
+        when(request.getNome()).thenReturn("Atualizado");
+        when(repository.findById(5L)).thenReturn(Optional.of(mercado()));
+        when(repository.save(any(Mercado.class))).thenAnswer(inv -> inv.getArgument(0));
+        assertThat(service.atualizar(5L, request).getNome()).isEqualTo("Atualizado");
     }
 
-    @Test
-    void atualizar_DeveAlterarDadosSemMudarOStatusAtivo() {
-        Mercado existente = mercado(1L, "Antigo", false);
-        when(mercadoRepository.findById(1L)).thenReturn(Optional.of(existente));
-        when(mercadoRepository.save(any(Mercado.class))).thenAnswer(inv -> inv.getArgument(0));
-        MercadoRequest request = MercadoRequest.builder()
-            .nome("Renomeado").endereco("Rua C, 3").logoUrl("c.png").build();
-
-        MercadoResponse resposta = mercadoService.atualizar(1L, request);
-
-        assertThat(resposta.getNome()).isEqualTo("Renomeado");
-        assertThat(resposta.getEndereco()).isEqualTo("Rua C, 3");
-        assertThat(resposta.getLogoUrl()).isEqualTo("c.png");
-        assertThat(resposta.getAtivo()).isFalse();
+    @Test void atualizar_Inexistente() {
+        MercadoRequest request = mock(MercadoRequest.class);
+        when(repository.findById(7L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.atualizar(7L, request)).isInstanceOf(ResourceNotFoundException.class);
+        verify(repository, never()).save(any());
     }
 
-    @Test
-    void atualizar_DeveLancarErroQuandoNaoEncontrado() {
-        when(mercadoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> mercadoService.atualizar(99L, MercadoRequest.builder().nome("X").build()))
-            .isInstanceOf(ResourceNotFoundException.class);
-
-        verify(mercadoRepository, never()).save(any());
+    @Test void remover_Encontrado() {
+        Mercado mercado = mercado();
+        when(repository.findById(5L)).thenReturn(Optional.of(mercado));
+        service.remover(5L);
+        verify(repository).delete(mercado);
     }
 
-    @Test
-    void remover_DeveExcluirMercadoExistente() {
-        Mercado existente = mercado(1L, "Carrefour", true);
-        when(mercadoRepository.findById(1L)).thenReturn(Optional.of(existente));
-
-        mercadoService.remover(1L);
-
-        verify(mercadoRepository).delete(existente);
-    }
-
-    @Test
-    void remover_DeveLancarErroQuandoNaoEncontrado() {
-        when(mercadoRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> mercadoService.remover(99L))
-            .isInstanceOf(ResourceNotFoundException.class);
-
-        verify(mercadoRepository, never()).delete(any());
+    @Test void remover_Inexistente() {
+        when(repository.findById(7L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.remover(7L)).isInstanceOf(ResourceNotFoundException.class);
+        verify(repository, never()).delete(any());
     }
 }

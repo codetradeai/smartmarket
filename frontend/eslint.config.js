@@ -19,11 +19,12 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.{test,spec}.{js,jsx}', '**/setupTests.js', '**/fileMock.js'],
+    files: ['**/*.{test,spec}.{js,jsx}', '**/setupTests.{js,cjs}', '**/fileMock.js'],
     languageOptions: {
       globals: {
         ...globals.jest,
         ...globals.browser,
+        ...globals.node,
       },
     },
   },

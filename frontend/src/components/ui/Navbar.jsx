@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils"
-import { useAuth } from "../../hooks/useAuth"
+import { AuthContext } from "../../contexts/AuthContext"
 import { Button } from "./Button"
 import { Input } from "./Input"
 
@@ -14,14 +14,7 @@ export function Navbar({
   onSearch,
   className,
 }) {
-  let authContext
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    authContext = useAuth()
-  } catch {
-    authContext = null
-  }
-
+  const authContext = useContext(AuthContext)
   const user = propUser || authContext?.user
   const isAdmin = authContext?.isAdmin || user?.papel === "ADMIN"
 

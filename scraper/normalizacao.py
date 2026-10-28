@@ -41,4 +41,7 @@ def normalizar_produto(registro):
     return {'nome': nome.strip(), 'nome_normalizado': nome_normalizado,
             'marca': marca.strip() if marca else None, 'quantidade': quantidade,
             'unidade': unidade, 'codigo_barras': None,
-            'categoria': registro.get('categoria'), 'pendencias': pendencias}
+            'categoria': registro.get('categoria'),
+            'imagem_url': registro.get('imagem_url'),
+            'descricao': registro.get('descricao'),
+            'pendencias': pendencias}

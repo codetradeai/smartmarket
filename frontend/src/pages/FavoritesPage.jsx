@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
-import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
-import { favoritoService, produtoService, mercadoService } from "../services"
+import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, ProductImage, ProductDetailModal } from "../components/ui"
+import { favoritoService } from "../services"
 
 // Helpers de persistência
 function getFavProducts() {
@@ -99,6 +99,7 @@ export default function FavoritesPage() {
   const [selectedCategory, setSelectedCategory] = useState("todos")
   const [activeTab, setActiveTab] = useState("produtos") // 'produtos' | 'mercados' | 'alertas'
   const [toastMessage, setToastMessage] = useState("")
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null)
 
   useEffect(() => {
     async function carregarFavoritos() {
@@ -428,14 +429,36 @@ export default function FavoritesPage() {
                       </svg>
                     </button>
 
-                    {/* Imagem / Emoji */}
-                    <div className="h-32 bg-slate-50 flex items-center justify-center text-5xl border-b border-brand-border/60 group-hover:scale-105 transition-transform duration-200">
-                      {p.image}
-                    </div>
+                    {/* Imagem em Alta Resolução com Fallback */}
+                    {(() => {
+                      const imgSrc = p.imageLocal || p.imagem_local || p.imageUrl || p.imagem_url || (typeof p.image === "string" && p.image.startsWith("http") ? p.image : null);
+                      return (
+                        <div
+                          onClick={() => setSelectedProductDetail(p)}
+                          className="h-36 bg-slate-50 flex items-center justify-center p-3 border-b border-brand-border/60 group-hover:scale-105 transition-transform duration-200 cursor-pointer overflow-hidden"
+                          title="Clique para ver detalhes do produto"
+                        >
+                          {imgSrc ? (
+                            <ProductImage
+                              src={imgSrc}
+                              alt={p.name}
+                              className="w-full h-full"
+                              fallbackIcon={p.image || "🛒"}
+                            />
+                          ) : (
+                            <span className="text-5xl">{p.image || "🛒"}</span>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Conteúdo do Card */}
                     <div className="p-4 flex-1 flex flex-col justify-between">
-                      <div>
+                      <div
+                        onClick={() => setSelectedProductDetail(p)}
+                        className="cursor-pointer"
+                        title="Ver especificações e comparativo de preços"
+                      >
                         <div className="flex items-center gap-1.5 mb-1">
                           <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider">
                             {p.brand}
@@ -447,7 +470,7 @@ export default function FavoritesPage() {
                             </span>
                           )}
                         </div>
-                        <h3 className="text-sm font-bold text-brand-navy line-clamp-1">{p.name}</h3>
+                        <h3 className="text-sm font-bold text-brand-navy line-clamp-1 hover:text-brand-green transition-colors">{p.name}</h3>
                       </div>
 
                       {/* Comparativo de Preços */}
@@ -717,6 +740,19 @@ export default function FavoritesPage() {
           </form>
         </Modal>
       )}
+
+      {/* Modal de Detalhes e Fotos HD do Produto Favorito */}
+      <ProductDetailModal
+        product={selectedProductDetail}
+        allProducts={PRODUCTS}
+        onSelectProduct={setSelectedProductDetail}
+        markets={MARKETS}
+        isOpen={Boolean(selectedProductDetail)}
+        onClose={() => setSelectedProductDetail(null)}
+        onAddToList={(prod) => addToList(prod.id)}
+        isFavorite={selectedProductDetail ? favProductIds.includes(selectedProductDetail.id) : false}
+        onToggleFavorite={toggleFavProduct}
+      />
     </div>
   )
 }

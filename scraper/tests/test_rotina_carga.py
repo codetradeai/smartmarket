@@ -85,13 +85,22 @@ class TestRotinaCarga(unittest.TestCase):
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        # Simula que o mercado 1 existe e o mercado 2 não existe
-        mock_cursor.fetchone.side_effect = [(1, "Fort Atacadista"), None]
+        # Simula que mercados 1, 3, 4, 5, 6, 7 e 8 existem e o mercado 2 não existe
+        mock_cursor.fetchone.side_effect = [
+            (1, "Fort Atacadista"),
+            None,
+            (3, "Asun Supermercados"),
+            (4, "Atacadão"),
+            (5, "Master Supermercados"),
+            (6, "Zaffari"),
+            (7, "Rissul"),
+            (8, "Stok Center"),
+        ]
 
         garantir_mercados_existentes(mock_conn, permitir_criacao=True)
 
-        # Deve ter consultado os dois mercados
-        self.assertEqual(mock_cursor.execute.call_count, 3)  # 2 selects + 1 insert
+        # Deve ter consultado os oito mercados (8 selects + 1 insert)
+        self.assertEqual(mock_cursor.execute.call_count, 9)
         # O insert deve ter ocorrido para o Carrefour (ID 2)
         chamadas = mock_cursor.execute.call_args_list
         insert_call = chamadas[2]
@@ -170,6 +179,12 @@ class TestRotinaCarga(unittest.TestCase):
         mock_ciclo.side_effect = [
             {"source": "fort", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
             {"source": "carrefour", "status": "concluido", "produtos_criados": 3, "precos_inseridos": 3},
+            {"source": "asun", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
+            {"source": "atacadao", "status": "concluido", "produtos_criados": 1, "precos_inseridos": 1},
+            {"source": "master", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
+            {"source": "zaffari", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
+            {"source": "rissul", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
+            {"source": "stok", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
         ]
 
         relatorio = executar_rodada_completa(
@@ -183,6 +198,12 @@ class TestRotinaCarga(unittest.TestCase):
         self.assertTrue(relatorio["sucesso_geral"])
         self.assertIn("fort", relatorio["redes"])
         self.assertIn("carrefour", relatorio["redes"])
+        self.assertIn("asun", relatorio["redes"])
+        self.assertIn("atacadao", relatorio["redes"])
+        self.assertIn("master", relatorio["redes"])
+        self.assertIn("zaffari", relatorio["redes"])
+        self.assertIn("rissul", relatorio["redes"])
+        self.assertIn("stok", relatorio["redes"])
 
         # Verifica se o arquivo de relatório foi gravado
         arquivo_relatorio = self.temp_dir / "relatorios" / "relatorio_rotina.json"

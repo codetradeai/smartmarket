@@ -1,35 +1,32 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 
 /**
- * ProductViewer360 - Visualizador de Rotação 360° Nativo em React
+ * ProductViewer360 - Visualizador de Rotação 360° Fluído por Arraste
  * 
  * Funcionalidades:
- * - Rotação horizontal por arraste de mouse (drag) e toque na tela (swipe)
- * - Carregamento assíncrono sob demanda com barra de progresso
- * - Navegação acessível por teclado (setas esquerda/direita)
- * - Controle deslizante (slider) de ângulo com atributos ARIA
- * - Modo de rotação automática contínua (play/pause)
- * - Tratamento de estados de carregamento, erro e ausência de quadros
- * - Descarte seguro de listeners e timers na desmontagem
+ * - Rotação horizontal intuitiva por arraste do mouse (drag) e toque na tela (swipe)
+ * - Calibração de sensibilidade fluída similar ao site do Asun
+ * - Pré-carregamento assíncrono dos quadros
+ * - Acessibilidade via teclado (setas esquerda/direita)
+ * - Badge oficial 360° no canto superior direito
+ * - Tratamento seguro de desmontagem
  */
 export function ProductViewer360({
   frames = [],
   alt = "Produto",
   className = "",
-  autoRotateInitially = false,
   sensitivity = 8, // pixels de arrasto por frame
 }) {
   const [currentFrame, setCurrentFrame] = useState(0)
   const [loadedImages, setLoadedImages] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(autoRotateInitially)
+  const [hasInteracted, setHasInteracted] = useState(false)
 
   const isDraggingRef = useRef(false)
   const startXRef = useRef(0)
   const startFrameRef = useRef(0)
   const containerRef = useRef(null)
-  const autoPlayTimerRef = useRef(null)
 
   const totalFrames = frames.length
 
@@ -61,7 +58,6 @@ export function ProductViewer360({
 
     const handleSingleError = () => {
       if (!isMounted) return
-      // Se mais de metade dos frames falharem, marca erro
       loadedCount += 1
       if (loadedCount === frames.length) {
         const validos = imagesCache.filter(Boolean)
@@ -84,35 +80,16 @@ export function ProductViewer360({
 
     return () => {
       isMounted = false
-      if (autoPlayTimerRef.current) {
-        clearInterval(autoPlayTimerRef.current)
-      }
     }
   }, [frames])
 
-  // 2. Rotação automática suave
-  useEffect(() => {
-    if (!isPlaying || isLoading || hasError || totalFrames < 2) {
-      if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current)
-      return
-    }
-
-    autoPlayTimerRef.current = setInterval(() => {
-      setCurrentFrame((prev) => (prev + 1) % totalFrames)
-    }, 120)
-
-    return () => {
-      if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current)
-    }
-  }, [isPlaying, isLoading, hasError, totalFrames])
-
-  // 3. Handlers de Arraste (Pointer Events universais para mouse e touch)
+  // 2. Handlers de Arraste Fluído (Pointer Events universais para mouse e touch)
   const handlePointerDown = (e) => {
     if (isLoading || hasError || totalFrames < 2) return
     isDraggingRef.current = true
+    setHasInteracted(true)
     startXRef.current = e.clientX
     startFrameRef.current = currentFrame
-    setIsPlaying(false) // pausa autoplay ao interagir
 
     if (e.target.setPointerCapture) {
       try {
@@ -126,7 +103,7 @@ export function ProductViewer360({
     const deltaX = e.clientX - startXRef.current
     const frameOffset = Math.floor(deltaX / sensitivity)
 
-    // Inverte o delta para arraste natural: arrastar para direita gira no sentido horário
+    // Arraste natural: arrastar para os lados rotaciona continuamente
     let nextFrame = (startFrameRef.current - frameOffset) % totalFrames
     if (nextFrame < 0) nextFrame += totalFrames
 
@@ -143,16 +120,16 @@ export function ProductViewer360({
     }
   }
 
-  // 4. Acessibilidade via Teclado
+  // 3. Acessibilidade via Teclado (Setas esquerda/direita)
   const handleKeyDown = (e) => {
     if (isLoading || hasError || totalFrames < 2) return
     if (e.key === "ArrowLeft") {
       e.preventDefault()
-      setIsPlaying(false)
+      setHasInteracted(true)
       setCurrentFrame((prev) => (prev - 1 + totalFrames) % totalFrames)
     } else if (e.key === "ArrowRight") {
       e.preventDefault()
-      setIsPlaying(false)
+      setHasInteracted(true)
       setCurrentFrame((prev) => (prev + 1) % totalFrames)
     } else if (e.key === "Home") {
       e.preventDefault()
@@ -163,7 +140,7 @@ export function ProductViewer360({
     }
   }
 
-  // 5. Estado de ausência ou erro de recursos
+  // 4. Estado de ausência ou erro de recursos
   if (hasError || totalFrames < 2) {
     return (
       <div className={`flex flex-col items-center justify-center p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 min-h-[260px] ${className}`}>
@@ -177,97 +154,69 @@ export function ProductViewer360({
   }
 
   const activeSrc = frames[currentFrame] || (loadedImages[currentFrame] && loadedImages[currentFrame].src)
-  const angleDegrees = Math.round((currentFrame / totalFrames) * 360)
 
   return (
     <div
       ref={containerRef}
-      className={`relative select-none flex flex-col items-center bg-slate-50/70 rounded-2xl p-4 border border-slate-200 overflow-hidden ${className}`}
+      className={`relative select-none w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden ${
+        isLoading ? "cursor-wait" : isDraggingRef.current ? "cursor-grabbing" : "cursor-grab"
+      } ${className}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="region"
-      aria-label={`Visualizador 360 graus de ${alt}. Use as setas do teclado para rotacionar.`}
+      aria-label={`Visualizador 360 graus de ${alt}. Clique e arraste para os lados para rotacionar.`}
     >
-      {/* Área Interativa de Rotação */}
-      <div
-        className={`relative w-full aspect-square flex items-center justify-center overflow-hidden rounded-xl ${
-          isLoading ? "cursor-wait" : isDraggingRef.current ? "cursor-grabbing" : "cursor-grab"
-        }`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        {/* Loading Spinner */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center z-10 gap-2">
-            <span className="w-7 h-7 border-3 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
-            <p className="text-xs font-bold text-slate-700">Carregando rotação 360°...</p>
-            <p className="text-[10px] text-slate-500 font-mono">Preparando {totalFrames} quadros</p>
-          </div>
-        )}
-
-        {/* Imagem do Frame Atual */}
-        {activeSrc && (
-          <img
-            src={activeSrc}
-            alt={`${alt} - ângulo ${angleDegrees} graus`}
-            draggable={false}
-            className="w-full h-full object-contain pointer-events-none transition-none"
-          />
-        )}
-
-        {/* Badge Flutuante de Instrução e Ângulo */}
-        <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs flex items-center gap-1.5 text-[11px] font-bold text-slate-700 pointer-events-none">
-          <span className="text-emerald-600">🔄</span>
-          <span>{angleDegrees}°</span>
+      {/* Loading Spinner */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center z-10 gap-2">
+          <span className="w-7 h-7 border-3 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
+          <p className="text-xs font-bold text-slate-700">Carregando rotação 360°...</p>
+          <p className="text-[10px] text-slate-500 font-mono">Preparando {totalFrames} quadros</p>
         </div>
+      )}
 
-        {/* Dica de arraste (some ao interagir) */}
-        {!isLoading && !isDraggingRef.current && (
-          <div className="absolute bottom-2 inset-x-0 mx-auto w-fit bg-black/60 backdrop-blur-xs text-white px-3 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1.5 opacity-80 pointer-events-none animate-pulse">
-            <span>⇄</span>
-            <span>Arraste para girar em 360°</span>
-          </div>
-        )}
+      {/* Imagem do Frame Atual */}
+      {activeSrc && (
+        <img
+          src={activeSrc}
+          alt={`${alt} - visualização 360 graus`}
+          draggable={false}
+          className="w-full h-full object-contain pointer-events-none transition-none"
+        />
+      )}
+
+      {/* Pílula / Badge 360° Flutuante no Canto Superior Direito */}
+      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-2xs rounded-full px-2.5 py-1 flex items-center gap-1.5 pointer-events-none z-10">
+        <div className="w-4 h-4 rounded-xs bg-blue-600 flex items-center justify-center text-white shrink-0">
+          <svg
+            className="w-2.5 h-2.5 text-white"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+            <path d="M16 21h5v-5" />
+          </svg>
+        </div>
+        <span className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">360°</span>
       </div>
 
-      {/* Barra de Controles Acessíveis Inferior */}
-      <div className="w-full mt-3 pt-3 border-t border-slate-200 flex items-center justify-between gap-3 flex-wrap">
-        {/* Botão de Rotação Automática (Play/Pause) */}
-        <button
-          type="button"
-          onClick={() => setIsPlaying((prev) => !prev)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer shadow-2xs ${
-            isPlaying
-              ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-              : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-          }`}
-          title={isPlaying ? "Pausar rotação automática" : "Girar automaticamente"}
-        >
-          <span>{isPlaying ? "⏸" : "▶"}</span>
-          <span>{isPlaying ? "Pausar" : "Girar 360°"}</span>
-        </button>
-
-        {/* Slider Acessível de Ângulo */}
-        <div className="flex-1 min-w-[120px] flex items-center gap-2">
-          <input
-            type="range"
-            min="0"
-            max={totalFrames - 1}
-            value={currentFrame}
-            onChange={(e) => {
-              setIsPlaying(false)
-              setCurrentFrame(Number(e.target.value))
-            }}
-            aria-label="Controle de rotação 360 graus"
-            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-          />
-          <span className="text-[10px] font-mono text-slate-500 font-bold shrink-0">
-            {currentFrame + 1}/{totalFrames}
-          </span>
+      {/* Dica de arraste com o mouse (desaparece ao interagir) */}
+      {!isLoading && !hasInteracted && (
+        <div className="absolute bottom-3 inset-x-0 mx-auto w-fit bg-slate-900/75 backdrop-blur-xs text-white px-3 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1.5 opacity-90 pointer-events-none shadow-xs">
+          <span>⇄</span>
+          <span>Clique e arraste para girar</span>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -47,7 +47,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
     expect(screen.getAllByText('Visualização 360° Indisponível').length).toBe(2)
   })
 
-  it('carrega quadros e exibe o visualizador com controles acessíveis', async () => {
+  it('carrega quadros e exibe o visualizador com controles por arraste', async () => {
     render(<ProductViewer360 frames={mockFrames} alt="Café Melitta 360" />)
 
     // Estado inicial de loading
@@ -64,8 +64,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
       'aria-label',
       expect.stringContaining('Visualizador 360 graus de Café Melitta 360')
     )
-    expect(screen.getByRole('slider', { name: /Controle de rotação 360 graus/i })).toBeInTheDocument()
-    expect(screen.getByText('Girar 360°')).toBeInTheDocument()
+    expect(screen.getByText('Clique e arraste para girar')).toBeInTheDocument()
   })
 
   it('rotaciona os quadros via navegação por teclado (ArrowRight e ArrowLeft)', async () => {
@@ -76,27 +75,28 @@ describe('ProductViewer360 (Fase 3B)', () => {
     })
 
     const region = screen.getByRole('region')
-    expect(screen.getByText('1/4')).toBeInTheDocument()
+    const img = screen.getByAltText(/Café Melitta 360 - visualização 360 graus/i)
+    expect(img).toHaveAttribute('src', mockFrames[0])
 
     // Seta para direita avança frame
     fireEvent.keyDown(region, { key: 'ArrowRight' })
-    expect(screen.getByText('2/4')).toBeInTheDocument()
+    expect(img).toHaveAttribute('src', mockFrames[1])
 
     // Seta para direita novamente
     fireEvent.keyDown(region, { key: 'ArrowRight' })
-    expect(screen.getByText('3/4')).toBeInTheDocument()
+    expect(img).toHaveAttribute('src', mockFrames[2])
 
     // Seta para esquerda retrocede frame
     fireEvent.keyDown(region, { key: 'ArrowLeft' })
-    expect(screen.getByText('2/4')).toBeInTheDocument()
+    expect(img).toHaveAttribute('src', mockFrames[1])
 
     // Tecla End vai para o último
     fireEvent.keyDown(region, { key: 'End' })
-    expect(screen.getByText('4/4')).toBeInTheDocument()
+    expect(img).toHaveAttribute('src', mockFrames[3])
 
     // Tecla Home volta ao início
     fireEvent.keyDown(region, { key: 'Home' })
-    expect(screen.getByText('1/4')).toBeInTheDocument()
+    expect(img).toHaveAttribute('src', mockFrames[0])
   })
 
   it('permite rotação por arraste (Pointer Events: pointerdown e pointermove)', async () => {
@@ -109,52 +109,29 @@ describe('ProductViewer360 (Fase 3B)', () => {
     const dragArea = container.querySelector('.cursor-grab')
     expect(dragArea).not.toBeNull()
 
+    const img = screen.getByAltText(/Café Melitta 360 - visualização 360 graus/i)
+    expect(img).toHaveAttribute('src', mockFrames[0])
+
     // Inicia arraste
     fireEvent.pointerDown(dragArea, { clientX: 200, pointerId: 1 })
-    // Arrasta 30px para a esquerda (gira sentido horário)
-    fireEvent.pointerMove(dragArea, { clientX: 170, pointerId: 1 })
+    // Arrasta 20px para a esquerda (gira 2 frames)
+    fireEvent.pointerMove(dragArea, { clientX: 180, pointerId: 1 })
     // Solta
     fireEvent.pointerUp(dragArea, { pointerId: 1 })
 
-    // O frame deve ter avançado proporcionalmente à sensibilidade
-    expect(screen.queryByText('1/4')).toBeNull()
+    // O frame avançou
+    expect(img).toHaveAttribute('src', mockFrames[2])
   })
 
-  it('alterna rotação automática contínua pelo botão Play/Pause', async () => {
-    render(<ProductViewer360 frames={mockFrames} alt="Café Melitta 360" />)
-
-    act(() => {
-      vi.advanceTimersByTime(50)
-    })
-
-    const playButton = screen.getByText('Girar 360°')
-    expect(playButton).toBeInTheDocument()
-
-    // Clica para dar play
-    fireEvent.click(playButton)
-    expect(screen.getByText('Pausar')).toBeInTheDocument()
-
-    // Avança o timer de autoplay (120ms por frame)
-    act(() => {
-      vi.advanceTimersByTime(250)
-    })
-
-    // Clica para pausar
-    const pauseButton = screen.getByText('Pausar')
-    fireEvent.click(pauseButton)
-    expect(screen.getByText('Girar 360°')).toBeInTheDocument()
-  })
-
-  it('libera timers e cancela listeners seguramente ao desmontar', async () => {
+  it('desmonta com segurança sem estourar erros de timers pendentes', async () => {
     const { unmount } = render(
-      <ProductViewer360 frames={mockFrames} alt="Café Melitta 360" autoRotateInitially={true} />
+      <ProductViewer360 frames={mockFrames} alt="Café Melitta 360" />
     )
 
     act(() => {
       vi.advanceTimersByTime(50)
     })
 
-    // Desmonta sem estourar erros
     expect(() => unmount()).not.toThrow()
   })
 })

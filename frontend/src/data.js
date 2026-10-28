@@ -50,7 +50,11 @@ export const PRODUCTS = [
       "fort": 23.9,
       "carrefour": 25.9
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.asunonline.com.br/produto/cafe-em-po-melitta-tradicional-500g",
+    "idOrigem": "7710359",
+    "supermercadoOrigem": "Asun Supermercados",
+    "precoNormal": 26.9
   },
   {
     "id": "p2",
@@ -72,7 +76,11 @@ export const PRODUCTS = [
       "fort": 17.27,
       "carrefour": 18.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.asunonline.com.br/produto/cafe-em-po-melitta-tradicional-250g",
+    "idOrigem": "7710331",
+    "supermercadoOrigem": "Asun Supermercados",
+    "precoNormal": 17.99
   },
   {
     "id": "p3",
@@ -94,7 +102,11 @@ export const PRODUCTS = [
       "fort": 31.58,
       "carrefour": 34.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.asunonline.com.br/produto/cafe-soluvel-nescafe-tradicao-160g",
+    "idOrigem": "7714418",
+    "supermercadoOrigem": "Asun Supermercados",
+    "precoNormal": 32.9
   },
   {
     "id": "p4",
@@ -116,7 +128,11 @@ export const PRODUCTS = [
       "fort": 21.1,
       "carrefour": 22.86
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.asunonline.com.br/produto/cafe-em-po-uniao-vacuo-tradicional-500g",
+    "idOrigem": "7699352",
+    "supermercadoOrigem": "Asun Supermercados",
+    "precoNormal": 21.98
   },
   {
     "id": "p5",
@@ -138,7 +154,11 @@ export const PRODUCTS = [
       "fort": 6.23,
       "carrefour": 6.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.asunonline.com.br/produto/filtro-de-papel-melitta-brigitta-102-30-unidades",
+    "idOrigem": "7704988",
+    "supermercadoOrigem": "Asun Supermercados",
+    "precoNormal": 6.49
   },
   {
     "id": "p6",
@@ -160,7 +180,11 @@ export const PRODUCTS = [
       "fort": 9.88,
       "carrefour": 10.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://secure.atacadao.com.br/bombom-nestle-especialidades-13570/p",
+    "idOrigem": "114654",
+    "supermercadoOrigem": "Atacadão",
+    "precoNormal": 10.29
   },
   {
     "id": "p7",
@@ -182,7 +206,11 @@ export const PRODUCTS = [
       "fort": 4.31,
       "carrefour": 4.67
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://secure.atacadao.com.br/biscoito-marilan-maizena-12297/p",
+    "idOrigem": "113529",
+    "supermercadoOrigem": "Atacadão",
+    "precoNormal": 4.49
   },
   {
     "id": "p8",
@@ -204,7 +232,11 @@ export const PRODUCTS = [
       "fort": 8.14,
       "carrefour": 8.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://secure.atacadao.com.br/leite-condensado-moca-integral-15--gratis-9443/p",
+    "idOrigem": "59317",
+    "supermercadoOrigem": "Atacadão",
+    "precoNormal": 8.48
   },
   {
     "id": "p9",
@@ -226,7 +258,11 @@ export const PRODUCTS = [
       "fort": 1.81,
       "carrefour": 1.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://secure.atacadao.com.br/molho-de-tomate-quero-tradicional-1869/p",
+    "idOrigem": "55718",
+    "supermercadoOrigem": "Atacadão",
+    "precoNormal": 1.89
   },
   {
     "id": "p10",
@@ -248,7 +284,11 @@ export const PRODUCTS = [
       "fort": 3.02,
       "carrefour": 3.28
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://secure.atacadao.com.br/acucar-refinado-bulnez-14485/p",
+    "idOrigem": "171471",
+    "supermercadoOrigem": "Atacadão",
+    "precoNormal": 3.15
   },
   {
     "id": "p11",
@@ -270,7 +310,11 @@ export const PRODUCTS = [
       "fort": 27.83,
       "carrefour": 30.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-parbolizado-tio-joao-tp1-5kg",
+    "idOrigem": "154",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 28.99
   },
   {
     "id": "p12",
@@ -292,7 +336,11 @@ export const PRODUCTS = [
       "fort": 4.69,
       "carrefour": 5.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-bco-blue-ville-tp1-1kg",
+    "idOrigem": "323",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.89
   },
   {
     "id": "p13",
@@ -314,7 +362,11 @@ export const PRODUCTS = [
       "fort": 9.21,
       "carrefour": 9.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-camil-tipo-1-2kg",
+    "idOrigem": "624",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.59
   },
   {
     "id": "p14",
@@ -336,7 +388,11 @@ export const PRODUCTS = [
       "fort": 12.76,
       "carrefour": 13.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-blue-ville-culinaria-gaucha-1kg",
+    "idOrigem": "1025",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 13.29
   },
   {
     "id": "p15",
@@ -358,7 +414,11 @@ export const PRODUCTS = [
       "fort": 11.13,
       "carrefour": 12.05
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-carreteiro-tio-joao-175g",
+    "idOrigem": "1647",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 11.59
   },
   {
     "id": "p16",
@@ -380,7 +440,11 @@ export const PRODUCTS = [
       "fort": 10.07,
       "carrefour": 10.91
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-parboilizado-bella-dica-2kg",
+    "idOrigem": "1890",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.49
   },
   {
     "id": "p17",
@@ -402,7 +466,11 @@ export const PRODUCTS = [
       "fort": 18.61,
       "carrefour": 20.17
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-tio-joao-cozinha-tailandesa-1kg",
+    "idOrigem": "1911",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 19.39
   },
   {
     "id": "p18",
@@ -424,7 +492,11 @@ export const PRODUCTS = [
       "fort": 9.97,
       "carrefour": 10.81
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-branco-bella-dica-2kg",
+    "idOrigem": "2189",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.39
   },
   {
     "id": "p19",
@@ -446,7 +518,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-blue-ville-espinafre-250g",
+    "idOrigem": "2261",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.49
   },
   {
     "id": "p20",
@@ -468,7 +544,11 @@ export const PRODUCTS = [
       "fort": 15.06,
       "carrefour": 16.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-tio-joao-galinha-175g",
+    "idOrigem": "2582",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.69
   },
   {
     "id": "p21",
@@ -490,7 +570,11 @@ export const PRODUCTS = [
       "fort": 9.3,
       "carrefour": 10.08
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-caldo-de-ouro-1kg",
+    "idOrigem": "522",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.69
   },
   {
     "id": "p22",
@@ -512,7 +596,11 @@ export const PRODUCTS = [
       "fort": 6.23,
       "carrefour": 6.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-vermelho-arbaza-tipo-1-500g",
+    "idOrigem": "31466",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.49
   },
   {
     "id": "p23",
@@ -534,7 +622,11 @@ export const PRODUCTS = [
       "fort": 6.23,
       "carrefour": 6.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-branco-arbaza-tipo-1-500g",
+    "idOrigem": "31457",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.49
   },
   {
     "id": "p24",
@@ -556,7 +648,11 @@ export const PRODUCTS = [
       "fort": 6.42,
       "carrefour": 6.96
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-gasparin-tipo-1-1kg",
+    "idOrigem": "29438",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.69
   },
   {
     "id": "p25",
@@ -578,7 +674,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-gasparin-ypiranga-1kg",
+    "idOrigem": "26865",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.99
   },
   {
     "id": "p26",
@@ -600,7 +700,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-ondao-tp1-1kg",
+    "idOrigem": "24145",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.99
   },
   {
     "id": "p27",
@@ -622,7 +726,11 @@ export const PRODUCTS = [
       "fort": 4.98,
       "carrefour": 5.4
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-graos-do-sul-1kg",
+    "idOrigem": "14986",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.19
   },
   {
     "id": "p28",
@@ -644,7 +752,11 @@ export const PRODUCTS = [
       "fort": 12.09,
       "carrefour": 13.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-carioca-caldo-de-ouro-1kg",
+    "idOrigem": "12136",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 12.59
   },
   {
     "id": "p29",
@@ -666,7 +778,11 @@ export const PRODUCTS = [
       "fort": 12.85,
       "carrefour": 13.93
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-azuki-blue-ville-500g",
+    "idOrigem": "11334",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 13.39
   },
   {
     "id": "p30",
@@ -688,7 +804,11 @@ export const PRODUCTS = [
       "fort": 8.53,
       "carrefour": 9.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/feijao-preto-biju-tipo1-1kg",
+    "idOrigem": "10384",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 8.89
   },
   {
     "id": "p31",
@@ -710,7 +830,11 @@ export const PRODUCTS = [
       "fort": 17.65,
       "carrefour": 19.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-hidratante-monange-leite-200ml",
+    "idOrigem": "20945",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.39
   },
   {
     "id": "p32",
@@ -732,7 +856,11 @@ export const PRODUCTS = [
       "fort": 17.27,
       "carrefour": 18.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-fermentado-polpa-activia-510g-mamaocer",
+    "idOrigem": "86",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 17.99
   },
   {
     "id": "p33",
@@ -754,7 +882,11 @@ export const PRODUCTS = [
       "fort": 86.3,
       "carrefour": 93.5
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-em-po-nan-comfort-n2-800g",
+    "idOrigem": "321",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 89.9
   },
   {
     "id": "p34",
@@ -776,7 +908,11 @@ export const PRODUCTS = [
       "fort": 17.27,
       "carrefour": 18.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-fermentado-polpa-activia-510g-mor",
+    "idOrigem": "428",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 17.99
   },
   {
     "id": "p35",
@@ -798,7 +934,11 @@ export const PRODUCTS = [
       "fort": 11.8,
       "carrefour": 12.78
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-condensado-nestle-moca-lata-395g-integral",
+    "idOrigem": "661",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 12.29
   },
   {
     "id": "p36",
@@ -820,7 +960,11 @@ export const PRODUCTS = [
       "fort": 9.59,
       "carrefour": 10.39
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-de-coco-light-sococo-200ml",
+    "idOrigem": "1005",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.99
   },
   {
     "id": "p37",
@@ -842,7 +986,11 @@ export const PRODUCTS = [
       "fort": 5.37,
       "carrefour": 5.81
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-santa-clara-integral-1l",
+    "idOrigem": "1088",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.59
   },
   {
     "id": "p38",
@@ -864,7 +1012,11 @@ export const PRODUCTS = [
       "fort": 11.99,
       "carrefour": 12.99
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-leitissimo-1l-uht-zero-lactose-integral",
+    "idOrigem": "1141",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 12.49
   },
   {
     "id": "p39",
@@ -886,7 +1038,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-molico-desnatado-1l",
+    "idOrigem": "1508",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.99
   },
   {
     "id": "p40",
@@ -908,7 +1064,11 @@ export const PRODUCTS = [
       "fort": 13.81,
       "carrefour": 14.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/leite-fermentado-nestle-chamyto-720g",
+    "idOrigem": "1625",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 14.39
   },
   {
     "id": "p41",
@@ -930,7 +1090,11 @@ export const PRODUCTS = [
       "fort": 31.58,
       "carrefour": 34.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-torrado-e-moido-3-coracoes-peneirando-cafe-250g",
+    "idOrigem": "6752",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 32.9
   },
   {
     "id": "p42",
@@ -952,7 +1116,11 @@ export const PRODUCTS = [
       "fort": 23.51,
       "carrefour": 25.47
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-3-coracoes-cafeleite-capsulas-90g",
+    "idOrigem": "6073",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 24.49
   },
   {
     "id": "p43",
@@ -974,7 +1142,11 @@ export const PRODUCTS = [
       "fort": 22.36,
       "carrefour": 24.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-nescafe-dolce-gusto-cafe-aulait-c10-capsulas",
+    "idOrigem": "2498",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 23.29
   },
   {
     "id": "p44",
@@ -996,7 +1168,11 @@ export const PRODUCTS = [
       "fort": 22.36,
       "carrefour": 24.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-nescafe-dolce-gusto-cafe-matinal-c10-capsulas",
+    "idOrigem": "20415",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 23.29
   },
   {
     "id": "p45",
@@ -1018,7 +1194,11 @@ export const PRODUCTS = [
       "fort": 30.7,
       "carrefour": 33.26
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-moido-organico-native-250g",
+    "idOrigem": "12416",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 31.98
   },
   {
     "id": "p46",
@@ -1040,7 +1220,11 @@ export const PRODUCTS = [
       "fort": 27.83,
       "carrefour": 30.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-torrado-e-moido-melitta-tradicional-500g",
+    "idOrigem": "12380",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 28.99
   },
   {
     "id": "p47",
@@ -1062,7 +1246,11 @@ export const PRODUCTS = [
       "fort": 23.99,
       "carrefour": 25.99
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-melitta-regioes-brasileiras-mogiana-250g",
+    "idOrigem": "12214",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 24.99
   },
   {
     "id": "p48",
@@ -1084,7 +1272,11 @@ export const PRODUCTS = [
       "fort": 23.98,
       "carrefour": 25.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-liofilizado-organico-native-50g",
+    "idOrigem": "12037",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 24.98
   },
   {
     "id": "p49",
@@ -1106,7 +1298,11 @@ export const PRODUCTS = [
       "fort": 16.31,
       "carrefour": 17.67
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-extra-forte-melitta-250g",
+    "idOrigem": "11964",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 16.99
   },
   {
     "id": "p50",
@@ -1128,7 +1324,11 @@ export const PRODUCTS = [
       "fort": 20.05,
       "carrefour": 21.73
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cafe-3-coracoes-rituais-sache-coffee-c10",
+    "idOrigem": "11563",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 28.49
   },
   {
     "id": "p51",
@@ -1150,7 +1350,11 @@ export const PRODUCTS = [
       "fort": 14.39,
       "carrefour": 15.59
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-cristal-montare-5kg",
+    "idOrigem": "1291",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.69
   },
   {
     "id": "p52",
@@ -1172,7 +1376,11 @@ export const PRODUCTS = [
       "fort": 15.64,
       "carrefour": 16.94
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-baunilha-monopol-500g",
+    "idOrigem": "1302",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 16.29
   },
   {
     "id": "p53",
@@ -1194,7 +1402,11 @@ export const PRODUCTS = [
       "fort": 5.65,
       "carrefour": 6.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-demerara-caravelas-1kg",
+    "idOrigem": "1364",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.89
   },
   {
     "id": "p54",
@@ -1216,7 +1428,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-refinado-caravelas-5kg",
+    "idOrigem": "1782",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 19.9
   },
   {
     "id": "p55",
@@ -1238,7 +1454,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-mascavo-guimaraes-500g",
+    "idOrigem": "3370",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.99
   },
   {
     "id": "p56",
@@ -1260,7 +1480,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-cristal-colombo-1kg",
+    "idOrigem": "3566",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 3.59
   },
   {
     "id": "p57",
@@ -1282,7 +1506,11 @@ export const PRODUCTS = [
       "fort": 7.96,
       "carrefour": 8.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-cristal-colombo-2kg",
+    "idOrigem": "3939",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 8.29
   },
   {
     "id": "p58",
@@ -1304,7 +1532,11 @@ export const PRODUCTS = [
       "fort": 10.55,
       "carrefour": 11.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-organico-native-demerara-1kg",
+    "idOrigem": "4399",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.99
   },
   {
     "id": "p59",
@@ -1326,7 +1558,11 @@ export const PRODUCTS = [
       "fort": 3.35,
       "carrefour": 3.63
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-baunilha-apti-100g",
+    "idOrigem": "5249",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 3.49
   },
   {
     "id": "p60",
@@ -1348,7 +1584,11 @@ export const PRODUCTS = [
       "fort": 4.5,
       "carrefour": 4.88
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-refinado-uniao-1kg",
+    "idOrigem": "6822",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.69
   },
   {
     "id": "p61",
@@ -1370,7 +1610,11 @@ export const PRODUCTS = [
       "fort": 18.04,
       "carrefour": 19.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-kalipto-eucalipto-120ml",
+    "idOrigem": "12278",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.79
   },
   {
     "id": "p62",
@@ -1392,7 +1636,11 @@ export const PRODUCTS = [
       "fort": 23.51,
       "carrefour": 25.47
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-coco-qualicoco-ssabor-200ml",
+    "idOrigem": "11210",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 24.49
   },
   {
     "id": "p63",
@@ -1414,7 +1662,11 @@ export const PRODUCTS = [
       "fort": 49.82,
       "carrefour": 53.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-coco-copra-spray-100ml-extvirg",
+    "idOrigem": "11052",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 51.9
   },
   {
     "id": "p64",
@@ -1436,7 +1688,11 @@ export const PRODUCTS = [
       "fort": 15.35,
       "carrefour": 16.63
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-milho-soya-900ml",
+    "idOrigem": "10835",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.99
   },
   {
     "id": "p65",
@@ -1458,7 +1714,11 @@ export const PRODUCTS = [
       "fort": 26.86,
       "carrefour": 29.1
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-coco-copra-ssabor-200ml",
+    "idOrigem": "10555",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 27.98
   },
   {
     "id": "p66",
@@ -1480,7 +1740,11 @@ export const PRODUCTS = [
       "fort": 25.43,
       "carrefour": 27.55
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-de-peroba-king-restaurador-madeira-avermelhada-200ml",
+    "idOrigem": "10528",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 26.49
   },
   {
     "id": "p67",
@@ -1502,7 +1766,11 @@ export const PRODUCTS = [
       "fort": 47.9,
       "carrefour": 51.9
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-coco-coco-show-extra-virgem-500ml",
+    "idOrigem": "10233",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 49.9
   },
   {
     "id": "p68",
@@ -1524,7 +1792,11 @@ export const PRODUCTS = [
       "fort": 22.17,
       "carrefour": 24.01
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-amendoas-paixao-100ml-irresist",
+    "idOrigem": "10141",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 23.09
   },
   {
     "id": "p69",
@@ -1546,7 +1818,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-lubrificante-king-multiuso-100ml",
+    "idOrigem": "9828",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.99
   },
   {
     "id": "p70",
@@ -1568,7 +1844,11 @@ export const PRODUCTS = [
       "fort": 19.19,
       "carrefour": 20.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/oleo-coco-sococo-extvirg200ml",
+    "idOrigem": "7905",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 19.99
   },
   {
     "id": "p71",
@@ -1590,7 +1870,11 @@ export const PRODUCTS = [
       "fort": 6.42,
       "carrefour": 6.96
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-aveia-quaker-165g",
+    "idOrigem": "32",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.69
   },
   {
     "id": "p72",
@@ -1612,7 +1896,11 @@ export const PRODUCTS = [
       "fort": 20.63,
       "carrefour": 22.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-amendoim-geracao-saude-500g",
+    "idOrigem": "319",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 21.49
   },
   {
     "id": "p73",
@@ -1634,7 +1922,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-milho-yoki-kimilho-500g",
+    "idOrigem": "362",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.99
   },
   {
     "id": "p74",
@@ -1656,7 +1948,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-berinjela-geracao-saude-150g",
+    "idOrigem": "601",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.69
   },
   {
     "id": "p75",
@@ -1678,7 +1974,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-kimilho-yoki-flocao-500g",
+    "idOrigem": "703",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.99
   },
   {
     "id": "p76",
@@ -1700,7 +2000,11 @@ export const PRODUCTS = [
       "fort": 7.09,
       "carrefour": 7.69
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-yoki-kipolenta-500g",
+    "idOrigem": "2941",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.39
   },
   {
     "id": "p77",
@@ -1722,7 +2026,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-milho-beatriz-fina-1kg",
+    "idOrigem": "3327",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.99
   },
   {
     "id": "p78",
@@ -1744,7 +2052,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-neston-vitambanperamor400g",
+    "idOrigem": "3938",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.99
   },
   {
     "id": "p79",
@@ -1766,7 +2078,11 @@ export const PRODUCTS = [
       "fort": 12.47,
       "carrefour": 13.51
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-lactea-nestle-sache-210g",
+    "idOrigem": "4528",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 12.99
   },
   {
     "id": "p80",
@@ -1788,7 +2104,11 @@ export const PRODUCTS = [
       "fort": 8.63,
       "carrefour": 9.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/farinha-milho-yoki-amarela-500g",
+    "idOrigem": "4835",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 8.99
   },
   {
     "id": "p81",
@@ -1810,7 +2130,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-fresca-romena-espaguete-500g",
+    "idOrigem": "330",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.19
   },
   {
     "id": "p82",
@@ -1832,7 +2156,11 @@ export const PRODUCTS = [
       "fort": 6.13,
       "carrefour": 6.65
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ovos-semola-barilla-500g-linguine",
+    "idOrigem": "414",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.39
   },
   {
     "id": "p83",
@@ -1854,7 +2182,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-fresca-romena-penne-500g",
+    "idOrigem": "898",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.19
   },
   {
     "id": "p84",
@@ -1876,7 +2208,11 @@ export const PRODUCTS = [
       "fort": 6.04,
       "carrefour": 6.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ppizza-joao-das-massas-200g",
+    "idOrigem": "986",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.29
   },
   {
     "id": "p85",
@@ -1898,7 +2234,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ppastel-italiany-200g",
+    "idOrigem": "1028",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.99
   },
   {
     "id": "p86",
@@ -1920,7 +2260,11 @@ export const PRODUCTS = [
       "fort": 14.87,
       "carrefour": 16.11
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ppastel-italiany-1kg",
+    "idOrigem": "1063",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.49
   },
   {
     "id": "p87",
@@ -1942,7 +2286,11 @@ export const PRODUCTS = [
       "fort": 7.86,
       "carrefour": 8.52
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-caseiro-germani-talharim-largo-500g",
+    "idOrigem": "1173",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 11.19
   },
   {
     "id": "p88",
@@ -1964,7 +2312,11 @@ export const PRODUCTS = [
       "fort": 12.37,
       "carrefour": 13.41
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-paganini-rigatoni-500g",
+    "idOrigem": "1308",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 12.89
   },
   {
     "id": "p89",
@@ -1986,7 +2338,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ppastel-romena-500g",
+    "idOrigem": "1350",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.69
   },
   {
     "id": "p90",
@@ -2008,7 +2364,11 @@ export const PRODUCTS = [
       "fort": 10.36,
       "carrefour": 11.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-caseiro-ppastel-italiany-650g",
+    "idOrigem": "1416",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.79
   },
   {
     "id": "p91",
@@ -2030,7 +2390,11 @@ export const PRODUCTS = [
       "fort": 6.81,
       "carrefour": 7.37
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-stella-artois-lata-473ml",
+    "idOrigem": "1061",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.09
   },
   {
     "id": "p92",
@@ -2052,7 +2416,11 @@ export const PRODUCTS = [
       "fort": 17.75,
       "carrefour": 19.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-hat-beer-pilsen-600ml",
+    "idOrigem": "1300",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.49
   },
   {
     "id": "p93",
@@ -2074,7 +2442,11 @@ export const PRODUCTS = [
       "fort": 14.58,
       "carrefour": 15.8
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-baden-ale-golden-600ml",
+    "idOrigem": "1349",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.19
   },
   {
     "id": "p94",
@@ -2096,7 +2468,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-skol-sc-600ml",
+    "idOrigem": "1731",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.99
   },
   {
     "id": "p95",
@@ -2118,7 +2494,11 @@ export const PRODUCTS = [
       "fort": 5.08,
       "carrefour": 5.5
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-therezopolis-gold-duplo-malte-lata-473ml",
+    "idOrigem": "1975",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.29
   },
   {
     "id": "p96",
@@ -2140,7 +2520,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-budweiser-lata-473ml",
+    "idOrigem": "2437",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.79
   },
   {
     "id": "p97",
@@ -2162,7 +2546,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-amstel-puro-malte-lneck-275ml-ultra-sem-gluten",
+    "idOrigem": "2457",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.99
   },
   {
     "id": "p98",
@@ -2184,7 +2572,11 @@ export const PRODUCTS = [
       "fort": 6.81,
       "carrefour": 7.37
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-amstel-pilsen-sc-600ml",
+    "idOrigem": "2476",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.09
   },
   {
     "id": "p99",
@@ -2206,7 +2598,11 @@ export const PRODUCTS = [
       "fort": 5.56,
       "carrefour": 6.02
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-bohemia-lata-473ml",
+    "idOrigem": "2664",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.79
   },
   {
     "id": "p100",
@@ -2228,7 +2624,11 @@ export const PRODUCTS = [
       "fort": 6.13,
       "carrefour": 6.65
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-eisenbahn-weiss-lneck-355ml",
+    "idOrigem": "2979",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.29
   },
   {
     "id": "p101",
@@ -2250,7 +2650,11 @@ export const PRODUCTS = [
       "fort": 2.01,
       "carrefour": 2.17
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-coca-cola-pet-200ml",
+    "idOrigem": "43",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 2.09
   },
   {
     "id": "p102",
@@ -2272,7 +2676,11 @@ export const PRODUCTS = [
       "fort": 7.19,
       "carrefour": 7.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-fruki-laranja-2l",
+    "idOrigem": "139",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.49
   },
   {
     "id": "p103",
@@ -2294,7 +2702,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-fanta-laranja-pet-600ml",
+    "idOrigem": "207",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.99
   },
   {
     "id": "p104",
@@ -2316,7 +2728,11 @@ export const PRODUCTS = [
       "fort": 3.83,
       "carrefour": 4.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-fruki-guarana-pet-600ml",
+    "idOrigem": "754",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 3.99
   },
   {
     "id": "p105",
@@ -2338,7 +2754,11 @@ export const PRODUCTS = [
       "fort": 7.19,
       "carrefour": 7.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-fruki-limao-2l",
+    "idOrigem": "768",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.49
   },
   {
     "id": "p106",
@@ -2360,7 +2780,11 @@ export const PRODUCTS = [
       "fort": 5.46,
       "carrefour": 5.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-coca-cola-zero-pet-600ml",
+    "idOrigem": "861",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.69
   },
   {
     "id": "p107",
@@ -2382,7 +2806,11 @@ export const PRODUCTS = [
       "fort": 4.69,
       "carrefour": 5.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-sprite-pet-original-600ml",
+    "idOrigem": "1046",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.89
   },
   {
     "id": "p108",
@@ -2404,7 +2832,11 @@ export const PRODUCTS = [
       "fort": 8.05,
       "carrefour": 8.73
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-sprite-no-sugar-pet-2l",
+    "idOrigem": "1249",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 8.99
   },
   {
     "id": "p109",
@@ -2426,7 +2858,11 @@ export const PRODUCTS = [
       "fort": 7.09,
       "carrefour": 7.69
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-antarctica-soda-limonada-2l",
+    "idOrigem": "1520",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.09
   },
   {
     "id": "p110",
@@ -2448,7 +2884,11 @@ export const PRODUCTS = [
       "fort": 11.41,
       "carrefour": 12.37
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-antarctica-guarana-3l",
+    "idOrigem": "1934",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 11.89
   },
   {
     "id": "p111",
@@ -2470,7 +2910,11 @@ export const PRODUCTS = [
       "fort": 3.35,
       "carrefour": 3.63
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-font-glicerinado-jeans-200g",
+    "idOrigem": "563",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.69
   },
   {
     "id": "p112",
@@ -2492,7 +2936,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-ype-neutro-180g",
+    "idOrigem": "1056",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.99
   },
   {
     "id": "p113",
@@ -2514,7 +2962,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-girando-sol-glicerinado-glicerina-400g",
+    "idOrigem": "2142",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 9.49
   },
   {
     "id": "p114",
@@ -2536,7 +2988,11 @@ export const PRODUCTS = [
       "fort": 7.67,
       "carrefour": 8.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-vanish-super-75g",
+    "idOrigem": "4427",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 7.99
   },
   {
     "id": "p115",
@@ -2558,7 +3014,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-ype-aloe-vera-5x180g",
+    "idOrigem": "5015",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.99
   },
   {
     "id": "p116",
@@ -2580,7 +3040,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-ype-neutro-5x180g",
+    "idOrigem": "9085",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.99
   },
   {
     "id": "p117",
@@ -2602,7 +3066,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-ype-multi-ativo-180g",
+    "idOrigem": "10910",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 4.99
   },
   {
     "id": "p118",
@@ -2624,7 +3092,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-girando-sol-tradicional-tradicional-400g",
+    "idOrigem": "11221",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 5.99
   },
   {
     "id": "p119",
@@ -2646,7 +3118,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-ype-fresh-5x180g",
+    "idOrigem": "12125",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.99
   },
   {
     "id": "p120",
@@ -2668,7 +3144,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-girando-sol-coco-400g",
+    "idOrigem": "13194",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 6.79
   },
   {
     "id": "p121",
@@ -2690,7 +3170,11 @@ export const PRODUCTS = [
       "fort": 65.18,
       "carrefour": 70.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-seca-vapza-desfiado-400g",
+    "idOrigem": "4550",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 67.9
   },
   {
     "id": "p122",
@@ -2712,7 +3196,11 @@ export const PRODUCTS = [
       "fort": 10.46,
       "carrefour": 11.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-lar-de-frango-congelada-375g",
+    "idOrigem": "7973",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.9
   },
   {
     "id": "p123",
@@ -2734,7 +3222,11 @@ export const PRODUCTS = [
       "fort": 18.14,
       "carrefour": 19.66
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-callegaro-segunda-congelada-500g",
+    "idOrigem": "10918",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 18.9
   },
   {
     "id": "p124",
@@ -2756,7 +3248,11 @@ export const PRODUCTS = [
       "fort": 26.35,
       "carrefour": 28.55
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-primeira-500g",
+    "idOrigem": "12786",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 27.45
   },
   {
     "id": "p125",
@@ -2778,7 +3274,11 @@ export const PRODUCTS = [
       "fort": 22.51,
       "carrefour": 24.39
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-segunda-500g",
+    "idOrigem": "12792",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 23.45
   },
   {
     "id": "p126",
@@ -2800,7 +3300,11 @@ export const PRODUCTS = [
       "fort": 10.46,
       "carrefour": 11.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-suina-pamplona-congelada-500g",
+    "idOrigem": "18240",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 10.9
   },
   {
     "id": "p127",
@@ -2822,7 +3326,11 @@ export const PRODUCTS = [
       "fort": 15.26,
       "carrefour": 16.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-bovina-frigon-500g",
+    "idOrigem": "22466",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.9
   },
   {
     "id": "p128",
@@ -2844,7 +3352,11 @@ export const PRODUCTS = [
       "fort": 60.36,
       "carrefour": 65.38
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-hamburguer-stempero-1kg",
+    "idOrigem": "25339",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 62.87
   },
   {
     "id": "p129",
@@ -2866,7 +3378,11 @@ export const PRODUCTS = [
       "fort": 15.35,
       "carrefour": 16.63
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-perdigao-pure-arroz-e-brocolis-300g",
+    "idOrigem": "29476",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 15.99
   },
   {
     "id": "p130",
@@ -2888,7 +3404,11 @@ export const PRODUCTS = [
       "fort": 27.74,
       "carrefour": 30.06
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/carne-moida-bovina-best-beef-atm-400g",
+    "idOrigem": "31075",
+    "supermercadoOrigem": "Master",
+    "precoNormal": 28.9
   },
   {
     "id": "p131",
@@ -2910,7 +3430,11 @@ export const PRODUCTS = [
       "fort": 3.16,
       "carrefour": 3.42
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/acucar-caravelas-refinado-1kg-616461/p",
+    "idOrigem": "616461",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.95
   },
   {
     "id": "p132",
@@ -2932,7 +3456,11 @@ export const PRODUCTS = [
       "fort": 4.21,
       "carrefour": 4.57
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/arroz-namorado-branco-tipo-1-1kg-9082663/p",
+    "idOrigem": "9082663",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.39
   },
   {
     "id": "p133",
@@ -2954,7 +3482,11 @@ export const PRODUCTS = [
       "fort": 7.0,
       "carrefour": 7.58
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/oleo-de-soja-coamo-pet-900ml-9013520/p",
+    "idOrigem": "9013520",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.89
   },
   {
     "id": "p134",
@@ -2976,7 +3508,11 @@ export const PRODUCTS = [
       "fort": 18.14,
       "carrefour": 19.66
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cafe-a-vacuo-bom-jesus-tradicional-500g-8397928/p",
+    "idOrigem": "8397928",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 18.9
   },
   {
     "id": "p135",
@@ -2998,7 +3534,11 @@ export const PRODUCTS = [
       "fort": 24.86,
       "carrefour": 26.94
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cafe-a-vacuo-melitta-tradicional-500g-361118/p",
+    "idOrigem": "361118",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 25.9
   },
   {
     "id": "p136",
@@ -3020,7 +3560,11 @@ export const PRODUCTS = [
       "fort": 2.49,
       "carrefour": 2.69
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/creme-de-leite-triangulo-mineiro-leve-200g-9805255/p",
+    "idOrigem": "9805255",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 2.59
   },
   {
     "id": "p137",
@@ -3042,7 +3586,11 @@ export const PRODUCTS = [
       "fort": 8.63,
       "carrefour": 9.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-condensado-nestle-moca-semidesnatado-tp-395g-9178410/p",
+    "idOrigem": "9178410",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.99
   },
   {
     "id": "p138",
@@ -3064,7 +3612,11 @@ export const PRODUCTS = [
       "fort": 6.23,
       "carrefour": 6.75
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/feijao-preto-namorado-selecionado-1kg-9054547/p",
+    "idOrigem": "9054547",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.29
   },
   {
     "id": "p139",
@@ -3086,7 +3638,11 @@ export const PRODUCTS = [
       "fort": 2.06,
       "carrefour": 2.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/molho-de-tomate-fugini-tradicional-sache-300g-8686442/p",
+    "idOrigem": "8686442",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 2.15
   },
   {
     "id": "p140",
@@ -3108,7 +3664,11 @@ export const PRODUCTS = [
       "fort": 4.41,
       "carrefour": 4.77
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-condensado-feito-em-minas-semidesnatado-395g-2503899/p",
+    "idOrigem": "2503899",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.59
   },
   {
     "id": "p141",
@@ -3130,7 +3690,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/filezinho-de-peito-de-frango-sassami-nat-congelado-iqf-pacote-1kg-9723184/p",
+    "idOrigem": "9723184",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 23.9
   },
   {
     "id": "p142",
@@ -3152,7 +3716,11 @@ export const PRODUCTS = [
       "fort": 55.58,
       "carrefour": 60.22
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/carne-bovina-moida-de-primeira-patinho-1878/p",
+    "idOrigem": "1878",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 64.9
   },
   {
     "id": "p143",
@@ -3174,7 +3742,11 @@ export const PRODUCTS = [
       "fort": 19.18,
       "carrefour": 20.78
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/file-de-peito-de-frango-congelado-pacote-43564/p",
+    "idOrigem": "43564",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 19.98
   },
   {
     "id": "p144",
@@ -3196,7 +3768,11 @@ export const PRODUCTS = [
       "fort": 9.5,
       "carrefour": 10.3
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/coxa-e-sobrecoxa-de-frango-congelada-pacote-40100/p",
+    "idOrigem": "40100",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 9.9
   },
   {
     "id": "p145",
@@ -3218,7 +3794,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/file-de-coxa-e-sobrecoxa-de-frango-nat-congelado-iqf-pacote-1kg-9762084/p",
+    "idOrigem": "9762084",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 19.9
   },
   {
     "id": "p146",
@@ -3240,7 +3820,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/linguica-de-carne-suina-sadia-congelada-700g-2518978/p",
+    "idOrigem": "2518978",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 16.9
   },
   {
     "id": "p147",
@@ -3262,7 +3846,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/linguica-excelsior-fininha-defumada-215g-2502694/p",
+    "idOrigem": "2502694",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.99
   },
   {
     "id": "p148",
@@ -3284,7 +3872,11 @@ export const PRODUCTS = [
       "fort": 14.39,
       "carrefour": 15.59
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/sobrecoxa-de-frango-sadia-cortes-menores-congelada-bandeja-1kg-2369938/p",
+    "idOrigem": "2369938",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 14.99
   },
   {
     "id": "p149",
@@ -3306,7 +3898,11 @@ export const PRODUCTS = [
       "fort": 10.55,
       "carrefour": 11.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/coxa-da-asa-de-frango-lar-congelada-iqf-700g-2356471/p",
+    "idOrigem": "2356471",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 10.99
   },
   {
     "id": "p150",
@@ -3328,7 +3924,11 @@ export const PRODUCTS = [
       "fort": 15.26,
       "carrefour": 16.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/filezinho-sassami-de-frango-lar-congelado-iqf-pacote-700g-2356457/p",
+    "idOrigem": "2356457",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 15.9
   },
   {
     "id": "p151",
@@ -3350,7 +3950,11 @@ export const PRODUCTS = [
       "fort": 4.12,
       "carrefour": 4.46
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-integral-pet-1l-2403243/p",
+    "idOrigem": "2403243",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.98
   },
   {
     "id": "p152",
@@ -3372,7 +3976,11 @@ export const PRODUCTS = [
       "fort": 4.78,
       "carrefour": 5.18
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-santa-clara-longa-vida-integral-1l-8477750/p",
+    "idOrigem": "8477750",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.98
   },
   {
     "id": "p153",
@@ -3394,7 +4002,11 @@ export const PRODUCTS = [
       "fort": 4.12,
       "carrefour": 4.46
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-semidesnatado-pet-1l-2403267/p",
+    "idOrigem": "2403267",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.98
   },
   {
     "id": "p154",
@@ -3416,7 +4028,11 @@ export const PRODUCTS = [
       "fort": 5.17,
       "carrefour": 5.61
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-semidesnatado-zero-lactose-1l-2199634/p",
+    "idOrigem": "2199634",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 5.39
   },
   {
     "id": "p155",
@@ -3438,7 +4054,11 @@ export const PRODUCTS = [
       "fort": 4.69,
       "carrefour": 5.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-italac-longa-vida-integral-1l-2174181/p",
+    "idOrigem": "2174181",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.89
   },
   {
     "id": "p156",
@@ -3460,7 +4080,11 @@ export const PRODUCTS = [
       "fort": 4.78,
       "carrefour": 5.18
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-santa-clara-semidesnatado-1l-8746907/p",
+    "idOrigem": "8746907",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.98
   },
   {
     "id": "p157",
@@ -3482,7 +4106,11 @@ export const PRODUCTS = [
       "fort": 8.34,
       "carrefour": 9.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-tirol-longa-vida-semidesnatado-zero-lactose--proteina-1l-2585017/p",
+    "idOrigem": "2585017",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.69
   },
   {
     "id": "p158",
@@ -3504,7 +4132,11 @@ export const PRODUCTS = [
       "fort": 3.83,
       "carrefour": 4.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/creme-de-leite-santa-clara-17--gordura-200g-2543154/p",
+    "idOrigem": "2543154",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.99
   },
   {
     "id": "p159",
@@ -3526,7 +4158,11 @@ export const PRODUCTS = [
       "fort": 4.12,
       "carrefour": 4.46
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-desnatado-pet-1l-2403281/p",
+    "idOrigem": "2403281",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.98
   },
   {
     "id": "p160",
@@ -3548,7 +4184,11 @@ export const PRODUCTS = [
       "fort": 4.98,
       "carrefour": 5.4
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-italac-uht-semidesnatado-zero-lactose-1l-2174242/p",
+    "idOrigem": "2174242",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 5.19
   },
   {
     "id": "p161",
@@ -3570,7 +4210,11 @@ export const PRODUCTS = [
       "fort": 1.43,
       "carrefour": 1.55
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/agua-mineral-fonte-da-lomba-com-gas-510ml-9559028/p",
+    "idOrigem": "9559028",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.49
   },
   {
     "id": "p162",
@@ -3592,7 +4236,11 @@ export const PRODUCTS = [
       "fort": 1.24,
       "carrefour": 1.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/agua-mineral-fonte-da-lomba-sem-gas-510ml-9559479/p",
+    "idOrigem": "9559479",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.29
   },
   {
     "id": "p163",
@@ -3614,7 +4262,11 @@ export const PRODUCTS = [
       "fort": 1.62,
       "carrefour": 1.76
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-pet-200ml-9914452/p",
+    "idOrigem": "9914452",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.99
   },
   {
     "id": "p164",
@@ -3636,7 +4288,11 @@ export const PRODUCTS = [
       "fort": 1.62,
       "carrefour": 1.76
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-zero-pet-200ml-9914438/p",
+    "idOrigem": "9914438",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.99
   },
   {
     "id": "p165",
@@ -3658,7 +4314,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cerveja-heineken-long-neck-330ml-9732292/p",
+    "idOrigem": "9732292",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.99
   },
   {
     "id": "p166",
@@ -3680,7 +4340,11 @@ export const PRODUCTS = [
       "fort": 8.53,
       "carrefour": 9.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/refrigerante-pepsi-black-sem-acucar-pet-2l-9692084/p",
+    "idOrigem": "9692084",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.89
   },
   {
     "id": "p167",
@@ -3702,7 +4366,11 @@ export const PRODUCTS = [
       "fort": 2.87,
       "carrefour": 3.11
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/agua-mineral-fonte-da-lomba-com-gas-1-5l-9672567/p",
+    "idOrigem": "9672567",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 2.99
   },
   {
     "id": "p168",
@@ -3724,7 +4392,11 @@ export const PRODUCTS = [
       "fort": 4.41,
       "carrefour": 4.77
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cerveja-budweiser-latao-473ml-9602496/p",
+    "idOrigem": "9602496",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.59
   },
   {
     "id": "p169",
@@ -3746,7 +4418,11 @@ export const PRODUCTS = [
       "fort": 6.33,
       "carrefour": 6.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/agua-mineral-fonte-da-lomba-sem-gas-5l-9367135/p",
+    "idOrigem": "9367135",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.59
   },
   {
     "id": "p170",
@@ -3768,7 +4444,11 @@ export const PRODUCTS = [
       "fort": 10.07,
       "carrefour": 10.91
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-sem-acucar-pet-2l-9047556/p",
+    "idOrigem": "9047556",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 10.99
   },
   {
     "id": "p171",
@@ -3790,7 +4470,11 @@ export const PRODUCTS = [
       "fort": 6.52,
       "carrefour": 7.06
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cenoura-20848/p",
+    "idOrigem": "20848",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.79
   },
   {
     "id": "p172",
@@ -3812,7 +4496,11 @@ export const PRODUCTS = [
       "fort": 8.15,
       "carrefour": 8.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/batata-branca-20251/p",
+    "idOrigem": "20251",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.49
   },
   {
     "id": "p173",
@@ -3834,7 +4522,11 @@ export const PRODUCTS = [
       "fort": 8.62,
       "carrefour": 9.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cebola-nacional-8389/p",
+    "idOrigem": "8389",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.98
   },
   {
     "id": "p174",
@@ -3856,7 +4548,11 @@ export const PRODUCTS = [
       "fort": 12.46,
       "carrefour": 13.5
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/ovos-brancos--bandeja-com-20un-2203867/p",
+    "idOrigem": "2203867",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 12.98
   },
   {
     "id": "p175",
@@ -3878,7 +4574,11 @@ export const PRODUCTS = [
       "fort": 14.38,
       "carrefour": 15.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/tomate-longa-vida-64880/p",
+    "idOrigem": "64880",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 14.98
   },
   {
     "id": "p176",
@@ -3900,7 +4600,11 @@ export const PRODUCTS = [
       "fort": 8.15,
       "carrefour": 8.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/batata-inglesa-rosa-62817/p",
+    "idOrigem": "62817",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.49
   },
   {
     "id": "p177",
@@ -3922,7 +4626,11 @@ export const PRODUCTS = [
       "fort": 4.6,
       "carrefour": 4.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/laranja-de-umbigo-36115/p",
+    "idOrigem": "36115",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.79
   },
   {
     "id": "p178",
@@ -3944,7 +4652,11 @@ export const PRODUCTS = [
       "fort": 15.34,
       "carrefour": 16.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/tomate-italiano-28899/p",
+    "idOrigem": "28899",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 15.98
   },
   {
     "id": "p179",
@@ -3966,7 +4678,11 @@ export const PRODUCTS = [
       "fort": 9.58,
       "carrefour": 10.38
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/maca-fuji-26611/p",
+    "idOrigem": "26611",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 9.98
   },
   {
     "id": "p180",
@@ -3988,7 +4704,11 @@ export const PRODUCTS = [
       "fort": 12.95,
       "carrefour": 14.03
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/limao-taiti-21463/p",
+    "idOrigem": "21463",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 13.49
   },
   {
     "id": "p181",
@@ -4010,7 +4730,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-frances-panfacil-87834/p",
+    "idOrigem": "87834",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 16.9
   },
   {
     "id": "p182",
@@ -4032,7 +4756,11 @@ export const PRODUCTS = [
       "fort": 7.19,
       "carrefour": 7.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-de-forma-farias-500g-9291720/p",
+    "idOrigem": "9291720",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.49
   },
   {
     "id": "p183",
@@ -4054,7 +4782,11 @@ export const PRODUCTS = [
       "fort": 49.82,
       "carrefour": 53.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-de-queijo-tradicional-mini-72809/p",
+    "idOrigem": "72809",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 51.9
   },
   {
     "id": "p184",
@@ -4076,7 +4808,11 @@ export const PRODUCTS = [
       "fort": 8.34,
       "carrefour": 9.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-pullman-tradicional-480g-9762077/p",
+    "idOrigem": "9762077",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 8.69
   },
   {
     "id": "p185",
@@ -4098,7 +4834,11 @@ export const PRODUCTS = [
       "fort": 7.19,
       "carrefour": 7.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/bisnaguinha-farias-300g-9291492/p",
+    "idOrigem": "9291492",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.49
   },
   {
     "id": "p186",
@@ -4120,7 +4860,11 @@ export const PRODUCTS = [
       "fort": 7.19,
       "carrefour": 7.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-seven-boys-leite-500g-690546/p",
+    "idOrigem": "690546",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.49
   },
   {
     "id": "p187",
@@ -4142,7 +4886,11 @@ export const PRODUCTS = [
       "fort": 38.3,
       "carrefour": 41.5
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cueca-virada-caseira-75718/p",
+    "idOrigem": "75718",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 39.9
   },
   {
     "id": "p188",
@@ -4164,7 +4912,11 @@ export const PRODUCTS = [
       "fort": 47.9,
       "carrefour": 51.9
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-de-queijo-tradicional-73523/p",
+    "idOrigem": "73523",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 49.9
   },
   {
     "id": "p189",
@@ -4186,7 +4938,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-frances-mini-9829/p",
+    "idOrigem": "9829",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 19.9
   },
   {
     "id": "p190",
@@ -4208,7 +4964,11 @@ export const PRODUCTS = [
       "fort": 12.47,
       "carrefour": 13.51
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-wickbold-do-forno-100--integral-500g-9923911/p",
+    "idOrigem": "9923911",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 12.99
   },
   {
     "id": "p191",
@@ -4230,7 +4990,11 @@ export const PRODUCTS = [
       "fort": 3.06,
       "carrefour": 3.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/lava-loucas-liquido-limpol-cristal-500ml-505390/p",
+    "idOrigem": "505390",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.19
   },
   {
     "id": "p192",
@@ -4252,7 +5016,11 @@ export const PRODUCTS = [
       "fort": 2.87,
       "carrefour": 3.11
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/lava-loucas-liquido-ype-clear-500ml-8656902/p",
+    "idOrigem": "8656902",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 2.99
   },
   {
     "id": "p193",
@@ -4274,7 +5042,11 @@ export const PRODUCTS = [
       "fort": 2.01,
       "carrefour": 2.17
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/lava-loucas-gota-limpa-cristal-500ml-8410238/p",
+    "idOrigem": "8410238",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 2.09
   },
   {
     "id": "p194",
@@ -4296,7 +5068,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/alcool-super-vale-46°-inpm-1l-2627816/p",
+    "idOrigem": "2627816",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.99
   },
   {
     "id": "p195",
@@ -4318,7 +5094,11 @@ export const PRODUCTS = [
       "fort": 21.02,
       "carrefour": 22.78
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/papel-higienico-doble-skincare-folha-dupla-neutro-30m-com-12-rolos-2597409/p",
+    "idOrigem": "2597409",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 21.9
   },
   {
     "id": "p196",
@@ -4340,7 +5120,11 @@ export const PRODUCTS = [
       "fort": 15.26,
       "carrefour": 16.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/papel-higienico-mimmo-neutro-folha-dupla-30m-leve-12-rolos--pague-11-rolos-2507040/p",
+    "idOrigem": "2507040",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 15.9
   },
   {
     "id": "p197",
@@ -4362,7 +5146,11 @@ export const PRODUCTS = [
       "fort": 15.26,
       "carrefour": 16.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/papel-higienico-duetto-folha-dupla-neutro-20m-com-12-rolos-2499086/p",
+    "idOrigem": "2499086",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 15.9
   },
   {
     "id": "p198",
@@ -4384,7 +5172,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/papel-higienico-duetto-folha-tripla-neutro-20m-com-12-rolos-2403595/p",
+    "idOrigem": "2403595",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 23.49
   },
   {
     "id": "p199",
@@ -4406,7 +5198,11 @@ export const PRODUCTS = [
       "fort": 12.95,
       "carrefour": 14.03
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/papel-higienico-stylus-folha-dupla-neutro-20m-com-12-rolos-2314365/p",
+    "idOrigem": "2314365",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 13.49
   },
   {
     "id": "p200",
@@ -4428,7 +5224,11 @@ export const PRODUCTS = [
       "fort": 3.06,
       "carrefour": 3.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/lava-loucas-liquido-limpol-neutro-500ml-12041/p",
+    "idOrigem": "12041",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.19
   },
   {
     "id": "p201",
@@ -4450,7 +5250,11 @@ export const PRODUCTS = [
       "fort": 1.91,
       "carrefour": 2.07
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/steak-frangosul-frango-100g-9643598/p",
+    "idOrigem": "9643598",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.99
   },
   {
     "id": "p202",
@@ -4472,7 +5276,11 @@ export const PRODUCTS = [
       "fort": 12.38,
       "carrefour": 13.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/batata-mccain-air-fryer-palito-congelada-extra-crocante-pacote-600g-2427430/p",
+    "idOrigem": "2427430",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 12.9
   },
   {
     "id": "p203",
@@ -4494,7 +5302,11 @@ export const PRODUCTS = [
       "fort": 1.14,
       "carrefour": 1.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/hamburguer-perdigao-misto-56g-8493521/p",
+    "idOrigem": "8493521",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.19
   },
   {
     "id": "p204",
@@ -4516,7 +5328,11 @@ export const PRODUCTS = [
       "fort": 21.98,
       "carrefour": 23.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-de-queijo-forno-de-minas-tradicional-400g-8338648/p",
+    "idOrigem": "8338648",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 22.9
   },
   {
     "id": "p205",
@@ -4538,7 +5354,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.rissul.com.br/batata-bem-brasil-carinhas-congelada-pre-frita-400g-2493541/p",
+    "idOrigem": "2493541",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 7.79
   },
   {
     "id": "p206",
@@ -4560,7 +5380,11 @@ export const PRODUCTS = [
       "fort": 6.71,
       "carrefour": 7.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/aipim-melhor-descascado-congelado-pacote-500g-2366197/p",
+    "idOrigem": "2366197",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.99
   },
   {
     "id": "p207",
@@ -4582,7 +5406,11 @@ export const PRODUCTS = [
       "fort": 9.59,
       "carrefour": 10.39
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/pao-de-queijo-serra-mineira-300g-9983021/p",
+    "idOrigem": "9983021",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 9.99
   },
   {
     "id": "p208",
@@ -4604,7 +5432,11 @@ export const PRODUCTS = [
       "fort": 1.53,
       "carrefour": 1.65
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/steak-de-frango-lar-congelado-100g-9770034/p",
+    "idOrigem": "9770034",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 1.59
   },
   {
     "id": "p209",
@@ -4626,7 +5458,11 @@ export const PRODUCTS = [
       "fort": 14.39,
       "carrefour": 15.59
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/lasanha-sadia-bolonhesa-600g-9745896/p",
+    "idOrigem": "9745896",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 14.99
   },
   {
     "id": "p210",
@@ -4648,7 +5484,11 @@ export const PRODUCTS = [
       "fort": 3.83,
       "carrefour": 4.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/milho-doce-daucy-congelado-pacote-300g-9427303/p",
+    "idOrigem": "9427303",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.99
   },
   {
     "id": "p211",
@@ -4670,7 +5510,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-branco-tipo-1-5kg",
+    "idOrigem": "2414",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p212",
@@ -4692,7 +5536,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-branco-tipo-1-1kg",
+    "idOrigem": "6741",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p213",
@@ -4714,7 +5562,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rozcato-branco-tipo-1-1kg",
+    "idOrigem": "17629",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p214",
@@ -4736,7 +5588,11 @@ export const PRODUCTS = [
       "fort": 20.63,
       "carrefour": 22.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-tordilho-branco-tipo-1-5kg",
+    "idOrigem": "10566",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 21.49
   },
   {
     "id": "p215",
@@ -4758,7 +5614,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-parboilizado-tipo1-5kg",
+    "idOrigem": "7067",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p216",
@@ -4780,7 +5640,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-parboilizado-tipo1-1kg",
+    "idOrigem": "8430",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p217",
@@ -4802,7 +5666,11 @@ export const PRODUCTS = [
       "fort": 11.57,
       "carrefour": 12.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rei-arthur-para-cozinha-japonesa-graos-curtos-tipo-1-1kg",
+    "idOrigem": "22571",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.05
   },
   {
     "id": "p218",
@@ -4824,7 +5692,11 @@ export const PRODUCTS = [
       "fort": 19.67,
       "carrefour": 21.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-aurea-branco-tipo-1-5kg",
+    "idOrigem": "29141",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.49
   },
   {
     "id": "p219",
@@ -4846,7 +5718,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-tordilho-branco-tipo-1-1kg",
+    "idOrigem": "10861",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p220",
@@ -4868,7 +5744,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rozcato-parboilizado-tipo-1-1kg",
+    "idOrigem": "17601",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p221",
@@ -4890,7 +5770,11 @@ export const PRODUCTS = [
       "fort": 8.44,
       "carrefour": 9.14
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-preto-premium-tipo-1-1kg",
+    "idOrigem": "14800",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.79
   },
   {
     "id": "p222",
@@ -4912,7 +5796,11 @@ export const PRODUCTS = [
       "fort": 7.06,
       "carrefour": 7.64
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-tordilho-preto-tipo-1-1kg",
+    "idOrigem": "10970",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.35
   },
   {
     "id": "p223",
@@ -4934,7 +5822,11 @@ export const PRODUCTS = [
       "fort": 8.98,
       "carrefour": 9.72
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-vermelho-premium-tipo-1-500g",
+    "idOrigem": "8934",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 9.35
   },
   {
     "id": "p224",
@@ -4956,7 +5848,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-arbaza-carioca-tipo-1-1kg",
+    "idOrigem": "5332",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p225",
@@ -4978,7 +5874,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-big-bom-preto-tipo-1-1kg",
+    "idOrigem": "31320",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p226",
@@ -5000,7 +5900,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-caldo-ouro-vermelho-tipo-1-1kg",
+    "idOrigem": "25190",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p227",
@@ -5022,7 +5926,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-carioca-tipo-1-500g",
+    "idOrigem": "7149",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p228",
@@ -5044,7 +5952,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-caldao-preto-tipo-1-1kg",
+    "idOrigem": "14070",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p229",
@@ -5066,7 +5978,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-preto-tipo-1-500g",
+    "idOrigem": "5213",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p230",
@@ -5088,7 +6004,11 @@ export const PRODUCTS = [
       "fort": 6.13,
       "carrefour": 6.65
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-arbaza-branco-tipo1-500g",
+    "idOrigem": "4735",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.39
   },
   {
     "id": "p231",
@@ -5110,7 +6030,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-elege-uht-integral-1l",
+    "idOrigem": "1956",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p232",
@@ -5132,7 +6056,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-semidesnatado-zero-lactose-1l-2199634/p",
+    "idOrigem": "2199634",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 5.39
   },
   {
     "id": "p233",
@@ -5154,7 +6082,11 @@ export const PRODUCTS = [
       "fort": 4.56,
       "carrefour": 4.94
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-italac-longa-vida-integral-1l-2174181/p",
+    "idOrigem": "2174181",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.89
   },
   {
     "id": "p234",
@@ -5176,7 +6108,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-italac-uht-zero-lactose-1l",
+    "idOrigem": "9474",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.49
   },
   {
     "id": "p235",
@@ -5198,7 +6134,11 @@ export const PRODUCTS = [
       "fort": 5.17,
       "carrefour": 5.61
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-elege-semidesnatado-395g",
+    "idOrigem": "6977",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.39
   },
   {
     "id": "p236",
@@ -5220,7 +6160,11 @@ export const PRODUCTS = [
       "fort": 5.56,
       "carrefour": 6.02
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-nestle-ninho-uht-integral-forti-1l",
+    "idOrigem": "4546",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.79
   },
   {
     "id": "p237",
@@ -5242,7 +6186,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-elege-uht-desnatado-1l",
+    "idOrigem": "4822",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p238",
@@ -5264,7 +6212,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-italac-uht-semidesnatado-1l",
+    "idOrigem": "634",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p239",
@@ -5286,7 +6238,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-italac-semidesnatado-395g",
+    "idOrigem": "142",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p240",
@@ -5308,7 +6264,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-bao-de-minas-semidesnatado-395g",
+    "idOrigem": "25931",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p241",
@@ -5330,7 +6290,11 @@ export const PRODUCTS = [
       "fort": 25.91,
       "carrefour": 28.07
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-a-vacuo-tradicional-500g",
+    "idOrigem": "8628",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.99
   },
   {
     "id": "p242",
@@ -5352,7 +6316,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-bom-jesus-vacuo-torrado-e-moido-tradicional-500g",
+    "idOrigem": "3169",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p243",
@@ -5374,7 +6342,11 @@ export const PRODUCTS = [
       "fort": 21.11,
       "carrefour": 22.87
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-3-coracoes-vacuo-torrado-moido-tradicional-500g",
+    "idOrigem": "4595",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 21.99
   },
   {
     "id": "p244",
@@ -5396,7 +6368,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-regioes-sul-de-minas-250g",
+    "idOrigem": "8608",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p245",
@@ -5418,7 +6394,11 @@ export const PRODUCTS = [
       "fort": 25.91,
       "carrefour": 28.07
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-a-vacuo-extra-forte-500g",
+    "idOrigem": "4496",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.99
   },
   {
     "id": "p246",
@@ -5440,7 +6420,11 @@ export const PRODUCTS = [
       "fort": 28.31,
       "carrefour": 30.67
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-sabor-da-fazenda-tradicional-500g",
+    "idOrigem": "12224",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 29.49
   },
   {
     "id": "p247",
@@ -5462,7 +6446,11 @@ export const PRODUCTS = [
       "fort": 21.02,
       "carrefour": 22.78
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-iguacu-soluvel-tradicional-leve-200g-pague-190g",
+    "idOrigem": "22402",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 25.99
   },
   {
     "id": "p248",
@@ -5484,7 +6472,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-bom-jesus-soluvel-sache-40g",
+    "idOrigem": "24134",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.99
   },
   {
     "id": "p249",
@@ -5506,7 +6498,11 @@ export const PRODUCTS = [
       "fort": 6.38,
       "carrefour": 6.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-soluvel-tradicional-40g",
+    "idOrigem": "17460",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.65
   },
   {
     "id": "p250",
@@ -5528,7 +6524,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-regioes-cerrado-250g",
+    "idOrigem": "7499",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p251",
@@ -5550,7 +6550,11 @@ export const PRODUCTS = [
       "fort": 3.89,
       "carrefour": 4.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-alto-alegre-refinado-1kg",
+    "idOrigem": "2071",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.05
   },
   {
     "id": "p252",
@@ -5572,7 +6576,11 @@ export const PRODUCTS = [
       "fort": 6.38,
       "carrefour": 6.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-cristal-2kg",
+    "idOrigem": "3386",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.65
   },
   {
     "id": "p253",
@@ -5594,7 +6602,11 @@ export const PRODUCTS = [
       "fort": 3.35,
       "carrefour": 3.63
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-cristal-1kg",
+    "idOrigem": "2258",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.49
   },
   {
     "id": "p254",
@@ -5616,7 +6628,11 @@ export const PRODUCTS = [
       "fort": 3.98,
       "carrefour": 4.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-caravelas-refinado-1kg",
+    "idOrigem": "9651",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.15
   },
   {
     "id": "p255",
@@ -5638,7 +6654,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-uniao-naturale-demerara-1kg",
+    "idOrigem": "4056",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p256",
@@ -5660,7 +6680,11 @@ export const PRODUCTS = [
       "fort": 5.65,
       "carrefour": 6.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-mascavo-500g",
+    "idOrigem": "6620",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.89
   },
   {
     "id": "p257",
@@ -5682,7 +6706,11 @@ export const PRODUCTS = [
       "fort": 11.57,
       "carrefour": 12.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-mascavo-1kg",
+    "idOrigem": "19234",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.05
   },
   {
     "id": "p258",
@@ -5704,7 +6732,11 @@ export const PRODUCTS = [
       "fort": 18.52,
       "carrefour": 20.06
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-caravelas-refinado-5kg",
+    "idOrigem": "9359",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.29
   },
   {
     "id": "p259",
@@ -5726,7 +6758,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-uniao-refinado-1kg",
+    "idOrigem": "7657",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p260",
@@ -5748,7 +6784,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-demerara-1kg",
+    "idOrigem": "8353",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p261",
@@ -5770,7 +6810,11 @@ export const PRODUCTS = [
       "fort": 7.77,
       "carrefour": 8.41
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-soja-coamo-tipo-1-900ml",
+    "idOrigem": "204",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.09
   },
   {
     "id": "p262",
@@ -5792,7 +6836,11 @@ export const PRODUCTS = [
       "fort": 199.67,
       "carrefour": 216.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-algodao-soya-tipo-1-uso-profissional-145kg",
+    "idOrigem": "14761",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 207.99
   },
   {
     "id": "p263",
@@ -5814,7 +6862,11 @@ export const PRODUCTS = [
       "fort": 46.07,
       "carrefour": 49.91
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-nivea-banho-relaxante-200ml",
+    "idOrigem": "31879",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 47.99
   },
   {
     "id": "p264",
@@ -5836,7 +6888,11 @@ export const PRODUCTS = [
       "fort": 19.19,
       "carrefour": 20.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-olivia-composto-de-soja-e-oliva-tradicional-500ml",
+    "idOrigem": "1043",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.99
   },
   {
     "id": "p265",
@@ -5858,7 +6914,11 @@ export const PRODUCTS = [
       "fort": 9.59,
       "carrefour": 10.39
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-legitimo-tipo1-900ml",
+    "idOrigem": "31450",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p266",
@@ -5880,7 +6940,11 @@ export const PRODUCTS = [
       "fort": 12.95,
       "carrefour": 14.03
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-soya-tipo-1-900ml",
+    "idOrigem": "17521",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.49
   },
   {
     "id": "p267",
@@ -5902,7 +6966,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-coco-qualicoco-extra-virgem-200ml",
+    "idOrigem": "215",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.99
   },
   {
     "id": "p268",
@@ -5924,7 +6992,11 @@ export const PRODUCTS = [
       "fort": 7.96,
       "carrefour": 8.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-soja-soya-tipo-1-900ml",
+    "idOrigem": "11174",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.29
   },
   {
     "id": "p269",
@@ -5946,7 +7018,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-algodao-saude-tipo1-900ml",
+    "idOrigem": "34403",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p270",
@@ -5968,7 +7044,11 @@ export const PRODUCTS = [
       "fort": 12.57,
       "carrefour": 13.61
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-canola-soya-tipo1-900ml",
+    "idOrigem": "31440",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.09
   },
   {
     "id": "p271",
@@ -5990,7 +7070,11 @@ export const PRODUCTS = [
       "fort": 3.89,
       "carrefour": 4.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-nordeste-tipo1-1kg",
+    "idOrigem": "6841",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.05
   },
   {
     "id": "p272",
@@ -6012,7 +7096,11 @@ export const PRODUCTS = [
       "fort": 2.58,
       "carrefour": 2.8
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-gardenia-tipo-2-1kg",
+    "idOrigem": "9174",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.69
   },
   {
     "id": "p273",
@@ -6034,7 +7122,11 @@ export const PRODUCTS = [
       "fort": 19.19,
       "carrefour": 20.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-panfacil-tradicional-5kg",
+    "idOrigem": "6849",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.99
   },
   {
     "id": "p274",
@@ -6056,7 +7148,11 @@ export const PRODUCTS = [
       "fort": 13.24,
       "carrefour": 14.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-gardenia-tipo-2-5kg",
+    "idOrigem": "9129",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.79
   },
   {
     "id": "p275",
@@ -6078,7 +7174,11 @@ export const PRODUCTS = [
       "fort": 4.69,
       "carrefour": 5.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-tordilho-1kg",
+    "idOrigem": "10755",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.89
   },
   {
     "id": "p276",
@@ -6100,7 +7200,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-biondina-tipo1-1kg",
+    "idOrigem": "357",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p277",
@@ -6122,7 +7226,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-milho-tordilho-media-1kg",
+    "idOrigem": "10738",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p278",
@@ -6144,7 +7252,11 @@ export const PRODUCTS = [
       "fort": 3.98,
       "carrefour": 4.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-panfacil-tipo-1-1kg",
+    "idOrigem": "7796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.15
   },
   {
     "id": "p279",
@@ -6166,7 +7278,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-milho-beatriz-media-1kg",
+    "idOrigem": "5973",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p280",
@@ -6188,7 +7304,11 @@ export const PRODUCTS = [
       "fort": 3.93,
       "carrefour": 4.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-mandioca-fritz-frida-branca-fina-tipo-1-500g",
+    "idOrigem": "4487",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.09
   },
   {
     "id": "p281",
@@ -6210,7 +7330,11 @@ export const PRODUCTS = [
       "fort": 2.97,
       "carrefour": 3.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-monte-viso-com-ovos-parafuso-500g",
+    "idOrigem": "20039",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.09
   },
   {
     "id": "p282",
@@ -6232,7 +7356,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-isabela-semola-sem-ovos-espaguete-400g",
+    "idOrigem": "754",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p283",
@@ -6254,7 +7382,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-isabela-semola-sem-ovos-parafuso-400g",
+    "idOrigem": "2276",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p284",
@@ -6276,7 +7408,11 @@ export const PRODUCTS = [
       "fort": 2.97,
       "carrefour": 3.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-monte-viso-com-ovos-espaguete-500g",
+    "idOrigem": "20038",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.09
   },
   {
     "id": "p285",
@@ -6298,7 +7434,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-de-semola-com-ovos-parafuso-500g",
+    "idOrigem": "19023",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p286",
@@ -6320,7 +7460,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-espaguete-com-ovos-500g",
+    "idOrigem": "19075",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p287",
@@ -6342,7 +7486,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-rigatone-500g",
+    "idOrigem": "19025",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p288",
@@ -6364,7 +7512,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-tortiglione-500g",
+    "idOrigem": "21230",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p289",
@@ -6386,7 +7538,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-mais-molho-rigatone-riscado-com-ovo-400g",
+    "idOrigem": "31121",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p290",
@@ -6408,7 +7564,11 @@ export const PRODUCTS = [
       "fort": 2.29,
       "carrefour": 2.49
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-pilar-macarrao-semola-espaguete-fino-400g",
+    "idOrigem": "25529",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.39
   },
   {
     "id": "p291",
@@ -6430,7 +7590,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-proibida-pilsen-550ml",
+    "idOrigem": "31392",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p292",
@@ -6452,7 +7616,11 @@ export const PRODUCTS = [
       "fort": 7.48,
       "carrefour": 8.1
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-stella-artois-pure-gold-long-neck-330ml",
+    "idOrigem": "25115",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.79
   },
   {
     "id": "p293",
@@ -6474,7 +7642,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-heineken-ultimate-sem-gluten-long-neck-330ml",
+    "idOrigem": "35203",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p294",
@@ -6496,7 +7668,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-amstel-ultra-puro-malte-sem-gluten-473ml",
+    "idOrigem": "33796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.49
   },
   {
     "id": "p295",
@@ -6518,7 +7694,11 @@ export const PRODUCTS = [
       "fort": 5.56,
       "carrefour": 6.02
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-budweiser-473ml",
+    "idOrigem": "3732",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.79
   },
   {
     "id": "p296",
@@ -6540,7 +7720,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-original-473ml",
+    "idOrigem": "18025",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p297",
@@ -6562,7 +7746,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-heineken-long-neck-250ml",
+    "idOrigem": "2266",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.99
   },
   {
     "id": "p298",
@@ -6584,7 +7772,11 @@ export const PRODUCTS = [
       "fort": 4.31,
       "carrefour": 4.67
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-provincia-lager-ultra-gold-sem-gluten-473ml",
+    "idOrigem": "33843",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.75
   },
   {
     "id": "p299",
@@ -6606,7 +7798,11 @@ export const PRODUCTS = [
       "fort": 5.46,
       "carrefour": 5.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-roleta-russa-ipa-easy-sem-gluten-473ml",
+    "idOrigem": "34401",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.69
   },
   {
     "id": "p300",
@@ -6628,7 +7824,11 @@ export const PRODUCTS = [
       "fort": 5.94,
       "carrefour": 6.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-spaten-puro-malte-munich-helles-473ml",
+    "idOrigem": "20298",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.19
   },
   {
     "id": "p301",
@@ -6650,7 +7850,11 @@ export const PRODUCTS = [
       "fort": 11.22,
       "carrefour": 12.16
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-sem-acucar-2l",
+    "idOrigem": "1203",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p302",
@@ -6672,7 +7876,11 @@ export const PRODUCTS = [
       "fort": 11.22,
       "carrefour": 12.16
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-2l",
+    "idOrigem": "7069",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p303",
@@ -6694,7 +7902,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-pepsi-black-sem-acucar-2l",
+    "idOrigem": "6090",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p304",
@@ -6716,7 +7928,11 @@ export const PRODUCTS = [
       "fort": 1.68,
       "carrefour": 1.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fruki-guarana-zero-200ml",
+    "idOrigem": "26455",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 1.75
   },
   {
     "id": "p305",
@@ -6738,7 +7954,11 @@ export const PRODUCTS = [
       "fort": 5.46,
       "carrefour": 5.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-600ml",
+    "idOrigem": "3519",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.69
   },
   {
     "id": "p306",
@@ -6760,7 +7980,11 @@ export const PRODUCTS = [
       "fort": 8.53,
       "carrefour": 9.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fanta-laranja-2l",
+    "idOrigem": "1209",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.89
   },
   {
     "id": "p307",
@@ -6782,7 +8006,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-zero-acucar-350ml",
+    "idOrigem": "2172",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p308",
@@ -6804,7 +8032,11 @@ export const PRODUCTS = [
       "fort": 9.26,
       "carrefour": 10.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fruki-guarana-3l",
+    "idOrigem": "25973",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 9.65
   },
   {
     "id": "p309",
@@ -6826,7 +8058,11 @@ export const PRODUCTS = [
       "fort": 2.06,
       "carrefour": 2.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-zero-acucar-200ml",
+    "idOrigem": "9052",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.15
   },
   {
     "id": "p310",
@@ -6848,7 +8084,11 @@ export const PRODUCTS = [
       "fort": 2.06,
       "carrefour": 2.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-200ml",
+    "idOrigem": "123",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.15
   },
   {
     "id": "p311",
@@ -6870,7 +8110,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-neutro-original-com-5-unidades-de-160g",
+    "idOrigem": "15400",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p312",
@@ -6892,7 +8136,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-aloe-vera-com-5-unidades-de-160g",
+    "idOrigem": "26387",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p313",
@@ -6914,7 +8162,11 @@ export const PRODUCTS = [
       "fort": 7.77,
       "carrefour": 8.41
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-glicerina-400g",
+    "idOrigem": "6273",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.09
   },
   {
     "id": "p314",
@@ -6936,7 +8188,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-neutro-original-160g",
+    "idOrigem": "15547",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p315",
@@ -6958,7 +8214,11 @@ export const PRODUCTS = [
       "fort": 11.95,
       "carrefour": 12.95
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-limpeza-pesada-tradicional-900g-com-5-unidades",
+    "idOrigem": "30493",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.45
   },
   {
     "id": "p316",
@@ -6980,7 +8240,11 @@ export const PRODUCTS = [
       "fort": 14.26,
       "carrefour": 15.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-neutro-com-5-unidades-de-160g",
+    "idOrigem": "22315",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.85
   },
   {
     "id": "p317",
@@ -7002,7 +8266,11 @@ export const PRODUCTS = [
       "fort": 14.26,
       "carrefour": 15.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-de-coco-com-5-unidades-de-160g",
+    "idOrigem": "23871",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.85
   },
   {
     "id": "p318",
@@ -7024,7 +8292,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-perfumado-fresh-com-5-unidades-de-160g",
+    "idOrigem": "15401",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p319",
@@ -7046,7 +8318,11 @@ export const PRODUCTS = [
       "fort": 2.68,
       "carrefour": 2.9
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-acao-total-180g",
+    "idOrigem": "30362",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.79
   },
   {
     "id": "p320",
@@ -7068,7 +8344,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-coco-160g",
+    "idOrigem": "23873",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p321",
@@ -7090,7 +8370,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-moida-nova-itaberaba-congelada-1kg",
+    "idOrigem": "32972",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p322",
@@ -7112,7 +8396,11 @@ export const PRODUCTS = [
       "fort": 12.47,
       "carrefour": 13.51
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-anselmi-moida-resfriada-300g",
+    "idOrigem": "30943",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.55
   },
   {
     "id": "p323",
@@ -7134,7 +8422,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-suina-costela-congelada-kg-aprox-1kg",
+    "idOrigem": "4202",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p324",
@@ -7156,7 +8448,11 @@ export const PRODUCTS = [
       "fort": 16.94,
       "carrefour": 18.36
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-moida-100-bovina-resfriada-300g",
+    "idOrigem": "30945",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 17.65
   },
   {
     "id": "p325",
@@ -7178,7 +8474,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-moida-patinho-resfriada-300g",
+    "idOrigem": "30946",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p326",
@@ -7200,7 +8500,11 @@ export const PRODUCTS = [
       "fort": 29.75,
       "carrefour": 32.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-panela-acem-congelada-500g",
+    "idOrigem": "34212",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 30.99
   },
   {
     "id": "p327",
@@ -7222,7 +8526,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-moida-nova-itaberaba-congelada-500g",
+    "idOrigem": "30716",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p328",
@@ -7244,7 +8552,11 @@ export const PRODUCTS = [
       "fort": 23.95,
       "carrefour": 25.95
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-bordon-picanha-fatiada-congelada-kg-aprox-0500g",
+    "idOrigem": "32891",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.0
   },
   {
     "id": "p329",
@@ -7266,7 +8578,11 @@ export const PRODUCTS = [
       "fort": 15.93,
       "carrefour": 17.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-frango-ave-serra-moida-congelada-700g",
+    "idOrigem": "31796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 16.59
   },
   {
     "id": "p330",
@@ -7288,7 +8604,11 @@ export const PRODUCTS = [
       "fort": 81.44,
       "carrefour": 88.22
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-maminha-congelada-kg-aprox-17kg",
+    "idOrigem": "4645",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 88.38
   },
   {
     "id": "p331",
@@ -7310,7 +8630,11 @@ export const PRODUCTS = [
       "fort": 2.39,
       "carrefour": 2.59
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/creme-de-leite-ccgl-caixa-200g-1097672/p",
+    "idOrigem": "1097672",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.49
   },
   {
     "id": "p332",
@@ -7332,7 +8656,11 @@ export const PRODUCTS = [
       "fort": 3.54,
       "carrefour": 3.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/molho-de-tomate-tradicional-heinz-240g-1124980/p",
+    "idOrigem": "1124980",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 3.69
   },
   {
     "id": "p333",
@@ -7354,7 +8682,11 @@ export const PRODUCTS = [
       "fort": 7.38,
       "carrefour": 8.0
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/oleo-de-soja-coamo-900ml-1097696/p",
+    "idOrigem": "1097696",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 7.69
   },
   {
     "id": "p334",
@@ -7376,7 +8708,11 @@ export const PRODUCTS = [
       "fort": 2.86,
       "carrefour": 3.1
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/creme-de-leite-parmalat-caixa-200g-1089703/p",
+    "idOrigem": "1089703",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.98
   },
   {
     "id": "p335",
@@ -7398,7 +8734,11 @@ export const PRODUCTS = [
       "fort": 5.74,
       "carrefour": 6.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-condensado-semidesnatado-piracanjuba-395g-1043726/p",
+    "idOrigem": "1043726",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.98
   },
   {
     "id": "p336",
@@ -7420,7 +8760,11 @@ export const PRODUCTS = [
       "fort": 2.77,
       "carrefour": 3.01
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/creme-de-leite-leve-piracanjuba-caixa-200g-1043716/p",
+    "idOrigem": "1043716",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.89
   },
   {
     "id": "p337",
@@ -7442,7 +8786,11 @@ export const PRODUCTS = [
       "fort": 7.66,
       "carrefour": 8.3
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-condensado-semidesnatado-moca-nestle-caixa-395g-1025776/p",
+    "idOrigem": "1025776",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 7.98
   },
   {
     "id": "p338",
@@ -7464,7 +8812,11 @@ export const PRODUCTS = [
       "fort": 3.63,
       "carrefour": 3.93
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/acucar-caravelas-refinado-1kg-616461/p",
+    "idOrigem": "616461",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 3.95
   },
   {
     "id": "p339",
@@ -7486,7 +8838,11 @@ export const PRODUCTS = [
       "fort": 5.74,
       "carrefour": 6.22
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/tomate-pelado-capellini-400g-1010758/p",
+    "idOrigem": "1010758",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.98
   },
   {
     "id": "p340",
@@ -7508,7 +8864,11 @@ export const PRODUCTS = [
       "fort": 4.02,
       "carrefour": 4.36
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/arroz-branco-blue-ville-1kg-1010643/p",
+    "idOrigem": "1010643",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.19
   },
   {
     "id": "p341",
@@ -7530,7 +8890,11 @@ export const PRODUCTS = [
       "fort": 1.2,
       "carrefour": 1.3
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-com-gas-tutti-giorni-blu-500ml-1102609/p",
+    "idOrigem": "1102609",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 1.25
   },
   {
     "id": "p342",
@@ -7552,7 +8916,11 @@ export const PRODUCTS = [
       "fort": 1.2,
       "carrefour": 1.3
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-sem-gas-tutti-giorni-blu-500ml-1102608/p",
+    "idOrigem": "1102608",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 1.25
   },
   {
     "id": "p343",
@@ -7574,7 +8942,11 @@ export const PRODUCTS = [
       "fort": 2.1,
       "carrefour": 2.28
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/refrigerante-coca-cola-sem-acucar-200ml-1061521/p",
+    "idOrigem": "1061521",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.19
   },
   {
     "id": "p344",
@@ -7596,7 +8968,11 @@ export const PRODUCTS = [
       "fort": 1.81,
       "carrefour": 1.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-sem-gas-agua-da-pedra-500ml-1045492/p",
+    "idOrigem": "1045492",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 1.89
   },
   {
     "id": "p345",
@@ -7618,7 +8994,11 @@ export const PRODUCTS = [
       "fort": 1.81,
       "carrefour": 1.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-com-gas-agua-da-pedra-500ml-1038070/p",
+    "idOrigem": "1038070",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 1.89
   },
   {
     "id": "p346",
@@ -7640,7 +9020,11 @@ export const PRODUCTS = [
       "fort": 11.03,
       "carrefour": 11.95
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/refrigerante-coca-cola-sem-acucar-2-litros-1010188/p",
+    "idOrigem": "1010188",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 11.49
   },
   {
     "id": "p347",
@@ -7662,7 +9046,11 @@ export const PRODUCTS = [
       "fort": 4.41,
       "carrefour": 4.77
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/refrigerante-coca-cola-sem-acucar-lata-350ml-1009312/p",
+    "idOrigem": "1009312",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.59
   },
   {
     "id": "p348",
@@ -7684,7 +9072,11 @@ export const PRODUCTS = [
       "fort": 5.65,
       "carrefour": 6.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-sem-gas-tutti-giorni-blu-5-litros-1102610/p",
+    "idOrigem": "1102610",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.89
   },
   {
     "id": "p349",
@@ -7706,7 +9098,11 @@ export const PRODUCTS = [
       "fort": 1.68,
       "carrefour": 1.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fruki-guarana-zero-200ml",
+    "idOrigem": "26455",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 1.75
   },
   {
     "id": "p350",
@@ -7728,7 +9124,11 @@ export const PRODUCTS = [
       "fort": 7.66,
       "carrefour": 8.3
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/agua-mineral-sem-gas-agua-da-pedra-5-litros-1045483/p",
+    "idOrigem": "1045483",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 7.98
   },
   {
     "id": "p351",
@@ -7750,7 +9150,11 @@ export const PRODUCTS = [
       "fort": 39.17,
       "carrefour": 42.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/carne-moida-de-patinho-bovino-zaffari-500g-1000370/p",
+    "idOrigem": "1000370",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 40.8
   },
   {
     "id": "p352",
@@ -7772,7 +9176,11 @@ export const PRODUCTS = [
       "fort": 16.13,
       "carrefour": 17.47
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/file-de-peito-de-frango-resfriado-nat-verde-600g-1087107/p",
+    "idOrigem": "1087107",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.8
   },
   {
     "id": "p353",
@@ -7794,7 +9202,11 @@ export const PRODUCTS = [
       "fort": 20.06,
       "carrefour": 21.74
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/file-de-peito-de-frango-congelado-nat-1kg-1003624/p",
+    "idOrigem": "1003624",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 20.9
   },
   {
     "id": "p354",
@@ -7816,7 +9228,11 @@ export const PRODUCTS = [
       "fort": 30.62,
       "carrefour": 33.18
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/carne-moida-de-acem-bovino-zaffari-500g-1000363/p",
+    "idOrigem": "1000363",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 31.9
   },
   {
     "id": "p355",
@@ -7838,7 +9254,11 @@ export const PRODUCTS = [
       "fort": 16.13,
       "carrefour": 17.47
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/carne-moida-bovina-top-quality-400g-1122711/p",
+    "idOrigem": "1122711",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.8
   },
   {
     "id": "p356",
@@ -7860,7 +9280,11 @@ export const PRODUCTS = [
       "fort": 22.94,
       "carrefour": 24.86
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/file-de-coxa-e-sobrecoxa-de-frango-sem-pele-congelado-iqf-nat-verde-1kg-1108429/p",
+    "idOrigem": "1108429",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 23.9
   },
   {
     "id": "p357",
@@ -7882,7 +9306,11 @@ export const PRODUCTS = [
       "fort": 43.1,
       "carrefour": 46.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/file-de-tilapia-congelado-fantasia-di-mare-800g-1097372/p",
+    "idOrigem": "1097372",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 44.9
   },
   {
     "id": "p358",
@@ -7904,7 +9332,11 @@ export const PRODUCTS = [
       "fort": 15.26,
       "carrefour": 16.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/peito-de-frango-desfiado-congelado-nat-400g-1069007/p",
+    "idOrigem": "1069007",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 15.9
   },
   {
     "id": "p359",
@@ -7926,7 +9358,11 @@ export const PRODUCTS = [
       "fort": 9.41,
       "carrefour": 10.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/coxa-com-sobrecoxa-de-frango-congelada-1005720/p",
+    "idOrigem": "1005720",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 9.8
   },
   {
     "id": "p360",
@@ -7948,7 +9384,11 @@ export const PRODUCTS = [
       "fort": 13.25,
       "carrefour": 14.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/sobrecoxa-de-frango-congelada-iqf-nat-1kg-1002878/p",
+    "idOrigem": "1002878",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 13.8
   },
   {
     "id": "p361",
@@ -7970,7 +9410,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-cacetinho-pao-frances-zaffari-1003754/p",
+    "idOrigem": "1003754",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.9
   },
   {
     "id": "p362",
@@ -7992,7 +9436,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-cacetinho-pao-frances-zaffari-1003754/p",
+    "idOrigem": "1003754",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.9
   },
   {
     "id": "p363",
@@ -8014,7 +9462,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-cacetinho-pao-frances-zaffari-1003754/p",
+    "idOrigem": "1003754",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.9
   },
   {
     "id": "p364",
@@ -8036,7 +9488,11 @@ export const PRODUCTS = [
       "fort": 7.63,
       "carrefour": 8.27
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-forma-de-leite-zaffari-450g-1031956/p",
+    "idOrigem": "1031956",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 7.95
   },
   {
     "id": "p365",
@@ -8058,7 +9514,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-cacetinho-integral-pao-frances-zaffari-1098011/p",
+    "idOrigem": "1098011",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 19.9
   },
   {
     "id": "p366",
@@ -8080,7 +9540,11 @@ export const PRODUCTS = [
       "fort": 8.63,
       "carrefour": 9.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-forma-de-leite-seven-boys-450g-1010591/p",
+    "idOrigem": "1010591",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 8.99
   },
   {
     "id": "p367",
@@ -8102,7 +9566,11 @@ export const PRODUCTS = [
       "fort": 18.14,
       "carrefour": 19.66
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-cervejinha-1004264/p",
+    "idOrigem": "1004264",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 18.9
   },
   {
     "id": "p368",
@@ -8124,7 +9592,11 @@ export const PRODUCTS = [
       "fort": 18.14,
       "carrefour": 19.66
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-mini-cacetinho-pao-frances-zaffari-1003819/p",
+    "idOrigem": "1003819",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 18.9
   },
   {
     "id": "p369",
@@ -8146,7 +9618,11 @@ export const PRODUCTS = [
       "fort": 37.34,
       "carrefour": 40.46
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-frances-folhado-com-parmesao-zaffari-1120378/p",
+    "idOrigem": "1120378",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 38.9
   },
   {
     "id": "p370",
@@ -8168,7 +9644,11 @@ export const PRODUCTS = [
       "fort": 9.41,
       "carrefour": 10.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-forma-integral-zaffari-450g-1102724/p",
+    "idOrigem": "1102724",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 9.8
   },
   {
     "id": "p371",
@@ -8190,7 +9670,11 @@ export const PRODUCTS = [
       "fort": 23.95,
       "carrefour": 25.95
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-queijo-coquetel-congelado-forno-de-minas-820g-1118830/p",
+    "idOrigem": "1118830",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 24.95
   },
   {
     "id": "p372",
@@ -8212,7 +9696,11 @@ export const PRODUCTS = [
       "fort": 21.59,
       "carrefour": 23.39
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-queijo-pre-assado-para-air-fryer-congelado-forno-de-minas-400g-1111933/p",
+    "idOrigem": "1111933",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 22.49
   },
   {
     "id": "p373",
@@ -8234,7 +9722,11 @@ export const PRODUCTS = [
       "fort": 18.22,
       "carrefour": 19.74
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/batata-palito-pre-frita-extra-crocante-congelada-mccain-600g-1101505/p",
+    "idOrigem": "1101505",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 18.98
   },
   {
     "id": "p374",
@@ -8256,7 +9748,11 @@ export const PRODUCTS = [
       "fort": 6.62,
       "carrefour": 7.18
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/ervilha-congelada-naturale-300g-1089621/p",
+    "idOrigem": "1089621",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 6.9
   },
   {
     "id": "p375",
@@ -8278,7 +9774,11 @@ export const PRODUCTS = [
       "fort": 8.15,
       "carrefour": 8.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-queijo-tradicional-congelado-tutti-giorni-400g-1088246/p",
+    "idOrigem": "1088246",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 8.49
   },
   {
     "id": "p376",
@@ -8300,7 +9800,11 @@ export const PRODUCTS = [
       "fort": 19.18,
       "carrefour": 20.78
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/pao-de-queijo-tradicional-congelado-tutti-giorni-1kg-1088105/p",
+    "idOrigem": "1088105",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 19.98
   },
   {
     "id": "p377",
@@ -8322,7 +9826,11 @@ export const PRODUCTS = [
       "fort": 3.79,
       "carrefour": 4.11
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/vegetais-para-sopa-congelados-naturale-300g-1081372/p",
+    "idOrigem": "1081372",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 3.95
   },
   {
     "id": "p378",
@@ -8344,7 +9852,11 @@ export const PRODUCTS = [
       "fort": 13.34,
       "carrefour": 14.46
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/chicken-crocante-de-frango-empanado-congelado-nat-300g-1130835/p",
+    "idOrigem": "1130835",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 13.9
   },
   {
     "id": "p379",
@@ -8366,7 +9878,11 @@ export const PRODUCTS = [
       "fort": 16.22,
       "carrefour": 17.58
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/iscas-de-frango-empanadas-congelado-nat-300g-1130833/p",
+    "idOrigem": "1130833",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.9
   },
   {
     "id": "p380",
@@ -8388,7 +9904,11 @@ export const PRODUCTS = [
       "fort": 4.6,
       "carrefour": 4.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/hamburguer-bovino-congelado-sadia-113g-1123137/p",
+    "idOrigem": "1123137",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.79
   },
   {
     "id": "p381",
@@ -8410,7 +9930,11 @@ export const PRODUCTS = [
       "fort": 4.75,
       "carrefour": 5.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-integral-parmalat-1-litro-1087590/p",
+    "idOrigem": "1087590",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.95
   },
   {
     "id": "p382",
@@ -8432,7 +9956,11 @@ export const PRODUCTS = [
       "fort": 4.66,
       "carrefour": 5.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-semidesnatado-santa-clara-1-litro-1017571/p",
+    "idOrigem": "1017571",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.85
   },
   {
     "id": "p383",
@@ -8454,7 +9982,11 @@ export const PRODUCTS = [
       "fort": 4.66,
       "carrefour": 5.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-integral-santa-clara-1-litro-1017551/p",
+    "idOrigem": "1017551",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.85
   },
   {
     "id": "p384",
@@ -8476,7 +10008,11 @@ export const PRODUCTS = [
       "fort": 18.22,
       "carrefour": 19.74
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/queijo-mussarela-fatiado-president-300g-1091455/p",
+    "idOrigem": "1091455",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 18.98
   },
   {
     "id": "p385",
@@ -8498,7 +10034,11 @@ export const PRODUCTS = [
       "fort": 5.52,
       "carrefour": 5.98
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-semidesnatado-zero-lactose-zymil-parmalat-1-litro-1066539/p",
+    "idOrigem": "1066539",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.75
   },
   {
     "id": "p386",
@@ -8520,7 +10060,11 @@ export const PRODUCTS = [
       "fort": 5.71,
       "carrefour": 6.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-semidesnatado-zero-lactose-santa-clara-1-litro-1040024/p",
+    "idOrigem": "1040024",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.95
   },
   {
     "id": "p387",
@@ -8542,7 +10086,11 @@ export const PRODUCTS = [
       "fort": 4.66,
       "carrefour": 5.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-desnatado-santa-clara-1-litro-1017561/p",
+    "idOrigem": "1017561",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.85
   },
   {
     "id": "p388",
@@ -8564,7 +10112,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/iogurte-grego-tradicional-vigor-90g-1099346/p",
+    "idOrigem": "1099346",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 3.79
   },
   {
     "id": "p389",
@@ -8586,7 +10138,11 @@ export const PRODUCTS = [
       "fort": 4.75,
       "carrefour": 5.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-desnatado-parmalat-1-litro-1087603/p",
+    "idOrigem": "1087603",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.95
   },
   {
     "id": "p390",
@@ -8608,7 +10164,11 @@ export const PRODUCTS = [
       "fort": 4.75,
       "carrefour": 5.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/leite-uht-semidesnatado-parmalat-1-litro-1087602/p",
+    "idOrigem": "1087602",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 4.95
   },
   {
     "id": "p391",
@@ -8630,7 +10190,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/batata-branca-1001669/p",
+    "idOrigem": "1001669",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.99
   },
   {
     "id": "p392",
@@ -8652,7 +10216,11 @@ export const PRODUCTS = [
       "fort": 19.1,
       "carrefour": 20.7
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/tomate-italiano-28899/p",
+    "idOrigem": "28899",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 15.98
   },
   {
     "id": "p393",
@@ -8674,7 +10242,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/cenoura-20848/p",
+    "idOrigem": "20848",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 6.79
   },
   {
     "id": "p394",
@@ -8696,7 +10268,11 @@ export const PRODUCTS = [
       "fort": 6.62,
       "carrefour": 7.18
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/bergamota-cai-montenegrina-1001317/p",
+    "idOrigem": "1001317",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 6.9
   },
   {
     "id": "p395",
@@ -8718,7 +10294,11 @@ export const PRODUCTS = [
       "fort": 10.54,
       "carrefour": 11.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/cebola-branca-1000269/p",
+    "idOrigem": "1000269",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 10.98
   },
   {
     "id": "p396",
@@ -8740,7 +10320,11 @@ export const PRODUCTS = [
       "fort": 9.58,
       "carrefour": 10.38
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/maca-fuji-26611/p",
+    "idOrigem": "26611",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 9.98
   },
   {
     "id": "p397",
@@ -8762,7 +10346,11 @@ export const PRODUCTS = [
       "fort": 9.21,
       "carrefour": 9.97
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/banana-prata-4-a-6-un-1001609/p",
+    "idOrigem": "1001609",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 9.59
   },
   {
     "id": "p398",
@@ -8784,7 +10372,11 @@ export const PRODUCTS = [
       "fort": 8.54,
       "carrefour": 9.26
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/laranja-navelina-1001408/p",
+    "idOrigem": "1001408",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 8.9
   },
   {
     "id": "p399",
@@ -8806,7 +10398,11 @@ export const PRODUCTS = [
       "fort": 14.3,
       "carrefour": 15.5
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/limao-taiti-1001162/p",
+    "idOrigem": "1001162",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 14.9
   },
   {
     "id": "p400",
@@ -8828,7 +10424,11 @@ export const PRODUCTS = [
       "fort": 8.15,
       "carrefour": 8.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/banana-prata-organica-naturale-800g-1098037/p",
+    "idOrigem": "1098037",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 8.49
   },
   {
     "id": "p401",
@@ -8850,7 +10450,11 @@ export const PRODUCTS = [
       "fort": 2.1,
       "carrefour": 2.28
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/guardanapos-de-papel-22x22cm-linea-utilo-50-unidades-1097138/p",
+    "idOrigem": "1097138",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.19
   },
   {
     "id": "p402",
@@ -8872,7 +10476,11 @@ export const PRODUCTS = [
       "fort": 17.18,
       "carrefour": 18.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/conjunto-com-3-toalhas-de-papel-em-rolo-kitchen-19x19cm-120-folhas-1135421/p",
+    "idOrigem": "1135421",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 17.9
   },
   {
     "id": "p403",
@@ -8894,7 +10502,11 @@ export const PRODUCTS = [
       "fort": 10.07,
       "carrefour": 10.91
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/alcool-liquido-46--inpm-ecobac-zeppelin-1-litro-1114379/p",
+    "idOrigem": "1114379",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 10.49
   },
   {
     "id": "p404",
@@ -8916,7 +10528,11 @@ export const PRODUCTS = [
       "fort": 4.31,
       "carrefour": 4.67
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://www.zaffari.com.br/conjunto-com-2-toalhas-de-papel-em-rolo-folha-dupla-linea-utilo-22-x-19-5-cm-50-folhas-1097140/p",
+    "idOrigem": "1097140",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 6.39
   },
   {
     "id": "p405",
@@ -8938,7 +10554,11 @@ export const PRODUCTS = [
       "fort": 3.31,
       "carrefour": 3.59
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/detergente-liquido-limpol-cristal-500ml-1013839/p",
+    "idOrigem": "1013839",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 3.45
   },
   {
     "id": "p406",
@@ -8960,7 +10580,11 @@ export const PRODUCTS = [
       "fort": 5.65,
       "carrefour": 6.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/toalhas-de-papel-em-rolo-claramax-premium-20x19cm-120-folhas-1005918/p",
+    "idOrigem": "1005918",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 5.89
   },
   {
     "id": "p407",
@@ -8982,7 +10606,11 @@ export const PRODUCTS = [
       "fort": 27.74,
       "carrefour": 30.06
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/sacos-para-lixo-em-rolo-azul-linea-utilo-50-litros-30-unidades-1098731/p",
+    "idOrigem": "1098731",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 28.9
   },
   {
     "id": "p408",
@@ -9004,7 +10632,11 @@ export const PRODUCTS = [
       "fort": 3.83,
       "carrefour": 4.15
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/guardanapos-de-papel-30x30cm-linea-utilo-50-unidades-1097139/p",
+    "idOrigem": "1097139",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 3.99
   },
   {
     "id": "p409",
@@ -9026,7 +10658,11 @@ export const PRODUCTS = [
       "fort": 2.77,
       "carrefour": 3.01
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/detergente-liquido-cristal-splendo-500ml-1096043/p",
+    "idOrigem": "1096043",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 2.89
   },
   {
     "id": "p410",
@@ -9048,7 +10684,11 @@ export const PRODUCTS = [
       "fort": 16.12,
       "carrefour": 17.46
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.zaffari.com.br/saponaceo-cif-cremoso-limpeza-milagrosa-original-450ml-embalagem-promocional-1061992/p",
+    "idOrigem": "1061992",
+    "supermercadoOrigem": "Zaffari",
+    "precoNormal": 16.79
   },
   {
     "id": "p411",
@@ -9070,7 +10710,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-branco-tipo-1-5kg",
+    "idOrigem": "2414",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p412",
@@ -9092,7 +10736,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-branco-tipo-1-1kg",
+    "idOrigem": "6741",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p413",
@@ -9114,7 +10762,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rozcato-branco-tipo-1-1kg",
+    "idOrigem": "17629",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p414",
@@ -9136,7 +10788,11 @@ export const PRODUCTS = [
       "fort": 20.63,
       "carrefour": 22.35
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-tordilho-branco-tipo-1-5kg",
+    "idOrigem": "10566",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 21.49
   },
   {
     "id": "p415",
@@ -9158,7 +10814,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-parboilizado-tipo1-5kg",
+    "idOrigem": "7067",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p416",
@@ -9180,7 +10840,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-blue-ville-parboilizado-tipo1-1kg",
+    "idOrigem": "8430",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p417",
@@ -9202,7 +10866,11 @@ export const PRODUCTS = [
       "fort": 11.57,
       "carrefour": 12.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rei-arthur-para-cozinha-japonesa-graos-curtos-tipo-1-1kg",
+    "idOrigem": "22571",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.05
   },
   {
     "id": "p418",
@@ -9224,7 +10892,11 @@ export const PRODUCTS = [
       "fort": 19.67,
       "carrefour": 21.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-aurea-branco-tipo-1-5kg",
+    "idOrigem": "29141",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.49
   },
   {
     "id": "p419",
@@ -9246,7 +10918,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-tordilho-branco-tipo-1-1kg",
+    "idOrigem": "10861",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p420",
@@ -9268,7 +10944,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/arroz-rozcato-parboilizado-tipo-1-1kg",
+    "idOrigem": "17601",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p421",
@@ -9290,7 +10970,11 @@ export const PRODUCTS = [
       "fort": 8.44,
       "carrefour": 9.14
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-preto-premium-tipo-1-1kg",
+    "idOrigem": "14800",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.79
   },
   {
     "id": "p422",
@@ -9312,7 +10996,11 @@ export const PRODUCTS = [
       "fort": 7.06,
       "carrefour": 7.64
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-tordilho-preto-tipo-1-1kg",
+    "idOrigem": "10970",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.35
   },
   {
     "id": "p423",
@@ -9334,7 +11022,11 @@ export const PRODUCTS = [
       "fort": 8.98,
       "carrefour": 9.72
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-vermelho-premium-tipo-1-500g",
+    "idOrigem": "8934",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 9.35
   },
   {
     "id": "p424",
@@ -9356,7 +11048,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-arbaza-carioca-tipo-1-1kg",
+    "idOrigem": "5332",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p425",
@@ -9378,7 +11074,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-big-bom-preto-tipo-1-1kg",
+    "idOrigem": "31320",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p426",
@@ -9400,7 +11100,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-caldo-ouro-vermelho-tipo-1-1kg",
+    "idOrigem": "25190",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p427",
@@ -9422,7 +11126,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-carioca-tipo-1-500g",
+    "idOrigem": "7149",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p428",
@@ -9444,7 +11152,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-caldao-preto-tipo-1-1kg",
+    "idOrigem": "14070",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p429",
@@ -9466,7 +11178,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-fritz-frida-preto-tipo-1-500g",
+    "idOrigem": "5213",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p430",
@@ -9488,7 +11204,11 @@ export const PRODUCTS = [
       "fort": 6.13,
       "carrefour": 6.65
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/feijao-arbaza-branco-tipo1-500g",
+    "idOrigem": "4735",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.39
   },
   {
     "id": "p431",
@@ -9510,7 +11230,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-elege-uht-integral-1l",
+    "idOrigem": "1956",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p432",
@@ -9532,7 +11256,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-semidesnatado-zero-lactose-1l-2199634/p",
+    "idOrigem": "2199634",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 5.39
   },
   {
     "id": "p433",
@@ -9554,7 +11282,11 @@ export const PRODUCTS = [
       "fort": 4.56,
       "carrefour": 4.94
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://www.rissul.com.br/leite-italac-longa-vida-integral-1l-2174181/p",
+    "idOrigem": "2174181",
+    "supermercadoOrigem": "Rissul",
+    "precoNormal": 4.89
   },
   {
     "id": "p434",
@@ -9576,7 +11308,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-italac-uht-zero-lactose-1l",
+    "idOrigem": "9474",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.49
   },
   {
     "id": "p435",
@@ -9598,7 +11334,11 @@ export const PRODUCTS = [
       "fort": 5.17,
       "carrefour": 5.61
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-elege-semidesnatado-395g",
+    "idOrigem": "6977",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.39
   },
   {
     "id": "p436",
@@ -9620,7 +11360,11 @@ export const PRODUCTS = [
       "fort": 5.56,
       "carrefour": 6.02
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-nestle-ninho-uht-integral-forti-1l",
+    "idOrigem": "4546",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.79
   },
   {
     "id": "p437",
@@ -9642,7 +11386,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-elege-uht-desnatado-1l",
+    "idOrigem": "4822",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p438",
@@ -9664,7 +11412,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-italac-uht-semidesnatado-1l",
+    "idOrigem": "634",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p439",
@@ -9686,7 +11438,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-italac-semidesnatado-395g",
+    "idOrigem": "142",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p440",
@@ -9708,7 +11464,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-bao-de-minas-semidesnatado-395g",
+    "idOrigem": "25931",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p441",
@@ -9730,7 +11490,11 @@ export const PRODUCTS = [
       "fort": 25.91,
       "carrefour": 28.07
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-a-vacuo-tradicional-500g",
+    "idOrigem": "8628",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.99
   },
   {
     "id": "p442",
@@ -9752,7 +11516,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-bom-jesus-vacuo-torrado-e-moido-tradicional-500g",
+    "idOrigem": "3169",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p443",
@@ -9774,7 +11542,11 @@ export const PRODUCTS = [
       "fort": 21.11,
       "carrefour": 22.87
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-3-coracoes-vacuo-torrado-moido-tradicional-500g",
+    "idOrigem": "4595",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 21.99
   },
   {
     "id": "p444",
@@ -9796,7 +11568,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-regioes-sul-de-minas-250g",
+    "idOrigem": "8608",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p445",
@@ -9818,7 +11594,11 @@ export const PRODUCTS = [
       "fort": 25.91,
       "carrefour": 28.07
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-a-vacuo-extra-forte-500g",
+    "idOrigem": "4496",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.99
   },
   {
     "id": "p446",
@@ -9840,7 +11620,11 @@ export const PRODUCTS = [
       "fort": 28.31,
       "carrefour": 30.67
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-torrado-e-moido-sabor-da-fazenda-tradicional-500g",
+    "idOrigem": "12224",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 29.49
   },
   {
     "id": "p447",
@@ -9862,7 +11646,11 @@ export const PRODUCTS = [
       "fort": 21.02,
       "carrefour": 22.78
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-iguacu-soluvel-tradicional-leve-200g-pague-190g",
+    "idOrigem": "22402",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 25.99
   },
   {
     "id": "p448",
@@ -9884,7 +11672,11 @@ export const PRODUCTS = [
       "fort": 5.75,
       "carrefour": 6.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-bom-jesus-soluvel-sache-40g",
+    "idOrigem": "24134",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.99
   },
   {
     "id": "p449",
@@ -9906,7 +11698,11 @@ export const PRODUCTS = [
       "fort": 6.38,
       "carrefour": 6.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-soluvel-tradicional-40g",
+    "idOrigem": "17460",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.65
   },
   {
     "id": "p450",
@@ -9928,7 +11724,11 @@ export const PRODUCTS = [
       "fort": 22.55,
       "carrefour": 24.43
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cafe-melitta-regioes-cerrado-250g",
+    "idOrigem": "7499",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 23.49
   },
   {
     "id": "p451",
@@ -9950,7 +11750,11 @@ export const PRODUCTS = [
       "fort": 3.89,
       "carrefour": 4.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-alto-alegre-refinado-1kg",
+    "idOrigem": "2071",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.05
   },
   {
     "id": "p452",
@@ -9972,7 +11776,11 @@ export const PRODUCTS = [
       "fort": 6.38,
       "carrefour": 6.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-cristal-2kg",
+    "idOrigem": "3386",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.65
   },
   {
     "id": "p453",
@@ -9994,7 +11802,11 @@ export const PRODUCTS = [
       "fort": 3.35,
       "carrefour": 3.63
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-cristal-1kg",
+    "idOrigem": "2258",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.49
   },
   {
     "id": "p454",
@@ -10016,7 +11828,11 @@ export const PRODUCTS = [
       "fort": 3.98,
       "carrefour": 4.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-caravelas-refinado-1kg",
+    "idOrigem": "9651",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.15
   },
   {
     "id": "p455",
@@ -10038,7 +11854,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-uniao-naturale-demerara-1kg",
+    "idOrigem": "4056",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p456",
@@ -10060,7 +11880,11 @@ export const PRODUCTS = [
       "fort": 5.65,
       "carrefour": 6.13
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-mascavo-500g",
+    "idOrigem": "6620",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.89
   },
   {
     "id": "p457",
@@ -10082,7 +11906,11 @@ export const PRODUCTS = [
       "fort": 11.57,
       "carrefour": 12.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-mascavo-1kg",
+    "idOrigem": "19234",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.05
   },
   {
     "id": "p458",
@@ -10104,7 +11932,11 @@ export const PRODUCTS = [
       "fort": 18.52,
       "carrefour": 20.06
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-caravelas-refinado-5kg",
+    "idOrigem": "9359",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.29
   },
   {
     "id": "p459",
@@ -10126,7 +11958,11 @@ export const PRODUCTS = [
       "fort": 4.37,
       "carrefour": 4.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-uniao-refinado-1kg",
+    "idOrigem": "7657",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.55
   },
   {
     "id": "p460",
@@ -10148,7 +11984,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/acucar-gasparin-demerara-1kg",
+    "idOrigem": "8353",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p461",
@@ -10170,7 +12010,11 @@ export const PRODUCTS = [
       "fort": 7.77,
       "carrefour": 8.41
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-soja-coamo-tipo-1-900ml",
+    "idOrigem": "204",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.09
   },
   {
     "id": "p462",
@@ -10192,7 +12036,11 @@ export const PRODUCTS = [
       "fort": 199.67,
       "carrefour": 216.31
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-algodao-soya-tipo-1-uso-profissional-145kg",
+    "idOrigem": "14761",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 207.99
   },
   {
     "id": "p463",
@@ -10214,7 +12062,11 @@ export const PRODUCTS = [
       "fort": 46.07,
       "carrefour": 49.91
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-nivea-banho-relaxante-200ml",
+    "idOrigem": "31879",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 47.99
   },
   {
     "id": "p464",
@@ -10236,7 +12088,11 @@ export const PRODUCTS = [
       "fort": 19.19,
       "carrefour": 20.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-olivia-composto-de-soja-e-oliva-tradicional-500ml",
+    "idOrigem": "1043",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.99
   },
   {
     "id": "p465",
@@ -10258,7 +12114,11 @@ export const PRODUCTS = [
       "fort": 9.59,
       "carrefour": 10.39
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-legitimo-tipo1-900ml",
+    "idOrigem": "31450",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p466",
@@ -10280,7 +12140,11 @@ export const PRODUCTS = [
       "fort": 12.95,
       "carrefour": 14.03
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-soya-tipo-1-900ml",
+    "idOrigem": "17521",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.49
   },
   {
     "id": "p467",
@@ -10302,7 +12166,11 @@ export const PRODUCTS = [
       "fort": 18.23,
       "carrefour": 19.75
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-coco-qualicoco-extra-virgem-200ml",
+    "idOrigem": "215",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.99
   },
   {
     "id": "p468",
@@ -10324,7 +12192,11 @@ export const PRODUCTS = [
       "fort": 7.96,
       "carrefour": 8.62
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-soja-soya-tipo-1-900ml",
+    "idOrigem": "11174",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.29
   },
   {
     "id": "p469",
@@ -10346,7 +12218,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-de-algodao-saude-tipo1-900ml",
+    "idOrigem": "34403",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p470",
@@ -10368,7 +12244,11 @@ export const PRODUCTS = [
       "fort": 12.57,
       "carrefour": 13.61
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/oleo-canola-soya-tipo1-900ml",
+    "idOrigem": "31440",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.09
   },
   {
     "id": "p471",
@@ -10390,7 +12270,11 @@ export const PRODUCTS = [
       "fort": 3.89,
       "carrefour": 4.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-nordeste-tipo1-1kg",
+    "idOrigem": "6841",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.05
   },
   {
     "id": "p472",
@@ -10412,7 +12296,11 @@ export const PRODUCTS = [
       "fort": 2.58,
       "carrefour": 2.8
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-gardenia-tipo-2-1kg",
+    "idOrigem": "9174",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.69
   },
   {
     "id": "p473",
@@ -10434,7 +12322,11 @@ export const PRODUCTS = [
       "fort": 19.19,
       "carrefour": 20.79
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-panfacil-tradicional-5kg",
+    "idOrigem": "6849",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 19.99
   },
   {
     "id": "p474",
@@ -10456,7 +12348,11 @@ export const PRODUCTS = [
       "fort": 13.24,
       "carrefour": 14.34
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-gardenia-tipo-2-5kg",
+    "idOrigem": "9129",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 13.79
   },
   {
     "id": "p475",
@@ -10478,7 +12374,11 @@ export const PRODUCTS = [
       "fort": 4.69,
       "carrefour": 5.09
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-tordilho-1kg",
+    "idOrigem": "10755",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.89
   },
   {
     "id": "p476",
@@ -10500,7 +12400,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-biondina-tipo1-1kg",
+    "idOrigem": "357",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p477",
@@ -10522,7 +12426,11 @@ export const PRODUCTS = [
       "fort": 4.08,
       "carrefour": 4.42
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-milho-tordilho-media-1kg",
+    "idOrigem": "10738",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.25
   },
   {
     "id": "p478",
@@ -10544,7 +12452,11 @@ export const PRODUCTS = [
       "fort": 3.98,
       "carrefour": 4.32
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-trigo-panfacil-tipo-1-1kg",
+    "idOrigem": "7796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.15
   },
   {
     "id": "p479",
@@ -10566,7 +12478,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-milho-beatriz-media-1kg",
+    "idOrigem": "5973",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p480",
@@ -10588,7 +12504,11 @@ export const PRODUCTS = [
       "fort": 3.93,
       "carrefour": 4.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/farinha-de-mandioca-fritz-frida-branca-fina-tipo-1-500g",
+    "idOrigem": "4487",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.09
   },
   {
     "id": "p481",
@@ -10610,7 +12530,11 @@ export const PRODUCTS = [
       "fort": 2.97,
       "carrefour": 3.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-monte-viso-com-ovos-parafuso-500g",
+    "idOrigem": "20039",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.09
   },
   {
     "id": "p482",
@@ -10632,7 +12556,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-isabela-semola-sem-ovos-espaguete-400g",
+    "idOrigem": "754",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p483",
@@ -10654,7 +12582,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-isabela-semola-sem-ovos-parafuso-400g",
+    "idOrigem": "2276",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p484",
@@ -10676,7 +12608,11 @@ export const PRODUCTS = [
       "fort": 2.97,
       "carrefour": 3.21
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-monte-viso-com-ovos-espaguete-500g",
+    "idOrigem": "20038",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.09
   },
   {
     "id": "p485",
@@ -10698,7 +12634,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-de-semola-com-ovos-parafuso-500g",
+    "idOrigem": "19023",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p486",
@@ -10720,7 +12660,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-espaguete-com-ovos-500g",
+    "idOrigem": "19075",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p487",
@@ -10742,7 +12686,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-rigatone-500g",
+    "idOrigem": "19025",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p488",
@@ -10764,7 +12712,11 @@ export const PRODUCTS = [
       "fort": 3.64,
       "carrefour": 3.94
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-tortiglione-500g",
+    "idOrigem": "21230",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.45
   },
   {
     "id": "p489",
@@ -10786,7 +12738,11 @@ export const PRODUCTS = [
       "fort": 4.18,
       "carrefour": 4.52
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-mais-molho-rigatone-riscado-com-ovo-400g",
+    "idOrigem": "31121",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.35
   },
   {
     "id": "p490",
@@ -10808,7 +12764,11 @@ export const PRODUCTS = [
       "fort": 2.29,
       "carrefour": 2.49
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/massa-pilar-macarrao-semola-espaguete-fino-400g",
+    "idOrigem": "25529",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.39
   },
   {
     "id": "p491",
@@ -10830,7 +12790,11 @@ export const PRODUCTS = [
       "fort": 3.45,
       "carrefour": 3.73
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-proibida-pilsen-550ml",
+    "idOrigem": "31392",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.59
   },
   {
     "id": "p492",
@@ -10852,7 +12816,11 @@ export const PRODUCTS = [
       "fort": 7.48,
       "carrefour": 8.1
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-stella-artois-pure-gold-long-neck-330ml",
+    "idOrigem": "25115",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.79
   },
   {
     "id": "p493",
@@ -10874,7 +12842,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-heineken-ultimate-sem-gluten-long-neck-330ml",
+    "idOrigem": "35203",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p494",
@@ -10896,7 +12868,11 @@ export const PRODUCTS = [
       "fort": 5.27,
       "carrefour": 5.71
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-amstel-ultra-puro-malte-sem-gluten-473ml",
+    "idOrigem": "33796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.49
   },
   {
     "id": "p495",
@@ -10918,7 +12894,11 @@ export const PRODUCTS = [
       "fort": 5.56,
       "carrefour": 6.02
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-budweiser-473ml",
+    "idOrigem": "3732",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.79
   },
   {
     "id": "p496",
@@ -10940,7 +12920,11 @@ export const PRODUCTS = [
       "fort": 5.85,
       "carrefour": 6.33
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-original-473ml",
+    "idOrigem": "18025",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.09
   },
   {
     "id": "p497",
@@ -10962,7 +12946,11 @@ export const PRODUCTS = [
       "fort": 4.79,
       "carrefour": 5.19
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-heineken-long-neck-250ml",
+    "idOrigem": "2266",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.99
   },
   {
     "id": "p498",
@@ -10984,7 +12972,11 @@ export const PRODUCTS = [
       "fort": 4.31,
       "carrefour": 4.67
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-provincia-lager-ultra-gold-sem-gluten-473ml",
+    "idOrigem": "33843",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.75
   },
   {
     "id": "p499",
@@ -11006,7 +12998,11 @@ export const PRODUCTS = [
       "fort": 5.46,
       "carrefour": 5.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-roleta-russa-ipa-easy-sem-gluten-473ml",
+    "idOrigem": "34401",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.69
   },
   {
     "id": "p500",
@@ -11028,7 +13024,11 @@ export const PRODUCTS = [
       "fort": 5.94,
       "carrefour": 6.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/cerveja-spaten-puro-malte-munich-helles-473ml",
+    "idOrigem": "20298",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 6.19
   },
   {
     "id": "p501",
@@ -11050,7 +13050,11 @@ export const PRODUCTS = [
       "fort": 11.22,
       "carrefour": 12.16
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-sem-acucar-2l",
+    "idOrigem": "1203",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p502",
@@ -11072,7 +13076,11 @@ export const PRODUCTS = [
       "fort": 11.22,
       "carrefour": 12.16
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-2l",
+    "idOrigem": "7069",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.69
   },
   {
     "id": "p503",
@@ -11094,7 +13102,11 @@ export const PRODUCTS = [
       "fort": 6.96,
       "carrefour": 7.54
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-pepsi-black-sem-acucar-2l",
+    "idOrigem": "6090",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 7.25
   },
   {
     "id": "p504",
@@ -11116,7 +13128,11 @@ export const PRODUCTS = [
       "fort": 1.68,
       "carrefour": 1.82
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fruki-guarana-zero-200ml",
+    "idOrigem": "26455",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 1.75
   },
   {
     "id": "p505",
@@ -11138,7 +13154,11 @@ export const PRODUCTS = [
       "fort": 5.46,
       "carrefour": 5.92
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-600ml",
+    "idOrigem": "3519",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 5.69
   },
   {
     "id": "p506",
@@ -11160,7 +13180,11 @@ export const PRODUCTS = [
       "fort": 8.53,
       "carrefour": 9.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fanta-laranja-2l",
+    "idOrigem": "1209",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.89
   },
   {
     "id": "p507",
@@ -11182,7 +13206,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-zero-acucar-350ml",
+    "idOrigem": "2172",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p508",
@@ -11204,7 +13232,11 @@ export const PRODUCTS = [
       "fort": 9.26,
       "carrefour": 10.04
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-fruki-guarana-3l",
+    "idOrigem": "25973",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 9.65
   },
   {
     "id": "p509",
@@ -11226,7 +13258,11 @@ export const PRODUCTS = [
       "fort": 2.06,
       "carrefour": 2.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-zero-acucar-200ml",
+    "idOrigem": "9052",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.15
   },
   {
     "id": "p510",
@@ -11248,7 +13284,11 @@ export const PRODUCTS = [
       "fort": 2.06,
       "carrefour": 2.24
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/refrigerante-coca-cola-200ml",
+    "idOrigem": "123",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.15
   },
   {
     "id": "p511",
@@ -11270,7 +13310,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-neutro-original-com-5-unidades-de-160g",
+    "idOrigem": "15400",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p512",
@@ -11292,7 +13336,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-aloe-vera-com-5-unidades-de-160g",
+    "idOrigem": "26387",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p513",
@@ -11314,7 +13362,11 @@ export const PRODUCTS = [
       "fort": 7.77,
       "carrefour": 8.41
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-glicerina-400g",
+    "idOrigem": "6273",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 8.09
   },
   {
     "id": "p514",
@@ -11336,7 +13388,11 @@ export const PRODUCTS = [
       "fort": 4.46,
       "carrefour": 4.84
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-glicerinado-neutro-original-160g",
+    "idOrigem": "15547",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 4.65
   },
   {
     "id": "p515",
@@ -11358,7 +13414,11 @@ export const PRODUCTS = [
       "fort": 11.95,
       "carrefour": 12.95
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-limpeza-pesada-tradicional-900g-com-5-unidades",
+    "idOrigem": "30493",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 12.45
   },
   {
     "id": "p516",
@@ -11380,7 +13440,11 @@ export const PRODUCTS = [
       "fort": 14.26,
       "carrefour": 15.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-neutro-com-5-unidades-de-160g",
+    "idOrigem": "22315",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.85
   },
   {
     "id": "p517",
@@ -11402,7 +13466,11 @@ export const PRODUCTS = [
       "fort": 14.26,
       "carrefour": 15.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-de-coco-com-5-unidades-de-160g",
+    "idOrigem": "23871",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.85
   },
   {
     "id": "p518",
@@ -11424,7 +13492,11 @@ export const PRODUCTS = [
       "fort": 17.94,
       "carrefour": 19.44
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-ype-perfumado-fresh-com-5-unidades-de-160g",
+    "idOrigem": "15401",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 18.69
   },
   {
     "id": "p519",
@@ -11446,7 +13518,11 @@ export const PRODUCTS = [
       "fort": 2.68,
       "carrefour": 2.9
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-girando-sol-acao-total-180g",
+    "idOrigem": "30362",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 2.79
   },
   {
     "id": "p520",
@@ -11468,7 +13544,11 @@ export const PRODUCTS = [
       "fort": 3.25,
       "carrefour": 3.53
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/sabao-em-barra-assim-glicerinado-coco-160g",
+    "idOrigem": "23873",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 3.39
   },
   {
     "id": "p521",
@@ -11490,7 +13570,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-moida-nova-itaberaba-congelada-1kg",
+    "idOrigem": "32972",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p522",
@@ -11512,7 +13596,11 @@ export const PRODUCTS = [
       "fort": 12.47,
       "carrefour": 13.51
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-anselmi-moida-resfriada-300g",
+    "idOrigem": "30943",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 14.55
   },
   {
     "id": "p523",
@@ -11534,7 +13622,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-suina-costela-congelada-kg-aprox-1kg",
+    "idOrigem": "4202",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p524",
@@ -11556,7 +13648,11 @@ export const PRODUCTS = [
       "fort": 16.94,
       "carrefour": 18.36
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-moida-100-bovina-resfriada-300g",
+    "idOrigem": "30945",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 17.65
   },
   {
     "id": "p525",
@@ -11578,7 +13674,11 @@ export const PRODUCTS = [
       "fort": 20.15,
       "carrefour": 21.83
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-moida-patinho-resfriada-300g",
+    "idOrigem": "30946",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 20.99
   },
   {
     "id": "p526",
@@ -11600,7 +13700,11 @@ export const PRODUCTS = [
       "fort": 29.75,
       "carrefour": 32.23
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-best-beef-panela-acem-congelada-500g",
+    "idOrigem": "34212",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 30.99
   },
   {
     "id": "p527",
@@ -11622,7 +13726,11 @@ export const PRODUCTS = [
       "fort": 10.93,
       "carrefour": 11.85
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-moida-nova-itaberaba-congelada-500g",
+    "idOrigem": "30716",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 11.39
   },
   {
     "id": "p528",
@@ -11644,7 +13752,11 @@ export const PRODUCTS = [
       "fort": 23.95,
       "carrefour": 25.95
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-bordon-picanha-fatiada-congelada-kg-aprox-0500g",
+    "idOrigem": "32891",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 26.0
   },
   {
     "id": "p529",
@@ -11666,7 +13778,11 @@ export const PRODUCTS = [
       "fort": 15.93,
       "carrefour": 17.25
     },
-    "promo": false
+    "promo": false,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-frango-ave-serra-moida-congelada-700g",
+    "idOrigem": "31796",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 16.59
   },
   {
     "id": "p530",
@@ -11688,6 +13804,10 @@ export const PRODUCTS = [
       "fort": 81.44,
       "carrefour": 88.22
     },
-    "promo": true
+    "promo": true,
+    "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-maminha-congelada-kg-aprox-17kg",
+    "idOrigem": "4645",
+    "supermercadoOrigem": "Stok Center",
+    "precoNormal": 88.38
   }
 ];

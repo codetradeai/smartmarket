@@ -293,6 +293,8 @@ export function Home() {
       {/* 5. MODAL DE ESPECIFICAÇÕES E COMPARATIVO COMPLETO DO PRODUTO */}
       <ProductDetailModal
         product={selectedProductDetail}
+        allProducts={PRODUCTS}
+        onSelectProduct={setSelectedProductDetail}
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}
         markets={MARKETS}

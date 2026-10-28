@@ -53,7 +53,7 @@ describe('ProductDetailModal (Fase 2)', () => {
     )
 
     expect(screen.getByText('Café em pó Melitta Tradicional 500g')).toBeInTheDocument()
-    expect(screen.getByText('Melitta')).toBeInTheDocument()
+    expect(screen.getAllByText('Melitta').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/cafe/i)).toBeInTheDocument()
     expect(screen.getAllByText(/500g/i).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('SKU #7710359')).toBeInTheDocument()
@@ -197,7 +197,221 @@ describe('ProductDetailModal (Fase 2)', () => {
     fireEvent.pointerUp(photoArea, { pointerId: 1 })
     expect(photoArea).toHaveClass('cursor-grab')
   })
+
+  describe('Produtos Relacionados e Alternativas de Preço (Fase 4)', () => {
+    const mockCatalogoRelacionados = [
+      mockProductComprovado, // p1 - Melitta 500g
+      {
+        id: 'p2',
+        name: 'Café em pó Melitta Tradicional 250g',
+        brand: 'Melitta',
+        category: 'cafe',
+        unit: '250g',
+        prices: { zaffari: 18.0, asun: 17.5, stok: 16.5 },
+        recursosVisuais: { has360: true, frames: ['/f1.webp', '/f2.webp'] },
+      },
+      {
+        id: 'p3',
+        name: 'Café Torrado e Moído União 500g',
+        brand: 'União',
+        category: 'cafe',
+        unit: '500g',
+        prices: { zaffari: 22.0, asun: 21.0, stok: 20.0 },
+      },
+      {
+        id: 'p4',
+        name: 'Café a Vácuo Bom Jesus 500g',
+        brand: 'Bom Jesus',
+        category: 'cafe',
+        unit: '500g',
+        prices: { zaffari: 20.0, asun: 19.0, stok: 18.0 },
+      },
+      {
+        id: 'p5',
+        name: 'Arroz Branco Tio João 1kg',
+        category: 'graos',
+        brand: 'Tio João',
+        unit: '1kg',
+        prices: { asun: 5.5 },
+      },
+    ]
+
+    it('não exibe a seção de relacionados quando allProducts é vazio ou não possui alternativas', () => {
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          allProducts={[]}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={vi.fn()}
+        />
+      )
+
+      expect(screen.queryByText(/Você também pode comparar/i)).toBeNull()
+    })
+
+    it('exibe a seção Você também pode comparar com as abas Outras marcas e Mais da marca', () => {
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          allProducts={mockCatalogoRelacionados}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={vi.fn()}
+        />
+      )
+
+      expect(screen.getByText(/Você também pode comparar/i)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Outras marcas/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Mais da Melitta/i })).toBeInTheDocument()
+
+      // Na aba inicial (Outras marcas), devem aparecer União e Bom Jesus
+      expect(screen.getByText('Café a Vácuo Bom Jesus 500g')).toBeInTheDocument()
+      expect(screen.getByText('Café Torrado e Moído União 500g')).toBeInTheDocument()
+    })
+
+    it('permite alternar para a aba Mais da marca e exibe versões da mesma marca com badge 360 se disponível', () => {
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          allProducts={mockCatalogoRelacionados}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={vi.fn()}
+        />
+      )
+
+      const btnMesmaMarca = screen.getByRole('button', { name: /Mais da Melitta/i })
+      fireEvent.click(btnMesmaMarca)
+
+      // Deve exibir o Melitta 250g
+      expect(screen.getByText('Café em pó Melitta Tradicional 250g')).toBeInTheDocument()
+      // Deve conter o badge 360° para o p2 que possui recursosVisuais.has360
+      expect(screen.getByTitle('Possui rotação 360°')).toBeInTheDocument()
+    })
+
+    it('ao clicar em uma alternativa, atualiza o produto no modal sem fechá-lo e dispara onSelectProduct', () => {
+      const handleSelect = vi.fn()
+      const handleClose = vi.fn()
+      const handleAddToList = vi.fn()
+
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          allProducts={mockCatalogoRelacionados}
+          onSelectProduct={handleSelect}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={handleClose}
+          onAddToList={handleAddToList}
+        />
+      )
+
+      const cardBomJesus = screen.getByText('Café a Vácuo Bom Jesus 500g').closest('[role="button"]')
+      expect(cardBomJesus).not.toBeNull()
+
+      fireEvent.click(cardBomJesus)
+
+      // onSelectProduct foi disparado com o novo produto
+      expect(handleSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'p4', name: 'Café a Vácuo Bom Jesus 500g' }))
+      // Modal NÃO foi fechado
+      expect(handleClose).not.toHaveBeenCalled()
+
+      // Título do modal agora reflete o novo produto (Bom Jesus)
+      expect(screen.getByRole('heading', { level: 2, name: 'Café a Vácuo Bom Jesus 500g' })).toBeInTheDocument()
+
+      // Ao clicar em adicionar à lista, adiciona o NOVO produto (p4)
+      const btnAdd = screen.getByRole('button', { name: /Adicionar à Lista de Compras/i })
+      fireEvent.click(btnAdd)
+      expect(handleAddToList).toHaveBeenCalledWith(expect.objectContaining({ id: 'p4' }))
+    })
+
+    it('executa com perfeição o fluxo completo de navegação sequencial: A -> B -> C -> fechar -> abrir D', () => {
+      // Simula o componente pai controlando o estado do produto selecionado
+      let currentSelected = mockProductComprovado // Produto A (Melitta 500g)
+      let modalOpen = true
+
+      const handleSelect = vi.fn((newProd) => {
+        currentSelected = newProd
+      })
+      const handleClose = vi.fn(() => {
+        modalOpen = false
+      })
+
+      const { rerender } = render(
+        <ProductDetailModal
+          product={currentSelected}
+          allProducts={mockCatalogoRelacionados}
+          onSelectProduct={handleSelect}
+          markets={mockMarkets}
+          isOpen={modalOpen}
+          onClose={handleClose}
+        />
+      )
+
+      // 1. Estado inicial: Produto A (Melitta 500g)
+      expect(screen.getByRole('heading', { level: 2, name: 'Café em pó Melitta Tradicional 500g' })).toBeInTheDocument()
+
+      // 2. Clicar no relacionado B (Bom Jesus 500g)
+      const btnBomJesus = screen.getByText('Café a Vácuo Bom Jesus 500g').closest('[role="button"]')
+      fireEvent.click(btnBomJesus)
+
+      rerender(
+        <ProductDetailModal
+          product={currentSelected}
+          allProducts={mockCatalogoRelacionados}
+          onSelectProduct={handleSelect}
+          markets={mockMarkets}
+          isOpen={modalOpen}
+          onClose={handleClose}
+        />
+      )
+      expect(screen.getByRole('heading', { level: 2, name: 'Café a Vácuo Bom Jesus 500g' })).toBeInTheDocument()
+
+      // 3. Clicar em outro relacionado C (União 500g)
+      const btnUniao = screen.getByText('Café Torrado e Moído União 500g').closest('[role="button"]')
+      fireEvent.click(btnUniao)
+
+      rerender(
+        <ProductDetailModal
+          product={currentSelected}
+          allProducts={mockCatalogoRelacionados}
+          onSelectProduct={handleSelect}
+          markets={mockMarkets}
+          isOpen={modalOpen}
+          onClose={handleClose}
+        />
+      )
+      expect(screen.getByRole('heading', { level: 2, name: 'Café Torrado e Moído União 500g' })).toBeInTheDocument()
+
+      // 4. Fechar o modal
+      const btnClose = screen.getByTitle(/Fechar \(Esc\)/i)
+      fireEvent.click(btnClose)
+      expect(handleClose).toHaveBeenCalled()
+
+      // 5. Reabrir com um produto diferente D (Melitta 250g com 360°)
+      const produtoD = mockCatalogoRelacionados[1] // p2 Melitta 250g
+      currentSelected = produtoD
+      modalOpen = true
+
+      rerender(
+        <ProductDetailModal
+          product={currentSelected}
+          allProducts={mockCatalogoRelacionados}
+          onSelectProduct={handleSelect}
+          markets={mockMarkets}
+          isOpen={modalOpen}
+          onClose={handleClose}
+        />
+      )
+
+      expect(screen.getByRole('heading', { level: 2, name: 'Café em pó Melitta Tradicional 250g' })).toBeInTheDocument()
+      // Produto D possui 360° -> deve exibir o botão de 360°
+      expect(screen.getByRole('button', { name: /Giro 360°/i })).toBeInTheDocument()
+    })
+  })
 })
+
 
 
 

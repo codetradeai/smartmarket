@@ -2,9 +2,10 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { ProductImage } from "./ProductImage"
 import { Button } from "./Button"
 import { ProductViewer360 } from "./ProductViewer360"
+import { getRelatedProducts } from "../../utils/relatedProducts"
 
 /**
- * ProductDetailModal - Fase 2 & 3: Detalhes do Produto Reutilizável Multi-rede com Suporte a 360°
+ * ProductDetailModal - Fase 2, 3 & 4: Detalhes do Produto Reutilizável Multi-rede com 360° e Produtos Relacionados
  * 
  * Funcionalidades:
  * 1. Exibição de metadados reais: Nome, Marca, Unidade, Categoria e Código/SKU de origem.
@@ -14,10 +15,13 @@ import { ProductViewer360 } from "./ProductViewer360"
  * 5. Comprovação real de condição promocional (preço normal vs efetivo).
  * 6. Acesso à página oficial da loja de origem com URL validada.
  * 7. Ponto de integração e visualizador 360° nativo (Fase 3B) sob demanda com rotação real autenticada.
- * 8. Layout responsivo para desktop e mobile.
+ * 8. Descoberta de alternativas de outras marcas e produtos da mesma marca com navegação sem fechar o modal (Fase 4).
+ * 9. Layout responsivo para desktop e mobile.
  */
 export function ProductDetailModal({
   product,
+  allProducts = [],
+  onSelectProduct,
   markets = [],
   isOpen,
   onClose,
@@ -25,11 +29,21 @@ export function ProductDetailModal({
   isFavorite = false,
   onToggleFavorite,
 }) {
+  const [internalProduct, setInternalProduct] = useState(null)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [viewMode, setViewMode] = useState("photo") // 'photo' | '360'
+  const [relatedTab, setRelatedTab] = useState("other_brands") // 'other_brands' | 'same_brand'
   const [photoOffset, setPhotoOffset] = useState({ x: 0, y: 0 })
   const [isPhotoDragging, setIsPhotoDragging] = useState(false)
   const photoDragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
+  const relatedScrollRef = useRef(null)
+
+  // Reseta seleção interna quando o produto externo mudar ou modal reabrir
+  useEffect(() => {
+    setInternalProduct(null)
+  }, [product?.id, isOpen])
+
+  const currentProduct = internalProduct || product
 
   // Reseta estado da galeria, modo e posição ao trocar de produto
   useEffect(() => {
@@ -37,7 +51,8 @@ export function ProductDetailModal({
     setViewMode("photo")
     setPhotoOffset({ x: 0, y: 0 })
     setIsPhotoDragging(false)
-  }, [product?.id])
+    setRelatedTab("other_brands")
+  }, [currentProduct?.id])
 
   // Fecha o modal com tecla Escape
   useEffect(() => {
@@ -93,38 +108,38 @@ export function ProductDetailModal({
 
   // 1. Galeria com as imagens realmente disponíveis (prioriza as 4 fotos oficiais da embalagem)
   const galleryImages = useMemo(() => {
-    if (!product) return []
-    if (Array.isArray(product.imagensAdicionais) && product.imagensAdicionais.length > 0) {
-      return product.imagensAdicionais
+    if (!currentProduct) return []
+    if (Array.isArray(currentProduct.imagensAdicionais) && currentProduct.imagensAdicionais.length > 0) {
+      return currentProduct.imagensAdicionais
     }
     const list = []
-    if (product.imageLocal || product.imagem_local) {
-      list.push(product.imageLocal || product.imagem_local)
+    if (currentProduct.imageLocal || currentProduct.imagem_local) {
+      list.push(currentProduct.imageLocal || currentProduct.imagem_local)
     }
-    if (product.imageUrl || product.imagem_url) {
-      const url = product.imageUrl || product.imagem_url
+    if (currentProduct.imageUrl || currentProduct.imagem_url) {
+      const url = currentProduct.imageUrl || currentProduct.imagem_url
       if (!list.includes(url)) {
         list.push(url)
       }
     }
-    if (typeof product.image === "string" && product.image.startsWith("http") && !list.includes(product.image)) {
-      list.push(product.image)
+    if (typeof currentProduct.image === "string" && currentProduct.image.startsWith("http") && !list.includes(currentProduct.image)) {
+      list.push(currentProduct.image)
     }
     return list
-  }, [product])
+  }, [currentProduct])
 
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || null
 
   // Validação estrita de rotação 360° (somente com sequência fotográfica real com 2+ quadros)
   const hasValid360 = Boolean(
-    product?.recursosVisuais?.has360 &&
-    Array.isArray(product?.recursosVisuais?.frames) &&
-    product.recursosVisuais.frames.length >= 2
+    currentProduct?.recursosVisuais?.has360 &&
+    Array.isArray(currentProduct?.recursosVisuais?.frames) &&
+    currentProduct.recursosVisuais.frames.length >= 2
   )
 
   // 2. Preços ordenados estritamente pelo menor preço válido
   const { validPrices, unavailableMarkets, bestOffer, highestOffer, maxEconomy } = useMemo(() => {
-    if (!product || !markets.length) {
+    if (!currentProduct || !markets.length) {
       return { validPrices: [], unavailableMarkets: [], bestOffer: null, highestOffer: null, maxEconomy: 0 }
     }
 
@@ -133,9 +148,9 @@ export function ProductDetailModal({
 
     markets.forEach((m) => {
       const p =
-        product.prices?.[m.id] ??
-        product.prices?.[m.id?.toString()] ??
-        product.prices?.[m.name?.toLowerCase()] ??
+        currentProduct.prices?.[m.id] ??
+        currentProduct.prices?.[m.id?.toString()] ??
+        currentProduct.prices?.[m.name?.toLowerCase()] ??
         null
 
       if (p !== null && p !== undefined && Number(p) > 0) {
@@ -159,16 +174,16 @@ export function ProductDetailModal({
       highestOffer: highest,
       maxEconomy: economy,
     }
-  }, [product, markets])
+  }, [currentProduct, markets])
 
   // 3. Comprovação real da condição promocional
   const promoVerification = useMemo(() => {
-    if (!product || !bestOffer) return null
-    const precoNormal = Number(product.precoNormal || product.preco_normal || 0)
+    if (!currentProduct || !bestOffer) return null
+    const precoNormal = Number(currentProduct.precoNormal || currentProduct.preco_normal || 0)
     const precoAtual = bestOffer.price
 
     // Só é promoção comprovada se o preço normal for maior que o preço atual
-    if (product.promo && precoNormal > precoAtual) {
+    if (currentProduct.promo && precoNormal > precoAtual) {
       const descontoPerc = Math.round(((precoNormal - precoAtual) / precoNormal) * 100)
       const economiaPromo = precoNormal - precoAtual
       return {
@@ -181,24 +196,29 @@ export function ProductDetailModal({
     }
 
     return { comprovada: false }
-  }, [product, bestOffer])
+  }, [currentProduct, bestOffer])
 
-  if (!isOpen || !product) return null
+  // 4. Produtos relacionados e alternativas de preço (Fase 4 - Carrossel da Mesma Categoria)
+  const { directAlternatives, brandAlternatives } = useMemo(() => {
+    return getRelatedProducts(currentProduct, allProducts, 8)
+  }, [currentProduct, allProducts])
+
+  if (!isOpen || !currentProduct) return null
 
   // Validação de URL oficial do produto
   const urlOficialValida =
-    product.urlProduto ||
-    product.url_produto ||
-    (typeof product.url === "string" && product.url.startsWith("http") ? product.url : null)
+    currentProduct.urlProduto ||
+    currentProduct.url_produto ||
+    (typeof currentProduct.url === "string" && currentProduct.url.startsWith("http") ? currentProduct.url : null)
 
-  const codigoIdentificador = product.idOrigem || product.codigo_barras || product.codigoBarras || product.ean || null
+  const codigoIdentificador = currentProduct.idOrigem || currentProduct.codigo_barras || currentProduct.codigoBarras || currentProduct.ean || null
 
   return (
     <>
       {/* Modal Principal de Detalhes */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
         <div
-          className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200"
+          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200"
           role="dialog"
           aria-modal="true"
         >
@@ -206,11 +226,11 @@ export function ProductDetailModal({
           <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">
-                {product.brand || "Marca Geral"}
+                {currentProduct.brand || "Marca Geral"}
               </span>
 
               <span className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 capitalize">
-                {product.category || "Mercearia"}
+                {currentProduct.category || "Mercearia"}
               </span>
 
               {codigoIdentificador && (
@@ -305,8 +325,8 @@ export function ProductDetailModal({
                   <div className="flex-1 w-full min-w-0">
                     {hasValid360 && viewMode === "360" ? (
                       <ProductViewer360
-                        frames={product.recursosVisuais.frames}
-                        alt={product.name || product.nome_bruto}
+                        frames={currentProduct.recursosVisuais.frames}
+                        alt={currentProduct.name || currentProduct.nome_bruto}
                       />
                     ) : (
                       <div
@@ -329,15 +349,15 @@ export function ProductDetailModal({
                         >
                           <ProductImage
                             src={activeImage}
-                            alt={product.name || product.nome_bruto}
+                            alt={currentProduct.name || currentProduct.nome_bruto}
                             className="w-full h-full object-contain pointer-events-none"
-                            fallbackIcon={product.image || "📦"}
+                            fallbackIcon={currentProduct.image || "📦"}
                           />
                         </div>
 
                         {/* Indicador de Unidade */}
                         <span className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs pointer-events-none">
-                          {product.unit || "1 un"}
+                          {currentProduct.unit || "1 un"}
                         </span>
                       </div>
                     )}
@@ -370,159 +390,432 @@ export function ProductDetailModal({
                 />
               </div>
 
-              {/* COLUNA DIREITA: Informações, Comparador e Ações (6 colunas no desktop) */}
-              <div className="md:col-span-6 space-y-4">
+              {/* COLUNA DIREITA: Informações Principais, Melhor Preço e Ações Rápidas (Estilo Asun/OSuper da Foto 2) */}
+              <div className="md:col-span-6 space-y-5">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
-                    {product.name || product.nome_bruto}
+                    {currentProduct.name || currentProduct.nome_bruto}
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium mt-1">
-                    {product.brand && `Marca: ${product.brand} • `}
-                    {product.unit && `Embalagem: ${product.unit} • `}
-                    {product.supermercadoOrigem && `Coletado em: ${product.supermercadoOrigem}`}
-                  </p>
-                </div>
-
-                {/* Box de Economia Máxima & Preço Comprovado */}
-                {bestOffer && (
-                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/80 space-y-2">
-                    <div className="flex items-baseline justify-between flex-wrap gap-2">
-                      <div>
-                        <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider block">
-                          Melhor Preço do RS
-                        </span>
-                        <div className="flex items-baseline gap-2 mt-0.5">
-                          <span className="text-3xl font-black text-emerald-700">
-                            R$ {bestOffer.price.toFixed(2)}
-                          </span>
-                          <span className="text-xs font-bold text-slate-800">
-                            no {bestOffer.market.name}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Comprovação de Promoção Real */}
-                      {promoVerification?.comprovada && (
-                        <div className="text-right">
-                          <span className="text-xs text-slate-400 line-through block font-medium">
-                            De R$ {promoVerification.precoNormal.toFixed(2)}
-                          </span>
-                          <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                            Economia de R$ {promoVerification.economiaPromo.toFixed(2)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Economia entre Redes */}
-                    {maxEconomy > 0 && highestOffer && (
-                      <p className="text-xs text-emerald-800 font-medium pt-1 border-t border-emerald-200/60">
-                        💰 <strong>Economize até R$ {maxEconomy.toFixed(2)}</strong> comprando no <strong>{bestOffer.market.name}</strong> em vez do {highestOffer.market.name}.
-                      </p>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-1.5 flex-wrap">
+                    {codigoIdentificador && (
+                      <span className="font-mono text-slate-600" title="SKU de origem">
+                        SKU {codigoIdentificador}
+                      </span>
+                    )}
+                    {currentProduct.brand && (
+                      <span>
+                        • Marca: <strong className="text-slate-800 font-bold">{currentProduct.brand}</strong>
+                      </span>
+                    )}
+                    {currentProduct.unit && (
+                      <span>• Embalagem: {currentProduct.unit}</span>
+                    )}
+                    {currentProduct.supermercadoOrigem && (
+                      <span className="hidden sm:inline text-slate-400">• Coletado em: {currentProduct.supermercadoOrigem}</span>
                     )}
                   </div>
-                )}
+                </div>
 
-                {/* Descrição Detalhada / Especificações */}
-                {product.descricao && (
-                  <div className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
-                    <p className="font-bold text-slate-800 mb-1">Especificações do Produto:</p>
-                    <p>{product.descricao}</p>
-                  </div>
-                )}
-
-                {/* Link Confiável para a Página Oficial da Loja */}
-                {urlOficialValida && (
-                  <div className="pt-1">
+                {/* Atalho de Informações do Produto (Estilo Dropdown/Link Retrátil da Foto 2) */}
+                {currentProduct.descricao && (
+                  <div>
                     <a
-                      href={urlOficialValida}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-white hover:bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-300 transition-colors shadow-2xs"
+                      href="#informacoes-produto"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200/90 rounded-lg px-2.5 py-1.5 bg-slate-50/80 hover:bg-slate-100 transition-colors shadow-2xs"
                     >
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <path d="M12 8.667v4.666a1.333 1.333 0 01-1.333 1.334H3.333A1.333 1.333 0 012 13.333V6a1.333 1.333 0 011.333-1.333h4.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M10 2h4v4M6.667 9.333L14 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <span>Informações do produto</span>
+                      <svg className="w-3.5 h-3.5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
-                      <span>Ver produto na loja oficial {product.supermercadoOrigem ? `(${product.supermercadoOrigem})` : ""} &rarr;</span>
                     </a>
                   </div>
                 )}
 
-                {/* Comparativo de Preços nos Supermercados do RS (Ordenado do Menor para o Maior) */}
-                <div className="space-y-2.5 pt-2">
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
-                    <span>Preços por Supermercado (Ordenado por Menor Preço)</span>
-                    <span className="text-[11px] font-normal text-slate-500">8 redes monitoradas</span>
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* Redes com Preço Válido Ordenadas */}
-                    {validPrices.map((item, idx) => {
-                      const isBest = idx === 0
-                      return (
-                        <div
-                          key={item.market.id}
-                          className={`p-2.5 rounded-xl border flex items-center justify-between transition-all ${
-                            isBest
-                              ? "bg-emerald-50/90 border-emerald-300 ring-2 ring-emerald-200/80 shadow-2xs"
-                              : "bg-white border-slate-200/90 hover:border-slate-300"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span
-                              className="w-3 h-3 rounded-full shrink-0 shadow-2xs"
-                              style={{ backgroundColor: item.market.color || "#0D2137" }}
-                            />
-                            <div className="truncate">
-                              <span className="text-xs font-bold text-slate-900 block truncate">
-                                {item.market.name}
-                              </span>
-                              {isBest ? (
-                                <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider">
-                                  ★ Menor Preço
-                                </span>
-                              ) : (
-                                <span className="text-[9px] text-slate-400 font-medium">
-                                  +{((item.price - bestOffer.price) / bestOffer.price * 100).toFixed(0)}% vs melhor
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <span className={`text-sm font-black whitespace-nowrap pl-2 ${
-                            isBest ? "text-emerald-700 text-base" : "text-slate-800"
-                          }`}>
-                            R$ {item.price.toFixed(2)}
-                          </span>
-                        </div>
-                      )
-                    })}
-
-                    {/* Redes Indisponíveis / Sem Cotação */}
-                    {unavailableMarkets.map((m) => (
-                      <div
-                        key={m.id}
-                        className="p-2.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 flex items-center justify-between opacity-60"
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0 bg-slate-300"
-                          />
-                          <span className="text-xs text-slate-500 font-medium truncate">
-                            {m.name}
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-slate-400 font-medium italic">
-                          Indisponível
+                {/* Preço em Destaque & Economia Comprovada (Estilo Foto 2) */}
+                {bestOffer ? (
+                  <div className="space-y-2 pt-1">
+                    {promoVerification?.comprovada && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 uppercase tracking-wider">
+                          -{promoVerification.descontoPerc}% OFF
+                        </span>
+                        <span className="text-sm text-slate-400 line-through font-medium">
+                          De R$ {promoVerification.precoNormal.toFixed(2)}
+                        </span>
+                        <span className="text-xs text-rose-600 font-semibold hidden sm:inline">
+                          (Economia de R$ {promoVerification.economiaPromo.toFixed(2)})
                         </span>
                       </div>
-                    ))}
+                    )}
+
+                    <div className="flex items-baseline gap-3 flex-wrap">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                        R$ {bestOffer.price.toFixed(2)}
+                      </span>
+                      <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
+                        <span>★ Melhor Preço do RS</span>
+                        <span className="font-normal text-slate-600">no {bestOffer.market.name}</span>
+                      </span>
+                    </div>
+
+                    {maxEconomy > 0 && highestOffer && (
+                      <p className="text-xs text-slate-600 pt-0.5">
+                        💰 Economize até <strong className="text-emerald-700 font-bold">R$ {maxEconomy.toFixed(2)}</strong> comprando no <strong>{bestOffer.market.name}</strong> em vez do {highestOffer.market.name}.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-slate-400 text-sm italic">
+                    Preço sob consulta
+                  </div>
+                )}
+
+                {/* Ações Rápidas: Botão Principal em Pílula Vermelha + Ações Secundárias (Foto 2) */}
+                <div className="space-y-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onAddToList) onAddToList(currentProduct)
+                    }}
+                    className="w-full sm:w-auto min-w-[260px] py-3 px-6 rounded-xl border-2 border-red-600 text-red-600 hover:bg-red-50 hover:border-red-700 font-black text-sm transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
+                  >
+                    <span>Adicionar ao carrinho</span>
+                  </button>
+
+                  <div className="flex items-center gap-4 text-xs font-bold text-slate-700 pt-1 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => onToggleFavorite && onToggleFavorite(currentProduct.id)}
+                      className="inline-flex items-center gap-1.5 hover:text-slate-950 transition-colors cursor-pointer"
+                      title={isFavorite ? "Remover dos favoritos" : "Salvar nos favoritos"}
+                    >
+                      <svg className="w-4 h-4 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="8" y1="6" x2="21" y2="6" strokeLinecap="round" />
+                        <line x1="8" y1="12" x2="21" y2="12" strokeLinecap="round" />
+                        <line x1="8" y1="18" x2="21" y2="18" strokeLinecap="round" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" strokeLinecap="round" strokeWidth="3" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" strokeLinecap="round" strokeWidth="3" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" strokeLinecap="round" strokeWidth="3" />
+                      </svg>
+                      <span>{isFavorite ? "Salvo na lista" : "Adicionar à lista"}</span>
+                    </button>
+
+                    {urlOficialValida && (
+                      <>
+                        <span className="text-slate-300">•</span>
+                        <a
+                          href={urlOficialValida}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-emerald-700 hover:text-emerald-800 transition-colors"
+                        >
+                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                            <path d="M12 8.667v4.666a1.333 1.333 0 01-1.333 1.334H3.333A1.333 1.333 0 012 13.333V6a1.333 1.333 0 011.333-1.333h4.667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M10 2h4v4M6.667 9.333L14 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          <span>Ver produto na loja oficial {currentProduct.supermercadoOrigem ? `(${currentProduct.supermercadoOrigem})` : ""} &rarr;</span>
+                        </a>
+                      </>
+                    )}
                   </div>
                 </div>
 
               </div>
             </div>
+
+            {/* SEÇÃO INFORMAÇÕES DO PRODUTO (Dobra de Baixo - Idêntico à Foto 2) */}
+            {currentProduct.descricao && (
+              <div id="informacoes-produto" className="pt-6 border-t border-slate-200/90 space-y-2">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center justify-between">
+                  <span>Informações do produto</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
+                  {currentProduct.descricao}
+                </p>
+              </div>
+            )}
+
+            {/* SEÇÃO PREÇOS POR SUPERMERCADO (Dobra de Baixo - Cards da Foto 1 Reorganizados com Amplo Espaço) */}
+            <div className="pt-6 border-t border-slate-200/90 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <span>Preços por Supermercado (Ordenado por Menor Preço)</span>
+                </h3>
+                <span className="text-[11px] font-semibold text-slate-500">8 redes monitoradas</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                {/* Redes com Preço Válido Ordenadas */}
+                {validPrices.map((item, idx) => {
+                  const isBest = idx === 0
+                  return (
+                    <div
+                      key={item.market.id}
+                      className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+                        isBest
+                          ? "bg-emerald-50/90 border-emerald-300 ring-2 ring-emerald-200/80 shadow-2xs"
+                          : "bg-white border-slate-200/90 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0 shadow-2xs"
+                          style={{ backgroundColor: item.market.color || "#0D2137" }}
+                        />
+                        <div className="truncate">
+                          <span className="text-xs font-bold text-slate-900 block truncate">
+                            {item.market.name}
+                          </span>
+                          {isBest ? (
+                            <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider">
+                              ★ Menor Preço
+                            </span>
+                          ) : (
+                            <span className="text-[9px] text-slate-400 font-medium">
+                              +{((item.price - bestOffer.price) / bestOffer.price * 100).toFixed(0)}% vs melhor
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <span className={`text-sm font-black whitespace-nowrap pl-2 ${
+                        isBest ? "text-emerald-700 text-base" : "text-slate-800"
+                      }`}>
+                        R$ {item.price.toFixed(2)}
+                      </span>
+                    </div>
+                  )
+                })}
+
+                {/* Redes Indisponíveis / Sem Cotação */}
+                {unavailableMarkets.map((m) => (
+                  <div
+                    key={m.id}
+                    className="p-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 flex items-center justify-between opacity-60"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-slate-300" />
+                      <span className="text-xs text-slate-500 font-medium truncate">
+                        {m.name}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 font-medium italic">
+                      Indisponível
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SEÇÃO INFORMAÇÕES DO PRODUTO (Dobra de Baixo - Idêntico à Foto 2) */}
+            {currentProduct.descricao && (
+              <div className="pt-6 border-t border-slate-200/90 space-y-2">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center justify-between">
+                  <span>Informações do produto</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
+                  {currentProduct.descricao}
+                </p>
+              </div>
+            )}
+
+            {/* SEÇÃO DA MESMA CATEGORIA / RELACIONADOS - LARGURA COMPLETA (Fase 4 - UX Refinada idêntica à referência) */}
+            {(directAlternatives.length > 0 || brandAlternatives.length > 0) && (
+              <div className="pt-6 border-t border-slate-200/90 space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-baseline gap-3">
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      Da mesma categoria
+                    </h3>
+                    <span className="text-xs text-slate-500 font-medium hidden sm:inline">
+                      Você também pode comparar
+                    </span>
+                  </div>
+
+                  {/* Controles de Alternância & Abas com botão Ver Mais */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl text-xs font-bold">
+                      {directAlternatives.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setRelatedTab("other_brands")}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                            relatedTab === "other_brands"
+                              ? "bg-white text-slate-900 shadow-2xs font-extrabold"
+                              : "text-slate-500 hover:text-slate-800"
+                          }`}
+                        >
+                          Outras marcas ({directAlternatives.length})
+                        </button>
+                      )}
+                      {brandAlternatives.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setRelatedTab("same_brand")}
+                          className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                            relatedTab === "same_brand"
+                              ? "bg-white text-slate-900 shadow-2xs font-extrabold"
+                              : "text-slate-500 hover:text-slate-800"
+                          }`}
+                        >
+                          Mais da {currentProduct.brand || "marca"} ({brandAlternatives.length})
+                        </button>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (relatedScrollRef.current) {
+                          relatedScrollRef.current.scrollBy({ left: 360, behavior: "smooth" })
+                        }
+                      }}
+                      className="text-xs font-bold text-slate-800 hover:text-slate-950 px-2 py-1 transition-colors cursor-pointer"
+                    >
+                      Ver mais
+                    </button>
+                  </div>
+                </div>
+
+                {/* Carrossel Horizontal com Navegação e Cards Idênticos à Referência */}
+                <div className="relative group/carousel">
+                  <div
+                    ref={relatedScrollRef}
+                    className="flex items-stretch gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1 px-0.5"
+                  >
+                    {(relatedTab === "other_brands" ? directAlternatives : brandAlternatives).map((alt) => {
+                      const altHas360 = Boolean(
+                        alt.recursosVisuais?.has360 &&
+                        Array.isArray(alt.recursosVisuais?.frames) &&
+                        alt.recursosVisuais.frames.length >= 2
+                      )
+                      const isPromo = Boolean(
+                        alt.promo ||
+                        (alt.precoNormal && alt._lowestPrice && alt.precoNormal > alt._lowestPrice)
+                      )
+                      const descontoPerc = isPromo && alt.precoNormal && alt._lowestPrice
+                        ? Math.round(((alt.precoNormal - alt._lowestPrice) / alt.precoNormal) * 100)
+                        : null
+
+                      return (
+                        <div
+                          key={alt.id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            if (onSelectProduct) onSelectProduct(alt)
+                            setInternalProduct(alt)
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault()
+                              if (onSelectProduct) onSelectProduct(alt)
+                              setInternalProduct(alt)
+                            }
+                          }}
+                          className="w-[160px] sm:w-[185px] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-3 hover:border-slate-300 hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer group select-none relative focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        >
+                          {/* Topo do card: Badges de Oferta e 360 */}
+                          <div className="flex items-center justify-between w-full h-5 mb-1 pointer-events-none">
+                            {isPromo ? (
+                              <span className="bg-[#dc2626] text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-2xs">
+                                Oferta
+                              </span>
+                            ) : (
+                              <span />
+                            )}
+
+                            {altHas360 && (
+                              <span
+                                title="Possui rotação 360°"
+                                className="bg-slate-900 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs"
+                              >
+                                360°
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Área da Imagem do Produto */}
+                          <div className="w-full h-28 sm:h-32 flex items-center justify-center p-1.5 my-1">
+                            <ProductImage
+                              src={alt.imageLocal || alt.imageUrl}
+                              alt={alt.name}
+                              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                              fallbackIcon={alt.image || "📦"}
+                            />
+                          </div>
+
+                          {/* Preços no estilo Asun/Supermercado */}
+                          <div className="pt-2 border-t border-slate-100 min-h-[48px]">
+                            {alt._lowestPrice !== null ? (
+                              <div>
+                                {isPromo && alt.precoNormal && (
+                                  <div className="flex items-center gap-1.5 text-[11px] leading-none mb-0.5">
+                                    {descontoPerc && (
+                                      <span className="text-[#dc2626] font-bold">
+                                        -{descontoPerc}%
+                                      </span>
+                                    )}
+                                    <span className="text-slate-400 line-through">
+                                      R$ {alt.precoNormal.toFixed(2)}
+                                    </span>
+                                  </div>
+                                )}
+                                <span className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                                  R$ {alt._lowestPrice.toFixed(2)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-400 italic">
+                                Preço indisponível
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Nome do Produto */}
+                          <div className="my-2 min-h-[2.5rem]">
+                            <h4 className="text-xs font-bold text-slate-800 line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors">
+                              {alt.name}
+                            </h4>
+                            {alt.unit && (
+                              <span className="text-[10px] text-slate-500 font-medium block mt-0.5">
+                                {alt.unit}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Botão Adicionar (Pílula com borda vermelha) */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (onAddToList) onAddToList(alt)
+                            }}
+                            className="w-full py-1.5 px-3 rounded-full border border-red-500 text-red-600 hover:bg-red-50 text-xs font-extrabold transition-all active:scale-98 cursor-pointer mt-1 flex items-center justify-center"
+                          >
+                            Adicionar
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Botão Seta Direita Flutuante para Navegação Suave */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (relatedScrollRef.current) {
+                        relatedScrollRef.current.scrollBy({ left: 360, behavior: "smooth" })
+                      }
+                    }}
+                    aria-label="Avançar carrossel"
+                    className="absolute -right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-slate-200/90 shadow-md text-slate-700 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center z-10 transition-all cursor-pointer opacity-90 hover:opacity-100"
+                  >
+                    <span className="text-sm font-black">&gt;</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Rodapé Fixo de Ações */}
@@ -530,7 +823,7 @@ export function ProductDetailModal({
             <Button
               variant="outline"
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer"
-              onClick={() => onToggleFavorite && onToggleFavorite(product.id)}
+              onClick={() => onToggleFavorite && onToggleFavorite(currentProduct.id)}
               title={isFavorite ? "Remover dos favoritos" : "Salvar nos favoritos"}
             >
               <span>{isFavorite ? "❤️" : "🤍"}</span>
@@ -543,7 +836,7 @@ export function ProductDetailModal({
               variant="primary"
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer"
               onClick={() => {
-                if (onAddToList) onAddToList(product)
+                if (onAddToList) onAddToList(currentProduct)
                 onClose()
               }}
             >
@@ -557,4 +850,5 @@ export function ProductDetailModal({
     </>
   )
 }
+
 

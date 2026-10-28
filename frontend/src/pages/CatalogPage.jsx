@@ -1071,6 +1071,8 @@ export default function CatalogPage() {
       {/* 3. MODAL DE DETALHES 360º DO PRODUTO */}
       <ProductDetailModal
         product={selectedProductDetail}
+        allProducts={products}
+        onSelectProduct={setSelectedProductDetail}
         markets={markets}
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}

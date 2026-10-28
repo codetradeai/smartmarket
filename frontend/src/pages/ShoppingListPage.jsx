@@ -632,6 +632,8 @@ export default function ShoppingListPage() {
       {/* Modal de Detalhes e Fotos HD do Produto */}
       <ProductDetailModal
         product={selectedProductDetail}
+        allProducts={products}
+        onSelectProduct={setSelectedProductDetail}
         markets={markets}
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}

@@ -744,6 +744,8 @@ export default function FavoritesPage() {
       {/* Modal de Detalhes e Fotos HD do Produto Favorito */}
       <ProductDetailModal
         product={selectedProductDetail}
+        allProducts={PRODUCTS}
+        onSelectProduct={setSelectedProductDetail}
         markets={MARKETS}
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}

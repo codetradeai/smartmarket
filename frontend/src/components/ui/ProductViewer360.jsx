@@ -189,27 +189,6 @@ export function ProductViewer360({
         />
       )}
 
-      {/* Pílula / Badge 360° Flutuante no Canto Superior Direito */}
-      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-2xs rounded-full px-2.5 py-1 flex items-center gap-1.5 pointer-events-none z-10">
-        <div className="w-4 h-4 rounded-xs bg-blue-600 flex items-center justify-center text-white shrink-0">
-          <svg
-            className="w-2.5 h-2.5 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-            <path d="M16 21h5v-5" />
-          </svg>
-        </div>
-        <span className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">360°</span>
-      </div>
-
       {/* Dica de arraste com o mouse (desaparece ao interagir) */}
       {!isLoading && !hasInteracted && (
         <div className="absolute bottom-3 inset-x-0 mx-auto w-fit bg-slate-900/75 backdrop-blur-xs text-white px-3 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1.5 opacity-90 pointer-events-none shadow-xs">

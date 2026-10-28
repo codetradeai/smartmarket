@@ -348,43 +348,6 @@ export function ProductDetailModal({
                           />
                         </div>
 
-                        {/* Pílula / Badge 360° Flutuante no Canto Superior Direito (Parte 3) */}
-                        {hasValid360 ? (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setViewMode("360")
-                            }}
-                            className="absolute top-3 right-3 bg-white/95 hover:bg-white backdrop-blur-xs border border-slate-200/90 shadow-2xs rounded-full px-2.5 py-1 flex items-center gap-1.5 transition-transform hover:scale-105 cursor-pointer z-10"
-                            title="Abrir giro 360° do produto"
-                            aria-label="Abrir visualização 360°"
-                          >
-                            <div className="w-4 h-4 rounded-xs bg-blue-600 flex items-center justify-center text-white shrink-0">
-                              <svg
-                                className="w-2.5 h-2.5 text-white"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                                <path d="M3 3v5h5" />
-                                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-                                <path d="M16 21h5v-5" />
-                              </svg>
-                            </div>
-                            <span className="text-[11px] font-bold text-slate-800 tracking-tight leading-none">360°</span>
-                          </button>
-                        ) : (
-                          /* Indicador de Lupa para produtos comuns sem 360 */
-                          <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs text-slate-700 w-8 h-8 rounded-full border border-slate-200/80 shadow-2xs flex items-center justify-center text-xs pointer-events-none transition-opacity duration-200">
-                            🔍
-                          </div>
-                        )}
-
                         {/* Indicador de Unidade */}
                         <span className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs pointer-events-none">
                           {product.unit || "1 un"}

@@ -26,81 +26,26 @@ export function ProductDetailModal({
   onToggleFavorite,
 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [isZoomed, setIsZoomed] = useState(false)
-  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
   const [viewMode, setViewMode] = useState("photo") // 'photo' | '360'
 
-  // Reseta estado da galeria, zoom e modo ao trocar de produto
+  // Reseta estado da galeria e modo ao trocar de produto
   useEffect(() => {
     setActiveImageIndex(0)
-    setIsZoomed(false)
-    setZoomOrigin({ x: 50, y: 50 })
     setViewMode("photo")
   }, [product?.id])
 
   // Fecha o modal com tecla Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        if (isZoomed) {
-          setIsZoomed(false)
-          setZoomOrigin({ x: 50, y: 50 })
-        } else if (isOpen) {
-          onClose()
-        }
+      if (e.key === "Escape" && isOpen) {
+        onClose()
       }
     }
     if (isOpen) {
       window.addEventListener("keydown", handleKeyDown)
       return () => window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [isOpen, isZoomed, onClose])
-
-  // Manipuladores de Zoom In-Place (mexer na foto dentro do quadro e voltar ao centro)
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    if (rect.width === 0 || rect.height === 0) return
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    setZoomOrigin({
-      x: Math.max(0, Math.min(100, x)),
-      y: Math.max(0, Math.min(100, y)),
-    })
-    if (!isZoomed) setIsZoomed(true)
-  }
-
-  const handleMouseLeave = () => {
-    setIsZoomed(false)
-    setZoomOrigin({ x: 50, y: 50 })
-  }
-
-  const handleImageClick = () => {
-    setIsZoomed((prev) => {
-      if (prev) {
-        setZoomOrigin({ x: 50, y: 50 })
-      }
-      return !prev
-    })
-  }
-
-  const handleTouchMove = (e) => {
-    if (!e.touches || e.touches.length === 0) return
-    const touch = e.touches[0]
-    const rect = e.currentTarget.getBoundingClientRect()
-    if (rect.width === 0 || rect.height === 0) return
-    const x = ((touch.clientX - rect.left) / rect.width) * 100
-    const y = ((touch.clientY - rect.top) / rect.height) * 100
-    setZoomOrigin({
-      x: Math.max(0, Math.min(100, x)),
-      y: Math.max(0, Math.min(100, y)),
-    })
-    setIsZoomed(true)
-  }
-
-  const handleTouchEnd = () => {
-    setIsZoomed(false)
-    setZoomOrigin({ x: 50, y: 50 })
-  }
+  }, [isOpen, onClose])
 
   // 1. Galeria com as imagens realmente disponíveis (prioriza as 4 fotos oficiais da embalagem)
   const galleryImages = useMemo(() => {
@@ -320,33 +265,13 @@ export function ProductDetailModal({
                         alt={product.name || product.nome_bruto}
                       />
                     ) : (
-                      <div
-                        className="relative w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden select-none"
-                        style={{ cursor: isZoomed ? "zoom-out" : "zoom-in" }}
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseLeave}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                        onClick={handleImageClick}
-                        title={isZoomed ? "Clique para desativar zoom" : "Passe o mouse ou clique para ampliar detalhes"}
-                      >
-                        <div
-                          className="w-full h-full flex items-center justify-center pointer-events-none"
-                          style={{
-                            transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
-                            transform: isZoomed ? "scale(2.2)" : "scale(1)",
-                            transition: isZoomed
-                              ? "transform 0.08s ease-out"
-                              : "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform-origin 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
-                          }}
-                        >
-                          <ProductImage
-                            src={activeImage}
-                            alt={product.name || product.nome_bruto}
-                            className="w-full h-full object-contain"
-                            fallbackIcon={product.image || "📦"}
-                          />
-                        </div>
+                      <div className="relative w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden select-none">
+                        <ProductImage
+                          src={activeImage}
+                          alt={product.name || product.nome_bruto}
+                          className="w-full h-full object-contain"
+                          fallbackIcon={product.image || "📦"}
+                        />
 
                         {/* Indicador de Unidade */}
                         <span className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs pointer-events-none">

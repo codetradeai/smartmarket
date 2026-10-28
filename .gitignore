@@ -148,3 +148,7 @@ target/
 *.iml
 node_modules/
 .env
+
+output/
+
+frontend/templates/**/*.zip

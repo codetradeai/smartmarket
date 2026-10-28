@@ -224,7 +224,19 @@ def gerar_sql_e_data():
             if mk not in prices_dict:
                 prices_dict[mk] = round(preco * mult, 2)
 
-        produtos_frontend.append({
+        # Suporte a sequências 360° autenticadas
+        frames_360 = item.get("three_dimensional_images_local") or item.get("three_dimensional_images")
+        recursos_visuais = None
+        if isinstance(frames_360, list) and len(frames_360) >= 2:
+            recursos_visuais = {
+                "has360": True,
+                "totalFrames": len(frames_360),
+                "origem": f"{item.get('supermercado', 'Supermercado')} (Origem autenticada)",
+                "idOrigem": str(item.get("id_produto_origem", "")),
+                "frames": frames_360
+            }
+
+        prod_dict = {
             "id": f"p{prod_id}",
             "name": nome,
             "brand": marca,
@@ -236,7 +248,15 @@ def gerar_sql_e_data():
             "descricao": desc,
             "prices": prices_dict,
             "promo": em_promo,
-        })
+            "urlProduto": item.get("url_produto"),
+            "idOrigem": str(item.get("id_produto_origem", "")) if item.get("id_produto_origem") else None,
+            "supermercadoOrigem": item.get("supermercado"),
+            "precoNormal": preco_normal if em_promo else preco,
+        }
+        if recursos_visuais:
+            prod_dict["recursosVisuais"] = recursos_visuais
+
+        produtos_frontend.append(prod_dict)
 
         prod_id += 1
 

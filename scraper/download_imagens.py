@@ -93,15 +93,33 @@ def processar_coletas(
             modificado = False
             for p in produtos:
                 url_img = p.get("imagem_url")
-                if not url_img:
-                    continue
-                total_imagens += 1
-                nome_arq = gerar_nome_arquivo(url_img, p.get("id_produto_origem"))
-                caminho_local = diretorio_destino / nome_arq
-                p["imagem_local"] = f"/images/produtos/{nome_arq}"
-                modificado = True
+                if url_img:
+                    total_imagens += 1
+                    nome_arq = gerar_nome_arquivo(url_img, p.get("id_produto_origem"))
+                    caminho_local = diretorio_destino / nome_arq
+                    p["imagem_local"] = f"/images/produtos/{nome_arq}"
+                    modificado = True
+                    tarefas.append((url_img, caminho_local))
 
-                tarefas.append((url_img, caminho_local))
+                # Processamento de sequências 360° autênticas
+                frames_360 = p.get("three_dimensional_images")
+                if isinstance(frames_360, list) and len(frames_360) >= 2:
+                    origem_id = p.get("id_produto_origem", "desconhecido")
+                    subpasta_360 = diretorio_destino / "360" / str(origem_id)
+                    frames_locais = []
+                    for idx, frame_url in enumerate(frames_360):
+                        if not frame_url or not isinstance(frame_url, str):
+                            continue
+                        ext = extrair_extensao(frame_url)
+                        nome_frame = f"frame_{idx:02d}{ext}"
+                        caminho_frame = subpasta_360 / nome_frame
+                        frames_locais.append(f"/images/produtos/360/{origem_id}/{nome_frame}")
+                        tarefas.append((frame_url, caminho_frame))
+                        total_imagens += 1
+
+                    if frames_locais:
+                        p["three_dimensional_images_local"] = frames_locais
+                        modificado = True
 
             if modificado:
                 arq.write_text(json.dumps(produtos, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -18,6 +18,7 @@ import {
   Navbar,
   ProductImage,
   ProductDetailModal,
+  Product360HoverPreview,
 } from "../components/ui"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
 
@@ -203,17 +204,17 @@ export function Home() {
                 >
                   <CardHeader className="pb-2">
                     <div className="relative w-full h-44 bg-slate-50 rounded-xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center">
-                      <ProductImage
-                        src={produto.imageUrl || produto.image}
+                      <Product360HoverPreview
+                        product={produto}
                         alt={produto.name}
-                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain p-2"
                       />
                       {produto.promo && (
-                        <span className="absolute top-2 left-2 bg-brand-coral text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider">
+                        <span className="absolute top-2 left-2 bg-brand-coral text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs uppercase tracking-wider pointer-events-none">
                           Oferta
                         </span>
                       )}
-                      <span className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200">
+                      <span className="absolute top-2 right-2 bg-white/90 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-200 pointer-events-none">
                         {produto.unit}
                       </span>
                     </div>

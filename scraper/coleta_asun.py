@@ -72,6 +72,7 @@ CAMPOS = (
     "imagem_url",
     "descricao",
     "url_produto",
+    "three_dimensional_images",
 )
 
 
@@ -164,6 +165,16 @@ def transformar_item(item: dict, nome_categoria: str, instante: datetime) -> dic
     else:
         descricao = ""
 
+    # Captura oficial e autorizada de sequência 360° (quando fornecida pela API)
+    three_d = item.get("threeDimensionalImage")
+    frames_360 = (
+        [str(f).strip() for f in three_d if isinstance(f, str) and f.strip()]
+        if isinstance(three_d, list)
+        else None
+    )
+    if frames_360 and len(frames_360) < 2:
+        frames_360 = None
+
     return {
         "nome_bruto": nome.strip(),
         "preco": preco_efetivo,
@@ -178,6 +189,7 @@ def transformar_item(item: dict, nome_categoria: str, instante: datetime) -> dic
         "imagem_url": obter_url_imagem_alta_resolucao(item),
         "descricao": descricao if descricao and descricao != nome.strip() else None,
         "url_produto": url_produto,
+        "three_dimensional_images": frames_360,
     }
 
 

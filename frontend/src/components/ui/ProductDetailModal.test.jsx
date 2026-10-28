@@ -172,4 +172,43 @@ describe('ProductDetailModal (Fase 2)', () => {
     fireEvent.click(btn360)
     expect(screen.getByRole('region')).toBeInTheDocument()
   })
+
+  it('permite zoom in-place e pan no quadro da foto e volta ao centro ao sair', () => {
+    render(
+      <ProductDetailModal
+        product={mockProductComprovado}
+        markets={mockMarkets}
+        isOpen={true}
+        onClose={vi.fn()}
+      />
+    )
+
+    const imgContainer = screen.getByTitle(/Passe o mouse ou clique para ampliar detalhes/i)
+    expect(imgContainer).toBeInTheDocument()
+
+    // No JSDOM, getBoundingClientRect retorna zeros por padrão; simulamos o layout real da caixa:
+    vi.spyOn(imgContainer, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 400,
+      height: 400,
+      right: 400,
+      bottom: 400,
+    })
+
+    // Move o mouse sobre a imagem (simula hover e pan)
+    fireEvent.mouseMove(imgContainer, { clientX: 200, clientY: 200 })
+    expect(screen.getByTitle(/Clique para desativar zoom/i)).toBeInTheDocument()
+
+    // Ao sair com o mouse, deve voltar ao centro e desativar zoom
+    fireEvent.mouseLeave(imgContainer)
+    expect(screen.getByTitle(/Passe o mouse ou clique para ampliar detalhes/i)).toBeInTheDocument()
+
+    // Alternar zoom via clique também funciona
+    fireEvent.click(imgContainer)
+    expect(screen.getByTitle(/Clique para desativar zoom/i)).toBeInTheDocument()
+    fireEvent.click(imgContainer)
+    expect(screen.getByTitle(/Passe o mouse ou clique para ampliar detalhes/i)).toBeInTheDocument()
+  })
 })
+

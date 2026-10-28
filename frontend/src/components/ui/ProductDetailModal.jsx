@@ -26,22 +26,25 @@ export function ProductDetailModal({
   onToggleFavorite,
 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
-  const [isZoomOpen, setIsZoomOpen] = useState(false)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 })
   const [viewMode, setViewMode] = useState("photo") // 'photo' | '360'
 
-  // Reseta estado da galeria e modo de visualização ao trocar de produto
+  // Reseta estado da galeria, zoom e modo ao trocar de produto
   useEffect(() => {
     setActiveImageIndex(0)
-    setIsZoomOpen(false)
+    setIsZoomed(false)
+    setZoomOrigin({ x: 50, y: 50 })
     setViewMode("photo")
   }, [product?.id])
 
-  // Fecha o LightBox com tecla Escape
+  // Fecha o modal com tecla Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        if (isZoomOpen) {
-          setIsZoomOpen(false)
+        if (isZoomed) {
+          setIsZoomed(false)
+          setZoomOrigin({ x: 50, y: 50 })
         } else if (isOpen) {
           onClose()
         }
@@ -51,35 +54,73 @@ export function ProductDetailModal({
       window.addEventListener("keydown", handleKeyDown)
       return () => window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [isOpen, isZoomOpen, onClose])
+  }, [isOpen, isZoomed, onClose])
 
-  // 1. Galeria com as imagens realmente disponíveis (sem inventar nem duplicar)
+  // Manipuladores de Zoom In-Place (mexer na foto dentro do quadro e voltar ao centro)
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setZoomOrigin({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    })
+    if (!isZoomed) setIsZoomed(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsZoomed(false)
+    setZoomOrigin({ x: 50, y: 50 })
+  }
+
+  const handleImageClick = () => {
+    setIsZoomed((prev) => {
+      if (prev) {
+        setZoomOrigin({ x: 50, y: 50 })
+      }
+      return !prev
+    })
+  }
+
+  const handleTouchMove = (e) => {
+    if (!e.touches || e.touches.length === 0) return
+    const touch = e.touches[0]
+    const rect = e.currentTarget.getBoundingClientRect()
+    if (rect.width === 0 || rect.height === 0) return
+    const x = ((touch.clientX - rect.left) / rect.width) * 100
+    const y = ((touch.clientY - rect.top) / rect.height) * 100
+    setZoomOrigin({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+    })
+    setIsZoomed(true)
+  }
+
+  const handleTouchEnd = () => {
+    setIsZoomed(false)
+    setZoomOrigin({ x: 50, y: 50 })
+  }
+
+  // 1. Galeria com as imagens realmente disponíveis (prioriza as 4 fotos oficiais da embalagem)
   const galleryImages = useMemo(() => {
     if (!product) return []
+    if (Array.isArray(product.imagensAdicionais) && product.imagensAdicionais.length > 0) {
+      return product.imagensAdicionais
+    }
     const list = []
-    
-    // Imagem local de alta resolução (preferencial)
     if (product.imageLocal || product.imagem_local) {
       list.push(product.imageLocal || product.imagem_local)
     }
-    // Imagem remota original da CDN da loja
     if (product.imageUrl || product.imagem_url) {
       const url = product.imageUrl || product.imagem_url
       if (!list.includes(url)) {
         list.push(url)
       }
     }
-    // Imagens adicionais coletadas da origem (se existirem)
-    if (Array.isArray(product.imagensAdicionais)) {
-      product.imagensAdicionais.forEach((img) => {
-        if (img && !list.includes(img)) list.push(img)
-      })
-    }
-    // Fallback de URL genérica se for string http
     if (typeof product.image === "string" && product.image.startsWith("http") && !list.includes(product.image)) {
       list.push(product.image)
     }
-
     return list
   }, [product])
 
@@ -210,119 +251,145 @@ export function ProductDetailModal({
           <div className="overflow-y-auto p-4 sm:p-6 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
               
-              {/* COLUNA ESQUERDA: Galeria de Imagens & Visualizador 360° (5 colunas no desktop) */}
-              <div className="md:col-span-5 space-y-3">
-                {/* Seletor de Modo (Apenas exibido quando o produto possui rotação 360° com 2+ quadros reais) */}
+              {/* COLUNA ESQUERDA: Galeria Vertical com Botão 360° no Topo e Quadro Principal (6 colunas no desktop) */}
+              <div className="md:col-span-6 space-y-3">
+                <div className="flex flex-col sm:flex-row items-start gap-3">
+                  
+                  {/* Coluna Vertical de Miniaturas (com botão 360° no topo) */}
+                  <div className="flex sm:flex-col gap-2 shrink-0 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0">
+                    {/* Botão de 360° no Topo da Coluna */}
+                    {hasValid360 && (
+                      <button
+                        type="button"
+                        onClick={() => setViewMode("360")}
+                        aria-label="Giro 360°"
+                        className={`w-12 h-12 rounded-xl border flex flex-col items-center justify-center p-1 transition-all cursor-pointer ${
+                          viewMode === "360"
+                            ? "border-red-500 ring-2 ring-red-500/20 bg-white shadow-xs"
+                            : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
+                        }`}
+                        title="Giro 360°"
+                      >
+                        <span className="text-[10px] font-black text-slate-800 leading-none">360°</span>
+                        <svg
+                          className="w-4.5 h-3 text-slate-700 mt-0.5"
+                          viewBox="0 0 20 12"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 6c0 2.5-3.6 4.5-8 4.5S2 8.5 2 6s3.6-4.5 8-4.5c2.8 0 5.2.8 6.6 2.1" />
+                          <path d="M15 1.5l3.8 2.2-2.3 3.3" />
+                        </svg>
+                      </button>
+                    )}
+
+                    {/* 4 Miniaturas da Galeria (Frente, Lado Direito, Trás, Lado Esquerdo) */}
+                    {galleryImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setActiveImageIndex(idx)
+                          setViewMode("photo")
+                        }}
+                        className={`w-12 h-12 rounded-xl border p-1 bg-white shrink-0 overflow-hidden transition-all cursor-pointer ${
+                          viewMode === "photo" && activeImageIndex === idx
+                            ? "border-red-500 ring-2 ring-red-500/20 shadow-xs"
+                            : "border-slate-200 opacity-70 hover:opacity-100"
+                        }`}
+                        title={`Ver imagem ${idx + 1}`}
+                      >
+                        <ProductImage
+                          src={img}
+                          alt={`Miniatura ${idx + 1}`}
+                          className="w-full h-full object-contain"
+                          fallbackIcon="📦"
+                        />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Quadro Principal: Visualizador 360° ou Imagem Estática com Zoom In-Place */}
+                  <div className="flex-1 w-full min-w-0">
+                    {hasValid360 && viewMode === "360" ? (
+                      <ProductViewer360
+                        frames={product.recursosVisuais.frames}
+                        alt={product.name || product.nome_bruto}
+                      />
+                    ) : (
+                      <div
+                        className="relative w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden select-none"
+                        style={{ cursor: isZoomed ? "zoom-out" : "zoom-in" }}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                        onClick={handleImageClick}
+                        title={isZoomed ? "Clique para desativar zoom" : "Passe o mouse ou clique para ampliar detalhes"}
+                      >
+                        <div
+                          className="w-full h-full flex items-center justify-center pointer-events-none"
+                          style={{
+                            transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`,
+                            transform: isZoomed ? "scale(2.2)" : "scale(1)",
+                            transition: isZoomed
+                              ? "transform 0.08s ease-out"
+                              : "transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), transform-origin 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)",
+                          }}
+                        >
+                          <ProductImage
+                            src={activeImage}
+                            alt={product.name || product.nome_bruto}
+                            className="w-full h-full object-contain"
+                            fallbackIcon={product.image || "📦"}
+                          />
+                        </div>
+
+                        {/* Botão de Lupa Indicativo Sobreposto */}
+                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-xs text-slate-700 w-8 h-8 rounded-full border border-slate-200/80 shadow-2xs flex items-center justify-center text-xs pointer-events-none transition-opacity duration-200">
+                          🔍
+                        </div>
+
+                        {/* Indicador de Unidade */}
+                        <span className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs pointer-events-none">
+                          {product.unit || "1 un"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Aviso oficial de direitos autorais das imagens 360° da OSuper Sistemas Ltda */}
                 {hasValid360 && (
-                  <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-full border border-slate-200/60">
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("photo")}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        viewMode === "photo"
-                          ? "bg-white text-slate-800 shadow-2xs border border-slate-200/80"
-                          : "text-slate-500 hover:text-slate-800"
-                      }`}
+                  <div className="flex flex-row items-center gap-2 pt-1 px-1 text-slate-400">
+                    <svg
+                      className="w-4 h-4 shrink-0 text-slate-400"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
                     >
-                      🖼️ Fotos ({galleryImages.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setViewMode("360")}
-                      className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        viewMode === "360"
-                          ? "bg-emerald-600 text-white shadow-2xs"
-                          : "text-slate-500 hover:text-slate-800"
-                      }`}
-                    >
-                      🔄 Giro 360°
-                    </button>
+                      <path d="M12 9a3 3 0 100 6 3 3 0 000-6zm-7-3h2.18l1.45-2h6.74l1.45 2H19a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2zm7 11a5 5 0 100-10 5 5 0 000 10z" />
+                    </svg>
+                    <p className="text-[10px] leading-tight text-slate-400">
+                      Proibida a cópia ou reprodução das imagens 360° do produto sem autorização da{" "}
+                      <span className="font-bold text-slate-500">OSuper Sistemas Ltda</span>, detentora dos direitos.
+                    </p>
                   </div>
                 )}
 
-                {/* Exibição: Modo 360° ou Galeria Convencional de Fotos */}
-                {hasValid360 && viewMode === "360" ? (
-                  <ProductViewer360
-                    frames={product.recursosVisuais.frames}
-                    alt={product.name || product.nome_bruto}
-                  />
-                ) : (
-                  <>
-                    {/* Imagem Principal em Destaque */}
-                    <div
-                      className="relative w-full aspect-square bg-slate-50/70 rounded-2xl p-4 border border-slate-200 flex items-center justify-center overflow-hidden group cursor-zoom-in shadow-inner"
-                      onClick={() => activeImage && setIsZoomOpen(true)}
-                      title="Clique para ampliar em alta resolução"
-                    >
-                      <ProductImage
-                        src={activeImage}
-                        alt={product.name || product.nome_bruto}
-                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                        fallbackIcon={product.image || "📦"}
-                      />
-
-                      {/* Botão de Lupa Sobreposto */}
-                      <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-xs text-slate-700 p-2 rounded-xl border border-slate-200/80 shadow-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 text-xs font-semibold">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.6" />
-                          <path d="M10 10l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                        </svg>
-                        <span>Ampliar</span>
-                      </div>
-
-                      {/* Indicador de Unidade */}
-                      <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs">
-                        {product.unit || "1 un"}
-                      </span>
-                    </div>
-
-                    {/* Miniaturas da Galeria (apenas imagens reais disponíveis) */}
-                    {galleryImages.length > 1 && (
-                      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                        {galleryImages.map((img, idx) => (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => setActiveImageIndex(idx)}
-                            className={`w-14 h-14 rounded-xl border-2 p-1 bg-white shrink-0 overflow-hidden transition-all cursor-pointer ${
-                              activeImageIndex === idx
-                                ? "border-emerald-600 ring-2 ring-emerald-500/30 shadow-xs scale-105"
-                                : "border-slate-200 opacity-70 hover:opacity-100"
-                            }`}
-                            title={`Ver imagem ${idx + 1}`}
-                          >
-                            <ProductImage
-                              src={img}
-                              alt={`Miniatura ${idx + 1}`}
-                              className="w-full h-full object-contain"
-                              fallbackIcon="📦"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-
-                {/* 
-                  PONTO DE INTEGRAÇÃO FASE 3: Visualizador 360° / Modelos 3D
-                  Este nó serve de âncora arquitetural para o runtime 360º nativo.
-                */}
+                {/* Âncora de integração documentada */}
                 <div
                   data-integration="product-viewer-360-anchor"
                   data-has-360={hasValid360 ? "true" : "false"}
-                  className="p-2.5 rounded-xl border border-dashed border-slate-300 bg-slate-50/60 text-center"
-                >
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    {hasValid360
-                      ? `🔄 Visualização 360° ativa (${product.recursosVisuais.frames.length} quadros autenticados)`
-                      : "🔄 Visualização 360°: aguardando sequência fotográfica autenticada da rede"}
-                  </p>
-                </div>
+                  className="hidden"
+                />
               </div>
 
-              {/* COLUNA DIREITA: Informações, Comparador e Ações (7 colunas no desktop) */}
-              <div className="md:col-span-7 space-y-4">
+              {/* COLUNA DIREITA: Informações, Comparador e Ações (6 colunas no desktop) */}
+              <div className="md:col-span-6 space-y-4">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
                     {product.name || product.nome_bruto}
@@ -505,41 +572,6 @@ export function ProductDetailModal({
         </div>
       </div>
 
-      {/* MODAL DE ZOOM / LIGHTBOX EM TELA CHEIA */}
-      {isZoomOpen && activeImage && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200"
-          onClick={() => setIsZoomOpen(false)}
-        >
-          <div
-            className="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Botão de Fechar Zoom */}
-            <button
-              type="button"
-              onClick={() => setIsZoomOpen(false)}
-              className="absolute -top-12 right-0 sm:right-2 w-10 h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center transition-colors text-lg font-bold cursor-pointer"
-              title="Fechar ampliação (Esc)"
-            >
-              ✕
-            </button>
-
-            {/* Imagem Ampliada em Alta Resolução */}
-            <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-2xl max-h-[80vh] flex items-center justify-center overflow-hidden">
-              <img
-                src={activeImage}
-                alt={product.name || product.nome_bruto}
-                className="max-w-full max-h-[70vh] object-contain select-none"
-              />
-            </div>
-
-            <p className="text-white/80 text-xs font-semibold mt-3 text-center">
-              {product.name} {product.unit && `(${product.unit})`}
-            </p>
-          </div>
-        </div>
-      )}
     </>
   )
 }

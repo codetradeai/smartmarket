@@ -61,5 +61,33 @@ class TestColetaAsun(unittest.TestCase):
             preco_positivo("invalido")
 
 
+    def test_transformar_item_com_360(self):
+        instante = datetime(2026, 10, 27, 12, 0, 0, tzinfo=timezone.utc)
+        item_raw = {
+            "id": "7710331",
+            "name": "Café Melitta 250g",
+            "pricing": {"price": 17.99},
+            "threeDimensionalImage": [
+                "https://edge.osuper.com.br/f0.webp",
+                "https://edge.osuper.com.br/f1.webp",
+                "https://edge.osuper.com.br/f2.webp"
+            ]
+        }
+        transformado = transformar_item(item_raw, "Cafes", instante)
+        self.assertEqual(len(transformado["three_dimensional_images"]), 3)
+        self.assertEqual(transformado["three_dimensional_images"][0], "https://edge.osuper.com.br/f0.webp")
+
+    def test_transformar_item_com_360_insuficiente(self):
+        instante = datetime(2026, 10, 27, 12, 0, 0, tzinfo=timezone.utc)
+        item_raw = {
+            "id": "7710331",
+            "name": "Café Melitta 250g",
+            "pricing": {"price": 17.99},
+            "threeDimensionalImage": ["https://edge.osuper.com.br/apenas_um.webp"]
+        }
+        transformado = transformar_item(item_raw, "Cafes", instante)
+        self.assertIsNone(transformado["three_dimensional_images"])
+
+
 if __name__ == "__main__":
     unittest.main()

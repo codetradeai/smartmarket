@@ -5,7 +5,7 @@ import {
   PRODUCTS as DEFAULT_PRODUCTS,
 } from "../data";
 import { produtoService, mercadoService, favoritoService } from "../services";
-import { ProductImage, ProductDetailModal } from "../components/ui";
+import { ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui";
 
 // Cores e Tokens oficiais SmartMarket (consistentes com index.css e Figma)
 const C = {
@@ -276,6 +276,7 @@ function ProductCard({
   isShelf = false,
 }) {
   const [justAdded, setJustAdded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
 
   const imgSrc =
@@ -306,7 +307,12 @@ function ProductCard({
 
   return (
     <div
-      onClick={() => onOpenDetail && onOpenDetail(product)}
+      onClick={() => {
+        setIsHovered(false);
+        if (onOpenDetail) onOpenDetail(product);
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={`group relative bg-white rounded-2xl border border-brand-border/70 p-3 sm:p-3.5 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:border-brand-green/50 hover:-translate-y-1 cursor-pointer select-none ${
         isShelf
           ? "w-[230px] sm:w-[250px] shrink-0 snap-start"
@@ -330,13 +336,14 @@ function ProductCard({
         <IconHeart filled={isFavProduct} />
       </button>
 
-      {/* Área da Imagem do Produto */}
+      {/* Área da Imagem do Produto com Suporte a Preview 360° no Hover */}
       <div className="relative w-full h-40 bg-slate-50/60 rounded-xl overflow-hidden flex items-center justify-center p-2.5 mb-2.5 border border-slate-100 group-hover:bg-white transition-colors">
-        <ProductImage
-          src={imgSrc}
+        <Product360HoverPreview
+          product={product}
           alt={product.name}
-          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+          className="w-full h-full object-contain"
           fallbackIcon={product.image || "📦"}
+          isCardHovered={isHovered}
         />
 
         {/* Badge de Oferta / Promoção */}
@@ -347,7 +354,7 @@ function ProductCard({
         )}
 
         {/* Unidade / Medida */}
-        <span className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs">
+        <span className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs pointer-events-none">
           {product.unit || "1 un"}
         </span>
       </div>

@@ -25,52 +25,67 @@ const C = {
   coralLight: "#FFF1EE",
 };
 
-// Mapeamento visual das categorias com banners temáticos e descrições
+// Mapeamento visual das categorias com banners verticais temáticos (253x453)
 const CATEGORY_META = {
   graos: {
-    banner: "/images/categorias/mercearia.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
     subtitulo: "Arroz gaúcho, feijões nobres, farinhas e grãos essenciais",
     cor: "#00863F",
   },
   leites: {
-    banner: "/images/categorias/laticinios.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
     subtitulo: "Leites UHT integrais e desnatados, queijos e derivados",
     cor: "#1A63B9",
   },
   oleos: {
-    banner: "/images/categorias/mercearia.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
     subtitulo: "Óleos de soja, azeites de oliva extravirgem e vinagres",
     cor: "#D97706",
   },
   cafe: {
-    banner: "/images/categorias/mercearia.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
     subtitulo: "Cafés tradicionais e torrados, chás e achocolatados",
     cor: "#78350F",
   },
   bebidas: {
-    banner: "/images/categorias/bebidas.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_bebidas.webp",
     subtitulo: "Refrigerantes, sucos, cervejas e águas minerais",
     cor: "#2563EB",
   },
   carnes: {
-    banner: "/images/categorias/carnes.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_carnes.webp",
     subtitulo: "Cortes bovinos nobres, aves e linguiças selecionadas",
     cor: "#DC2626",
   },
   higiene: {
-    banner: "/images/categorias/higiene.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_higiene.webp",
     subtitulo: "Itens de higiene pessoal, sabonetes, xampus e cremes dentais",
     cor: "#0D9488",
   },
   biscoitos: {
-    banner: "/images/categorias/mercearia.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
     subtitulo: "Biscoitos doces, salgados, wafers e chocolates",
     cor: "#EA580C",
   },
   mercearia: {
-    banner: "/images/categorias/mercearia.jpg",
+    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
     subtitulo: "Molhos, condimentos, conservas e itens de despensa",
     cor: "#4B5563",
+  },
+  hortifruti: {
+    bannerVertical: "/images/categorias/banner_vertical_hortifruti.webp",
+    subtitulo: "Frutas frescas, legumes, verduras e produtos da horta",
+    cor: "#16A34A",
+  },
+  limpeza: {
+    bannerVertical: "/images/categorias/banner_vertical_limpeza.webp",
+    subtitulo: "Detergentes, sabão em pó, desinfetantes e alvejantes",
+    cor: "#0284C7",
+  },
+  padaria: {
+    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    subtitulo: "Pães frescos, bolos, tortas, doces e salgados",
+    cor: "#D97706",
   },
 };
 
@@ -499,7 +514,7 @@ function CategoryShelf({
 
   return (
     <section className="bg-white rounded-3xl border border-brand-border/70 p-4 sm:p-6 shadow-xs space-y-4">
-      {/* Cabeçalho da Seção de Categoria */}
+      {/* Cabeçalho da Seção de Categoria idêntico às referências */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand-border/60">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-brand-green border border-emerald-100 flex items-center justify-center text-xl shadow-xs shrink-0">
@@ -527,9 +542,9 @@ function CategoryShelf({
             onClick={() => onSelectCategory(category.id)}
             className="text-xs font-bold text-brand-green hover:text-brand-green-hover hover:underline px-2 py-1"
           >
-            Ver todos &rarr;
+            Ver mais &rarr;
           </button>
-          <div className="flex items-center gap-1 pl-2 border-l border-brand-border/60">
+          <div className="flex items-center gap-1.5 pl-2 border-l border-brand-border/60">
             <button
               type="button"
               onClick={() => scroll("left")}
@@ -560,11 +575,38 @@ function CategoryShelf({
         </div>
       </div>
 
-      {/* Prateleira Horizontal com Scroll Suave e Snap */}
+      {/* Prateleira Horizontal com o Detalhe Lateral Vertical 253x453 no início */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
+        className="flex items-stretch gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
       >
+        {/* DETALHE LATERAL VERTICAL DA CATEGORIA (253x453) - Idêntico às referências visuais */}
+        {meta.bannerVertical && (
+          <div
+            onClick={() => onSelectCategory(category.id)}
+            className="w-[190px] sm:w-[215px] md:w-[235px] shrink-0 self-stretch rounded-2xl overflow-hidden relative shadow-xs border border-brand-border/70 group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 snap-start bg-slate-50 flex items-center justify-center"
+            style={{ minHeight: "380px" }}
+            title={`Ver todos os produtos de ${category.label}`}
+          >
+            <img
+              src={meta.bannerVertical}
+              alt={`Departamento ${category.label}`}
+              loading="lazy"
+              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-103"
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://edge.osuper.com.br/A7OpgT2DfMtAB4B3wwXrE5fMcic=/253x453/smart/https://osuper-ecommerce-asun.s3.sa-east-1.amazonaws.com/f683d8f8-bfb3c2f9padariaeconfeitaria.webp";
+              }}
+            />
+            {/* Tag flutuante sutil apenas no hover para indicar ação */}
+            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between text-white text-xs font-bold">
+              <span>Explorar {category.label}</span>
+              <span className="text-emerald-300 font-extrabold">&rarr;</span>
+            </div>
+          </div>
+        )}
+
+        {/* CARDS DE PRODUTOS DA CATEGORIA */}
         {products.map((prod) => (
           <ProductCard
             key={prod.id}

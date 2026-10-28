@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { ProductImage } from "./ProductImage"
 import { Button } from "./Button"
 import { ProductViewer360 } from "./ProductViewer360"
@@ -27,11 +27,16 @@ export function ProductDetailModal({
 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [viewMode, setViewMode] = useState("photo") // 'photo' | '360'
+  const [photoOffset, setPhotoOffset] = useState({ x: 0, y: 0 })
+  const [isPhotoDragging, setIsPhotoDragging] = useState(false)
+  const photoDragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
 
-  // Reseta estado da galeria e modo ao trocar de produto
+  // Reseta estado da galeria, modo e posição ao trocar de produto
   useEffect(() => {
     setActiveImageIndex(0)
     setViewMode("photo")
+    setPhotoOffset({ x: 0, y: 0 })
+    setIsPhotoDragging(false)
   }, [product?.id])
 
   // Fecha o modal com tecla Escape
@@ -46,6 +51,45 @@ export function ProductDetailModal({
       return () => window.removeEventListener("keydown", handleKeyDown)
     }
   }, [isOpen, onClose])
+
+  // Manipuladores de Arraste da Foto (Move livremente ao clicar e volta ao centro sozinho ao soltar)
+  const handlePhotoPointerDown = (e) => {
+    if (e.button !== undefined && e.button !== 0) return
+    setIsPhotoDragging(true)
+    photoDragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      initialX: photoOffset.x,
+      initialY: photoOffset.y,
+    }
+    if (e.currentTarget.setPointerCapture) {
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId)
+      } catch {}
+    }
+  }
+
+  const handlePhotoPointerMove = (e) => {
+    if (!isPhotoDragging) return
+    const dx = e.clientX - photoDragStartRef.current.x
+    const dy = e.clientY - photoDragStartRef.current.y
+    setPhotoOffset({
+      x: photoDragStartRef.current.initialX + dx,
+      y: photoDragStartRef.current.initialY + dy,
+    })
+  }
+
+  const handlePhotoPointerUp = (e) => {
+    if (!isPhotoDragging) return
+    setIsPhotoDragging(false)
+    // Quando soltar, retorna automaticamente ao centro com física suave
+    setPhotoOffset({ x: 0, y: 0 })
+    if (e.currentTarget.releasePointerCapture) {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      } catch {}
+    }
+  }
 
   // 1. Galeria com as imagens realmente disponíveis (prioriza as 4 fotos oficiais da embalagem)
   const galleryImages = useMemo(() => {
@@ -265,13 +309,31 @@ export function ProductDetailModal({
                         alt={product.name || product.nome_bruto}
                       />
                     ) : (
-                      <div className="relative w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden select-none">
-                        <ProductImage
-                          src={activeImage}
-                          alt={product.name || product.nome_bruto}
-                          className="w-full h-full object-contain"
-                          fallbackIcon={product.image || "📦"}
-                        />
+                      <div
+                        className={`relative w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden select-none touch-none ${
+                          isPhotoDragging ? "cursor-grabbing" : "cursor-grab"
+                        }`}
+                        onPointerDown={handlePhotoPointerDown}
+                        onPointerMove={handlePhotoPointerMove}
+                        onPointerUp={handlePhotoPointerUp}
+                        onPointerCancel={handlePhotoPointerUp}
+                      >
+                        <div
+                          className="w-full h-full flex items-center justify-center pointer-events-none select-none"
+                          style={{
+                            transform: `translate3d(${photoOffset.x}px, ${photoOffset.y}px, 0)`,
+                            transition: isPhotoDragging
+                              ? "none"
+                              : "transform 0.45s cubic-bezier(0.2, 1, 0.3, 1)",
+                          }}
+                        >
+                          <ProductImage
+                            src={activeImage}
+                            alt={product.name || product.nome_bruto}
+                            className="w-full h-full object-contain pointer-events-none"
+                            fallbackIcon={product.image || "📦"}
+                          />
+                        </div>
 
                         {/* Indicador de Unidade */}
                         <span className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs text-slate-800 font-bold text-[11px] px-2.5 py-0.5 rounded-md border border-slate-200 shadow-2xs pointer-events-none">

@@ -172,6 +172,32 @@ describe('ProductDetailModal (Fase 2)', () => {
     fireEvent.click(btn360)
     expect(screen.getByRole('region')).toBeInTheDocument()
   })
+
+  it('permite arrastar a foto estática e retorna ao centro ao soltar', () => {
+    const { container } = render(
+      <ProductDetailModal
+        product={mockProductComprovado}
+        markets={mockMarkets}
+        isOpen={true}
+        onClose={vi.fn()}
+      />
+    )
+
+    const photoArea = container.querySelector('.cursor-grab')
+    expect(photoArea).not.toBeNull()
+
+    // Inicia o arraste da foto
+    fireEvent.pointerDown(photoArea, { clientX: 100, clientY: 100, button: 0, pointerId: 1 })
+    expect(photoArea).toHaveClass('cursor-grabbing')
+
+    // Move a foto
+    fireEvent.pointerMove(photoArea, { clientX: 150, clientY: 120, pointerId: 1 })
+
+    // Solta a foto (deve retornar ao repouso e voltar ao centro)
+    fireEvent.pointerUp(photoArea, { pointerId: 1 })
+    expect(photoArea).toHaveClass('cursor-grab')
+  })
 })
+
 
 

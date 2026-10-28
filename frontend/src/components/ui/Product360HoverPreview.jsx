@@ -113,18 +113,31 @@ export function Product360HoverPreview({
         className="w-full h-full object-contain p-2 transition-transform duration-200 group-hover:scale-105 pointer-events-none"
       />
 
-      {/* Símbolo Exclusivo de 360° (limpo e sem contagem de fotos) */}
-      <span
-        className={`absolute top-2 right-2 text-[10px] font-black px-2 py-0.5 rounded-full border shadow-2xs flex items-center gap-1 transition-all pointer-events-none ${
+      {/* Símbolo Oficial de 360° no Canto Superior Esquerdo (Estilo Oficial Asun) */}
+      <div
+        className={`absolute top-2 left-2 w-8 h-8 rounded-lg border shadow-2xs flex flex-col items-center justify-center p-0.5 transition-all pointer-events-none z-10 ${
           isHovered
-            ? "bg-emerald-600 text-white border-emerald-500 shadow-xs scale-105"
-            : "bg-white/90 backdrop-blur-xs text-slate-700 border-slate-200/90"
+            ? "bg-white border-slate-300 shadow-xs scale-105"
+            : "bg-slate-100/95 backdrop-blur-xs border-slate-200/90"
         }`}
         title="Produto com rotação 360° disponível"
       >
-        <span className={isHovered ? "animate-spin" : ""}>🔄</span>
-        <span>360°</span>
-      </span>
+        <span className="text-[9px] font-black text-slate-800 leading-none">360°</span>
+        <svg
+          className={`w-3.5 h-2.5 text-slate-800 mt-0.5 transition-transform duration-300 ${
+            isHovered ? "rotate-[-20deg]" : ""
+          }`}
+          viewBox="0 0 20 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 6c0 2.5-3.6 4.5-8 4.5S2 8.5 2 6s3.6-4.5 8-4.5c2.8 0 5.2.8 6.6 2.1" />
+          <path d="M15 1.5l3.8 2.2-2.3 3.3" />
+        </svg>
+      </div>
     </div>
   )
 }

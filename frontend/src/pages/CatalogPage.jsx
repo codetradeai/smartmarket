@@ -25,25 +25,25 @@ const C = {
   coralLight: "#FFF1EE",
 };
 
-// Mapeamento visual das categorias com banners verticais temáticos (253x453)
+// Mapeamento visual autêntico das categorias com banners verticais temáticos (253x453 do Asun e Fort)
 const CATEGORY_META = {
   graos: {
-    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
+    bannerVertical: "/images/categorias/banner_vertical_graos.jpg",
     subtitulo: "Arroz gaúcho, feijões nobres, farinhas e grãos essenciais",
     cor: "#00863F",
   },
   leites: {
-    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    bannerVertical: "/images/categorias/banner_vertical_laticinios.webp",
     subtitulo: "Leites UHT integrais e desnatados, queijos e derivados",
     cor: "#1A63B9",
   },
   oleos: {
-    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
+    bannerVertical: "/images/categorias/banner_vertical_oleos.jpg",
     subtitulo: "Óleos de soja, azeites de oliva extravirgem e vinagres",
     cor: "#D97706",
   },
   cafe: {
-    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    bannerVertical: "/images/categorias/banner_vertical_matinais.png",
     subtitulo: "Cafés tradicionais e torrados, chás e achocolatados",
     cor: "#78350F",
   },
@@ -63,13 +63,13 @@ const CATEGORY_META = {
     cor: "#0D9488",
   },
   biscoitos: {
-    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    bannerVertical: "/images/categorias/banner_vertical_biscoitos.png",
     subtitulo: "Biscoitos doces, salgados, wafers e chocolates",
     cor: "#EA580C",
   },
   mercearia: {
     bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
-    subtitulo: "Molhos, condimentos, conservas e itens de despensa",
+    subtitulo: "Molhos, massas, condimentos, conservas e itens de despensa",
     cor: "#4B5563",
   },
   hortifruti: {
@@ -86,6 +86,21 @@ const CATEGORY_META = {
     bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
     subtitulo: "Pães frescos, bolos, tortas, doces e salgados",
     cor: "#D97706",
+  },
+  congelados: {
+    bannerVertical: "/images/categorias/banner_vertical_congelados.webp",
+    subtitulo: "Pizzas, hambúrgueres e pratos prontos congelados",
+    cor: "#0284C7",
+  },
+  petshop: {
+    bannerVertical: "/images/categorias/banner_vertical_petshop.webp",
+    subtitulo: "Rações balanceadas, petiscos e cuidados para pets",
+    cor: "#059669",
+  },
+  bazar: {
+    bannerVertical: "/images/categorias/banner_vertical_bazar.webp",
+    subtitulo: "Panelas, utilidades domésticas e descartáveis",
+    cor: "#475569",
   },
 };
 

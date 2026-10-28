@@ -93,3 +93,12 @@ html, body, #root {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Oculta scrollbar mantendo funcionalidade de rolagem horizontal */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

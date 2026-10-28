@@ -78,9 +78,9 @@ export function Home() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-brand-navy leading-tight">
-            Compare preços no RS com{" "}
+            Economize no mercado com{" "}
             <span className="bg-gradient-to-r from-brand-emerald to-brand-teal bg-clip-text text-transparent">
-              precisão e economia real
+              inteligência e comparação de preços no RS
             </span>
           </h1>
 

@@ -409,7 +409,7 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
   );
 }
 
-function FavMarketsStrip({ markets, favs, onToggle }) {
+function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggleFav }) {
   return (
     <div className="bg-white rounded-2xl border border-brand-border/70 p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3 shadow-xs overflow-x-auto no-scrollbar">
       <div className="flex items-center gap-2 shrink-0 px-2.5 sm:px-3.5 py-1.5 border-r border-brand-border/60">
@@ -420,21 +420,22 @@ function FavMarketsStrip({ markets, favs, onToggle }) {
       </div>
       <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap flex-1 min-w-0">
         {markets.map((m) => {
+          const isSelected = selectedMkt === m.id;
           const isFav = favs.includes(m.id);
           const logoSrc = MARKET_LOGOS[m.id];
           const opticalClass = MARKET_LOGO_OPTICAL_CLASS[m.id] || "max-h-9 sm:max-h-10";
           return (
-            <button
+            <div
               key={m.id}
-              type="button"
-              onClick={() => onToggle(m.id)}
-              className={`group flex items-center justify-between gap-2 h-13 sm:h-14 px-3 sm:px-3.5 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
-                isFav
-                  ? "bg-amber-50/90 border-amber-300 ring-2 ring-amber-300/40 shadow-xs"
-                  : "bg-white border-brand-border/80 hover:bg-slate-50 hover:border-brand-green/50 shadow-2xs"
+              onClick={() => onSelectMkt(isSelected ? "todos" : m.id)}
+              className={`group flex items-center justify-between gap-1.5 h-13 sm:h-14 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
+                isSelected
+                  ? "bg-emerald-50/90 border-brand-green ring-2 ring-brand-green/35 shadow-xs"
+                  : isFav
+                    ? "bg-amber-50/70 border-amber-300 shadow-2xs"
+                    : "bg-white border-brand-border/80 hover:bg-slate-50 hover:border-brand-green/50 shadow-2xs"
               }`}
-              title={isFav ? `${m.name} (Favorito — Clique para desfavoritar)` : `Favoritar ${m.name}`}
-              aria-label={isFav ? `Remover ${m.name} dos favoritos` : `Favoritar ${m.name}`}
+              title={`Clique na logo para filtrar por ${m.name} ou na estrela para favoritar a rede`}
             >
               <div className="h-9 sm:h-10 flex-1 min-w-0 flex items-center justify-center overflow-hidden px-1">
                 {logoSrc ? (
@@ -449,10 +450,20 @@ function FavMarketsStrip({ markets, favs, onToggle }) {
                   </span>
                 )}
               </div>
-              <span className={`shrink-0 transition-transform duration-200 ${isFav ? "scale-110" : "group-hover:scale-110 opacity-70 group-hover:opacity-100"}`}>
-                <IconStar filled={isFav} />
-              </span>
-            </button>
+              {onToggleFav && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFav(m.id);
+                  }}
+                  title={isFav ? `${m.name} favoritado (clique para remover)` : `Favoritar rede ${m.name}`}
+                  className="shrink-0 p-1 rounded-lg transition-transform duration-200 hover:scale-110 cursor-pointer"
+                >
+                  <IconStar filled={isFav} />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
@@ -1019,7 +1030,14 @@ export default function CatalogPage() {
   const [sortBy, setSortBy] = useState("relevancia");
   const [viewMode, setViewMode] = useState("prateleiras"); // 'prateleiras' | 'grade'
   const [favMarkets, setFavMarkets] = useState([]);
-  const [favProducts, setFavProducts] = useState([]);
+  const [favProducts, setFavProducts] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("sm_fav_products") || "[]");
+      return Array.isArray(saved) ? saved.map(String) : [];
+    } catch {
+      return [];
+    }
+  });
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [visibleLimit, setVisibleLimit] = useState(48);
 
@@ -1027,10 +1045,10 @@ export default function CatalogPage() {
     setVisibleLimit(48);
   }, [selectedCat, search, mktFilter, sortBy, viewMode]);
 
-  // Quantidades na lista de compras
+  // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());
   const listCount = useMemo(
-    () => Object.values(listQuantities).reduce((acc, curr) => acc + curr, 0),
+    () => Object.values(listQuantities).filter((qty) => Number(qty || 0) > 0).length,
     [listQuantities]
   );
 
@@ -1072,14 +1090,20 @@ export default function CatalogPage() {
     carregarDados();
   }, []);
 
-  // Gestão de favoritos
+  // Gestão de produtos favoritos (persiste sempre no localStorage)
   async function toggleFavProduct(id) {
-    const isFav = favProducts.includes(id);
-    const next = isFav ? favProducts.filter((f) => f !== id) : [...favProducts, id];
+    const idStr = String(id);
+    const isFav = favProducts.includes(idStr);
+    const next = isFav ? favProducts.filter((f) => f !== idStr) : [...favProducts, idStr];
     setFavProducts(next);
     try {
-      if (isFav) await favoritoService.desfavoritarProduto(id);
-      else await favoritoService.favoritarProduto(id);
+      localStorage.setItem("sm_fav_products", JSON.stringify(next));
+    } catch {
+      // fallback
+    }
+    try {
+      if (isFav) await favoritoService.desfavoritarProduto(idStr);
+      else await favoritoService.favoritarProduto(idStr);
     } catch {
       // silencioso fallback
     }
@@ -1334,11 +1358,13 @@ export default function CatalogPage() {
             </div>
           </div>
 
-          {/* Linha 2: Fita de Mercados Favoritos */}
+          {/* Linha 2: Fita de Redes do RS */}
           <FavMarketsStrip
             markets={markets}
+            selectedMkt={mktFilter}
+            onSelectMkt={setMktFilter}
             favs={favMarkets}
-            onToggle={toggleFavMarket}
+            onToggleFav={toggleFavMarket}
           />
 
           {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados) */}

@@ -20,6 +20,7 @@ export function Navbar({
 }) {
   const authContext = useContext(AuthContext)
   const user = propUser || authContext?.user
+  const logout = authContext?.logout
   const isAdmin = authContext?.isAdmin || user?.papel === "ADMIN"
   const displayName = user?.nome || user?.name || ""
 
@@ -40,7 +41,7 @@ export function Navbar({
     const apresentacaoLinks = [
       { label: "Redes", href: "#redes" },
       { label: "Como funciona", href: "#como-funciona" },
-      { label: "Sobre", href: "/sobre" },
+      { label: "Sobre", href: "#sobre" },
     ]
 
     return (
@@ -258,8 +259,8 @@ export function Navbar({
 
           {/* Usuário ou Botão de Ação */}
           {user ? (
-            <div className="flex items-center gap-3 pl-2 border-l border-brand-border">
-              <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center">
+            <div className="flex items-center gap-2.5 pl-2 border-l border-brand-border">
+              <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center shrink-0">
                 {displayName[0]?.toUpperCase() || "U"}
               </div>
               <div className="hidden xl:flex flex-col text-left">
@@ -268,6 +269,18 @@ export function Navbar({
                 </span>
                 <span className="text-[10px] text-brand-muted">{user.email}</span>
               </div>
+              <button
+                type="button"
+                onClick={() => logout?.()}
+                title="Sair da conta"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Sair</span>
+              </button>
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
@@ -363,7 +376,35 @@ export function Navbar({
             })}
           </nav>
 
-          {!user && (
+          {user ? (
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center shrink-0">
+                  {displayName[0]?.toUpperCase() || "U"}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-brand-navy truncate">
+                    {displayName || "Conta"}
+                  </p>
+                  <p className="text-[11px] text-brand-muted truncate">{user.email}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  logout?.()
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600 hover:bg-rose-100 cursor-pointer shrink-0"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Sair da conta</span>
+              </button>
+            </div>
+          ) : (
             <div className="flex gap-2 pt-3 border-t border-slate-100">
               <Link to="/auth?mode=login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">

@@ -169,6 +169,7 @@ def transformar_produto(
     commertial_offer = sellers[0].get("commertialOffer") or {}
     price_raw = commertial_offer.get("Price")
     list_price_raw = commertial_offer.get("ListPrice")
+    spot_price_raw = commertial_offer.get("spotPrice")
 
     try:
         preco_atual = preco_positivo(price_raw)
@@ -180,41 +181,57 @@ def transformar_produto(
     except ValueError:
         preco_lista = preco_atual
 
-    em_promocao = preco_lista > preco_atual
-    preco_final = preco_atual
-    preco_normal = preco_lista if em_promocao else preco_atual
+    is_clube = False
+    clube_nome = None
 
-    images = item_sku.get("images") or []
+    if spot_price_raw is not None:
+        try:
+            sp = preco_positivo(spot_price_raw)
+            if 0 < sp < preco_atual:
+                preco_atual = sp
+                is_clube = True
+                clube_nome = "Clube Rissul"
+        except ValueError:
+            pass
+
+    teasers = commertial_offer.get("Teasers") or []
+    if isinstance(teasers, list):
+        for t in teasers:
+            if isinstance(t, dict):
+                t_nome = str(t.get("<Name>k__BackingField") or t.get("name") or "").lower()
+                if "clube" in t_nome or "rissul" in t_nome:
+                    is_clube = True
+                    clube_nome = "Clube Rissul"
+
+    slug = item_vtex.get("linkText")
+    link = item_vtex.get("link")
+    if not link and slug:
+        link = f"{BASE_STORE_URL}/{slug}/p"
+
     imagem_url = None
-    if images and isinstance(images, list) and isinstance(images[0], dict):
+    images = item_sku.get("images") or []
+    if images and isinstance(images, list):
         imagem_url = obter_url_imagem_alta_resolucao(images[0].get("imageUrl"))
 
-    descricao = limpar_html(item_vtex.get("description") or item_vtex.get("metaTagDescription"))
-
-    url_prod = item_vtex.get("link")
-    if url_prod and url_prod.startswith("/"):
-        url_prod = f"{STOREFRONT_BASE_URL}{url_prod}"
-    elif not url_prod:
-        slug = item_vtex.get("linkText") or ""
-        url_prod = f"{STOREFRONT_BASE_URL}/{slug}/p" if slug else STOREFRONT_BASE_URL
-
-    marca = item_vtex.get("brand")
-    marca = str(marca).strip() if marca else None
+    descricao = item_vtex.get("description") or ""
+    descricao_limpa = limpar_html(descricao)
 
     return {
         "nome_bruto": nome.strip(),
-        "preco": round(preco_final, 2),
-        "preco_normal": round(preco_normal, 2),
-        "em_promocao": em_promocao,
-        "marca": marca,
+        "preco": preco_atual,
+        "preco_normal": preco_lista,
+        "em_promocao": preco_atual < preco_lista,
+        "marca": item_vtex.get("brand"),
         "categoria": categoria_nome,
-        "slug": str(item_vtex.get("linkText") or ""),
+        "slug": slug,
         "id_produto_origem": str(produto_id),
         "supermercado": "Rissul",
-        "data_coleta": instante_coleta.isoformat(),
+        "data_coleta": instante_coleta.astimezone(timezone.utc).isoformat(timespec="seconds"),
         "imagem_url": imagem_url,
-        "descricao": descricao,
-        "url_produto": url_prod,
+        "descricao": descricao_limpa if descricao_limpa else None,
+        "url_produto": link,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

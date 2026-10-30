@@ -45,6 +45,7 @@ HEADERS = {
 CAMPOS = (
     "nome_bruto", "preco", "preco_normal", "em_promocao", "marca",
     "categoria", "slug", "id_produto_origem", "supermercado", "data_coleta",
+    "is_clube", "clube_nome",
 )
 
 
@@ -196,15 +197,34 @@ def transformar_item(item, nome_categoria, instante):
 
     # Identificação de preços (spotPrice ou Price para efetivo, ListPrice para de/por)
     preco_efetivo_raw = offer.get("Price")
-    if preco_efetivo_raw is None:
-        preco_efetivo_raw = offer.get("spotPrice")
-
-    efetivo = preco_positivo(preco_efetivo_raw)
-
+    preco_spot_raw = offer.get("spotPrice")
     list_price_raw = offer.get("ListPrice")
-    normal = preco_positivo(list_price_raw) if list_price_raw is not None else None
 
-    # Verifica se há promoção real (preço normal superior ao preço praticado)
+    preco_tabela = preco_positivo(preco_efetivo_raw) if preco_efetivo_raw is not None else None
+    preco_spot = preco_positivo(preco_spot_raw) if preco_spot_raw is not None else None
+
+    efetivo = preco_tabela if preco_tabela is not None else preco_spot
+    if efetivo is None:
+        raise ValueError("preco_ausente_ou_invalido")
+
+    is_clube = False
+    clube_nome = None
+
+    if preco_spot is not None and preco_tabela is not None and preco_spot < preco_tabela:
+        efetivo = preco_spot
+        is_clube = True
+        clube_nome = "Meu Carrefour"
+
+    teasers = offer.get("Teasers") or []
+    if isinstance(teasers, list):
+        for t in teasers:
+            if isinstance(t, dict):
+                t_nome = str(t.get("<Name>k__BackingField") or t.get("name") or "").lower()
+                if "carrefour" in t_nome or "clube" in t_nome:
+                    is_clube = True
+                    clube_nome = "Meu Carrefour"
+
+    normal = preco_positivo(list_price_raw) if list_price_raw is not None else (preco_tabela if is_clube else None)
     em_promocao = bool(normal is not None and normal > efetivo)
 
     if instante.tzinfo is None or instante.utcoffset() is None:
@@ -221,6 +241,8 @@ def transformar_item(item, nome_categoria, instante):
         "id_produto_origem": str(externo) if externo is not None else None,
         "supermercado": "Carrefour",
         "data_coleta": instante.astimezone(timezone.utc).isoformat(timespec="seconds"),
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

@@ -226,21 +226,50 @@ def processar_item(
     except ValueError:
         return None
 
-    # Preço promocional (oferta)
+    # Preço promocional e ofertas de Clube Master
     em_oferta = bool(item.get("em_oferta"))
     oferta = item.get("oferta") if isinstance(item.get("oferta"), dict) else None
     preco_final = preco_normal
-    if em_oferta and oferta:
-        preco_oferta_raw = oferta.get("preco_oferta")
-        if preco_oferta_raw is not None:
+    is_clube = False
+    clube_nome = None
+
+    if oferta:
+        preco_antigo_raw = oferta.get("preco_antigo")
+        if preco_antigo_raw:
             try:
-                preco_oferta = preco_positivo(preco_oferta_raw)
-                if preco_oferta < preco_normal:
-                    preco_final = preco_oferta
-                else:
-                    em_oferta = False
+                p_antigo = preco_positivo(preco_antigo_raw)
+                if p_antigo >= preco_normal:
+                    preco_normal = p_antigo
             except ValueError:
                 pass
+
+        candidatos_oferta = [oferta.get("preco_oferta"), oferta.get("menor_preco")]
+        for cand in candidatos_oferta:
+            if cand is not None:
+                try:
+                    p_of = preco_positivo(cand)
+                    if 0 < p_of < preco_final:
+                        preco_final = p_of
+                        em_oferta = True
+                except ValueError:
+                    pass
+
+        nome_of = str(oferta.get("nome") or oferta.get("titulo") or "").strip()
+        desc_of = str(oferta.get("descricao") or "").strip()
+        if "clube" in nome_of.lower() or "clube" in desc_of.lower() or (em_oferta and preco_final < preco_normal):
+            is_clube = True
+            clube_nome = "Clube Master"
+
+    # Fallback para preco_promocional na raiz
+    preco_promo_raiz = item.get("preco_promocional")
+    if preco_promo_raiz:
+        try:
+            p_pr = preco_positivo(preco_promo_raiz)
+            if 0 < p_pr < preco_final:
+                preco_final = p_pr
+                em_oferta = True
+        except ValueError:
+            pass
 
     slug = item.get("link") or ""
     produto_id = item.get("produto_id") or item.get("id") or item.get("codigo_barras")
@@ -269,6 +298,8 @@ def processar_item(
         "imagem_url": imagem_url,
         "descricao": nome,
         "url_produto": url_produto,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

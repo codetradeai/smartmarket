@@ -38,6 +38,26 @@ class TestColetaMaster(unittest.TestCase):
         self.assertIn("1000x1000/150eedde-5151-40e6-bd63-083568710beb.jpg", res["imagem_url"])
         self.assertEqual(res["url_produto"], "https://www.lojaonline.mastersupermercados.com.br/produtos/arroz-parboilizado-tio-joao-tp1-5kg")
 
+    def test_processar_item_clube_master(self):
+        item_raw = {
+            "produto_id": 30120,
+            "descricao": "Café Melitta Tradicional 500g",
+            "preco": "24.90",
+            "em_oferta": False,
+            "oferta": {
+                "nome": "Clube Master",
+                "preco_oferta": "19.90",
+                "preco_antigo": "24.90"
+            }
+        }
+        res = processar_item(item_raw, "Café", self.data_coleta)
+        self.assertIsNotNone(res)
+        self.assertEqual(res["preco"], 19.90)
+        self.assertEqual(res["preco_normal"], 24.90)
+        self.assertTrue(res["em_promocao"])
+        self.assertTrue(res["is_clube"])
+        self.assertEqual(res["clube_nome"], "Clube Master")
+
     def test_processar_item_sem_oferta(self):
         item_raw = self.fixture_data["arroz"]["data"]["produtos"][1]
         res = processar_item(item_raw, "Arroz", self.data_coleta)

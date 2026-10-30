@@ -164,6 +164,29 @@ def transformar_produto(produto_raw: dict, nome_categoria: str, instante: dateti
     preco_tabela = commertial_offer.get("ListPrice")
     preco_normal = preco_positivo(preco_tabela) if preco_tabela is not None and preco_tabela > 0 else preco_efetivo
 
+    spot_price = commertial_offer.get("spotPrice")
+    is_clube = False
+    clube_nome = None
+
+    if spot_price is not None:
+        try:
+            sp = preco_positivo(spot_price)
+            if 0 < sp < preco_efetivo:
+                preco_efetivo = sp
+                is_clube = True
+                clube_nome = "Cartão Atacadão"
+        except ValueError:
+            pass
+
+    teasers = commertial_offer.get("Teasers") or []
+    if isinstance(teasers, list):
+        for t in teasers:
+            if isinstance(t, dict):
+                t_nome = str(t.get("<Name>k__BackingField") or t.get("name") or "").lower()
+                if "atacadao" in t_nome or "atacadão" in t_nome or "cartao" in t_nome or "cartão" in t_nome:
+                    is_clube = True
+                    clube_nome = "Cartão Atacadão"
+
     em_promocao = preco_efetivo < preco_normal
 
     if instante.tzinfo is None or instante.utcoffset() is None:
@@ -178,22 +201,25 @@ def transformar_produto(produto_raw: dict, nome_categoria: str, instante: dateti
     if not link_direto and slug:
         link_direto = f"{STOREFRONT_BASE_URL}/{slug}/p"
 
-    descricao = limpar_html(produto_raw.get("description"))
+    descricao = produto_raw.get("description") or ""
+    descricao_limpa = limpar_html(descricao)
 
     return {
         "nome_bruto": nome.strip(),
         "preco": preco_efetivo,
         "preco_normal": preco_normal,
         "em_promocao": em_promocao,
-        "marca": produto_raw.get("brand") if isinstance(produto_raw.get("brand"), str) else None,
+        "marca": produto_raw.get("brand"),
         "categoria": nome_categoria,
-        "slug": slug if slug else None,
+        "slug": slug,
         "id_produto_origem": str(externo) if externo is not None else None,
         "supermercado": "Atacadão",
         "data_coleta": instante.astimezone(timezone.utc).isoformat(timespec="seconds"),
         "imagem_url": obter_url_imagem_alta_resolucao(primeiro_sku),
-        "descricao": descricao if descricao and descricao != nome.strip() else None,
+        "descricao": descricao_limpa if descricao_limpa else None,
         "url_produto": link_direto,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

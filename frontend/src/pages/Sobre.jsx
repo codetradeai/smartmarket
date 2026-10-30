@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom"
-import { Button, Card } from "../components/ui"
+import { Button, Card, SmartMarketLogo } from "../components/ui"
 
 export default function Sobre() {
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col">
       <header className="bg-white border-b border-brand-border py-4 px-6 md:px-12">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-2xl font-black text-brand-navy tracking-tight">
-              Smart<span className="text-brand-green">Market</span>
-            </span>
+          <Link to="/" className="flex items-center">
+            <SmartMarketLogo size="sm" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/catalog">

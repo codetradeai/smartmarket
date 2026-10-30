@@ -148,9 +148,41 @@ def transformar_item(item: dict, nome_categoria: str, instante: datetime) -> dic
         raise ValueError("id_produto_origem_invalido")
 
     promocional = pricing.get("promotionalPrice")
-    preco_efetivo = preco_positivo(pricing.get("price") if promocional is None else promocional)
+    clube_preco_raw = pricing.get("clubPrice") or pricing.get("customerClubPrice") or pricing.get("loyaltyPrice")
     normal = pricing.get("price")
     preco_normal = preco_positivo(normal) if normal is not None else None
+    preco_efetivo = preco_positivo(normal if promocional is None else promocional)
+
+    is_clube = False
+    clube_nome = None
+
+    if clube_preco_raw is not None:
+        try:
+            clube_p = preco_positivo(clube_preco_raw)
+            if 0 < clube_p < preco_efetivo:
+                preco_efetivo = clube_p
+                is_clube = True
+                clube_nome = "Clube Asun"
+        except ValueError:
+            pass
+
+    # Inspeciona promoções ativas do OSuper para Clube Asun
+    promotions = pricing.get("promotions") or []
+    if isinstance(promotions, list):
+        for promo_item in promotions:
+            if isinstance(promo_item, dict):
+                p_nome = str(promo_item.get("name") or promo_item.get("title") or "").lower()
+                p_tipo = str(promo_item.get("type") or "").upper()
+                if "clube" in p_nome or "clube" in p_tipo or "CLUB" in p_tipo:
+                    is_clube = True
+                    clube_nome = "Clube Asun"
+                    if promo_item.get("discountPrice"):
+                        try:
+                            p_desc = preco_positivo(promo_item.get("discountPrice"))
+                            if 0 < p_desc < preco_efetivo:
+                                preco_efetivo = p_desc
+                        except ValueError:
+                            pass
 
     if instante.tzinfo is None or instante.utcoffset() is None:
         raise ValueError("instante_sem_fuso")
@@ -190,6 +222,8 @@ def transformar_item(item: dict, nome_categoria: str, instante: datetime) -> dic
         "descricao": descricao if descricao and descricao != nome.strip() else None,
         "url_produto": url_produto,
         "three_dimensional_images": frames_360,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

@@ -10,7 +10,7 @@ describe('App', () => {
       </MemoryRouter>
     )
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Economize no mercado/i
+      /Sua lista/i
     )
   })
 })

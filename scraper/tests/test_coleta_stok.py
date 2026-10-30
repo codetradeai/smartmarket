@@ -37,6 +37,27 @@ class TestColetaStok(unittest.TestCase):
         self.assertEqual(res["supermercado"], "Stok Center")
         self.assertIn("1000x1000/e14f112d-1a31-4c8d-8cae-f0fb233ff3ae.jpg", res["imagem_url"])
 
+    def test_processar_item_clube_stok(self):
+        item_raw = {
+            "id": 6977,
+            "descricao": "Leite Condensado Elegê Semidesnatado 395g",
+            "preco": "5.39",
+            "em_oferta": False,
+            "oferta": {
+                "nome": "Clube",
+                "preco_oferta": "3.99",
+                "menor_preco": "3.99",
+                "preco_antigo": "5.49"
+            }
+        }
+        res = processar_item(item_raw, "Leites", self.data_coleta)
+        self.assertIsNotNone(res)
+        self.assertEqual(res["preco"], 3.99)
+        self.assertEqual(res["preco_normal"], 5.49)
+        self.assertTrue(res["em_promocao"])
+        self.assertTrue(res["is_clube"])
+        self.assertEqual(res["clube_nome"], "Clube Stok")
+
     def test_extrair_imagem_hd(self):
         self.assertIsNone(extrair_imagem_hd(None))
         self.assertEqual(

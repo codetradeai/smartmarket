@@ -4,6 +4,7 @@ import { cn } from "../../lib/utils"
 import { AuthContext } from "../../contexts/AuthContext"
 import { Button } from "./Button"
 import { Input } from "./Input"
+import { SmartMarketLogo } from "./SmartMarketLogo"
 
 export function Navbar({
   brandName = "SmartMarket",
@@ -17,11 +18,12 @@ export function Navbar({
   const authContext = useContext(AuthContext)
   const user = propUser || authContext?.user
   const isAdmin = authContext?.isAdmin || user?.papel === "ADMIN"
+  const displayName = user?.nome || user?.name || ""
 
   const defaultNavLinks = [
     { label: "Catálogo", href: "/catalog" },
     { label: "Favoritos", href: "/favorites" },
-    { label: "Minha Lista", href: "/list", badgeCount: 3 },
+    { label: "Minha Lista", href: "/list", badgeCount: cartCount },
     { label: "Comparador", href: "/compare" },
     ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
   ]
@@ -50,33 +52,7 @@ export function Navbar({
             {logoUrl ? (
               <img src={logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
             ) : (
-              <div className="flex items-center gap-2.5">
-                {/* Ícone de Carrinho + Radar estilizado */}
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-emerald via-brand-teal to-blue-600 flex items-center justify-center text-white shadow-sm shadow-brand-emerald/30 group-hover:scale-105 transition-transform">
-                  <svg
-                    className="w-5 h-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-extrabold text-xl tracking-tight text-brand-navy leading-none">
-                    Smart<span className="text-brand-green">Market</span>
-                  </span>
-                  <span className="text-[9px] font-bold tracking-widest text-brand-muted uppercase mt-0.5">
-                    Compare & Economize
-                  </span>
-                </div>
-              </div>
+              <SmartMarketLogo size="md" />
             )}
           </Link>
 
@@ -159,11 +135,11 @@ export function Navbar({
           {user ? (
             <div className="flex items-center gap-3 pl-2 border-l border-brand-border">
               <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center">
-                {user.name?.[0]?.toUpperCase() || "U"}
+                {displayName[0]?.toUpperCase() || "U"}
               </div>
               <div className="hidden xl:flex flex-col text-left">
                 <span className="text-xs font-bold text-brand-navy leading-tight">
-                  {user.name}
+                  {displayName || "Conta"}
                 </span>
                 <span className="text-[10px] text-brand-muted">{user.email}</span>
               </div>

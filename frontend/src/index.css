@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -80,6 +80,14 @@ html, body, #root {
   -webkit-backdrop-filter: blur(12px);
 }
 
+.glass-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 232, 220, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(13, 33, 55, 0.08), 0 4px 6px -2px rgba(13, 33, 55, 0.03);
+}
+
 .brand-gradient {
   background: linear-gradient(135deg, #00C853 0%, #00B0FF 50%, #0066FF 100%);
 }
@@ -89,9 +97,109 @@ html, body, #root {
 }
 
 .brand-gradient-text {
-  background: linear-gradient(135deg, #00C853 0%, #00B0FF 100%);
+  background: linear-gradient(135deg, #0D2137 0%, #16324F 40%, #22A95E 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.brand-glow-green {
+  box-shadow: 0 0 25px -5px rgba(34, 169, 94, 0.25);
+}
+
+.brand-glow-emerald {
+  box-shadow: 0 0 30px -5px rgba(0, 200, 83, 0.3);
+}
+
+/* Background com padrão sutil de grade técnica (Brand Guide SmartMarket) */
+.brand-grid-pattern {
+  background-image: radial-gradient(rgba(34, 169, 94, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Flutuação suave para badges interativos */
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+/* Entrada de conteúdo suave — Hero Section */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shimmer — para badges "Ao Vivo" e elementos de status */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Pulse scale suave para ícones de destaque */
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Slide horizontal para carrossel de redes */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-soft-float {
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+.animate-soft-float-delayed {
+  animation: softFloat 4.5s ease-in-out 1.5s infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.animate-fade-in-up-delayed {
+  animation: fadeInUp 0.6s ease-out 0.15s both;
+}
+
+.animate-fade-in-up-slow {
+  animation: fadeInUp 0.7s ease-out 0.3s both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(34, 169, 94, 0.0) 0%,
+    rgba(34, 169, 94, 0.5) 40%,
+    rgba(34, 169, 94, 0.0) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2.5s linear infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulseSoft 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-soft-float,
+  .animate-soft-float-delayed,
+  .animate-fade-in-up,
+  .animate-fade-in-up-delayed,
+  .animate-fade-in-up-slow,
+  .animate-shimmer,
+  .animate-pulse-soft,
+  .animate-pulse {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
 
 /* Oculta scrollbar mantendo funcionalidade de rolagem horizontal */
@@ -101,4 +209,395 @@ html, body, #root {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ─── HERO SPLIT: Fundo navy escuro com recorte diagonal para a direita ─── */
+.hero-dark-panel {
+  background: linear-gradient(
+    158deg,
+    #0D2137 0%,
+    #16324F 55%,
+    #0E2A42 100%
+  );
+  position: relative;
+}
+
+.hero-dark-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(34, 169, 94, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+
+/* Linha de luz verde que separa o painel navy do conteúdo branco */
+.hero-accent-line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22A95E 40%, #1DB4A3 70%, transparent);
+  opacity: 0.6;
+}
+
+/* Badge ao vivo com brilho animado */
+.live-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.live-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Número de step estilizado — seção Como Funciona */
+.step-number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 4.5rem;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(34, 169, 94, 0.25);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Gradiente de texto oficial SmartMarket */
+.text-gradient-brand {
+  background: linear-gradient(135deg, #22A95E 0%, #1DB4A3 50%, #00C853 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Sombra dramática para o card glass no hero */
+.glass-card-hero {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 232, 220, 0.7);
+  box-shadow:
+    0 20px 60px -15px rgba(13, 33, 55, 0.3),
+    0 8px 24px -8px rgba(13, 33, 55, 0.15),
+    0 0 0 1px rgba(34, 169, 94, 0.08);
+}
+
+/* Card de mercado com hover luminoso */
+.market-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.market-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -8px rgba(34, 169, 94, 0.2);
+}
+
+/* Primeira dobra: blocos chapados, lettering grande, curva entre as cores */
+.sm-hero-copy {
+  background: #0D2137;
+}
+
+.sm-hero-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  font-size: clamp(2.9rem, 6.2vw, 5.35rem);
+  text-wrap: balance;
+}
+
+.sm-hero-panel {
+  background: #0D2137;
+}
+
+.sm-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.sm-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  background: #0D2137;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.9rem 1.15rem;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.sm-cta:hover {
+  background: #16324F;
+}
+
+.sm-cta:focus-visible {
+  outline: 2px solid #7dffe0;
+  outline-offset: 3px;
+}
+
+.sm-cta-light {
+  background: #fff;
+  color: #0D2137;
+}
+
+.sm-cta-light:hover {
+  background: #F4FAF7;
+}
+
+.sm-cta-ghost {
+  background: transparent;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.sm-cta-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sm-cta-arrow {
+  display: inline-block;
+  transition: transform 180ms ease;
+}
+
+.sm-cta:hover .sm-cta-arrow {
+  transform: translateX(4px);
+}
+
+.sm-rise {
+  animation: fadeInUp 0.65s ease both;
+}
+
+.sm-rise-2 { animation-delay: 0.08s; }
+.sm-rise-3 { animation-delay: 0.16s; }
+.sm-rise-4 { animation-delay: 0.24s; }
+.sm-rise-5 { animation-delay: 0.32s; }
+
+@media (min-width: 1024px) {
+  .sm-hero-panel::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    left: -4.5rem;
+    top: 8%;
+    bottom: 8%;
+    width: 9rem;
+    background: #0D2137;
+    border-radius: 0 999px 999px 0;
+    pointer-events: none;
+  }
+}
+
+/* Faixa das redes: o cartão do centro cresce, os vizinhos recuam */
+.sm-rail-stage {
+  position: relative;
+  padding: 0 3.5rem;
+}
+
+.sm-rail-window {
+  overflow: hidden;
+  padding: 0.85rem 0 1rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+}
+
+.sm-rail-track {
+  display: flex;
+  width: max-content;
+  align-items: stretch;
+  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sm-rail-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(212, 232, 220, 0.95);
+  background: #fff;
+  justify-content: center;
+  padding: 1.15rem 0.85rem;
+  text-align: center;
+  box-shadow: 0 16px 30px -24px rgba(13, 33, 55, 0.45);
+  transform: scale(0.94);
+  opacity: 0.84;
+  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1), opacity 720ms ease, border-color 180ms ease;
+}
+
+.sm-rail-card::before {
+  content: "";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: 0;
+  height: 4px;
+  border-radius: 0 0 999px 999px;
+  background: var(--market, #22A95E);
+}
+
+.sm-rail-card.is-center {
+  transform: scale(1);
+  opacity: 1;
+  border-color: rgba(13, 33, 55, 0.08);
+  box-shadow: 0 22px 40px -26px rgba(13, 33, 55, 0.55);
+}
+
+.sm-rail .market-card:hover {
+  transform: scale(0.94) translateY(-3px);
+  box-shadow: 0 16px 30px -20px rgba(34, 169, 94, 0.28);
+}
+
+.sm-rail .market-card.is-center:hover {
+  transform: scale(1) translateY(-4px);
+}
+
+.sm-rail-card.is-selected {
+  border-color: #22A95E;
+  box-shadow: 0 0 0 3px rgba(34, 169, 94, 0.18), 0 22px 40px -26px rgba(13, 33, 55, 0.55);
+}
+
+.sm-rail-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 7.25rem;
+  width: 100%;
+}
+
+.sm-rail-logo img {
+  height: 6.75rem;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.sm-rail-sigla {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.sm-rail-nav {
+  position: absolute;
+  top: 46%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  background: #0D2137;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  transform: translateY(-50%);
+  transition: background-color 180ms ease;
+}
+
+.sm-rail-nav.is-prev { left: 0; }
+.sm-rail-nav.is-next { right: 0; }
+
+.sm-rail-nav:hover {
+  background: #16324F;
+}
+
+.sm-rail-nav:focus-visible,
+.sm-rail-card:focus-visible,
+.sm-rail-pip:focus-visible {
+  outline: 2px solid #22A95E;
+  outline-offset: 3px;
+}
+
+.sm-rail-meter {
+  position: relative;
+  height: 3px;
+  flex: 1;
+  max-width: 9rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(13, 33, 55, 0.08);
+}
+
+.sm-rail-meter > span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: #22A95E;
+  animation: sm-rail-meter 3.8s linear;
+}
+
+.sm-rail.is-paused .sm-rail-meter > span {
+  animation-play-state: paused;
+}
+
+.sm-rail-pip {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(13, 33, 55, 0.18);
+  transition: width 220ms ease, background-color 220ms ease;
+}
+
+.sm-rail-pip.is-on {
+  width: 1.35rem;
+  background: #0D2137;
+}
+
+@keyframes sm-rail-meter {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-rise,
+  .sm-rise-2,
+  .sm-rise-3,
+  .sm-rise-4,
+  .sm-rise-5 {
+    animation: none;
+  }
+
+  .sm-cta,
+  .sm-cta-arrow,
+  .sm-rail-track,
+  .sm-rail-card,
+  .sm-rail-nav,
+  .sm-rail-pip {
+    transition: none;
+  }
+
+  .sm-rail-meter > span {
+    animation: none;
+    transform: scaleX(1);
+  }
 }

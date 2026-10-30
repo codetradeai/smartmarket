@@ -6446,7 +6446,7 @@ export const PRODUCTS = [
     "imageUrl": "https://produto-assets-vipcommerce-com-br.br-se1.magaluobjects.com/1000x1000/65435e8b-d780-4b41-9611-72e841520a60.jpg",
     "descricao": "Leite Condensado Elegê Semidesnatado 395g",
     "prices": {
-      "stok": 5.39,
+      "stok": 3.99,
       "zaffari": 5.66,
       "rissul": 5.5,
       "asun": 5.34,
@@ -6455,11 +6455,13 @@ export const PRODUCTS = [
       "fort": 5.17,
       "carrefour": 5.61
     },
-    "promo": false,
+    "promo": true,
     "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-elege-semidesnatado-395g",
     "idOrigem": "6977",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 5.39
+    "precoNormal": 5.49,
+    "menorPreco": 3.99,
+    "mercadoMenorPreco": "stok"
   },
   {
     "id": "p236",
@@ -11696,7 +11698,7 @@ export const PRODUCTS = [
     "imageUrl": "https://produto-assets-vipcommerce-com-br.br-se1.magaluobjects.com/1000x1000/65435e8b-d780-4b41-9611-72e841520a60.jpg",
     "descricao": "Leite Condensado Elegê Semidesnatado 395g",
     "prices": {
-      "stok": 5.39,
+      "stok": 3.99,
       "zaffari": 5.66,
       "rissul": 5.5,
       "asun": 5.34,
@@ -11705,11 +11707,13 @@ export const PRODUCTS = [
       "fort": 5.17,
       "carrefour": 5.61
     },
-    "promo": false,
+    "promo": true,
     "urlProduto": "https://stokonline.com.br/produtos/leite-condensado-elege-semidesnatado-395g",
     "idOrigem": "6977",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 5.39
+    "precoNormal": 5.49,
+    "menorPreco": 3.99,
+    "mercadoMenorPreco": "stok"
   },
   {
     "id": "p436",

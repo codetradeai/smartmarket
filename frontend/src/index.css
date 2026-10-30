@@ -316,7 +316,7 @@ html, body, #root {
   font-weight: 800;
   letter-spacing: -0.055em;
   line-height: 0.9;
-  font-size: clamp(2.9rem, 6.2vw, 5.35rem);
+  font-size: clamp(2.4rem, 4.4vw, 4.5rem);
   text-wrap: balance;
 }
 
@@ -339,7 +339,7 @@ html, body, #root {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: 60% center;
 }
 
 .sm-cta {
@@ -407,10 +407,10 @@ html, body, #root {
     content: "";
     position: absolute;
     z-index: 1;
-    left: -4.5rem;
-    top: 8%;
-    bottom: 8%;
-    width: 9rem;
+    left: -2.25rem;
+    top: 10%;
+    bottom: 10%;
+    width: 4.5rem;
     background: #0D2137;
     border-radius: 0 999px 999px 0;
     pointer-events: none;
@@ -426,15 +426,15 @@ html, body, #root {
 .sm-rail-window {
   overflow: hidden;
   padding: 0.85rem 0 1rem;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
 }
 
 .sm-rail-track {
   display: flex;
   width: max-content;
   align-items: stretch;
-  transition: transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 .sm-rail-card {
@@ -560,13 +560,9 @@ html, body, #root {
   display: block;
   height: 100%;
   width: 100%;
+  transform: scaleX(0);
   transform-origin: left center;
   background: #22A95E;
-  animation: sm-rail-meter 3.8s linear;
-}
-
-.sm-rail.is-paused .sm-rail-meter > span {
-  animation-play-state: paused;
 }
 
 .sm-rail-pip {
@@ -580,11 +576,6 @@ html, body, #root {
 .sm-rail-pip.is-on {
   width: 1.35rem;
   background: #0D2137;
-}
-
-@keyframes sm-rail-meter {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -606,7 +597,6 @@ html, body, #root {
   }
 
   .sm-rail-meter > span {
-    animation: none;
     transform: scaleX(1);
   }
 }

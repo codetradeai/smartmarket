@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import {
   Button,
@@ -42,20 +42,25 @@ const MARKET_LOGOS = {
   master: logoMaster,
 }
 
-const RAIL_MS = 3800
 const RAIL_GAP = 14
+const RAIL_SPEED = 42
 
 function CarrosselRedes({ selectedMarket, onSelect }) {
   const n = MARKETS.length
   const viewportRef = useRef(null)
+  const trackRef = useRef(null)
+  const meterRef = useRef(null)
+  const offsetRef = useRef(n)
+  const logicalRef = useRef(0)
+  const centerRef = useRef(n)
+  const fromPointer = useRef(false)
   const [viewportWidth, setViewportWidth] = useState(0)
-  const [index, setIndex] = useState(n)
-  const [withMotion, setWithMotion] = useState(false)
+  const [logical, setLogical] = useState(0)
+  const [centerIndex, setCenterIndex] = useState(n)
   const [pointerInside, setPointerInside] = useState(false)
   const [focusInside, setFocusInside] = useState(false)
   const [reduced, setReduced] = useState(false)
   const [hidden, setHidden] = useState(false)
-  const ready = useRef(false)
 
   useEffect(() => {
     const el = viewportRef.current
@@ -71,70 +76,74 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return undefined
     const media = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const apply = () => setReduced(media?.matches ?? false)
-    apply()
-    media?.addEventListener?.("change", apply)
+    const applyMedia = () => setReduced(media?.matches ?? false)
+    applyMedia()
+    media?.addEventListener?.("change", applyMedia)
     const onHide = () => setHidden(document.hidden)
     document.addEventListener("visibilitychange", onHide)
     return () => {
-      media?.removeEventListener?.("change", apply)
+      media?.removeEventListener?.("change", applyMedia)
       document.removeEventListener("visibilitychange", onHide)
     }
   }, [])
 
-  useEffect(() => {
-    if (!ready.current) {
-      ready.current = true
-      return undefined
-    }
-    if (withMotion) return undefined
-    const frame = requestAnimationFrame(() => setWithMotion(true))
-    return () => cancelAnimationFrame(frame)
-  }, [withMotion, index])
-
   const paused = pointerInside || focusInside || reduced || hidden || selectedMarket !== "todos"
-
-  useEffect(() => {
-    if (paused) return undefined
-    const timer = setInterval(() => {
-      setWithMotion(true)
-      setIndex((current) => current + 1)
-    }, RAIL_MS)
-    return () => clearInterval(timer)
-  }, [paused])
-
   const cardWidth = viewportWidth < 640
     ? Math.min(Math.max(viewportWidth * 0.78, 210), 280)
     : viewportWidth < 1024
       ? 250
       : Math.min(320, Math.max(280, viewportWidth * 0.29))
   const step = cardWidth + RAIL_GAP
-  const translate = viewportWidth > 0 ? viewportWidth / 2 - cardWidth / 2 - index * step : 0
   const slides = [...MARKETS, ...MARKETS, ...MARKETS]
-  const logical = ((index % n) + n) % n
 
-  function settle(event) {
-    if (event.target !== event.currentTarget || event.propertyName !== "transform") return
-    if (index >= n * 2) {
-      setWithMotion(false)
-      setIndex(index - n)
-    } else if (index < n) {
-      setWithMotion(false)
-      setIndex(index + n)
+  function place(offset) {
+    let next = offset
+    while (next >= n * 2) next -= n
+    while (next < n) next += n
+    offsetRef.current = next
+    const width = viewportRef.current?.clientWidth || viewportWidth
+    const translate = width > 0 ? width / 2 - cardWidth / 2 - next * step : 0
+    if (trackRef.current) trackRef.current.style.transform = `translate3d(${translate}px, 0, 0)`
+    if (meterRef.current) meterRef.current.style.transform = `scaleX(${next - Math.floor(next)})`
+    const center = Math.min(n * 3 - 1, Math.max(0, Math.round(next)))
+    const nextLogical = ((center % n) + n) % n
+    if (centerRef.current !== center) {
+      centerRef.current = center
+      setCenterIndex(center)
+    }
+    if (logicalRef.current !== nextLogical) {
+      logicalRef.current = nextLogical
+      setLogical(nextLogical)
     }
   }
 
+  useLayoutEffect(() => {
+    place(offsetRef.current)
+  })
+
+  useEffect(() => {
+    if (paused || viewportWidth <= 0) return undefined
+    let frame = 0
+    let last = performance.now()
+    const tick = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000)
+      last = now
+      place(offsetRef.current + (RAIL_SPEED / step) * dt)
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [paused, viewportWidth, step, cardWidth, n])
+
   function stepBy(direction) {
-    setWithMotion(true)
-    setIndex((current) => current + direction)
+    place(offsetRef.current + direction)
   }
 
   function goTo(target) {
-    const current = ((index % n) + n) % n
+    const current = logicalRef.current
     if (target === current) return
-    const base = index - current
-    setWithMotion(true)
-    setIndex(target > current ? base + target : base + n + target)
+    const delta = target > current ? target - current : target + n - current
+    place(offsetRef.current + delta)
   }
 
   return (
@@ -145,7 +154,14 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
       aria-label="Redes do catálogo"
       onMouseEnter={() => setPointerInside(true)}
       onMouseLeave={() => setPointerInside(false)}
+      onPointerDown={() => {
+        fromPointer.current = true
+      }}
       onFocus={(event) => {
+        if (fromPointer.current) {
+          fromPointer.current = false
+          return
+        }
         if (event.target instanceof Element && event.target.matches(":focus-visible")) setFocusInside(true)
       }}
       onBlur={(event) => {
@@ -172,16 +188,11 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
           style={{ opacity: viewportWidth > 0 ? 1 : 0 }}
         >
           <div
+            ref={trackRef}
             className="sm-rail-track"
-            style={{
-              transform: `translate3d(${translate}px, 0, 0)`,
-              transition: withMotion && !reduced ? undefined : "none",
-              gap: RAIL_GAP,
-            }}
-            onTransitionEnd={settle}
+            style={{ gap: RAIL_GAP }}
           >
             {slides.map((market, slideIndex) => {
-              const isCenter = slideIndex === index
               const isSelected = selectedMarket === market.id
               const clone = Math.floor(slideIndex / n) !== 1
               return (
@@ -193,11 +204,10 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
                   aria-label={market.name}
                   aria-pressed={isSelected}
                   onClick={() => {
-                    setWithMotion(true)
-                    setIndex(slideIndex)
+                    place(slideIndex)
                     onSelect(market.id)
                   }}
-                  className={`sm-rail-card market-card ${isCenter ? "is-center" : ""} ${
+                  className={`sm-rail-card market-card ${slideIndex === centerIndex ? "is-center" : ""} ${
                     isSelected ? "is-selected" : ""
                   }`}
                   style={{ width: cardWidth || 240, "--market": market.color || "#22A95E" }}
@@ -227,8 +237,8 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
           {String(logical + 1).padStart(2, "0")}
           <span className="font-semibold text-brand-muted"> / {String(n).padStart(2, "0")}</span>
         </p>
-        <div className="sm-rail-meter" key={logical} aria-hidden="true">
-          <span />
+        <div className="sm-rail-meter" aria-hidden="true">
+          <span ref={meterRef} />
         </div>
         <div className="flex items-center gap-1.5" role="group" aria-label="Escolher rede">
           {MARKETS.map((market, dotIndex) => (
@@ -388,7 +398,7 @@ export function Home() {
       {/* 2. PRIMEIRA DOBRA — blocos chapados no espírito do Desco, cores do SmartMarket */}
       <section className="relative bg-white" aria-label="Compare sua lista de compras">
         <div className="grid grid-cols-1 lg:grid-cols-12 lg:min-h-[calc(100svh-5rem)]">
-          <div className="sm-hero-copy relative lg:col-span-7 text-white flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-20 py-10 sm:py-12">
+          <div className="sm-hero-copy relative lg:col-span-5 xl:col-span-5 text-white flex flex-col justify-center px-6 sm:px-10 lg:px-10 xl:px-16 py-10 sm:py-12">
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
             </p>
@@ -457,7 +467,7 @@ export function Home() {
             </dl>
           </div>
 
-          <div className="sm-hero-panel lg:col-span-5 relative min-h-[22rem] overflow-hidden sm:min-h-[28rem] lg:min-h-0">
+          <div className="sm-hero-panel lg:col-span-7 xl:col-span-7 relative min-h-[24rem] overflow-hidden sm:min-h-[30rem] lg:min-h-0">
             <video
               ref={heroVideoRef}
               className="sm-hero-video"

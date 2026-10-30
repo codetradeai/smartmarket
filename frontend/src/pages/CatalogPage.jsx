@@ -337,7 +337,7 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
       {/* Rolo Horizontal de Departamentos */}
       <div
         ref={scrollRef}
-        className="flex items-center gap-3.5 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2"
+        className="flex items-start justify-between gap-4 sm:gap-6 md:gap-7 overflow-x-auto no-scrollbar scroll-smooth py-1.5 px-3"
       >
         {MASTER_CATEGORY_CAROUSEL.map((cat) => {
           const isActive = selectedCat === cat.id;
@@ -351,17 +351,18 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
             >
               {/* Círculo Badge Verde Master Supermercados */}
               <div
-                className={`relative w-15 h-15 sm:w-17 sm:h-17 md:w-[72px] md:h-[72px] flex items-center justify-center rounded-full transition-all duration-300 ${
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26 flex items-center justify-center rounded-2xl transition-all duration-300 ${
                   isActive
-                    ? "ring-4 ring-emerald-500 ring-offset-2 scale-105 shadow-md bg-emerald-50/50"
-                    : "group-hover:scale-105 group-hover:shadow-xs"
+                    ? "ring-3 ring-[#065417] ring-offset-2 scale-105 bg-emerald-50/70 shadow-sm"
+                    : "group-hover:scale-105"
                 }`}
               >
                 <img
                   src={cat.img}
                   alt={cat.label}
                   loading="lazy"
-                  className="w-full h-full object-contain filter transition-transform duration-300 group-hover:scale-110 pointer-events-none drop-shadow-2xs"
+                  style={{ clipPath: "inset(0 0 8% 0)" }}
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-108 pointer-events-none"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                     if (e.currentTarget.nextSibling) {
@@ -371,7 +372,7 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
                 />
                 <div
                   style={{ display: "none" }}
-                  className="w-full h-full rounded-full bg-[#065417] text-white flex items-center justify-center text-xl shadow-inner font-sans"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#065417] text-white flex items-center justify-center text-2xl shadow-inner font-sans"
                 >
                   {cat.icon}
                 </div>
@@ -379,10 +380,10 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
 
               {/* Rótulo do Departamento */}
               <span
-                className={`mt-1.5 text-[11px] sm:text-xs font-bold text-center tracking-tight transition-colors line-clamp-1 max-w-[85px] sm:max-w-[100px] ${
+                className={`mt-1.5 text-xs sm:text-[13px] font-extrabold text-center tracking-tight transition-colors line-clamp-1 ${
                   isActive
-                    ? "text-[#065417] font-black border-b-2 border-[#065417] pb-0.5"
-                    : "text-brand-navy/90 group-hover:text-[#065417]"
+                    ? "text-[#065417] underline decoration-2 underline-offset-4"
+                    : "text-[#065417]/90 group-hover:text-[#065417]"
                 }`}
               >
                 {cat.label}
@@ -985,7 +986,7 @@ function CategoryShelf({
         )}
 
         {/* CARDS DE PRODUTOS DA CATEGORIA */}
-        {products.map((prod) => (
+        {products.slice(0, 24).map((prod) => (
           <ProductCard
             key={prod.id}
             product={prod}
@@ -1020,6 +1021,11 @@ export default function CatalogPage() {
   const [favMarkets, setFavMarkets] = useState([]);
   const [favProducts, setFavProducts] = useState([]);
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+  const [visibleLimit, setVisibleLimit] = useState(48);
+
+  useEffect(() => {
+    setVisibleLimit(48);
+  }, [selectedCat, search, mktFilter, sortBy, viewMode]);
 
   // Quantidades na lista de compras
   const [listQuantities, setListQuantities] = useState(() => getList());
@@ -1039,7 +1045,17 @@ export default function CatalogPage() {
           favoritoService.listarMercados().catch(() => []),
           favoritoService.listarProdutos().catch(() => []),
         ]);
-        if (prodsData && prodsData.length > 0) setProducts(prodsData);
+        if (prodsData && prodsData.length > 0) {
+          const apiMap = new Map(prodsData.map((item) => [String(item.id), item]));
+          const merged = DEFAULT_PRODUCTS.map((defItem) =>
+            apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
+          );
+          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
+          prodsData.forEach((item) => {
+            if (!existingIds.has(String(item.id))) merged.push(item);
+          });
+          setProducts(merged);
+        }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
         if (Array.isArray(favMktsData)) {
           setFavMarkets(favMktsData.map((f) => f.mercadoId || f.id || f));
@@ -1115,18 +1131,53 @@ export default function CatalogPage() {
         const price = getPriceForMarket(p, { id: mktFilter });
         if (price === null || price === undefined || Number(price) <= 0) return false;
       }
-      // Filtro de Texto (Nome, Marca ou Descrição)
+      // Filtro de Texto (Nome e Marca — insensível a acentos e respeitando fronteira de palavras curtas)
       if (search.trim()) {
-        const term = search.toLowerCase();
-        const matchName = p.name?.toLowerCase().includes(term);
-        const matchBrand = p.brand?.toLowerCase().includes(term);
-        const matchDesc = p.descricao?.toLowerCase().includes(term);
-        if (!matchName && !matchBrand && !matchDesc) return false;
+        const fold = (s) =>
+          String(s || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        const queryFolded = fold(search).trim();
+        const nameAndBrand = `${fold(p.name)} ${fold(p.brand)}`;
+        if (!nameAndBrand.includes(queryFolded)) {
+          const words = nameAndBrand.split(/[^a-z0-9]+/).filter(Boolean);
+          const tokens = queryFolded.split(/\s+/).filter((tk) => tk.length > 1 && tk !== "de" && tk !== "em" && tk !== "do" && tk !== "da" && tk !== "com" && tk !== "para");
+          if (tokens.length === 0) return false;
+          const allMatch = tokens.every((tk) =>
+            tk.length <= 3 ? words.includes(tk) : words.some((w) => w.includes(tk))
+          );
+          if (!allMatch) return false;
+        }
       }
       return true;
     });
 
-    // Ordenação
+    // Ordenação (prioriza correspondência exata do termo buscado no nome)
+    if (search.trim()) {
+      const qFold = search
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+      result.sort((a, b) => {
+        const aExact = (a.name || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(qFold)
+          ? 0
+          : 1;
+        const bExact = (b.name || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(qFold)
+          ? 0
+          : 1;
+        return aExact - bExact;
+      });
+    }
     if (sortBy === "menor-preco") {
       result.sort((a, b) => {
         const pA = getProductPricing(a, markets)?.bestPrice || 99999;
@@ -1210,70 +1261,13 @@ export default function CatalogPage() {
               )}
             </div>
 
-            {/* Botão de Acesso à Minha Lista */}
-            <a
-              href="/list"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-teal text-white text-xs font-bold shadow-sm hover:shadow-md transition-all shrink-0 self-start md:self-auto"
-            >
-              <IconCart />
-              <span>Minha Lista</span>
-              {listCount > 0 && (
-                <span className="bg-white/25 px-2 py-0.5 rounded-full text-[11px] font-black">
-                  {listCount}
-                </span>
-              )}
-            </a>
-          </div>
-
-          {/* Linha 2: Fita de Mercados Favoritos */}
-          <FavMarketsStrip
-            markets={markets}
-            favs={favMarkets}
-            onToggle={toggleFavMarket}
-          />
-
-          {/* Linha 3: Filtro Horizontal de Categorias (Pills) e Filtros Rápidos */}
-          <div className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar pt-1">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => setSelectedCat("todos")}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
-                  selectedCat === "todos"
-                    ? "bg-brand-navy text-white border-brand-navy shadow-xs"
-                    : "bg-white text-brand-navy border-brand-border/80 hover:bg-slate-50"
-                }`}
-              >
-                <span>🏪</span>
-                <span>Todos os Departamentos</span>
-              </button>
-              {CATEGORIES.filter((c) => c.id !== "todos").map((c) => {
-                const active = selectedCat === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setSelectedCat(c.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap border ${
-                      active
-                        ? "bg-brand-green text-white border-brand-green shadow-xs font-bold"
-                        : "bg-white text-brand-navy border-brand-border/80 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span>{c.icon}</span>
-                    <span>{c.label.split(",")[0]}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Controles de Ordenação e Alternância de Visualização */}
-            <div className="flex items-center gap-2 shrink-0 pl-2 border-l border-brand-border/60">
+            {/* Controles Rápidos + Botão Minha Lista */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               {/* Filtro por Supermercado */}
               <select
                 value={mktFilter}
                 onChange={(e) => setMktFilter(e.target.value)}
-                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer"
+                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer"
                 title="Filtrar por rede"
               >
                 <option value="todos">Todas as redes</option>
@@ -1288,7 +1282,7 @@ export default function CatalogPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer hidden sm:block"
+                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer hidden sm:block"
                 title="Critério de ordenação"
               >
                 <option value="relevancia">Relevância</option>
@@ -1302,7 +1296,7 @@ export default function CatalogPage() {
                 <button
                   type="button"
                   onClick={() => setViewMode("prateleiras")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     viewMode === "prateleiras"
                       ? "bg-white text-brand-navy shadow-xs"
                       : "text-brand-muted hover:text-brand-navy"
@@ -1314,7 +1308,7 @@ export default function CatalogPage() {
                 <button
                   type="button"
                   onClick={() => setViewMode("grade")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     viewMode === "grade"
                       ? "bg-white text-brand-navy shadow-xs"
                       : "text-brand-muted hover:text-brand-navy"
@@ -1324,8 +1318,34 @@ export default function CatalogPage() {
                   Grade
                 </button>
               </div>
+
+              <a
+                href="/list"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-teal text-white text-xs font-bold shadow-sm hover:shadow-md transition-all shrink-0"
+              >
+                <IconCart />
+                <span>Minha Lista</span>
+                {listCount > 0 && (
+                  <span className="bg-white/25 px-2 py-0.5 rounded-full text-[11px] font-black">
+                    {listCount}
+                  </span>
+                )}
+              </a>
             </div>
           </div>
+
+          {/* Linha 2: Fita de Mercados Favoritos */}
+          <FavMarketsStrip
+            markets={markets}
+            favs={favMarkets}
+            onToggle={toggleFavMarket}
+          />
+
+          {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados) */}
+          <DepartmentVisualCarousel
+            selectedCat={selectedCat}
+            onSelectCat={setSelectedCat}
+          />
         </div>
       </header>
 
@@ -1350,8 +1370,8 @@ export default function CatalogPage() {
           </div>
         )}
 
-        {/* MODO A: PRATELEIRAS HORIZONTAIS (QUANDO EM "TODOS OS DEPARTAMENTOS" E MODO PRATELEIRAS) */}
-        {viewMode === "prateleiras" && selectedCat === "todos" && (
+        {/* MODO A: PRATELEIRAS HORIZONTAIS (QUANDO EM "TODOS OS DEPARTAMENTOS", SEM BUSCA ATIVA E MODO PRATELEIRAS) */}
+        {viewMode === "prateleiras" && selectedCat === "todos" && !search.trim() && (
           <div className="space-y-8">
             {groupedCategories.length > 0 ? (
               groupedCategories.map(({ category, products: catProds }) => (
@@ -1398,8 +1418,8 @@ export default function CatalogPage() {
           </div>
         )}
 
-        {/* MODO B: GRADE VERTICAL DE PRODUTOS (AO CLICAR EM UMA CATEGORIA OU ATIVAR MODO GRADE) */}
-        {(viewMode === "grade" || selectedCat !== "todos") && (
+        {/* MODO B: GRADE VERTICAL DE PRODUTOS (AO CLICAR EM UMA CATEGORIA, PESQUISAR OU ATIVAR MODO GRADE) */}
+        {(viewMode === "grade" || selectedCat !== "todos" || Boolean(search.trim())) && (
           <div className="space-y-5">
             {selectedCat !== "todos" ? (
               (() => {
@@ -1446,23 +1466,39 @@ export default function CatalogPage() {
             )}
 
             {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredProducts.map((prod) => (
-                  <ProductCard
-                    key={prod.id}
-                    product={prod}
-                    markets={markets}
-                    favMarkets={favMarkets}
-                    isFavProduct={favProducts.includes(prod.id)}
-                    onToggleFavProduct={toggleFavProduct}
-                    onAdd={handleAddToList}
-                    onUpdateQty={handleUpdateQty}
-                    quantity={listQuantities[prod.id] || 0}
-                    onOpenDetail={setSelectedProductDetail}
-                    isShelf={false}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, visibleLimit).map((prod) => (
+                    <ProductCard
+                      key={prod.id}
+                      product={prod}
+                      markets={markets}
+                      favMarkets={favMarkets}
+                      isFavProduct={favProducts.includes(prod.id)}
+                      onToggleFavProduct={toggleFavProduct}
+                      onAdd={handleAddToList}
+                      onUpdateQty={handleUpdateQty}
+                      quantity={listQuantities[prod.id] || 0}
+                      onOpenDetail={setSelectedProductDetail}
+                      isShelf={false}
+                    />
+                  ))}
+                </div>
+                {filteredProducts.length > visibleLimit && (
+                  <div className="flex flex-col items-center justify-center pt-6 gap-2">
+                    <span className="text-xs font-semibold text-brand-muted">
+                      Exibindo {visibleLimit} de {filteredProducts.length} produtos encontrados
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setVisibleLimit((prev) => prev + 48)}
+                      className="px-6 py-3 rounded-2xl bg-brand-navy text-white text-xs sm:text-sm font-extrabold hover:bg-brand-green transition-colors shadow-sm cursor-pointer"
+                    >
+                      Carregar mais produtos (+48)
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="bg-white rounded-3xl border border-brand-border p-12 text-center space-y-3">
                 <div className="text-4xl">🔍</div>

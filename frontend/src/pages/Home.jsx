@@ -43,6 +43,24 @@ const MARKET_LOGOS = {
   master: logoMaster,
 }
 
+const SECTOR_BANNERS = [
+  { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
+  { id: "hortifruti", label: "Hortifrúti", img: "/images/categorias/master/hortifruti.png", icon: "🍎" },
+  { id: "carnes", label: "Carnes", img: "/images/categorias/master/carnes.png", icon: "🥩" },
+  { id: "padaria", label: "Padaria", img: "/images/categorias/master/padaria.png", icon: "🥖" },
+  { id: "leites", label: "Frios e Laticínios", img: "/images/categorias/master/leites.png", icon: "🥛" },
+  { id: "bebidas", label: "Bebidas", img: "/images/categorias/master/bebidas.png", icon: "🍺" },
+  { id: "congelados", label: "Congelados", img: "/images/categorias/master/congelados.png", icon: "🧊" },
+  { id: "graos", label: "Grãos e Arroz", img: "/images/categorias/master/graos.png", icon: "🌾" },
+  { id: "cafe", label: "Café e Matinais", img: "/images/categorias/master/cafe.png", icon: "☕" },
+  { id: "limpeza", label: "Limpeza", img: "/images/categorias/master/limpeza.png", icon: "🧹" },
+  { id: "higiene", label: "Higiene", img: "/images/categorias/master/higiene.png", icon: "🧴" },
+  { id: "oleos", label: "Óleos e Azeites", img: "/images/categorias/master/oleos.png", icon: "🫙" },
+  { id: "biscoitos", label: "Biscoitos", img: "/images/categorias/master/biscoitos.png", icon: "🍪" },
+  { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
+  { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
+]
+
 const RAIL_GAP = 14
 const RAIL_SPEED = 42
 
@@ -297,6 +315,7 @@ export function Home() {
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [alertTargetPrice, setAlertTargetPrice] = useState("")
   const [toastMessage, setToastMessage] = useState(null)
+  const [visibleHomeLimit, setVisibleHomeLimit] = useState(32)
 
   // Mostra um feedback sutil quando o usuário adiciona um item à lista
   const showToast = (msg) => {
@@ -339,13 +358,31 @@ export function Home() {
 
   // Filtra produtos reais do catálogo com suporte a pesquisa, categoria e rede parceira
   const filteredProducts = useMemo(() => {
+    const fold = (s) =>
+      String(s || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+    const queryFolded = fold(searchTerm).trim()
+    const tokens = queryFolded
+      .split(/\s+/)
+      .filter((tk) => tk.length > 1 && tk !== "de" && tk !== "em" && tk !== "do" && tk !== "da" && tk !== "com" && tk !== "para")
+
     return PRODUCTS.filter((p) => {
-      const term = searchTerm.toLowerCase().trim()
-      const matchesSearch =
-        !term ||
-        p.name.toLowerCase().includes(term) ||
-        p.brand.toLowerCase().includes(term) ||
-        p.category.toLowerCase().includes(term)
+      const nameAndBrand = `${fold(p.name)} ${fold(p.brand)} ${fold(p.category)}`
+      let matchesSearch = true
+      if (queryFolded) {
+        if (nameAndBrand.includes(queryFolded)) {
+          matchesSearch = true
+        } else {
+          const words = nameAndBrand.split(/[^a-z0-9]+/).filter(Boolean)
+          matchesSearch =
+            tokens.length > 0 &&
+            tokens.every((tk) =>
+              tk.length <= 3 ? words.includes(tk) : words.some((w) => w.includes(tk))
+            )
+        }
+      }
 
       const matchesCategory =
         selectedCategory === "todos" || p.category === selectedCategory
@@ -647,34 +684,47 @@ export function Home() {
             </div>
           </div>
 
-          {/* Filtro por Categorias — Abas em Estilo Pílula */}
-          <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl border border-brand-border overflow-x-auto no-scrollbar">
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("todos")}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
-                selectedCategory === "todos"
-                  ? "bg-brand-navy text-white shadow-xs"
-                  : "text-brand-muted hover:text-brand-navy hover:bg-slate-50"
-              }`}
-            >
-              Todos os Departamentos
-            </button>
-            {CATEGORIES.filter((c) => c.id !== "todos").map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? "bg-brand-green text-white shadow-xs"
-                    : "text-brand-muted hover:text-brand-navy hover:bg-slate-50"
-                }`}
-              >
-                <span>{cat.icon}</span>
-                <span>{cat.label.split(",")[0]}</span>
-              </button>
-            ))}
+          {/* Banners Visuais dos Setores (Modelo Master Supermercados) */}
+          <div className="bg-white rounded-2xl border border-brand-border/80 p-3 sm:p-4 shadow-2xs">
+            <div className="flex items-start justify-between gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2">
+              {SECTOR_BANNERS.map((cat) => {
+                const isActive = selectedCategory === cat.id
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className="group flex flex-col items-center shrink-0 cursor-pointer select-none transition-all duration-200 outline-none"
+                    title={`Ver ${cat.label}`}
+                  >
+                    <div
+                      className={`relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-2xl transition-all duration-300 ${
+                        isActive
+                          ? "ring-3 ring-[#065417] ring-offset-2 scale-105 bg-emerald-50/70 shadow-sm"
+                          : "group-hover:scale-105"
+                      }`}
+                    >
+                      <img
+                        src={cat.img}
+                        alt={cat.label}
+                        loading="lazy"
+                        style={{ clipPath: "inset(0 0 8% 0)" }}
+                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-108 pointer-events-none"
+                      />
+                    </div>
+                    <span
+                      className={`mt-1.5 text-xs sm:text-[13px] font-extrabold text-center tracking-tight transition-colors line-clamp-1 ${
+                        isActive
+                          ? "text-[#065417] underline decoration-2 underline-offset-4"
+                          : "text-[#065417]/90 group-hover:text-[#065417]"
+                      }`}
+                    >
+                      {cat.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
 
@@ -703,8 +753,9 @@ export function Home() {
             </Button>
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((produto) => {
+            {filteredProducts.slice(0, visibleHomeLimit).map((produto) => {
               const insights = getProductInsights(produto)
 
               return (
@@ -811,6 +862,21 @@ export function Home() {
               )
             })}
           </div>
+          {filteredProducts.length > visibleHomeLimit && (
+            <div className="flex flex-col items-center justify-center pt-6 gap-2">
+              <span className="text-xs font-semibold text-brand-muted">
+                Exibindo {visibleHomeLimit} de {filteredProducts.length} produtos encontrados
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setVisibleHomeLimit((prev) => prev + 32)}
+              >
+                Carregar mais produtos (+32)
+              </Button>
+            </div>
+          )}
+          </>
         )}
       </main>
 

@@ -38,6 +38,40 @@ CATEGORIAS = {
 COMPANY_ID = "334"
 STORE_ID = "1585"
 BASE_URL = f"https://sense.osuper.com.br/{COMPANY_ID}/{STORE_ID}/category"
+SEARCH_URL = f"https://sense.osuper.com.br/{COMPANY_ID}/{STORE_ID}/search"
+STOREFRONT_BASE_URL = "https://www.deliveryfort.com.br"
+
+TERMOS_BUSCA = {
+    "Chocolate_em_Po": "chocolate em po",
+    "Achocolatados": "achocolatado",
+    "Chocolates": "chocolate",
+    "Cafes": "cafe",
+    "Leites": "leite",
+    "Arroz": "arroz",
+    "Feijao": "feijao",
+    "Oleos_Azeites": "oleo",
+    "Azeites": "azeite",
+    "Acucar": "acucar",
+    "Farinhas": "farinha",
+    "Massas": "macarrao",
+    "Molhos": "molho de tomate",
+    "Biscoitos": "biscoito",
+    "Queijos": "queijo",
+    "Manteigas": "manteiga",
+    "Iogurtes": "iogurte",
+    "Carnes": "carne",
+    "Frangos": "frango",
+    "Bebidas": "refrigerante",
+    "Cervejas": "cerveja",
+    "Sucos": "suco",
+    "Paes": "pao",
+    "Congelados": "pizza",
+    "Limpeza": "detergente",
+    "Sabao": "sabao",
+    "Higiene": "sabonete",
+    "Shampoo": "shampoo",
+    "Papel_Higienico": "papel higienico",
+}
 
 # Limite de produtos coletados POR categoria (mantém a coleta dentro do
 # escopo de MVP de 20-40 produtos no total, conforme o documento oficial)
@@ -189,13 +223,15 @@ def registrar_falha(falhas, categoria, motivo, *, pagina=None, indice=None):
 
 def coletar_categoria(nome_categoria: str, categoria_id: str, *,
                       buscar=None, falhas=None, dormir=time.sleep,
-                      agora=None) -> list[dict]:
-    """Retorna itens válidos; falhas de item/página não descartam os já aceitos."""
+                      agora=None, limite=LIMITE_POR_CATEGORIA,
+                      max_paginas=MAX_PAGINAS_POR_CATEGORIA) -> list[dict]:
+    """Retorna itens válidos; se limite=None e max_paginas=None, coleta tudo sem travas."""
     buscar = buscar or buscar_pagina
     falhas = falhas if falhas is not None else []
     agora = agora or (lambda: datetime.now(timezone.utc))
     produtos = []
-    for pagina in range(MAX_PAGINAS_POR_CATEGORIA):
+    pagina = 0
+    while max_paginas is None or pagina < max_paginas:
         params = {"sortField": "sales_count", "sortOrder": "desc",
                   "size": TAMANHO_PAGINA, "from": pagina * TAMANHO_PAGINA}
         try:
@@ -203,6 +239,8 @@ def coletar_categoria(nome_categoria: str, categoria_id: str, *,
                            params=params, timeout=10)
             if not isinstance(dados, dict) or not isinstance(dados.get("hits"), list):
                 raise ErroColeta("resposta_sem_lista_hits")
+            if dados.get("total") == 89632:
+                break
             try:
                 validar_moeda(dados)
             except ValueError as exc:
@@ -221,14 +259,60 @@ def coletar_categoria(nome_categoria: str, categoria_id: str, *,
                 produtos.append(transformar_item(item, nome_categoria, instante))
             except ValueError as exc:
                 registrar_falha(falhas, nome_categoria, str(exc), pagina=pagina, indice=indice)
-            if len(produtos) >= LIMITE_POR_CATEGORIA:
+            if limite is not None and len(produtos) >= limite:
                 return produtos
         if not dados.get("hasNext", False):
             break
-        if pagina == MAX_PAGINAS_POR_CATEGORIA - 1:
+        if max_paginas is not None and pagina == max_paginas - 1:
             registrar_falha(falhas, nome_categoria, "limite_paginas", pagina=pagina)
-        else:
-            dormir(PAUSA_ENTRE_REQUISICOES)
+            break
+        pagina += 1
+        dormir(PAUSA_ENTRE_REQUISICOES)
+    return produtos
+
+
+def coletar_termo_busca(nome_categoria: str, termo: str, *,
+                        buscar=None, falhas=None, dormir=time.sleep,
+                        agora=None, limite=None, max_paginas=None) -> list[dict]:
+    """Coleta todos os produtos de um termo via endpoint /search (size=20) sem travas."""
+    buscar = buscar or buscar_pagina
+    falhas = falhas if falhas is not None else []
+    agora = agora or (lambda: datetime.now(timezone.utc))
+    produtos = []
+    headers_busca = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Origin": STOREFRONT_BASE_URL,
+        "Referer": f"{STOREFRONT_BASE_URL}/",
+    }
+    pagina = 0
+    tamanho = 20
+    while max_paginas is None or pagina < max_paginas:
+        params = {"search": termo, "size": tamanho, "from": pagina * tamanho}
+        try:
+            dados = buscar(SEARCH_URL, headers=headers_busca, params=params, timeout=10)
+            if not isinstance(dados, dict) or not isinstance(dados.get("hits"), list):
+                raise ErroColeta("resposta_sem_lista_hits")
+            if dados.get("total") == 89632:
+                break
+        except ErroColeta as exc:
+            registrar_falha(falhas, nome_categoria, str(exc), pagina=pagina)
+            break
+        hits = dados["hits"]
+        if not hits:
+            break
+        instante = agora()
+        for indice, item in enumerate(hits):
+            try:
+                produtos.append(transformar_item(item, nome_categoria, instante))
+            except ValueError as exc:
+                registrar_falha(falhas, nome_categoria, str(exc), pagina=pagina, indice=indice)
+            if limite is not None and len(produtos) >= limite:
+                return produtos
+        if not dados.get("hasNext", False):
+            break
+        pagina += 1
+        dormir(PAUSA_ENTRE_REQUISICOES)
     return produtos
 
 
@@ -277,6 +361,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", type=Path, help="Resposta local: não acessa a rede")
     parser.add_argument("--output-dir", type=Path, default=Path("."))
+    parser.add_argument("--sem-limites", action="store_true", help="Remove limites de itens e páginas e inclui busca completa")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     try:
@@ -287,10 +372,22 @@ def main(argv=None):
     args.output_dir.mkdir(parents=True, exist_ok=True)
     falhas, produtos = [], []
     dormir = (lambda _: None) if args.fixture else time.sleep
+    limite = None if args.sem_limites else LIMITE_POR_CATEGORIA
+    max_paginas = None if args.sem_limites else MAX_PAGINAS_POR_CATEGORIA
     for nome, categoria_id in CATEGORIAS.items():
         produtos.extend(coletar_categoria(nome, categoria_id, buscar=buscar,
-                                          falhas=falhas, dormir=dormir))
+                                          falhas=falhas, dormir=dormir,
+                                          limite=limite, max_paginas=max_paginas))
         dormir(PAUSA_ENTRE_REQUISICOES)
+    if args.sem_limites and not args.fixture:
+        vistos = {str(p.get("id_produto_origem")) for p in produtos if p.get("id_produto_origem")}
+        for nome_termo, termo in TERMOS_BUSCA.items():
+            for item in coletar_termo_busca(nome_termo, termo, buscar=buscar, falhas=falhas, dormir=dormir):
+                pid = str(item.get("id_produto_origem"))
+                if pid not in vistos:
+                    vistos.add(pid)
+                    produtos.append(item)
+            dormir(PAUSA_ENTRE_REQUISICOES)
     status = "falhou" if not produtos else ("parcial" if falhas else "concluido")
     # Em falha total, preserva a última saída; o relatório informa que ela
     # não pertence a esta execução. Nada é marcado como indisponível.

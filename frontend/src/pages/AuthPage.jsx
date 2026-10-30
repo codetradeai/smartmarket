@@ -381,7 +381,7 @@ export default function AuthPage() {
                       onClick={() => fillCredentials("admin")}
                       className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
                     >
-                      🛡️ Perfil Admin
+                      🛡️ Perfil Administrador
                     </button>
                     <button
                       type="button"

@@ -28,7 +28,7 @@ export function Navbar({
     { label: "Favoritos", href: "/favorites" },
     { label: "Minha Lista", href: "/list", badgeCount: cartCount },
     { label: "Comparador", href: "/compare" },
-    ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
+    ...(isAdmin ? [{ label: "Administração", href: "/admin" }] : []),
   ]
 
   const activeNavLinks = navLinks || defaultNavLinks
@@ -53,7 +53,7 @@ export function Navbar({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-3 select-none">
-              <SmartMarketLogo size="md" />
+              <SmartMarketLogo size="lg" />
             </Link>
             <nav className="hidden md:flex items-center gap-1" aria-label="Apresentação do site">
               {apresentacaoLinks.map((link) =>
@@ -175,9 +175,9 @@ export function Navbar({
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group select-none">
             {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
+              <img src={logoUrl} alt={brandName} className="h-12 w-auto object-contain" />
             ) : (
-              <SmartMarketLogo size="md" />
+              <SmartMarketLogo size="lg" />
             )}
           </Link>
 

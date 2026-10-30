@@ -324,6 +324,15 @@ html, body, #root {
   background: #0D2137;
 }
 
+.sm-search-input::-webkit-search-decoration,
+.sm-search-input::-webkit-search-cancel-button,
+.sm-search-input::-webkit-search-results-button,
+.sm-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 .sm-hero-video {
   position: absolute;
   inset: 0;

@@ -40,6 +40,7 @@ function buildSuggestions(products, query) {
     if (!display.has(key)) display.set(key, text)
   }
 
+  const once = new Set()
   products.forEach((product) => {
     const name = product.name || ""
     const brand = product.brand || ""
@@ -50,23 +51,34 @@ function buildSuggestions(products, query) {
       .split(/\s+/)
       .filter((word) => word && !/\d/.test(word) && fold(word).length > 1)
 
-    for (let size = 2; size <= 3; size += 1) {
+    for (let size = 2; size <= 4; size += 1) {
       for (let index = 0; index <= tokens.length - size; index += 1) {
         const phrase = tokens.slice(index, index + size).join(" ")
         if (fold(phrase).includes(q)) add(phrase)
       }
     }
 
-    if (fold(brand).includes(q)) add(brand, 2)
-    if (fold(category).includes(q)) add(category, 2)
+    const brandKey = fold(brand)
+    if (brandKey.includes(q) && !once.has(brandKey)) {
+      once.add(brandKey)
+      add(brand, 3)
+    }
+    const categoryKey = fold(category)
+    if (categoryKey.includes(q) && !once.has(categoryKey)) {
+      once.add(categoryKey)
+      add(category, 3)
+    }
   })
 
-  const related = [...counts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].length - b[0].length)
-    .slice(0, 5)
-    .map(([key]) => display.get(key))
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].length - b[0].length)
+  const picked = []
+  ranked.forEach(([key]) => {
+    if (picked.length >= 5) return
+    const nested = picked.some((chosen) => key.startsWith(`${chosen} `) || chosen.startsWith(`${key} `))
+    if (!nested) picked.push(key)
+  })
 
-  return [typed, ...related]
+  return [typed, ...picked.map((key) => display.get(key))]
 }
 
 function matchingProducts(products, query) {
@@ -93,7 +105,8 @@ function matchingProducts(products, query) {
     const tokens = fold(item.product.name)
       .split(/\s+/)
       .filter((token) => token && !STOPWORDS.has(token) && !/\d/.test(token))
-    const key = tokens.slice(0, 2).join(" ") || fold(item.product.name)
+    const extra = tokens.filter((token) => !q.includes(token))
+    const key = extra[0] || tokens[0] || fold(item.product.name)
     if (seen.has(key)) return
     seen.add(key)
     picked.push(item)
@@ -115,6 +128,7 @@ export function SearchSuggest({
 }) {
   const rootRef = useRef(null)
   const [active, setActive] = useState(false)
+  const [box, setBox] = useState({ place: "below", maxHeight: 440 })
   const suggestions = useMemo(() => buildSuggestions(products, value), [products, value])
   const results = useMemo(() => matchingProducts(products, value), [products, value])
   const open = active && fold(value).length >= 2
@@ -134,9 +148,35 @@ export function SearchSuggest({
     }
   }, [])
 
-  function escolherSugestao(text) {
-    onChange(text)
+  useEffect(() => {
+    if (!open) return undefined
+    let frame = 0
+    const fit = () => {
+      const node = rootRef.current
+      if (!node) return
+      const rect = node.getBoundingClientRect()
+      const gap = 12
+      const below = window.innerHeight - rect.bottom - gap
+      const above = rect.top - gap
+      const next = below >= 300 || below >= above
+        ? { place: "below", maxHeight: Math.round(Math.min(460, Math.max(220, below))) }
+        : { place: "above", maxHeight: Math.round(Math.min(460, Math.max(220, above))) }
+      setBox((current) => (
+        current.place === next.place && current.maxHeight === next.maxHeight ? current : next
+      ))
+      frame = requestAnimationFrame(fit)
+    }
+    frame = requestAnimationFrame(fit)
+    return () => cancelAnimationFrame(frame)
+  }, [open])
+
+  function escrever(next) {
+    onChange(next)
     setActive(true)
+  }
+
+  function escolherSugestao(text) {
+    escrever(text)
   }
 
   function verTodos() {
@@ -146,14 +186,13 @@ export function SearchSuggest({
 
   const panel = open && (
     <div
-      className={`absolute top-[calc(100%+0.55rem)] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_24px_60px_-28px_rgba(13,33,55,0.55)] ${
-        wide
-          ? "left-1/2 w-[min(40rem,calc(100vw-2rem))] -translate-x-1/2"
-          : "left-0 w-full"
-      }`}
+      className={`absolute z-50 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_24px_60px_-28px_rgba(13,33,55,0.55)] ${
+        box.place === "above" ? "bottom-[calc(100%+0.55rem)]" : "top-[calc(100%+0.55rem)]"
+      } ${wide ? "left-1/2 w-[min(40rem,calc(100vw-2rem))] -translate-x-1/2" : "left-0 w-full"}`}
+      style={{ maxHeight: box.maxHeight }}
       onMouseDown={(event) => event.preventDefault()}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-[11.5rem_1fr]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 overflow-y-auto sm:grid-cols-[11.5rem_1fr]">
         <div className="border-b border-slate-100 p-4 sm:border-b-0 sm:border-r">
           <p className="text-sm font-extrabold text-brand-navy">Sugestões de Pesquisa</p>
           <ul className="mt-3 space-y-1.5">
@@ -192,21 +231,27 @@ export function SearchSuggest({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="line-clamp-2 text-sm font-semibold leading-snug text-brand-navy">{product.name}</span>
+                      {product.isClube && (
+                        <span className="mt-1 inline-block rounded bg-brand-navy px-1.5 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                          Clube
+                        </span>
+                      )}
                     </span>
-                    <span className="shrink-0 text-right">
+                    <span className="shrink-0 text-right leading-tight">
                       {price != null && (
                         <span className="block text-sm font-extrabold text-brand-green">{moeda.format(price)}</span>
                       )}
                       {desconto > 0 && (
-                        <span className="mt-0.5 inline-block rounded bg-brand-navy px-1.5 py-0.5 text-[10px] font-bold text-white">
-                          {desconto}%
+                        <span className="mt-0.5 flex items-center justify-end gap-1">
+                          <span className="rounded bg-brand-navy px-1 py-0.5 text-[10px] font-bold text-white">{desconto}%</span>
+                          <span className="text-[11px] text-slate-400 line-through">{moeda.format(product.precoNormal)}</span>
                         </span>
                       )}
                     </span>
                     <button
                       type="button"
                       onClick={() => onAdd?.(product)}
-                      className="shrink-0 rounded-lg bg-brand-green px-3 py-2 text-xs font-extrabold text-white hover:bg-[#1b8c4d]"
+                      className="shrink-0 whitespace-nowrap rounded-md bg-brand-green px-3 py-2 text-xs font-extrabold text-white hover:bg-[#1b8c4d]"
                     >
                       + Adicionar
                     </button>
@@ -220,7 +265,7 @@ export function SearchSuggest({
       <button
         type="button"
         onClick={verTodos}
-        className="w-full border-t border-slate-100 py-3 text-sm font-extrabold text-brand-green hover:bg-brand-green-light"
+        className="w-full shrink-0 border-t border-slate-100 py-3 text-sm font-extrabold text-brand-green hover:bg-brand-green-light"
       >
         Ver todos os resultados
       </button>
@@ -241,18 +286,19 @@ export function SearchSuggest({
             <input
               id={id}
               name="q"
-              type="search"
+              type="text"
+              role="searchbox"
               autoComplete="off"
               value={value}
-              onChange={(event) => onChange(event.target.value)}
+              onChange={(event) => escrever(event.target.value)}
               onFocus={() => setActive(true)}
               placeholder={placeholder}
-              className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
+              className="sm-search-input min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
             />
             {value && (
               <button
                 type="button"
-                onClick={() => onChange("")}
+                onClick={() => escrever("")}
                 className="px-2 text-xs font-bold text-brand-muted hover:text-brand-navy"
                 aria-label="Limpar busca"
               >
@@ -282,9 +328,9 @@ export function SearchSuggest({
           id={id}
           placeholder={placeholder}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={(event) => escrever(event.target.value)}
           onFocus={() => setActive(true)}
-          onClear={() => onChange("")}
+          onClear={() => escrever("")}
           autoComplete="off"
           className="h-10 text-xs bg-slate-50 border-brand-border/60 hover:bg-white"
         />

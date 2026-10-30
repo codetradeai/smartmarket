@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
   Button,
@@ -277,7 +277,7 @@ function CarrosselRedes({ selectedMarket, onSelect }) {
 }
 
 function contarItensDaLista(lista) {
-  return Object.values(lista).reduce((acc, qty) => acc + Number(qty || 0), 0)
+  return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
 }
 
 function lerLista() {
@@ -305,11 +305,22 @@ function caminhoDoCadastro(intent, termo) {
 
 export function Home() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated } = useAuth()
   const [termoConvite, setTermoConvite] = useState("")
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace("#", "")
+      const el = document.getElementById(targetId)
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 60)
+      }
+    }
+  }, [location.hash])
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("todos")
+  const [selectedCategory, setSelectedCategory] = useState("nenhum")
   const [selectedMarket, setSelectedMarket] = useState("todos")
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
@@ -385,7 +396,9 @@ export function Home() {
       }
 
       const matchesCategory =
-        selectedCategory === "todos" || p.category === selectedCategory
+        selectedCategory === "todos" ||
+        selectedCategory === "nenhum" ||
+        p.category === selectedCategory
 
       const insights = getProductInsights(p)
       const matchesMarket =
@@ -651,29 +664,35 @@ export function Home() {
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
       <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">
-        {/* Cabeçalho do Catálogo com Filtros */}
+        {/* Cabeçalho dos Setores */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-brand-border pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-navy">
-                  Ofertas & Comparativo em Destaque
+                  Explore por Setor do Supermercado
                 </h2>
-                <span className="text-xs font-bold text-brand-muted">
-                  ({filteredProducts.length} itens encontrados)
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green">
+                  {PRODUCTS.length} produtos monitorados
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
-                Passe o mouse para inspecionar em 360°. Clique em qualquer produto para abrir o comparativo entre todas as 8 redes.
+                Clique em qualquer setor abaixo para espiar uma amostra de produtos. Para pesquisar e comparar todos os preços, crie sua conta gratuita.
               </p>
             </div>
 
-            {/* Botão de Alerta de Preço */}
+            {/* Botão de Alerta de Preço / Cadastro */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsAlertModalOpen(true)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    navigate(caminhoDoCadastro("comparador"))
+                    return
+                  }
+                  setIsAlertModalOpen(true)
+                }}
                 className="text-xs font-bold border-brand-border gap-1.5"
               >
                 <svg className="w-4 h-4 text-brand-amber" fill="currentColor" viewBox="0 0 20 20">
@@ -684,18 +703,20 @@ export function Home() {
             </div>
           </div>
 
-          {/* Banners Visuais dos Setores (Modelo Master Supermercados) */}
+          {/* Banners Visuais dos Setores (Sem "Todos" aberto de cara para incentivar o clique no setor) */}
           <div className="bg-white rounded-2xl border border-brand-border/80 p-3 sm:p-4 shadow-2xs">
             <div className="flex items-start justify-between gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2">
-              {SECTOR_BANNERS.map((cat) => {
+              {SECTOR_BANNERS.filter((cat) => cat.id !== "todos").map((cat) => {
                 const isActive = selectedCategory === cat.id
                 return (
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setSelectedCategory(cat.id)}
+                    onClick={() =>
+                      setSelectedCategory((prev) => (prev === cat.id ? "nenhum" : cat.id))
+                    }
                     className="group flex flex-col items-center shrink-0 cursor-pointer select-none transition-all duration-200 outline-none"
-                    title={`Ver ${cat.label}`}
+                    title={`Ver amostra de ${cat.label}`}
                   >
                     <div
                       className={`relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-2xl transition-all duration-300 ${
@@ -728,160 +749,285 @@ export function Home() {
           </div>
         </div>
 
-        {/* Grade de Produtos */}
-        {filteredProducts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl border border-brand-border p-8 space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-brand-green-light flex items-center justify-center text-3xl mx-auto">
-              🔍
+        {/* Conteúdo abaixo dos setores: Oculto até que o usuário clique em um setor, e limitado a 4 produtos de amostra */}
+        {selectedCategory === "nenhum" && selectedMarket === "todos" && !searchTerm.trim() ? (
+          <div className="rounded-3xl border border-brand-border/80 bg-white p-8 sm:p-10 text-center shadow-2xs">
+            <div className="mx-auto max-w-xl space-y-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-extrabold text-brand-green uppercase tracking-wider">
+                👆 Escolha um setor acima para espiar
+              </span>
+              <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
+                Quer comparar todos os {PRODUCTS.length} produtos nas 8 redes do RS?
+              </h3>
+              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  to={isAuthenticated ? "/catalog" : caminhoDoCadastro("catalogo")}
+                  className="sm-cta"
+                >
+                  {isAuthenticated ? "Abrir Catálogo Completo" : "Criar conta grátis e liberar tudo"}
+                  <span aria-hidden="true" className="sm-cta-arrow">→</span>
+                </Link>
+                {!isAuthenticated && (
+                  <Link
+                    to="/auth?mode=login"
+                    className="px-4 py-2.5 rounded-xl border border-brand-border text-xs sm:text-sm font-bold text-brand-navy hover:bg-slate-50"
+                  >
+                    Já tenho conta
+                  </Link>
+                )}
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-brand-navy">
-              Nenhum produto encontrado com os filtros atuais
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-3xl border border-brand-border p-8 space-y-4">
+            <h3 className="text-base font-bold text-brand-navy">
+              Nenhum produto encontrado neste filtro
             </h3>
-            <p className="text-xs text-brand-muted max-w-md mx-auto">
-              Tente buscar por termos mais genéricos como "arroz", "leite" ou redefinir a categoria e rede selecionada.
-            </p>
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
                 setSearchTerm("")
-                setSelectedCategory("todos")
+                setSelectedCategory("nenhum")
                 setSelectedMarket("todos")
               }}
             >
-              Limpar todos os filtros
+              Fechar prévia
             </Button>
           </div>
         ) : (
-          <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.slice(0, visibleHomeLimit).map((produto) => {
-              const insights = getProductInsights(produto)
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+              <p className="text-xs sm:text-sm font-bold text-brand-navy">
+                Prévia do setor:{" "}
+                <span className="text-brand-green">
+                  mostrando 4 de {filteredProducts.length} produtos disponíveis
+                </span>
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedCategory("nenhum")
+                  setSelectedMarket("todos")
+                }}
+                className="text-xs font-bold text-brand-muted hover:text-brand-navy cursor-pointer"
+              >
+                ✕ Ocultar prévia
+              </button>
+            </div>
 
-              return (
-                <Card
-                  key={produto.id}
-                  variant="interactive"
-                  className="flex flex-col justify-between group overflow-hidden cursor-pointer border-brand-border/80 hover:border-brand-green/60 hover:shadow-lg transition-all"
-                  onClick={() => setSelectedProductDetail(produto)}
-                >
-                  <CardHeader className="pb-2">
-                    {/* Visual 360 / Foto com Preview e Badges */}
-                    <div className="relative w-full h-48 bg-slate-50 rounded-2xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center group-hover:bg-emerald-50/30 transition-colors">
-                      <Product360HoverPreview
-                        product={produto}
-                        alt={produto.name}
-                        className="w-full h-full object-contain p-3 transition-transform group-hover:scale-105"
-                      />
+            {/* Exibe apenas 4 produtos como degustação para incentivar o cadastro */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredProducts.slice(0, 4).map((produto) => {
+                const insights = getProductInsights(produto)
 
-                      {produto.promo && (
-                        <span className="absolute top-2.5 left-2.5 bg-brand-coral text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider pointer-events-none">
-                          Oferta
+                return (
+                  <Card
+                    key={produto.id}
+                    variant="interactive"
+                    className="flex flex-col justify-between group overflow-hidden cursor-pointer border-brand-border/80 hover:border-brand-green/60 hover:shadow-lg transition-all"
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate(caminhoDoCadastro("busca", produto.name))
+                        return
+                      }
+                      setSelectedProductDetail(produto)
+                    }}
+                  >
+                    <CardHeader className="pb-2">
+                      {/* Visual 360 / Foto com Preview e Badges */}
+                      <div className="relative w-full h-48 bg-slate-50 rounded-2xl overflow-hidden mb-3 border border-slate-100 flex items-center justify-center group-hover:bg-emerald-50/30 transition-colors">
+                        <Product360HoverPreview
+                          product={produto}
+                          alt={produto.name}
+                          className="w-full h-full object-contain p-3 transition-transform group-hover:scale-105"
+                        />
+
+                        {produto.promo && (
+                          <span className="absolute top-2.5 left-2.5 bg-brand-coral text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider pointer-events-none">
+                            Oferta
+                          </span>
+                        )}
+
+                        <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-lg border border-slate-200 pointer-events-none">
+                          {produto.unit || "Unidade"}
                         </span>
+                      </div>
+
+                      {/* Metadados da Marca e Categoria */}
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-[11px] font-bold text-brand-green bg-brand-green-light px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                          {produto.category}
+                        </span>
+                        <span className="text-xs text-brand-muted font-medium">
+                          {produto.brand}
+                        </span>
+                      </div>
+
+                      <CardTitle className="text-sm font-bold text-brand-navy mt-2 line-clamp-2 leading-snug group-hover:text-brand-green transition-colors">
+                        {produto.name}
+                      </CardTitle>
+
+                      {produto.descricao && (
+                        <CardDescription className="line-clamp-2 text-[11px] text-brand-muted mt-1">
+                          {produto.descricao}
+                        </CardDescription>
                       )}
+                    </CardHeader>
 
-                      <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-lg border border-slate-200 pointer-events-none">
-                        {produto.unit || "Unidade"}
-                      </span>
-                    </div>
+                    <CardContent className="space-y-2 py-2">
+                      {insights ? (
+                        <>
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-green-light/60 border border-brand-green/20 text-xs">
+                            <div>
+                              <span className="block text-[10px] font-semibold text-emerald-800">
+                                Melhor Preço ({insights.bestMarketName})
+                                {insights.isClube && (
+                                  <span className="ml-1 text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                                    🏷️ {insights.clubeNome}
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-lg font-black text-brand-green">
+                                R$ {insights.bestPrice.toFixed(2)}
+                              </span>
+                            </div>
+                            {insights.economia > 0 && (
+                              <span className="text-[10px] font-black text-white bg-brand-green px-2 py-1 rounded-lg shadow-xs">
+                                -R$ {insights.economia.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
 
-                    {/* Metadados da Marca e Categoria */}
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-[11px] font-bold text-brand-green bg-brand-green-light px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                        {produto.category}
-                      </span>
-                      <span className="text-xs text-brand-muted font-medium">
-                        {produto.brand}
-                      </span>
-                    </div>
-
-                    <CardTitle className="text-sm font-bold text-brand-navy mt-2 line-clamp-2 leading-snug group-hover:text-brand-green transition-colors">
-                      {produto.name}
-                    </CardTitle>
-
-                    {produto.descricao && (
-                      <CardDescription className="line-clamp-2 text-[11px] text-brand-muted mt-1">
-                        {produto.descricao}
-                      </CardDescription>
-                    )}
-                  </CardHeader>
-
-                  <CardContent className="space-y-2 py-2">
-                    {insights ? (
-                      <>
-                        <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-green-light/60 border border-brand-green/20 text-xs">
-                          <div>
-                            <span className="block text-[10px] font-semibold text-emerald-800">
-                              Melhor Preço ({insights.bestMarketName})
-                              {insights.isClube && (
-                                <span className="ml-1 text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
-                                  🏷️ {insights.clubeNome}
-                                </span>
-                              )}
-                            </span>
-                            <span className="text-lg font-black text-brand-green">
-                              R$ {insights.bestPrice.toFixed(2)}
+                          <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
+                            <span>Comparado em {insights.totalMarkets} mercados</span>
+                            <span className="text-brand-navy font-bold hover:underline">
+                              {isAuthenticated ? "Ver comparativo →" : "Cadastre-se p/ comparar →"}
                             </span>
                           </div>
-                          {insights.economia > 0 && (
-                            <span className="text-[10px] font-black text-white bg-brand-green px-2 py-1 rounded-lg shadow-xs">
-                              -R$ {insights.economia.toFixed(2)}
-                            </span>
-                          )}
+                        </>
+                      ) : (
+                        <div className="p-3 text-center text-xs text-brand-muted bg-slate-50 rounded-2xl">
+                          Consultando preços ao vivo...
                         </div>
+                      )}
+                    </CardContent>
 
-                        <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
-                          <span>Comparado em {insights.totalMarkets} mercados</span>
-                          <span className="text-brand-navy font-bold hover:underline">
-                            Ver comparativo &rarr;
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="p-3 text-center text-xs text-brand-muted bg-slate-50 rounded-2xl">
-                        Consultando preços ao vivo...
-                      </div>
-                    )}
-                  </CardContent>
-
-                  <CardFooter className="pt-2">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="w-full text-xs font-bold py-2 justify-center"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setCartItemsCount(adicionarNaLista(produto.id))
-                        showToast(`"${produto.name}" adicionado à lista!`)
-                      }}
-                    >
-                      + Adicionar à Minha Lista
-                    </Button>
-                  </CardFooter>
-                </Card>
-              )
-            })}
-          </div>
-          {filteredProducts.length > visibleHomeLimit && (
-            <div className="flex flex-col items-center justify-center pt-6 gap-2">
-              <span className="text-xs font-semibold text-brand-muted">
-                Exibindo {visibleHomeLimit} de {filteredProducts.length} produtos encontrados
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setVisibleHomeLimit((prev) => prev + 32)}
-              >
-                Carregar mais produtos (+32)
-              </Button>
+                    <CardFooter className="pt-2">
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        className="w-full text-xs font-bold py-2 justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (!isAuthenticated) {
+                            navigate(caminhoDoCadastro("lista", produto.name))
+                            return
+                          }
+                          setCartItemsCount(adicionarNaLista(produto.id))
+                          showToast(`"${produto.name}" adicionado à lista!`)
+                        }}
+                      >
+                        {isAuthenticated ? "+ Adicionar à Minha Lista" : "🔒 Criar conta para usar"}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
             </div>
-          )}
-          </>
+
+            {/* Banner de Bloqueio / Incentivo ao Cadastro logo abaixo dos 4 itens de amostra */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-navy via-[#133250] to-brand-navy p-6 sm:p-8 text-white shadow-lg border border-brand-green/30 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-extrabold text-[#7dffe0] uppercase tracking-wider">
+                  🔒 +{Math.max(0, filteredProducts.length - 4)} produtos ocultos neste setor
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                  Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens deste setor!
+                </h3>
+                <p className="text-xs sm:text-sm text-white/75 max-w-2xl">
+                  Com a sua conta gratuita, você libera os {PRODUCTS.length} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                <Link
+                  to={isAuthenticated ? "/catalog" : caminhoDoCadastro("catalogo")}
+                  className="sm-cta sm-cta-light whitespace-nowrap"
+                >
+                  {isAuthenticated ? "Ver todos no Catálogo" : "Criar conta gratuita"}
+                  <span aria-hidden="true" className="sm-cta-arrow">→</span>
+                </Link>
+                {!isAuthenticated && (
+                  <Link
+                    to="/auth?mode=login"
+                    className="sm-cta sm-cta-ghost whitespace-nowrap"
+                  >
+                    Entrar
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
         )}
       </main>
 
-      {/* 6. FAIXA FINAL — dois blocos de cor, como o banner do Desco */}
-      <section className="px-4 pb-16 sm:px-6 lg:px-8">
+      {/* 6. SEÇÃO SOBRE (#sobre) INTEGRADA NA HOME */}
+      <section id="sobre" className="scroll-mt-24 bg-white border-t border-brand-border/60 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-10">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center rounded-full bg-brand-green-light px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-brand-green">
+              Sobre o SmartMarket
+            </span>
+            <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">
+              Economia inteligente na palma da sua mão.
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-brand-muted leading-relaxed">
+              O SmartMarket nasceu com um propósito claro: eliminar o desperdício de tempo e dinheiro na comparação de preços em supermercados do Rio Grande do Sul.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <Card className="p-6 border-brand-border/80">
+              <div className="text-3xl mb-3">🤖</div>
+              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Coleta Automatizada RS</h3>
+              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                Robôs especializados que monitoram VTEX, VipCommerce e APIs oficiais das 8 maiores redes do RS.
+              </p>
+            </Card>
+
+            <Card className="p-6 border-brand-border/80">
+              <div className="text-3xl mb-3">📸</div>
+              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Fotos e 360° em Alta Definição</h3>
+              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                Catálogo visual enriquecido com imagens originais em alta resolução e rotação 360° interativa.
+              </p>
+            </Card>
+
+            <Card className="p-6 border-brand-border/80">
+              <div className="text-3xl mb-3">📊</div>
+              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Comparação Cesta a Cesta</h3>
+              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                Calculamos a economia líquida e apontamos o supermercado mais vantajoso para sua compra inteira.
+              </p>
+            </Card>
+
+            <Card className="p-6 border-brand-border/80">
+              <div className="text-3xl mb-3">🛡️</div>
+              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Transparência Total</h3>
+              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
+                Preços neutros, sem favorecimento de marcas, focados 100% no benefício do consumidor gaúcho.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. FAIXA FINAL — dois blocos de cor, como o banner do Desco */}
+      <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] lg:grid-cols-12">
           <div className="bg-brand-navy px-8 py-12 text-white sm:px-12 lg:col-span-7">
             <h2 className="font-display text-3xl font-extrabold tracking-tight text-balance sm:text-5xl">
@@ -1024,9 +1170,9 @@ export function Home() {
               Desenvolvido pelo Grupo 40 Dev Full Stack. Dados coletados de fontes públicas oficiais para auxílio aos consumidores do RS.
             </p>
             <div className="pt-1">
-              <Link to="/sobre" className="text-xs font-bold text-brand-green hover:underline">
-                Conheça a equipe &rarr;
-              </Link>
+              <a href="#sobre" className="text-xs font-bold text-brand-green hover:underline">
+                Sobre o projeto &rarr;
+              </a>
             </div>
           </div>
         </div>

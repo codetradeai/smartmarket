@@ -58,6 +58,7 @@ MAX_PAGINAS_POR_CATEGORIA = 10
 CAMPOS = (
     "nome_bruto", "preco", "preco_normal", "em_promocao", "marca",
     "categoria", "slug", "id_produto_origem", "supermercado", "data_coleta",
+    "is_clube", "clube_nome",
 )
 
 
@@ -127,11 +128,41 @@ def transformar_item(item, nome_categoria, instante):
     if pricing.get("promotion") is not None and not isinstance(pricing["promotion"], bool):
         raise ValueError("promotion_invalido")
     promocional = pricing.get("promotionalPrice")
-    # Ausente/nulo permite fallback. Zero/negativo não é promoção válida:
-    # rejeitar o item evita esconder uma inconsistência da fonte.
-    efetivo = preco_positivo(pricing.get("price") if promocional is None else promocional)
+    clube_preco_raw = pricing.get("clubPrice") or pricing.get("customerClubPrice") or pricing.get("loyaltyPrice") or pricing.get("wholesalePrice")
     normal = pricing.get("price")
     normal = preco_positivo(normal) if normal is not None else None
+    efetivo = preco_positivo(pricing.get("price") if promocional is None else promocional)
+
+    is_clube = False
+    clube_nome = None
+
+    if clube_preco_raw is not None:
+        try:
+            clube_p = preco_positivo(clube_preco_raw)
+            if 0 < clube_p < efetivo:
+                efetivo = clube_p
+                is_clube = True
+                clube_nome = "Vuon Card / Clube Fort"
+        except ValueError:
+            pass
+
+    promotions = pricing.get("promotions") or []
+    if isinstance(promotions, list):
+        for promo_item in promotions:
+            if isinstance(promo_item, dict):
+                p_nome = str(promo_item.get("name") or promo_item.get("title") or "").lower()
+                p_tipo = str(promo_item.get("type") or "").upper()
+                if "clube" in p_nome or "vuon" in p_nome or "clube" in p_tipo or "CLUB" in p_tipo:
+                    is_clube = True
+                    clube_nome = "Vuon Card / Clube Fort"
+                    if promo_item.get("discountPrice"):
+                        try:
+                            p_desc = preco_positivo(promo_item.get("discountPrice"))
+                            if 0 < p_desc < efetivo:
+                                efetivo = p_desc
+                        except ValueError:
+                            pass
+
     if instante.tzinfo is None or instante.utcoffset() is None:
         raise ValueError("instante_sem_fuso")
     return {
@@ -145,6 +176,8 @@ def transformar_item(item, nome_categoria, instante):
         "id_produto_origem": item.get("id"),
         "supermercado": "Fort Atacadista",
         "data_coleta": instante.astimezone(timezone.utc).isoformat(timespec="seconds"),
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

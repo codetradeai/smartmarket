@@ -164,11 +164,11 @@ export default function AuthPage() {
         <div className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-brand-teal/15 blur-2xl pointer-events-none" />
 
         <div className="relative z-10">
-          <Link to="/" className="inline-block mb-10 group">
+          <Link to="/" className="inline-flex mb-10 rounded-2xl bg-white px-3 py-2">
             <img
               src={logoImg}
               alt="SmartMarket"
-              className="h-12 w-auto object-contain brightness-0 invert group-hover:scale-105 transition-transform"
+              className="h-12 w-auto object-contain"
             />
           </Link>
 
@@ -241,7 +241,7 @@ export default function AuthPage() {
           {/* Header Mobile */}
           <div className="md:hidden flex justify-center mb-6">
             <Link to="/">
-              <img src={logoImg} alt="SmartMarket" className="h-10 w-auto" />
+              <img src={logoImg} alt="SmartMarket" className="h-12 w-auto object-contain" />
             </Link>
           </div>
 

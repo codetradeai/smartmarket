@@ -106,11 +106,11 @@ export default function Layout() {
         }}
       >
         {/* Logo */}
-        <div style={{ marginBottom: "36px", paddingLeft: "4px" }}>
+        <div style={{ marginBottom: "28px", padding: "8px 10px", background: "#fff", borderRadius: 16, alignSelf: "flex-start" }}>
           <img
             src={logoImg}
             alt="SmartMarket"
-            style={{ height: "38px", objectFit: "contain", filter: "brightness(0) invert(1)" }}
+            style={{ height: "46px", width: "auto", objectFit: "contain", display: "block" }}
           />
         </div>
 

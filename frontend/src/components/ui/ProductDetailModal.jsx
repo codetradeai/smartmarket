@@ -154,7 +154,13 @@ export function ProductDetailModal({
         null
 
       if (p !== null && p !== undefined && Number(p) > 0) {
-        valids.push({ market: m, price: Number(p) })
+        const isClube = Boolean(
+          currentProduct.clubPrices?.[m.id] ||
+          (currentProduct.isClube && (currentProduct.mercadoMenorPreco === m.id || currentProduct.supermercadoOrigem?.toLowerCase().includes(m.name?.toLowerCase().split(" ")[0]))) ||
+          (m.id === "stok" && currentProduct.supermercadoOrigem === "Stok Center" && currentProduct.promo)
+        )
+        const clubeNome = currentProduct.clubPrices?.[m.id] || m.clube || `Clube ${m.name.split(" ")[0]}`
+        valids.push({ market: m, price: Number(p), isClube, clubeNome })
       } else {
         unavails.push(m)
       }
@@ -456,6 +462,11 @@ export function ProductDetailModal({
                         <span>★ Melhor Preço do RS</span>
                         <span className="font-normal text-slate-600">no {bestOffer.market.name}</span>
                       </span>
+                      {bestOffer.isClube && (
+                        <span className="text-xs font-black text-amber-950 bg-amber-100 border border-amber-300 px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-2xs">
+                          <span>🏷️ Preço via {bestOffer.clubeNome}</span>
+                        </span>
+                      )}
                     </div>
 
                     {maxEconomy > 0 && highestOffer && (
@@ -563,15 +574,22 @@ export function ProductDetailModal({
                           style={{ backgroundColor: item.market.color || "#0D2137" }}
                         />
                         <div className="truncate">
-                          <span className="text-xs font-bold text-slate-900 block truncate">
-                            {item.market.name}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-slate-900 block truncate">
+                              {item.market.name}
+                            </span>
+                            {item.isClube && (
+                              <span className="text-[9px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded shrink-0">
+                                🏷️ {item.clubeNome}
+                              </span>
+                            )}
+                          </div>
                           {isBest ? (
-                            <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider">
+                            <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider block">
                               ★ Menor Preço
                             </span>
                           ) : (
-                            <span className="text-[9px] text-slate-400 font-medium">
+                            <span className="text-[9px] text-slate-400 font-medium block">
                               +{((item.price - bestOffer.price) / bestOffer.price * 100).toFixed(0)}% vs melhor
                             </span>
                           )}

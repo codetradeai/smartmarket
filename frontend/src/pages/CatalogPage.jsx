@@ -136,7 +136,16 @@ function getPriceForMarket(product, market) {
 function getProductPricing(product, markets) {
   if (!product || !product.prices) return null;
   const valid = markets
-    .map((m) => ({ market: m, price: getPriceForMarket(product, m) }))
+    .map((m) => {
+      const p = getPriceForMarket(product, m);
+      const isClube = Boolean(
+        product.clubPrices?.[m.id] ||
+        (product.isClube && (product.mercadoMenorPreco === m.id || product.supermercadoOrigem?.toLowerCase().includes(m.name?.toLowerCase().split(" ")[0]))) ||
+        (m.id === "stok" && product.promo && product.supermercadoOrigem === "Stok Center")
+      );
+      const clubeNome = product.clubPrices?.[m.id] || m.clube || "Preço Clube";
+      return { market: m, price: p, isClube, clubeNome };
+    })
     .filter((item) => item.price !== null && item.price !== undefined && Number(item.price) > 0);
 
   if (valid.length === 0) return null;
@@ -152,6 +161,8 @@ function getProductPricing(product, markets) {
     highestPrice: Number(mostExpensive.price),
     economia,
     allPrices: valid,
+    isClube: cheapest.isClube,
+    clubeNome: cheapest.clubeNome,
   };
 }
 
@@ -387,13 +398,18 @@ function ProductCard({
                 </span>
               )}
             </div>
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className="text-lg font-black text-brand-green leading-tight">
                 R$ {pricing.bestPrice.toFixed(2)}
               </span>
               <span className="text-[10px] text-brand-navy font-semibold truncate">
                 no {pricing.bestMarket.name}
               </span>
+              {pricing.isClube && (
+                <span className="text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                  🏷️ {pricing.clubeNome}
+                </span>
+              )}
             </div>
 
             {/* Mini fita comparativa com preços nas redes */}

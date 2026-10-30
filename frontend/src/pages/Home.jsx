@@ -16,6 +16,7 @@ import {
   ModalBody,
   ModalFooter,
   Navbar,
+  SearchSuggest,
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
@@ -296,6 +297,13 @@ export function Home() {
     const economia = highestPrice - bestPrice
     const marketObj = MARKETS.find((m) => m.id === bestMarketKey)
 
+    const isClube = Boolean(
+      produto.clubPrices?.[bestMarketKey] ||
+      (produto.isClube && (produto.mercadoMenorPreco === bestMarketKey || produto.supermercadoOrigem?.toLowerCase().includes(marketObj?.name?.toLowerCase().split(" ")[0]))) ||
+      (bestMarketKey === "stok" && produto.promo && produto.supermercadoOrigem === "Stok Center")
+    )
+    const clubeNome = produto.clubPrices?.[bestMarketKey] || marketObj?.clube || "Preço Clube"
+
     return {
       bestMarketKey,
       bestMarketName: marketObj?.name || bestMarketKey,
@@ -303,6 +311,8 @@ export function Home() {
       highestPrice,
       economia,
       totalMarkets: validEntries.length,
+      isClube,
+      clubeNome,
     }
   }
 
@@ -364,17 +374,21 @@ export function Home() {
       {/* 1. NAVBAR OFICIAL INTEGRADA */}
       <Navbar
         cartCount={cartItemsCount}
+        products={PRODUCTS}
+        onAddProduct={(produto) => {
+          setCartItemsCount(adicionarNaLista(produto.id))
+          showToast(`"${produto.name}" adicionado à lista!`)
+        }}
         onSearch={(query) => {
           setSearchTerm(query)
-          const catalogSection = document.getElementById("catalogo-ofertas")
-          catalogSection?.scrollIntoView({ behavior: "smooth" })
+          document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
         }}
       />
 
       {/* 2. PRIMEIRA DOBRA — blocos chapados no espírito do Desco, cores do SmartMarket */}
       <section className="relative bg-white" aria-label="Compare sua lista de compras">
         <div className="grid grid-cols-1 lg:grid-cols-12 lg:min-h-[calc(100svh-5rem)]">
-          <div className="sm-hero-copy lg:col-span-7 text-white relative flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-20 py-10 sm:py-12">
+          <div className="sm-hero-copy relative lg:col-span-7 text-white flex flex-col justify-center px-6 sm:px-10 lg:px-14 xl:px-20 py-10 sm:py-12">
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
             </p>
@@ -387,39 +401,22 @@ export function Home() {
               Monte a lista e veja, com os preços do catálogo, em qual mercado do Rio Grande do Sul a compra sai mais barata.
             </p>
 
-            <form
-              className="sm-rise sm-rise-4 mt-8 max-w-xl"
-              onSubmit={(e) => {
-                e.preventDefault()
-                document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-              }}
-            >
-              <label htmlFor="busca-home" className="sr-only">Buscar no catálogo</label>
-              <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)]">
-                <input
-                  id="busca-home"
-                  name="q"
-                  type="search"
-                  autoComplete="off"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Arroz, leite, café…"
-                  className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
-                />
-                {searchTerm && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchTerm("")}
-                    className="px-2 text-xs font-bold text-brand-muted hover:text-brand-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-green"
-                    aria-label="Limpar busca"
-                  >
-                    ✕
-                  </button>
-                )}
-                <button type="submit" className="sm-cta shrink-0">
-                  Buscar
-                </button>
-              </div>
+            <div className="sm-rise sm-rise-4 relative z-30 mt-8 max-w-3xl">
+              <SearchSuggest
+                id="busca-home"
+                variant="hero"
+                value={searchTerm}
+                onChange={setSearchTerm}
+                onSubmit={() => {
+                  document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+                }}
+                onAdd={(produto) => {
+                  setCartItemsCount(adicionarNaLista(produto.id))
+                  showToast(`"${produto.name}" adicionado à lista!`)
+                }}
+                products={PRODUCTS}
+                placeholder="Arroz, leite, café…"
+              />
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 <span className="text-[11px] font-semibold text-white/45">Atalhos</span>
                 {quickSearchTags.map((tag) => (
@@ -436,7 +433,7 @@ export function Home() {
                   </button>
                 ))}
               </div>
-            </form>
+            </div>
 
             <div className="sm-rise sm-rise-5 mt-8 flex flex-wrap items-center gap-3">
               <Link to="/list" className="sm-cta sm-cta-light">
@@ -705,6 +702,11 @@ export function Home() {
                           <div>
                             <span className="block text-[10px] font-semibold text-emerald-800">
                               Melhor Preço ({insights.bestMarketName})
+                              {insights.isClube && (
+                                <span className="ml-1 text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                                  🏷️ {insights.clubeNome}
+                                </span>
+                              )}
                             </span>
                             <span className="text-lg font-black text-brand-green">
                               R$ {insights.bestPrice.toFixed(2)}
@@ -842,7 +844,7 @@ export function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-left">
           {/* Coluna 1: Marca & Propósito */}
           <div className="space-y-3 md:col-span-1">
-            <SmartMarketLogo size="md" showTagline={true} />
+            <SmartMarketLogo size="lg" />
             <p className="text-xs text-brand-muted leading-relaxed pt-2">
               Plataforma independente de inteligência e comparação de preços de supermercados e atacarejos no Rio Grande do Sul.
             </p>

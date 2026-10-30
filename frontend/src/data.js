@@ -19,15 +19,15 @@ export const CATEGORIES = [
 ]
 
 export const MARKETS = [
-  { id: 'zaffari', name: 'Zaffari / Bourbon', color: '#7A1526', sigla: 'ZF', cidade: 'Porto Alegre / RS' },
-  { id: 'rissul', name: 'Supermercados Rissul', color: '#E31C24', sigla: 'RS', cidade: 'Vale dos Sinos / RS' },
-  { id: 'asun', name: 'Asun Supermercados', color: '#00863F', sigla: 'AS', cidade: 'Região Metropolitana / Litoral RS' },
-  { id: 'stok', name: 'Stok Center', color: '#009640', sigla: 'SC', cidade: 'Atacarejo RS' },
-  { id: 'atacadao', name: 'Atacadão', color: '#D9232E', sigla: 'AT', cidade: 'Atacado RS' },
-  { id: 'master', name: 'Master Supermercados', color: '#1C3F94', sigla: 'MS', cidade: 'Erechim / POA' },
-  { id: 'fort', name: 'Fort Atacadista', color: '#F5651B', sigla: 'FA', cidade: 'Canoas / Grande POA' },
-  { id: 'carrefour', name: 'Carrefour Mercado', color: '#1A63B9', sigla: 'CF', cidade: 'Porto Alegre / RS' },
-]
+  { id: 'zaffari', name: 'Zaffari / Bourbon', color: '#7A1526', sigla: 'ZF', cidade: 'Porto Alegre / RS', clube: 'Clube Zaffari' },
+  { id: 'rissul', name: 'Supermercados Rissul', color: '#E31C24', sigla: 'RS', cidade: 'Vale dos Sinos / RS', clube: 'Clube Rissul' },
+  { id: 'asun', name: 'Asun Supermercados', color: '#00863F', sigla: 'AS', cidade: 'Região Metropolitana / Litoral RS', clube: 'Clube Asun' },
+  { id: 'stok', name: 'Stok Center', color: '#009640', sigla: 'SC', cidade: 'Atacarejo RS', clube: 'Clube Stok' },
+  { id: 'atacadao', name: 'Atacadão', color: '#D9232E', sigla: 'AT', cidade: 'Atacado RS', clube: 'Cartão Atacadão' },
+  { id: 'master', name: 'Master Supermercados', color: '#1C3F94', sigla: 'MS', cidade: 'Erechim / POA', clube: 'Clube Master' },
+  { id: 'fort', name: 'Fort Atacadista', color: '#F5651B', sigla: 'FA', cidade: 'Canoas / Grande POA', clube: 'Vuon Card / Clube Fort' },
+  { id: 'carrefour', name: 'Carrefour Mercado', color: '#1A63B9', sigla: 'CF', cidade: 'Porto Alegre / RS', clube: 'Meu Carrefour' },
+];
 
 export const PRODUCTS = [
   {
@@ -104,6 +104,10 @@ export const PRODUCTS = [
         "/images/produtos/360/7710359/frame_34.webp",
         "/images/produtos/360/7710359/frame_35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -1279,7 +1283,11 @@ export const PRODUCTS = [
     "idOrigem": "1508",
     "supermercadoOrigem": "Master",
     "precoNormal": 6.99,
-    "recursosVisuais": {}
+    "recursosVisuais": {},
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p40",
@@ -1649,7 +1657,11 @@ export const PRODUCTS = [
     "idOrigem": "11563",
     "supermercadoOrigem": "Master",
     "precoNormal": 28.49,
-    "recursosVisuais": {}
+    "recursosVisuais": {},
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p51",
@@ -1675,7 +1687,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/acucar-cristal-montare-5kg",
     "idOrigem": "1291",
     "supermercadoOrigem": "Master",
-    "precoNormal": 18.69
+    "precoNormal": 18.69,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p52",
@@ -2455,7 +2471,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-fresca-romena-espaguete-500g",
     "idOrigem": "330",
     "supermercadoOrigem": "Master",
-    "precoNormal": 9.19
+    "precoNormal": 9.19,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p82",
@@ -2507,7 +2527,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-fresca-romena-penne-500g",
     "idOrigem": "898",
     "supermercadoOrigem": "Master",
-    "precoNormal": 9.19
+    "precoNormal": 9.19,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p84",
@@ -2611,7 +2635,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-caseiro-germani-talharim-largo-500g",
     "idOrigem": "1173",
     "supermercadoOrigem": "Master",
-    "precoNormal": 11.19
+    "precoNormal": 11.19,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p88",
@@ -2663,7 +2691,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/massa-ppastel-romena-500g",
     "idOrigem": "1350",
     "supermercadoOrigem": "Master",
-    "precoNormal": 7.69
+    "precoNormal": 7.69,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p90",
@@ -2845,7 +2877,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-budweiser-lata-473ml",
     "idOrigem": "2437",
     "supermercadoOrigem": "Master",
-    "precoNormal": 5.79
+    "precoNormal": 5.79,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p97",
@@ -2949,7 +2985,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/cerveja-eisenbahn-weiss-lneck-355ml",
     "idOrigem": "2979",
     "supermercadoOrigem": "Master",
-    "precoNormal": 7.29
+    "precoNormal": 7.29,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p101",
@@ -3157,7 +3197,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-sprite-no-sugar-pet-2l",
     "idOrigem": "1249",
     "supermercadoOrigem": "Master",
-    "precoNormal": 8.99
+    "precoNormal": 8.99,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p109",
@@ -3183,7 +3227,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/refrigerante-antarctica-soda-limonada-2l",
     "idOrigem": "1520",
     "supermercadoOrigem": "Master",
-    "precoNormal": 9.09
+    "precoNormal": 9.09,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p110",
@@ -3235,7 +3283,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-font-glicerinado-jeans-200g",
     "idOrigem": "563",
     "supermercadoOrigem": "Master",
-    "precoNormal": 4.69
+    "precoNormal": 4.69,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p112",
@@ -3287,7 +3339,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-girando-sol-glicerinado-glicerina-400g",
     "idOrigem": "2142",
     "supermercadoOrigem": "Master",
-    "precoNormal": 9.49
+    "precoNormal": 9.49,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p114",
@@ -3469,7 +3525,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.lojaonline.mastersupermercados.com.br/produtos/sabao-barra-girando-sol-coco-400g",
     "idOrigem": "13194",
     "supermercadoOrigem": "Master",
-    "precoNormal": 6.79
+    "precoNormal": 6.79,
+    "isClube": true,
+    "clubPrices": {
+      "master": "Clube Master"
+    }
   },
   {
     "id": "p121",
@@ -3755,7 +3815,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/acucar-caravelas-refinado-1kg-616461/p",
     "idOrigem": "616461",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 3.95
+    "precoNormal": 3.95,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p132",
@@ -3807,7 +3871,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/oleo-de-soja-coamo-pet-900ml-9013520/p",
     "idOrigem": "9013520",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 7.89
+    "precoNormal": 7.89,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p134",
@@ -3937,7 +4005,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/feijao-preto-namorado-selecionado-1kg-9054547/p",
     "idOrigem": "9054547",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 7.29
+    "precoNormal": 7.29,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p139",
@@ -4015,7 +4087,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/filezinho-de-peito-de-frango-sassami-nat-congelado-iqf-pacote-1kg-9723184/p",
     "idOrigem": "9723184",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 23.9
+    "precoNormal": 23.9,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p142",
@@ -4041,7 +4117,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/carne-bovina-moida-de-primeira-patinho-1878/p",
     "idOrigem": "1878",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 64.9
+    "precoNormal": 64.9,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p143",
@@ -4275,7 +4355,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-integral-pet-1l-2403243/p",
     "idOrigem": "2403243",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 4.98
+    "precoNormal": 4.98,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p152",
@@ -4327,7 +4411,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-semidesnatado-pet-1l-2403267/p",
     "idOrigem": "2403267",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 4.98
+    "precoNormal": 4.98,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p154",
@@ -4483,7 +4571,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/leite-elege-longa-vida-desnatado-pet-1l-2403281/p",
     "idOrigem": "2403281",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 4.98
+    "precoNormal": 4.98,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p160",
@@ -4587,7 +4679,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-pet-200ml-9914452/p",
     "idOrigem": "9914452",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 1.99
+    "precoNormal": 1.99,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p164",
@@ -4613,7 +4709,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-zero-pet-200ml-9914438/p",
     "idOrigem": "9914438",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 1.99
+    "precoNormal": 1.99,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p165",
@@ -4769,7 +4869,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/refrigerante-coca-cola-sem-acucar-pet-2l-9047556/p",
     "idOrigem": "9047556",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 10.99
+    "precoNormal": 10.99,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p171",
@@ -5679,7 +5783,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.rissul.com.br/batata-bem-brasil-carinhas-congelada-pre-frita-400g-2493541/p",
     "idOrigem": "2493541",
     "supermercadoOrigem": "Rissul",
-    "precoNormal": 7.79
+    "precoNormal": 7.79,
+    "isClube": true,
+    "clubPrices": {
+      "rissul": "Clube Rissul"
+    }
   },
   {
     "id": "p206",
@@ -6461,7 +6569,12 @@ export const PRODUCTS = [
     "supermercadoOrigem": "Stok Center",
     "precoNormal": 5.49,
     "menorPreco": 3.99,
-    "mercadoMenorPreco": "stok"
+    "mercadoMenorPreco": "stok",
+    "isClube": true,
+    "clubeNome": "Clube Stok",
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p236",
@@ -6773,7 +6886,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/cafe-iguacu-soluvel-tradicional-leve-200g-pague-190g",
     "idOrigem": "22402",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 25.99
+    "precoNormal": 25.99,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p248",
@@ -7291,7 +7408,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-legitimo-tipo1-900ml",
     "idOrigem": "31450",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 11.69
+    "precoNormal": 11.69,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p266",
@@ -7811,7 +7932,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-de-semola-com-ovos-parafuso-500g",
     "idOrigem": "19023",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p286",
@@ -7837,7 +7962,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-espaguete-com-ovos-500g",
     "idOrigem": "19075",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p287",
@@ -7863,7 +7992,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-rigatone-500g",
     "idOrigem": "19025",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p288",
@@ -7889,7 +8022,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-tortiglione-500g",
     "idOrigem": "21230",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p289",
@@ -8149,7 +8286,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/cerveja-provincia-lager-ultra-gold-sem-gluten-473ml",
     "idOrigem": "33843",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.75
+    "precoNormal": 4.75,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p299",
@@ -8773,7 +8914,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-anselmi-moida-resfriada-300g",
     "idOrigem": "30943",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 14.55
+    "precoNormal": 14.55,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p323",
@@ -8929,7 +9074,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-bordon-picanha-fatiada-congelada-kg-aprox-0500g",
     "idOrigem": "32891",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 26.0
+    "precoNormal": 26.0,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p329",
@@ -8981,7 +9130,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-maminha-congelada-kg-aprox-17kg",
     "idOrigem": "4645",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 88.38
+    "precoNormal": 88.38,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p331",
@@ -10905,7 +11058,11 @@ export const PRODUCTS = [
     "urlProduto": "https://www.zaffari.com.br/conjunto-com-2-toalhas-de-papel-em-rolo-folha-dupla-linea-utilo-22-x-19-5-cm-50-folhas-1097140/p",
     "idOrigem": "1097140",
     "supermercadoOrigem": "Zaffari",
-    "precoNormal": 6.39
+    "precoNormal": 6.39,
+    "isClube": true,
+    "clubPrices": {
+      "zaffari": "Clube Zaffari"
+    }
   },
   {
     "id": "p405",
@@ -11713,7 +11870,12 @@ export const PRODUCTS = [
     "supermercadoOrigem": "Stok Center",
     "precoNormal": 5.49,
     "menorPreco": 3.99,
-    "mercadoMenorPreco": "stok"
+    "mercadoMenorPreco": "stok",
+    "isClube": true,
+    "clubeNome": "Clube Stok",
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p436",
@@ -12025,7 +12187,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/cafe-iguacu-soluvel-tradicional-leve-200g-pague-190g",
     "idOrigem": "22402",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 25.99
+    "precoNormal": 25.99,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p448",
@@ -12493,7 +12659,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/oleo-de-girassol-legitimo-tipo1-900ml",
     "idOrigem": "31450",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 11.69
+    "precoNormal": 11.69,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p466",
@@ -13013,7 +13183,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-de-semola-com-ovos-parafuso-500g",
     "idOrigem": "19023",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p486",
@@ -13039,7 +13213,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-espaguete-com-ovos-500g",
     "idOrigem": "19075",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p487",
@@ -13065,7 +13243,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-rigatone-500g",
     "idOrigem": "19025",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p488",
@@ -13091,7 +13273,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/massa-orquidea-semola-com-ovos-tortiglione-500g",
     "idOrigem": "21230",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.45
+    "precoNormal": 4.45,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p489",
@@ -13351,7 +13537,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/cerveja-provincia-lager-ultra-gold-sem-gluten-473ml",
     "idOrigem": "33843",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 4.75
+    "precoNormal": 4.75,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p499",
@@ -13975,7 +14165,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-anselmi-moida-resfriada-300g",
     "idOrigem": "30943",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 14.55
+    "precoNormal": 14.55,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p523",
@@ -14131,7 +14325,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-bordon-picanha-fatiada-congelada-kg-aprox-0500g",
     "idOrigem": "32891",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 26.0
+    "precoNormal": 26.0,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p529",
@@ -14183,7 +14381,11 @@ export const PRODUCTS = [
     "urlProduto": "https://stokonline.com.br/produtos/carne-bovina-maminha-congelada-kg-aprox-17kg",
     "idOrigem": "4645",
     "supermercadoOrigem": "Stok Center",
-    "precoNormal": 88.38
+    "precoNormal": 88.38,
+    "isClube": true,
+    "clubPrices": {
+      "stok": "Clube Stok"
+    }
   },
   {
     "id": "p531",
@@ -14255,6 +14457,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/UOTPj1E079zMaKRldKsfiP0NCzI=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-product-vault.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55d33f902/360/249460-16ca6569.webp",
         "https://edge.osuper.com.br/K41hixsYdkT2d6SYqRjNJzoZ370=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-product-vault.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55d33f902/360/249460-3fd1687f.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14327,6 +14533,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/l1lBSnTYXsInZrABfFsEiCm9K_I=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958d910e55c35fa01/360/2575727c3f5df5-34.webp",
         "https://edge.osuper.com.br/kwq6OLl1dL8DaAOgQWvF06eX-Mk=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958d910e55c35fa01/360/25757235c108fe-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14399,6 +14609,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/7wofe5ji_xFMstGG7-PMQUTtjWE=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958d910e55c35f904/360/257569ea94f26f-34.webp",
         "https://edge.osuper.com.br/LcM7ny8_6HTbm4Uc1Z2yMGvMeHg=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958d910e55c35f904/360/25756972d642df-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14471,6 +14685,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/co-brcbUM1kyMvjQ7cHxpGktD_I=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55e3bff03/360/25049768997aaf-34.webp",
         "https://edge.osuper.com.br/eNrTHl2ndYoT-HHTxyxTJemW25s=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55e3bff03/360/25049770b7ebd3-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14543,6 +14761,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/2FYh3-5FTprCiena4AQwR0ORE9U=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55a34fb0c/360/313048a74e10c8-34.webp",
         "https://edge.osuper.com.br/Rq_vpyXUNdi57C2f4Qo5uMrLxJE=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55a34fb0c/360/31304812a44e8b-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14639,6 +14861,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/niZjDgkOzIzNHUNpUgGnfRMiHvA=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-product-vault.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55a37fd07/360/17026-a5ca297f.png",
         "https://edge.osuper.com.br/gR9r5T_v5Fp-BSsvDgNkFHDVF5U=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-product-vault.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55a37fd07/360/17026-791f8759.png"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14711,6 +14937,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/Dg39GlcU1PxIj46KUTuHckXMfvk=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958df1fe6573bff05/360/317288b45d16f0-34.webp",
         "https://edge.osuper.com.br/rzWur-gOXCHgSPH1fCcKKaSFJ1c=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958df1fe6573bff05/360/3172887718cfa6-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14783,6 +15013,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/daPtM7-jt0gBxU-gqGqExo8Mbms=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958df1fe6573bfb07/360/318069123c6bdf-34.webp",
         "https://edge.osuper.com.br/wEr0Uwkoq41_tgzyA8xvHD2b-ZY=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108958df1fe6573bfb07/360/318069cbff272b-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14855,6 +15089,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/T1WvAjngoa5wzh2GuJ2ofXR_zPg=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28410895ade18ed5930f307/360/3168289eef5abb-34.webp",
         "https://edge.osuper.com.br/73UXK0cRc_v-l4u0baJrocXv0-s=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28410895ade18ed5930f307/360/3168288dd0ed12-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14927,6 +15165,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/nqp6V75SVcsLnyprOOvt6u_AgFI=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284118b58db11e55f3afc01/360/359845afc2bce0-34.webp",
         "https://edge.osuper.com.br/c6PjxeMItWP9pODZAWv6uESy-EU=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284118b58db11e55f3afc01/360/3598457885c0b9-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -14999,6 +15241,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/KfTv8vdzCrfAOS-Kcb3mNOp95F0=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417805ede18e25931ff0d/360/2990189c428c91-34.webp",
         "https://edge.osuper.com.br/Xq9tevQ11sKRSfW2Q6s4OoW9NiY=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417805ede18e25931ff0d/360/29901888169ea2-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "asun": "Clube Asun"
     }
   },
   {
@@ -15071,6 +15317,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/s9I-ucl8jAzyokTywpPvETESbDU=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284178958dc19e55e37fb03/360/12155241dd87b-34.webp",
         "https://edge.osuper.com.br/33ZcTXIjhgQ5vj8AuE0s7zM1ipE=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284178958dc19e55e37fb03/360/121552c0535c8-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "fort": "Vuon Card"
     }
   },
   {
@@ -15143,6 +15393,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/K0gnPC8d5ZMUMNHLiYW06ifzeN4=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284178958dc1ae15c34f30d/360/210561c8654e9-34.webp",
         "https://edge.osuper.com.br/G9lAJW9Xfle_uW8mhOd28lO7r5A=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284178958dc1ae15c34f30d/360/2105644b0c83d-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "fort": "Vuon Card"
     }
   },
   {
@@ -15215,6 +15469,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/3GqQ-WS94XAXeu82dAQ0M0xZrP0=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28410895bd81ee45f32f901/360/358353934d4412-34.webp",
         "https://edge.osuper.com.br/SRzJ6iJwdfQA-Gq5XB0rHy5re5s=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28410895bd81ee45f32f901/360/358353c4396580-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "fort": "Vuon Card"
     }
   },
   {
@@ -15287,6 +15545,10 @@ export const PRODUCTS = [
         "https://edge.osuper.com.br/Q_B7rzFuQ-PW_1gc---qEPzMFAg=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108b5dda1ee55e3af901/360/308084c9af273e-34.webp",
         "https://edge.osuper.com.br/MR819D2xHbcMcLa2dr5e-DbDVf8=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e284108b5dda1ee55e3af901/360/30808409d25f19-35.webp"
       ]
+    },
+    "isClube": true,
+    "clubPrices": {
+      "fort": "Vuon Card"
     }
   }
 ];

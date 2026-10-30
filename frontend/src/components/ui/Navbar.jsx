@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom"
 import { cn } from "../../lib/utils"
 import { AuthContext } from "../../contexts/AuthContext"
 import { Button } from "./Button"
-import { Input } from "./Input"
 import { SmartMarketLogo } from "./SmartMarketLogo"
+import { SearchSuggest } from "./SearchSuggest"
 
 export function Navbar({
   brandName = "SmartMarket",
@@ -13,6 +13,8 @@ export function Navbar({
   user: propUser,
   cartCount = 0,
   onSearch,
+  onAddProduct,
+  products,
   className,
 }) {
   const authContext = useContext(AuthContext)
@@ -32,11 +34,6 @@ export function Navbar({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const location = useLocation()
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-    onSearch?.(searchTerm)
-  }
 
   return (
     <header
@@ -92,16 +89,16 @@ export function Navbar({
 
         {/* Centro: Barra de Busca Rápida (Desktop) */}
         <div className="hidden lg:flex flex-1 max-w-md mx-4">
-          <form onSubmit={handleSearchSubmit} className="w-full">
-            <Input
-              isSearch
-              placeholder="Buscar produtos, marcas ou categorias..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onClear={() => setSearchTerm("")}
-              className="h-10 text-xs bg-slate-50 border-brand-border/60 hover:bg-white"
-            />
-          </form>
+          <SearchSuggest
+            id="busca-navbar"
+            wide
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSubmit={onSearch}
+            onAdd={onAddProduct}
+            products={products}
+            placeholder="Buscar produtos, marcas ou categorias..."
+          />
         </div>
 
         {/* Lado Direito: Ações e Usuário */}
@@ -199,15 +196,18 @@ export function Navbar({
       {/* Menu Drawer Mobile */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-brand-border bg-white px-4 pt-3 pb-6 flex flex-col gap-3 animate-in slide-in-from-top-2 duration-150">
-          <form onSubmit={handleSearchSubmit} className="mb-2">
-            <Input
-              isSearch
-              placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-50"
-            />
-          </form>
+          <SearchSuggest
+            id="busca-navbar-mobile"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSubmit={(query) => {
+              onSearch?.(query)
+              setIsMobileMenuOpen(false)
+            }}
+            onAdd={onAddProduct}
+            products={products}
+            placeholder="Buscar produtos..."
+          />
 
           <nav className="flex flex-col gap-1">
             {activeNavLinks.map((link) => {

@@ -241,6 +241,9 @@ def processar_item(
     preco_final = preco_normal
 
     # Captura ofertas de Clube Stok e promoções ativas
+    is_clube = False
+    clube_nome = None
+
     if oferta:
         preco_antigo_raw = oferta.get("preco_antigo")
         if preco_antigo_raw:
@@ -261,6 +264,12 @@ def processar_item(
                         em_oferta = True
                 except ValueError:
                     pass
+
+        nome_of = str(oferta.get("nome") or oferta.get("titulo") or "").strip()
+        desc_of = str(oferta.get("descricao") or "").strip()
+        if "clube" in nome_of.lower() or "clube" in desc_of.lower() or (em_oferta and preco_final < preco_normal):
+            is_clube = True
+            clube_nome = "Clube Stok"
 
     # Fallback para preco_promocional direto na raiz
     preco_promo_raiz = item.get("preco_promocional")
@@ -300,6 +309,8 @@ def processar_item(
         "imagem_url": imagem_url,
         "descricao": nome,
         "url_produto": url_produto,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
     }
 
 

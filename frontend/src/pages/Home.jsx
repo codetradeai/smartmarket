@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
 import {
   Button,
   Input,
@@ -277,7 +278,17 @@ function adicionarNaLista(produtoId) {
   return contarItensDaLista(lista)
 }
 
+function caminhoDoCadastro(intent, termo) {
+  const params = new URLSearchParams({ mode: "register", intent })
+  const texto = String(termo || "").trim()
+  if (texto) params.set("q", texto)
+  return `/auth?${params.toString()}`
+}
+
 export function Home() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const [termoConvite, setTermoConvite] = useState("")
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("todos")
@@ -383,8 +394,9 @@ export function Home() {
 
       {/* 1. NAVBAR OFICIAL INTEGRADA */}
       <Navbar
+        modo={isAuthenticated ? "app" : "apresentacao"}
         cartCount={cartItemsCount}
-        products={PRODUCTS}
+        products={isAuthenticated ? PRODUCTS : undefined}
         onAddProduct={(produto) => {
           setCartItemsCount(adicionarNaLista(produto.id))
           showToast(`"${produto.name}" adicionado à lista!`)
@@ -412,28 +424,60 @@ export function Home() {
             </p>
 
             <div className="sm-rise sm-rise-4 relative z-30 mt-8 max-w-3xl">
-              <SearchSuggest
-                id="busca-home"
-                variant="hero"
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onSubmit={() => {
-                  document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-                }}
-                onAdd={(produto) => {
-                  setCartItemsCount(adicionarNaLista(produto.id))
-                  showToast(`"${produto.name}" adicionado à lista!`)
-                }}
-                products={PRODUCTS}
-                placeholder="Arroz, leite, café…"
-              />
+              {isAuthenticated ? (
+                <SearchSuggest
+                  id="busca-home"
+                  variant="hero"
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  onSubmit={() => {
+                    document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+                  }}
+                  onAdd={(produto) => {
+                    setCartItemsCount(adicionarNaLista(produto.id))
+                    showToast(`"${produto.name}" adicionado à lista!`)
+                  }}
+                  products={PRODUCTS}
+                  placeholder="Arroz, leite, café…"
+                />
+              ) : (
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    navigate(caminhoDoCadastro("busca", termoConvite))
+                  }}
+                >
+                  <label htmlFor="busca-home" className="sr-only">Buscar no catálogo</label>
+                  <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)]">
+                    <input
+                      id="busca-home"
+                      name="q"
+                      type="text"
+                      autoComplete="off"
+                      value={termoConvite}
+                      onChange={(event) => setTermoConvite(event.target.value)}
+                      placeholder="Arroz, leite, café…"
+                      className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
+                    />
+                    <button type="submit" className="sm-cta shrink-0">
+                      Criar conta e buscar
+                    </button>
+                  </div>
+                </form>
+              )}
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-white/45">Atalhos</span>
+                <span className="text-[11px] font-semibold text-white/45">
+                  {isAuthenticated ? "Atalhos" : "A busca abre com a sua conta"}
+                </span>
                 {quickSearchTags.map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => {
+                      if (!isAuthenticated) {
+                        navigate(caminhoDoCadastro("busca", tag))
+                        return
+                      }
                       setSearchTerm(tag)
                       document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
                     }}
@@ -446,11 +490,17 @@ export function Home() {
             </div>
 
             <div className="sm-rise sm-rise-5 mt-8 flex flex-wrap items-center gap-3">
-              <Link to="/list" className="sm-cta sm-cta-light">
+              <Link
+                to={isAuthenticated ? "/list" : caminhoDoCadastro("lista")}
+                className="sm-cta sm-cta-light"
+              >
                 Montar a lista
                 <span aria-hidden="true" className="sm-cta-arrow">→</span>
               </Link>
-              <Link to="/catalog" className="sm-cta sm-cta-ghost">
+              <Link
+                to={isAuthenticated ? "/catalog" : caminhoDoCadastro("catalogo")}
+                className="sm-cta sm-cta-ghost"
+              >
                 Ver o catálogo
               </Link>
             </div>
@@ -485,7 +535,7 @@ export function Home() {
       </section>
 
       {/* 3. SHOWCASE DAS 8 REDES DO RIO GRANDE DO SUL (INSPIRADO NO DESCO & ATACAREJOS) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+      <section id="redes" className="scroll-mt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-brand-border pb-4">
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-green uppercase tracking-wider mb-1">
@@ -525,7 +575,7 @@ export function Home() {
       </section>
 
       {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}
-      <section className="bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <section id="como-funciona" className="scroll-mt-24 bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <h2 className="font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">

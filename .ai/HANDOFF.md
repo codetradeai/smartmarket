@@ -33,6 +33,22 @@ as branches já mergeadas.
   remotas com 0 commits fora da `main` (ou cherry-equivalentes). A sessão na
   nuvem não tem permissão para deletar refs; rodar localmente.
 
+- **App executado de ponta a ponta nesta sessão** (Postgres 16 local na
+  porta 5436, backend perfil `dev`, Vite em 5173, Chromium via Playwright):
+  home, login real com `davi@smartmarket.com.br`, catálogo, lista de compras
+  com comparador e painel admin, sem erro de JS no console. Dois bugs
+  encontrados e corrigidos no caminho:
+  - `data.sql` referenciava `s.nome_bruto`, coluna que não existe no alias do
+    VALUES (`nome_produto`). O perfil `dev` (`sql.init.mode=always`) não subia
+    desde `3ae1a60`.
+  - CORS default só liberava `localhost:5173` e `4173`, mas `vite.config.js`
+    sobe em **5174**: login pelo frontend caía em CORS e o `authService`
+    entrava no fallback "demo" com papel ADMIN. Adicionada a 5174 ao default.
+- **Observações de UI, não corrigidas:** o catálogo mostra "8 redes · 9436
+  produtos" vindos de dados estáticos enquanto o backend tem 3 mercados e 30
+  produtos; na lista de compras o bloco "Subtotal" sobrepõe o "Menor preço
+  unitário" em 1280px.
+
 ### Decisões
 
 - Não apaguei `feature/endpoints-favoritos-alertas-admin` (1 commit, 99 atrás)
@@ -52,7 +68,8 @@ as branches já mergeadas.
 ### Arquivos/commits
 
 - `97208ad` (develop) — merge da main
-- este commit — `scripts/limpar-branches-integradas.sh`, `.ai/HANDOFF.md`
+- `d72240a` — `scripts/limpar-branches-integradas.sh`, `.ai/HANDOFF.md`
+- este commit — `data.sql` (`nome_produto`), CORS com 5174, handoff
 
 ---
 

@@ -37,6 +37,24 @@ Meta: **70% de cobertura** no back-end e no front-end.
 - **Servidor Linux**: Shell script com logs rotacionados (`scraper/cron_coleta_diaria.sh`)
 - **Daemon Systemd**: Serviço contínuo em segundo plano (`scraper/agendador_servico.py`)
 
+## Deploy
+
+Desenho: **Vercel serve o frontend** e faz proxy de `/api/*` para o backend;
+o backend Spring Boot roda em outro provedor (a Vercel não tem runtime Java);
+o scraper continua no cron do GitHub Actions. Detalhes e decisões em
+[`docs/PLANO-DEPLOY-VERCEL.md`](docs/PLANO-DEPLOY-VERCEL.md).
+
+- **Frontend (Vercel):** `vercel.json` na raiz declara o service `frontend`
+  (`frontend/`, Vite) e dois rewrites: `/api/(.*)` → URL do backend e `/(.*)`
+  → frontend. Em produção o bundle chama `/api` relativo (sem CORS). Para
+  chamar um backend em outro domínio, defina `VITE_API_URL` no build.
+- **Backend (externo):** build do `backend/Dockerfile` com
+  `SPRING_PROFILES_ACTIVE=prod`, `SPRING_DATASOURCE_URL/USERNAME/PASSWORD`,
+  `SMARTMARKET_JWT_SECRET` e `SPRING_SQL_INIT_MODE=never`. Depois, troque o
+  placeholder `BACKEND-SMARTMARKET-URL-AQUI` em `vercel.json` pela URL real.
+- **Scraper:** sem mudança; `.github/workflows/coleta_diaria.yml` com
+  `SMARTMARKET_DSN` apontando para o banco de produção.
+
 ## Como contribuir
 
 1. Crie uma branch a partir de main: `feature/nome-da-tarefa`

@@ -5,6 +5,35 @@ Atualize este arquivo ao terminar (ver `AGENTS.md`).
 
 ---
 
+## 2026-11-01 (noite) — Claude Fable 5.1 (deploy na Vercel)
+
+### Objetivo
+
+Configurar o repositório para deploy na Vercel como projeto com services.
+
+### O que foi feito
+
+- `vercel.json` na raiz: service `frontend` (`frontend/`, Vite) e rewrites
+  `/api/(.*)` → backend externo (placeholder) e `/(.*)` → frontend.
+- `frontend/src/services/api.js`: em produção, sem `VITE_API_URL`, o
+  `baseURL` passa a `/api` (relativo); em dev continua `localhost:8080`.
+  Bundle de produção verificado com `baseURL: /api`.
+- `docs/PLANO-DEPLOY-VERCEL.md`: análise, decisões aprovadas e pendências.
+- README: seção "Deploy".
+
+### Decisões
+
+- Backend Java **não** vira service (Vercel não tem runtime Java); fica em
+  outro provedor, proxy via rewrite. Scraper fica no cron do GitHub Actions.
+  Sem bindings: nenhum serviço chama outro em runtime na Vercel.
+
+### Pendências
+
+- Hospedar o backend e substituir `BACKEND-SMARTMARKET-URL-AQUI` em
+  `vercel.json`. `vercel dev` não rodou aqui (exige login).
+
+---
+
 ## 2026-11-01 (tarde) — Claude Fable 5.1 (sessão na nuvem, pós-merge do PR #39)
 
 ### Objetivo

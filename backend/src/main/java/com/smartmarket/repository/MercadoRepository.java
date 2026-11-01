@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface MercadoRepository extends JpaRepository<Mercado, Long> {
     List<Mercado> findByAtivoTrue();
+    long countByAtivoTrue();
 }

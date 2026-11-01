@@ -1,16 +1,44 @@
-# React + Vite
+# SmartMarket — Frontend Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicação web do **SmartMarket** desenvolvida com **React 19**, **Vite 8** e **Tailwind CSS v4**, seguindo rigorosamente o design elaborado no Figma e as diretrizes de Clean Code e acessibilidade.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 1. Tecnologias Utilizadas
 
-## React Compiler
+* **React 19**: Biblioteca de interfaces reativas com componentes funcionais e hooks.
+* **Vite 8**: Build tool e dev server ultrarrápido com HMR nativo.
+* **Tailwind CSS v4**: Framework utilitário de estilização configurado via `@theme`.
+* **React Router DOM 7**: Roteamento client-side com layouts e navegação fluida.
+* **Lucide React**: Conjunto profissional e consistente de ícones vetoriais.
+* **clsx & tailwind-merge**: Gerenciador de classes dinâmicas sem conflitos de especificidade via utilitário `cn()`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 2. Design System e Componentes Base
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+O projeto conta com uma biblioteca de componentes UI atômicos e composables em `src/components/ui/`:
+* `Button`: Variantes `primary`, `secondary`, `teal`, `outline`, `ghost`, `danger`, `subtle`, múltiplos tamanhos e estado `isLoading`.
+* `Input`: Rótulo, ícone interno, mensagens de erro, helper text e modo busca com limpeza rápida.
+* `Card`: Composição via `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent` e `CardFooter`.
+* `Modal`: Diálogo acessível via React Portal com backdrop-blur, fechamento com ESC e clique externo.
+* `Navbar`: Barra de navegação responsiva com logo oficial, busca, contador de lista e menu mobile.
+
+Para documentação completa de cores, tipografia e guia dos componentes, consulte [`DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md).
+
+---
+
+## 3. Como Rodar Localmente
+
+Certifique-se de estar dentro do diretório `frontend`:
+
+```bash
+# 1. Instalar dependências
+npm install
+
+# 2. Iniciar o servidor de desenvolvimento
+npm run dev
+
+# 3. Compilar para produção (validação de build)
+npm run build
+```

@@ -29,4 +29,6 @@ public class ProdutoRequest {
 
     @NotBlank(message = "categoria e obrigatoria")
     private String categoria;
+
+    private String imagemUrl;
 }

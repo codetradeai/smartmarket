@@ -1,0 +1,28 @@
+{
+  "C:1001": [
+    {
+      "productId": "1103813",
+      "productName": "Arroz Parboilizado Capellini 1kg",
+      "brand": "Capellini",
+      "linkText": "arroz-parboilizado-capellini-1kg-1103813",
+      "link": "https://www.zaffari.com.br/arroz-parboilizado-capellini-1kg-1103813/p",
+      "description": "<p>Arroz Parboilizado Capellini com grãos nobres e selecionados.</p>",
+      "items": [
+        {
+          "name": "Arroz Parboilizado Capellini 1kg",
+          "images": [
+            {"imageUrl": "https://zaffari.vteximg.com.br/arquivos/ids/12345/arroz-capellini.jpg"}
+          ],
+          "sellers": [
+            {
+              "commertialOffer": {
+                "Price": 5.49,
+                "ListPrice": 5.99
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

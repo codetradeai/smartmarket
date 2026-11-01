@@ -44,6 +44,8 @@ CREATE TABLE produto (
     unidade VARCHAR(255),
     codigo_barras VARCHAR(255),
     categoria VARCHAR(255),
+    imagem_url TEXT,
+    descricao TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -10,6 +10,6 @@ class SmartMarketApplicationTests {
 
     @Test
     void contextLoads() {
+        // Garante que o contexto Spring sobe com o perfil de teste (H2).
     }
-
 }

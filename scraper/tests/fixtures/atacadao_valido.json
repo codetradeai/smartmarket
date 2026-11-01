@@ -1,0 +1,28 @@
+{
+  "C:2": [
+    {
+      "productId": "atacadao-1",
+      "productName": "Arroz Branco Tipo 1 Camil 5kg",
+      "brand": "Camil",
+      "linkText": "arroz-branco-tipo-1-camil-5kg",
+      "link": "https://secure.atacadao.com.br/arroz-branco-tipo-1-camil-5kg/p",
+      "description": "<p>Arroz nobre tipo 1 longo e fino.</p>",
+      "items": [
+        {
+          "name": "Arroz Branco Tipo 1 Camil 5kg",
+          "images": [
+            {"imageUrl": "https://atacadaobr.vteximg.com.br/arquivos/ids/1001/arroz.jpg"}
+          ],
+          "sellers": [
+            {
+              "commertialOffer": {
+                "Price": 28.90,
+                "ListPrice": 31.90
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

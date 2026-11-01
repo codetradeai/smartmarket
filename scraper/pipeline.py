@@ -29,7 +29,7 @@ def chave_decimal(valor):
     return f'{sinal}:{"".join(map(str, digitos))}:{expoente}'
 
 
-def validar_dsn(dsn):
+def validar_dsn(dsn, *, permitir_banco_app=False):
     from psycopg.conninfo import conninfo_to_dict
     config = conninfo_to_dict(dsn)
     # Exigir host/database explícitos impede fallback em variáveis PG* remotas.
@@ -38,7 +38,10 @@ def validar_dsn(dsn):
         raise ErroIngestao('service_e_hostaddr_nao_permitidos')
     if ',' in host or (host not in ('localhost', '127.0.0.1', '::1') and not (host.startswith('/') and Path(host).is_dir())):
         raise ErroIngestao('somente_host_local_explicito')
-    if not config.get('dbname', '').startswith('smartmarket_fixture_'):
+    dbname = config.get('dbname', '')
+    eh_fixture = dbname.startswith('smartmarket_fixture_')
+    eh_app = permitir_banco_app and dbname in ('smartmarket', 'smartmarket_dev', 'smartmarket_test')
+    if not (eh_fixture or eh_app):
         raise ErroIngestao('somente_banco_descartavel_smartmarket_fixture_')
     config.setdefault('connect_timeout', '5')
     return config
@@ -99,9 +102,9 @@ def preparar(registros):
     return preparados
 
 
-def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=None):
+def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=None, permitir_banco_app=False):
     import psycopg
-    config = validar_dsn(dsn)
+    config = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
     for nome, valor in [('source', source), ('store', store), ('run_id', run_id)]:
         if not isinstance(valor, str) or not valor.strip() or valor != valor.strip() or len(valor) > 100:
             raise ErroIngestao(nome + '_invalido')
@@ -171,8 +174,17 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                     produto_id = aprovado
                 else:
                     p = row['produto']
-                    cur.execute('INSERT INTO produto(nome,nome_normalizado,marca,quantidade,unidade,codigo_barras,categoria) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
-                                tuple(p[k] for k in ['nome','nome_normalizado','marca','quantidade','unidade','codigo_barras','categoria']))
+                    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='produto'")
+                    cols_produto = {r[0] for r in cur.fetchall()}
+                    campos = ['nome', 'nome_normalizado', 'marca', 'quantidade', 'unidade', 'codigo_barras', 'categoria']
+                    if 'imagem_url' in cols_produto and p.get('imagem_url') is not None:
+                        campos.append('imagem_url')
+                    if 'descricao' in cols_produto and p.get('descricao') is not None:
+                        campos.append('descricao')
+                    cols_str = ','.join(campos)
+                    placeholders = ','.join(['%s'] * len(campos))
+                    cur.execute(f'INSERT INTO produto({cols_str}) VALUES({placeholders}) RETURNING id',
+                                tuple(p[k] for k in campos))
                     produto_id = cur.fetchone()[0]
                     resumo['produtos_criados'] += 1
                 if not existente:
@@ -204,13 +216,15 @@ def main(argv=None):
     parser.add_argument('--mercado-id', required=True, type=int)
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--mapping', type=Path, help='Objeto id externo -> produto_id aprovado')
+    parser.add_argument('--allow-app-db', action='store_true', help='Permite carregar na base smartmarket da aplicacao')
     args = parser.parse_args(argv)
     dsn = os.environ.get('SMARTMARKET_LOCAL_DSN', '')
     try:
         registros = json.loads(args.input.read_text(), parse_float=Decimal)
         mapping = json.loads(args.mapping.read_text()) if args.mapping else None
         resultado = carregar(registros, dsn=dsn, source=args.source, store=args.store,
-                             mercado_id=args.mercado_id, run_id=args.run_id, mapeamento=mapping)
+                             mercado_id=args.mercado_id, run_id=args.run_id, mapeamento=mapping,
+                             permitir_banco_app=args.allow_app_db)
         print(json.dumps(resultado, ensure_ascii=False))
         return 0
     except (OSError, ValueError) as exc:

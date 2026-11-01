@@ -1,0 +1,8 @@
+{
+  "Graos_Arrozes_Feijoes": [
+    "<!DOCTYPE html><html><head><script>window.__reactRouterContext.streamController.enqueue(\"[{\\\"_1\\\":2},\\\"products\\\",[3],{\\\"_4\\\":5,\\\"_6\\\":7,\\\"_8\\\":9,\\\"_10\\\":11,\\\"_12\\\":13},\\\"productName\\\",\\\"Arroz Namorado 5Kg\\\",\\\"productId\\\",\\\"5852\\\",\\\"brand\\\",\\\"Namorado\\\",\\\"link\\\",\\\"/arroz-namorado-5kg/p\\\",\\\"items\\\",[14],{\\\"_15\\\":16},\\\"sellers\\\",[17],{\\\"_18\\\":19},\\\"commertialOffer\\\",{\\\"_20\\\":21,\\\"_22\\\":23,\\\"_24\\\":25},\\\"Price\\\",20.19,\\\"ListPrice\\\",25.19,\\\"spotPrice\\\",20.19]\");</script></head><body></body></html>"
+  ],
+  "Leites": [
+    "<!DOCTYPE html><html><head><script>window.__reactRouterContext.streamController.enqueue(\"[{\\\"_1\\\":2},\\\"products\\\",[3],{\\\"_4\\\":5,\\\"_6\\\":7,\\\"_8\\\":9,\\\"_10\\\":11,\\\"_12\\\":13},\\\"productName\\\",\\\"Leite Piracanjuba 1L\\\",\\\"productId\\\",\\\"9921\\\",\\\"brand\\\",\\\"Piracanjuba\\\",\\\"link\\\",\\\"/leite-piracanjuba-1l/p\\\",\\\"items\\\",[14],{\\\"_15\\\":16},\\\"sellers\\\",[17],{\\\"_18\\\":19},\\\"commertialOffer\\\",{\\\"_20\\\":21,\\\"_22\\\":23,\\\"_24\\\":25},\\\"Price\\\",4.99,\\\"ListPrice\\\",5.99,\\\"spotPrice\\\",4.99]\");</script></head><body></body></html>"
+  ]
+}

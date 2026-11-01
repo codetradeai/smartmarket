@@ -21,6 +21,7 @@ public class ProdutoResponse {
     private String unidade;
     private String codigoBarras;
     private String categoria;
+    private String imagemUrl;
 
     public static ProdutoResponse from(Produto produto) {
         return ProdutoResponse.builder()
@@ -31,6 +32,7 @@ public class ProdutoResponse {
             .unidade(produto.getUnidade())
             .codigoBarras(produto.getCodigoBarras())
             .categoria(produto.getCategoria())
+            .imagemUrl(produto.getImagemUrl())
             .build();
     }
 }

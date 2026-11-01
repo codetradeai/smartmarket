@@ -63,7 +63,7 @@ class ProdutoControllerIntegrationTest {
                 .categoria("laticinios").build()
         ));
 
-        idArroz = produtos.getFirst().getId();
+        idArroz = produtos.get(0).getId();
 
         tokenUser = obterToken("catalogo-user@email.com", "senha123", "Usuario Catalogo", Papel.USER);
         tokenAdmin = obterToken("catalogo-admin@email.com", "senha123", "Admin Catalogo", Papel.ADMIN);
@@ -106,9 +106,10 @@ class ProdutoControllerIntegrationTest {
     }
 
     @Test
-    void listar_SemToken_DeveRetornar401() throws Exception {
+    void listar_SemToken_DeveRetornar200ComoCatalogoPublico() throws Exception {
         mockMvc.perform(get("/api/produtos"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalElements").value(3));
     }
 
     @Test

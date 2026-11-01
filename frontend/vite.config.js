@@ -5,4 +5,15 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    port: 5174,
+    watch: {
+      ignored: ['**/templates/**', '**/*.zip'],
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './jest/setupTests.js',
+  },
 })

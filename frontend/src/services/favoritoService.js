@@ -5,34 +5,49 @@ export const favoritoService = {
    * Lista os mercados favoritados pelo usuário
    */
   async listarMercados() {
+    let localFavs = []
+    try {
+      localFavs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
+      if (!Array.isArray(localFavs)) localFavs = []
+    } catch {
+      localFavs = []
+    }
+
     try {
       const response = await api.get("/favoritos")
-      return response.data
-    } catch {
-      try {
-        return JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
-      } catch {
-        return []
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const apiIds = response.data.map((m) => String(m.mercadoId || m.id || m))
+        const merged = Array.from(new Set([...localFavs.map(String), ...apiIds]))
+        localStorage.setItem("sm_fav_markets", JSON.stringify(merged))
+        return merged
       }
+    } catch {
+      // Usa persistência local
     }
+    return localFavs
   },
 
   /**
    * Favorita um mercado
    */
   async favoritarMercado(mercadoId) {
+    const idStr = String(mercadoId)
     try {
-      const response = await api.post("/favoritos", { mercadoId })
-      return response.data
-    } catch (error) {
-      if (!error.response) {
-        // Fallback local
-        const favs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
-        if (!favs.includes(mercadoId)) favs.push(mercadoId)
-        localStorage.setItem("sm_fav_markets", JSON.stringify(favs))
-        return { mercadoId }
+      const favs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
+      const lista = Array.isArray(favs) ? favs.map(String) : []
+      if (!lista.includes(idStr)) {
+        lista.push(idStr)
+        localStorage.setItem("sm_fav_markets", JSON.stringify(lista))
       }
-      throw error
+    } catch {
+      localStorage.setItem("sm_fav_markets", JSON.stringify([idStr]))
+    }
+
+    try {
+      const response = await api.post("/favoritos", { mercadoId: idStr })
+      return response.data
+    } catch {
+      return { mercadoId: idStr }
     }
   },
 
@@ -40,66 +55,88 @@ export const favoritoService = {
    * Desfavorita um mercado
    */
   async desfavoritarMercado(mercadoId) {
+    const idStr = String(mercadoId)
     try {
-      await api.delete(`/favoritos/mercados/${mercadoId}`)
-    } catch (error) {
-      if (!error.response) {
-        let favs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
-        favs = favs.filter((id) => id !== mercadoId)
-        localStorage.setItem("sm_fav_markets", JSON.stringify(favs))
-        return
-      }
-      throw error
+      const favs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
+      const lista = (Array.isArray(favs) ? favs : []).map(String).filter((id) => id !== idStr)
+      localStorage.setItem("sm_fav_markets", JSON.stringify(lista))
+    } catch {
+      // fallback
+    }
+
+    try {
+      await api.delete(`/favoritos/mercados/${idStr}`)
+    } catch {
+      // fallback
     }
   },
 
   /**
-   * Lista os produtos favoritados pelo usuário
+   * Lista os produtos favoritados pelo usuário (sempre sincronizado com sm_fav_products)
    */
   async listarProdutos() {
+    let localFavs = []
+    try {
+      localFavs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
+      if (!Array.isArray(localFavs)) localFavs = []
+    } catch {
+      localFavs = []
+    }
+
     try {
       const response = await api.get("/favoritos/produtos")
-      return response.data
-    } catch {
-      try {
-        return JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
-      } catch {
-        return []
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const apiIds = response.data.map((f) => String(f.produtoId || f.id || f))
+        const merged = Array.from(new Set([...localFavs.map(String), ...apiIds]))
+        localStorage.setItem("sm_fav_products", JSON.stringify(merged))
+        return merged
       }
+    } catch {
+      // Usa persistência local de produtos favoritos
     }
+    return localFavs
   },
 
   /**
-   * Favorita um produto
+   * Favorita um produto (persiste sempre localmente para garantir funcionamento imediato)
    */
   async favoritarProduto(produtoId) {
+    const idStr = String(produtoId)
     try {
-      await api.post(`/favoritos/produtos/${produtoId}`)
-    } catch (error) {
-      if (!error.response) {
-        const favs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
-        if (!favs.includes(produtoId)) favs.push(produtoId)
-        localStorage.setItem("sm_fav_products", JSON.stringify(favs))
-        return
+      const favs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
+      const lista = Array.isArray(favs) ? favs.map(String) : []
+      if (!lista.includes(idStr)) {
+        lista.push(idStr)
+        localStorage.setItem("sm_fav_products", JSON.stringify(lista))
       }
-      throw error
+    } catch {
+      localStorage.setItem("sm_fav_products", JSON.stringify([idStr]))
+    }
+
+    try {
+      await api.post(`/favoritos/produtos/${idStr}`)
+    } catch {
+      // Ignora erro 404/403 caso backend não possua rota de produto favorito
     }
   },
 
   /**
-   * Desfavorita um produto
+   * Desfavorita um produto (remove sempre da persistência local)
    */
   async desfavoritarProduto(produtoId) {
+    const idStr = String(produtoId)
     try {
-      await api.delete(`/favoritos/produtos/${produtoId}`)
-    } catch (error) {
-      if (!error.response) {
-        let favs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
-        favs = favs.filter((id) => id !== produtoId)
-        localStorage.setItem("sm_fav_products", JSON.stringify(favs))
-        return
-      }
-      throw error
+      const favs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
+      const lista = (Array.isArray(favs) ? favs : []).map(String).filter((id) => id !== idStr)
+      localStorage.setItem("sm_fav_products", JSON.stringify(lista))
+    } catch {
+      // fallback
+    }
+
+    try {
+      await api.delete(`/favoritos/produtos/${idStr}`)
+    } catch {
+      // Ignora erro 404/403 caso backend não possua rota de produto favorito
     }
   },
 }

@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider } from "./contexts/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Home from "./pages/Home"
-import Sobre from "./pages/Sobre"
 import AuthPage from "./pages/AuthPage"
 import CatalogPage from "./pages/CatalogPage"
 import FavoritesPage from "./pages/FavoritesPage"
@@ -16,7 +15,7 @@ function App() {
       <Routes>
         {/* Rotas Públicas */}
         <Route path="/" element={<Home />} />
-        <Route path="/sobre" element={<Sobre />} />
+        <Route path="/sobre" element={<Navigate to="/#sobre" replace />} />
 
         {/* Autenticação (Login e Cadastro) */}
         <Route path="/auth" element={<AuthPage />} />

@@ -256,7 +256,7 @@ export default function ShoppingListPage() {
               Minha Lista de Compras
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-brand-green">
-              {items.length} produtos · {totalUnits} unidades
+              {items.length} {items.length === 1 ? "item diferente" : "itens diferentes"}
             </span>
           </div>
           <p className="text-sm text-brand-muted mt-1">

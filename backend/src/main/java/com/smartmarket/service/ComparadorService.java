@@ -84,7 +84,7 @@ public class ComparadorService {
             .thenComparing(MercadoComparacaoResponse::getValorTotal));
 
         if (!comparacoes.isEmpty()) {
-            comparacoes.get(0).setMaisBarato(true);
+            comparacoes.getFirst().setMaisBarato(true);
         }
 
         return ComparacaoResponse.builder()
@@ -92,7 +92,7 @@ public class ComparadorService {
             .nome(lista.getNome())
             .totalItens(itens.size())
             .comparacoes(comparacoes)
-            .mercadoMaisBarato(comparacoes.isEmpty() ? null : comparacoes.get(0))
+            .mercadoMaisBarato(comparacoes.isEmpty() ? null : comparacoes.getFirst())
             .build();
     }
 

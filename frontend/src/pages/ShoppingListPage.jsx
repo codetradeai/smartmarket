@@ -36,9 +36,14 @@ const MARKET_LOGO_OPTICAL_CLASS = {
   carrefour: "max-h-8 scale-[1.4]",
 };
 
+// Paleta da marca (espelha as variaveis --color-brand-* de src/index.css).
+// Dois merges introduziram esta constante em paralelo; a uniao das duas
+// declaracoes fica aqui, porque `const C` repetido e erro de sintaxe e
+// quebrava o build de producao.
 const C = {
   navy: "#0D2137",
   green: "#22A95E",
+  greenDark: "#17864A",
   teal: "#1DB4A3",
   bg: "#F4FAF7",
   muted: "#6B8A7A",
@@ -46,17 +51,6 @@ const C = {
   white: "#FFFFFF",
   amber: "#F59E0B",
   red: "#EF4444",
-};
-
-const C = {
-  navy: "#0D2137",
-  green: "#22A95E",
-  teal: "#1DB4A3",
-  greenDark: "#17864A",
-  bg: "#F4FAF7",
-  muted: "#6B8A7A",
-  border: "#D4E8DC",
-  white: "#FFFFFF",
   error: "#D63B3B",
 };
 

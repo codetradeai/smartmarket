@@ -6,7 +6,12 @@ import com.smartmarket.dto.produto.ProdutoRequest;
 import com.smartmarket.model.Papel;
 import com.smartmarket.model.Produto;
 import com.smartmarket.model.Usuario;
+import com.smartmarket.repository.AlertaRepository;
+import com.smartmarket.repository.FavoritoProdutoRepository;
+import com.smartmarket.repository.ItemListaRepository;
+import com.smartmarket.repository.PrecoRepository;
 import com.smartmarket.repository.ProdutoRepository;
+import com.smartmarket.repository.PromocaoRepository;
 import com.smartmarket.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +41,21 @@ class ProdutoControllerIntegrationTest {
     private ProdutoRepository produtoRepository;
 
     @Autowired
+    private PrecoRepository precoRepository;
+
+    @Autowired
+    private PromocaoRepository promocaoRepository;
+
+    @Autowired
+    private ItemListaRepository itemListaRepository;
+
+    @Autowired
+    private AlertaRepository alertaRepository;
+
+    @Autowired
+    private FavoritoProdutoRepository favoritoProdutoRepository;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
@@ -49,6 +69,15 @@ class ProdutoControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        // Outras classes de teste compartilham o mesmo contexto Spring (e o
+        // mesmo H2) e deixam precos/promocoes/itens apontando para produtos.
+        // Apagar produto antes dessas tabelas viola a FK e derruba os 19 testes
+        // desta classe no setUp, conforme a ordem em que o surefire as executa.
+        promocaoRepository.deleteAll();
+        alertaRepository.deleteAll();
+        favoritoProdutoRepository.deleteAll();
+        itemListaRepository.deleteAll();
+        precoRepository.deleteAll();
         produtoRepository.deleteAll();
 
         List<Produto> produtos = produtoRepository.saveAll(List.of(

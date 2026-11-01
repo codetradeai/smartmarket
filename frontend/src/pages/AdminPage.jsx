@@ -376,10 +376,13 @@ export default function AdminPage() {
       p.brand.toLowerCase().includes(search.toLowerCase())
   )
 
+  // MercadoResponse da API nao tem o campo `city`, e o fallback MARKETS de
+  // data.js tambem nao: sem guarda, m.city.toLowerCase() derruba a tela assim
+  // que os mercados carregam. Normaliza antes de comparar.
   const filteredMarkets = markets.filter(
     (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.city.toLowerCase().includes(search.toLowerCase())
+      (m.name ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (m.city ?? "").toLowerCase().includes(search.toLowerCase())
   )
 
   const filteredUsers = users.filter(
@@ -708,7 +711,7 @@ export default function AdminPage() {
                         <span className="font-bold text-brand-navy text-sm">{m.name}</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-brand-navy font-semibold">{m.city}</td>
+                    <td className="py-3.5 px-4 text-brand-navy font-semibold">{m.city || "—"}</td>
                     <td className="py-3.5 px-4 text-brand-muted">{m.address || "—"}</td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">

@@ -15,8 +15,11 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({ListaNaoEncontradaException.class, ItemListaNaoEncontradoException.class, 
-                       ProdutoNaoEncontradoException.class})
+    // ResourceNotFoundException e lancada por Favorito/Alerta/Mercado/Preco/
+    // Promocao/AdminService. Sem este mapeamento ela sobe como 500 (e, no
+    // MockMvc, como ServletException) em vez do 404 que a API documenta.
+    @ExceptionHandler({ListaNaoEncontradaException.class, ItemListaNaoEncontradoException.class,
+                       ProdutoNaoEncontradoException.class, ResourceNotFoundException.class})
     public ResponseEntity<Map<String, Object>> naoEncontrado(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(Map.of("erro", ex.getMessage()));

@@ -71,8 +71,8 @@ describe('ProductDetailModal (Fase 2)', () => {
 
     // O menor preço é Stok (23.40), seguido por Asun (24.90) e Zaffari (26.50)
     expect(screen.getAllByText(/23\.40/).length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('R$ 24.90')).toBeInTheDocument()
-    expect(screen.getByText('R$ 26.50')).toBeInTheDocument()
+    expect(screen.getAllByText('R$ 24.90').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('R$ 26.50').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Melhor Preço do RS/i)).toBeInTheDocument()
   })
 

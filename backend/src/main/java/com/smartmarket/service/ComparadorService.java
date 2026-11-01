@@ -71,7 +71,12 @@ public class ComparadorService {
             .collect(Collectors.toMap(
                 promocao -> new ChaveProdutoMercado(promocao.getProduto().getId(), promocao.getMercado().getId()),
                 Function.identity(),
-                (atual, nova) -> atual));
+                // Com mais de uma promocao vigente do mesmo produto no mesmo
+                // mercado, vale a menor: ficar com a primeira da consulta cobraria
+                // do usuario mais caro que a melhor oferta disponivel.
+                (atual, nova) -> nova.getValorPromocional().compareTo(atual.getValorPromocional()) < 0
+                    ? nova
+                    : atual));
 
         List<MercadoComparacaoResponse> comparacoes = new ArrayList<>();
 
@@ -81,7 +86,11 @@ public class ComparadorService {
 
         comparacoes.sort(Comparator
             .comparing(MercadoComparacaoResponse::getCompleto, Comparator.reverseOrder())
-            .thenComparing(MercadoComparacaoResponse::getValorTotal));
+            .thenComparing(MercadoComparacaoResponse::getValorTotal)
+            // Desempate estavel por id: sem ele, dois mercados com o mesmo total
+            // saem na ordem que o banco devolver, e o "mercado mais barato"
+            // mudaria entre duas consultas identicas.
+            .thenComparing(MercadoComparacaoResponse::getMercadoId));
 
         if (!comparacoes.isEmpty()) {
             comparacoes.get(0).setMaisBarato(true);

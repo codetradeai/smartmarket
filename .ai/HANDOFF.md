@@ -5,6 +5,57 @@ Atualize este arquivo ao terminar (ver `AGENTS.md`).
 
 ---
 
+## 2026-11-01 (tarde) — Claude Fable 5.1 (sessão na nuvem, pós-merge do PR #39)
+
+### Objetivo
+
+Fechar a revisão das branches: destravar o CI, integrar o `develop`, limpar
+as branches já mergeadas.
+
+### O que foi feito
+
+- **PR #39 mergeado na `main`** (pelo João, após revisão nesta sessão). Backend
+  e scraper verdes no CI.
+- **`develop` atualizado:** `origin/main` mergeado em `develop` sem conflito
+  (`97208ad`). O `develop` só trazia ajustes de teste; agora está 9 commits à
+  frente da `main` e 0 atrás. Fluxo real do time continua `feature/*` → `main`.
+- **Diagnóstico do job de frontend no CI:** não falha, **trava** (na `main`
+  ficou 2h em "in_progress"). Rodando `npx jest --ci` localmente: 13 suítes
+  falham, 123 testes de 318. São testes desatualizados em relação à UI, não
+  bugs do produto:
+  - `FavoritesPage` (35), `CatalogPage` (30, espera "itens encontrados"),
+    `ShoppingListPage` (19, botão "Comparar" com outro nome), `Home` (17,
+    "sem provider"), `favoritoService` (11, formato de retorno mudou),
+    `Navbar`/`Layout`/`Sobre` (11, "Admin"→"Administração", "USER").
+  - 5 suítes de componentes (`ProductViewer360`, `ProductDetailModal`,
+    `Product360HoverPreview`, `relatedProducts`, `AdminPage`) falham na carga.
+- **Script `scripts/limpar-branches-integradas.sh`:** apaga 29 branches
+  remotas com 0 commits fora da `main` (ou cherry-equivalentes). A sessão na
+  nuvem não tem permissão para deletar refs; rodar localmente.
+
+### Decisões
+
+- Não apaguei `feature/endpoints-favoritos-alertas-admin` (1 commit, 99 atrás)
+  nem `feature/scraper-duas-redes` (3 commits de docs/design-system, 133
+  atrás): têm conteúdo fora da `main`. Decisão de quem conhece o contexto.
+- Não corrigi os 123 testes de frontend aqui: é trabalho de outro tamanho e
+  merece PR próprio.
+
+### Pendências e próximos passos
+
+1. Rodar `bash scripts/limpar-branches-integradas.sh` (local, com push).
+2. PR alinhando os testes de frontend à UI atual + `timeout-minutes: 15` no
+   job de frontend em `.github/workflows/ci.yml`, para falhar em vez de travar.
+3. Itens 1, 2 e 4 da sessão anterior (rotação do JWT, proteção da `main`,
+   `economiaMaxima`) seguem abertos.
+
+### Arquivos/commits
+
+- `97208ad` (develop) — merge da main
+- este commit — `scripts/limpar-branches-integradas.sh`, `.ai/HANDOFF.md`
+
+---
+
 ## 2026-11-01 — Claude Opus 5 (sessão na nuvem)
 
 ### Objetivo

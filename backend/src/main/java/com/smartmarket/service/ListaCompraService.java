@@ -1,269 +1,163 @@
 package com.smartmarket.service;
 
-import com.smartmarket.dto.lista.*;
-import com.smartmarket.exception.ResourceNotFoundException;
-import com.smartmarket.model.*;
-import com.smartmarket.repository.*;
-import com.smartmarket.security.UsuarioAutenticado;
+import com.smartmarket.dto.lista.ItemListaRequest;
+import com.smartmarket.dto.lista.ItemListaResponse;
+import com.smartmarket.dto.lista.ListaRequest;
+import com.smartmarket.dto.lista.ListaResponse;
+import com.smartmarket.exception.ItemListaNaoEncontradoException;
+import com.smartmarket.exception.ListaNaoEncontradaException;
+import com.smartmarket.exception.ProdutoNaoEncontradoException;
+import com.smartmarket.model.ItemLista;
+import com.smartmarket.model.ListaCompra;
+import com.smartmarket.model.Produto;
+import com.smartmarket.model.Usuario;
+import com.smartmarket.repository.ItemListaRepository;
+import com.smartmarket.repository.ListaCompraRepository;
+import com.smartmarket.repository.ProdutoRepository;
+import com.smartmarket.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ListaCompraService {
 
     private final ListaCompraRepository listaCompraRepository;
     private final ItemListaRepository itemListaRepository;
     private final ProdutoRepository produtoRepository;
-    private final MercadoRepository mercadoRepository;
-    private final PrecoRepository precoRepository;
-    private final PromocaoRepository promocaoRepository;
-    private final UsuarioAutenticado usuarioAutenticado;
+    private final UsuarioRepository usuarioRepository;
 
-    @Transactional(readOnly = true)
-    public List<ListaCompraResponse> listarMinhas() {
-        Usuario usuario = usuarioAutenticado.atual();
-        List<ListaCompra> listas = listaCompraRepository.findByUsuarioId(usuario.getId());
-
-        return listas.stream()
-            .map(this::montarResponse)
-            .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public ListaCompraResponse buscarPorId(Long id) {
-        ListaCompra lista = buscarEValidarProprietario(id);
-        return montarResponse(lista);
-    }
-
-    @Transactional
-    public ListaCompraResponse criar(ListaCompraRequest request) {
-        Usuario usuario = usuarioAutenticado.atual();
+    public ListaResponse criar(String email, ListaRequest request) {
+        Usuario usuario = buscarUsuario(email);
 
         ListaCompra lista = ListaCompra.builder()
-            .nome(request.getNome().trim())
             .usuario(usuario)
+            .nome(request.getNome())
             .build();
 
-        lista = listaCompraRepository.save(lista);
-
-        if (request.getItens() != null && !request.getItens().isEmpty()) {
-            for (ItemListaRequest itemReq : request.getItens()) {
-                Produto produto = produtoRepository.findById(itemReq.getProdutoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Produto", itemReq.getProdutoId()));
-
-                ItemLista item = ItemLista.builder()
-                    .listaCompra(lista)
-                    .produto(produto)
-                    .quantidade(Math.max(itemReq.getQuantidade(), 1))
-                    .build();
-
-                lista.getItens().add(item);
-            }
-            lista = listaCompraRepository.save(lista);
-        }
-
-        return montarResponse(lista);
-    }
-
-    @Transactional
-    public ListaCompraResponse renomear(Long listaId, ListaCompraRequest request) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-        lista.setNome(request.getNome().trim());
-        return montarResponse(listaCompraRepository.save(lista));
-    }
-
-    @Transactional
-    public ListaCompraResponse atualizarItem(Long listaId, Long itemId, ItemListaRequest request) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-        ItemLista item = itemListaRepository.findByIdAndListaCompraId(itemId, listaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Item da lista", itemId));
-        if (!item.getProduto().getId().equals(request.getProdutoId())) {
-            throw new IllegalArgumentException("O produto de um item existente nao pode ser alterado");
-        }
-        item.setQuantidade(request.getQuantidade());
-        itemListaRepository.save(item);
-        return montarResponse(lista);
-    }
-
-    @Transactional
-    public ListaCompraResponse adicionarItem(Long listaId, ItemListaRequest request) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-
-        Produto produto = produtoRepository.findById(request.getProdutoId())
-            .orElseThrow(() -> new ResourceNotFoundException("Produto", request.getProdutoId()));
-
-        Optional<ItemLista> existente = lista.getItens().stream()
-            .filter(item -> item.getProduto().getId().equals(request.getProdutoId()))
-            .findFirst();
-
-        if (existente.isPresent()) {
-            existente.get().setQuantidade(request.getQuantidade());
-        } else {
-            ItemLista item = ItemLista.builder()
+        for (ItemListaRequest itemRequest : request.getItens()) {
+            Produto produto = buscarProduto(itemRequest.getProdutoId());
+            lista.getItens().add(ItemLista.builder()
                 .listaCompra(lista)
                 .produto(produto)
-                .quantidade(Math.max(request.getQuantidade(), 1))
-                .build();
-            lista.getItens().add(item);
-        }
-
-        lista = listaCompraRepository.save(lista);
-        return montarResponse(lista);
-    }
-
-    @Transactional
-    public ListaCompraResponse removerItem(Long listaId, Long produtoId) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-
-        lista.getItens().removeIf(item -> item.getProduto().getId().equals(produtoId));
-        lista = listaCompraRepository.save(lista);
-
-        return montarResponse(lista);
-    }
-
-    @Transactional
-    public void removerLista(Long listaId) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-        listaCompraRepository.delete(lista);
-    }
-
-    @Transactional(readOnly = true)
-    public ComparacaoCestaResponse compararCesta(Long listaId) {
-        ListaCompra lista = buscarEValidarProprietario(listaId);
-        if (lista.getItens().isEmpty()) {
-            return ComparacaoCestaResponse.builder()
-                .listaId(lista.getId())
-                .nomeLista(lista.getNome())
-                .totalItensDistintos(0)
-                .mercados(List.of())
-                .mercadoMaisBarato(null)
-                .economiaMaxima(BigDecimal.ZERO)
-                .build();
-        }
-        List<Mercado> mercados = mercadoRepository.findByAtivoTrue();
-
-        Map<Long, Map<Long, BigDecimal>> ultimosPrecos = buscarUltimosPrecosPorProduto();
-        List<Long> produtoIds = lista.getItens().stream()
-            .map(item -> item.getProduto().getId()).distinct().toList();
-        LocalDate hoje = LocalDate.now();
-        Map<Long, Map<Long, BigDecimal>> promocoesAtivas = new HashMap<>();
-        for (Promocao promocao : promocaoRepository
-            .findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(produtoIds, hoje, hoje)) {
-            promocoesAtivas
-                .computeIfAbsent(promocao.getProduto().getId(), id -> new HashMap<>())
-                .merge(promocao.getMercado().getId(), promocao.getValorPromocional(), BigDecimal::min);
-        }
-
-        List<CestaMercadoResponse> cestasMercado = new ArrayList<>();
-
-        for (Mercado mercado : mercados) {
-            BigDecimal totalCesta = BigDecimal.ZERO;
-            int disponiveis = 0;
-            List<String> faltantes = new ArrayList<>();
-
-            for (ItemLista item : lista.getItens()) {
-                Long pid = item.getProduto().getId();
-                Map<Long, BigDecimal> precosPorMercado = ultimosPrecos.getOrDefault(pid, Map.of());
-                BigDecimal preco = precosPorMercado.get(mercado.getId());
-
-                if (preco != null) {
-                    BigDecimal promocional = promocoesAtivas
-                        .getOrDefault(pid, Map.of()).get(mercado.getId());
-                    if (promocional != null && promocional.compareTo(BigDecimal.ZERO) >= 0
-                        && promocional.compareTo(preco) <= 0) {
-                        preco = promocional;
-                    }
-                    BigDecimal subtotal = preco.multiply(BigDecimal.valueOf(item.getQuantidade()));
-                    totalCesta = totalCesta.add(subtotal);
-                    disponiveis++;
-                } else {
-                    faltantes.add(item.getProduto().getNome());
-                }
-            }
-
-            cestasMercado.add(CestaMercadoResponse.builder()
-                .mercadoId(mercado.getId())
-                .nomeMercado(mercado.getNome())
-                .logoUrl(mercado.getLogoUrl())
-                .total(totalCesta)
-                .itensDisponiveis(disponiveis)
-                .totalItensSolicitados(lista.getItens().size())
-                .itensIndisponiveis(faltantes)
+                .quantidade(itemRequest.getQuantidade())
                 .build());
         }
 
-        // Mercados completos primeiro; um total parcial nao representa o preco da cesta inteira.
-        cestasMercado.sort(Comparator
-            .comparing((CestaMercadoResponse cesta) ->
-                cesta.getItensDisponiveis() == cesta.getTotalItensSolicitados()).reversed()
-            .thenComparing(CestaMercadoResponse::getTotal)
-            .thenComparing(CestaMercadoResponse::getMercadoId));
+        ListaCompra salva = listaCompraRepository.save(lista);
+        return ListaResponse.from(salva, salva.getItens().size());
+    }
 
-        List<CestaMercadoResponse> completos = cestasMercado.stream()
-            .filter(cesta -> cesta.getItensDisponiveis() == cesta.getTotalItensSolicitados())
+    @Transactional(readOnly = true)
+    public List<ListaResponse> listarPorUsuario(String email) {
+        Long usuarioId = buscarUsuario(email).getId();
+
+        return listaCompraRepository.findByUsuarioId(usuarioId).stream()
+            .map(lista -> ListaResponse.from(lista, (int) itemListaRepository.countByListaCompraId(lista.getId())))
             .toList();
-        CestaMercadoResponse maisBarato = completos.isEmpty() ? null : completos.get(0);
-        BigDecimal economia = BigDecimal.ZERO;
-
-        if (completos.size() >= 2) {
-            CestaMercadoResponse maisCaro = completos.get(completos.size() - 1);
-            if (maisCaro.getTotal().compareTo(maisBarato.getTotal()) > 0) {
-                economia = maisCaro.getTotal().subtract(maisBarato.getTotal());
-            }
-        }
-
-        return ComparacaoCestaResponse.builder()
-            .listaId(lista.getId())
-            .nomeLista(lista.getNome())
-            .totalItensDistintos(lista.getItens().size())
-            .mercados(cestasMercado)
-            .mercadoMaisBarato(maisBarato)
-            .economiaMaxima(economia)
-            .build();
     }
 
-    private ListaCompra buscarEValidarProprietario(Long listaId) {
-        ListaCompra lista = listaCompraRepository.findById(listaId)
-            .orElseThrow(() -> new ResourceNotFoundException("Lista de compras", listaId));
-
-        Usuario usuario = usuarioAutenticado.atual();
-        if (!lista.getUsuario().getId().equals(usuario.getId())) {
-            throw new AccessDeniedException("Voce nao tem permissao para acessar esta lista de compras.");
-        }
-
-        return lista;
+    @Transactional(readOnly = true)
+    public ListaResponse buscarPorId(String email, Long listaId) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        return montarDetalhe(lista);
     }
 
-    private ListaCompraResponse montarResponse(ListaCompra lista) {
-        Map<Long, Map<Long, BigDecimal>> ultimosPrecos = buscarUltimosPrecosPorProduto();
+    public ListaResponse renomear(String email, Long listaId, ListaRequest request) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        lista.setNome(request.getNome());
+        ListaCompra salva = listaCompraRepository.save(lista);
+        return montarDetalhe(salva);
+    }
 
-        List<ItemListaResponse> itensResp = lista.getItens().stream()
+    public void remover(String email, Long listaId) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        listaCompraRepository.delete(lista);
+    }
+
+    public ItemListaResponse adicionarItem(String email, Long listaId, ItemListaRequest request) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        Produto produto = buscarProduto(request.getProdutoId());
+
+        return lista.getItens().stream()
+            .filter(item -> item.getProduto().getId().equals(produto.getId()))
+            .findFirst()
             .map(item -> {
-                Map<Long, BigDecimal> precos = ultimosPrecos.getOrDefault(item.getProduto().getId(), Map.of());
-                return ItemListaResponse.from(item, precos);
+                item.setQuantidade(item.getQuantidade() + request.getQuantidade());
+                itemListaRepository.save(item);
+                return ItemListaResponse.from(item, produto);
             })
-            .toList();
-
-        return ListaCompraResponse.from(lista, itensResp);
+            .orElseGet(() -> {
+                ItemLista item = ItemLista.builder()
+                    .listaCompra(lista)
+                    .produto(produto)
+                    .quantidade(request.getQuantidade())
+                    .build();
+                lista.getItens().add(item);
+                itemListaRepository.save(item);
+                return ItemListaResponse.from(item, produto);
+            });
     }
 
-    private Map<Long, Map<Long, BigDecimal>> buscarUltimosPrecosPorProduto() {
-        List<Preco> precos = precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc();
-        Map<Long, Map<Long, BigDecimal>> resultado = new HashMap<>();
+    public ItemListaResponse atualizarItem(String email, Long listaId, Long itemId, ItemListaRequest request) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        ItemLista item = buscarItemDaLista(lista, itemId);
+        Produto produto = buscarProduto(item.getProduto().getId());
 
-        for (Preco preco : precos) {
-            resultado
-                .computeIfAbsent(preco.getProduto().getId(), k -> new HashMap<>())
-                .putIfAbsent(preco.getMercado().getId(), preco.getValor());
-        }
+        item.setQuantidade(request.getQuantidade());
+        itemListaRepository.save(item);
 
-        return resultado;
+        return ItemListaResponse.from(item, produto);
+    }
+
+    public void removerItem(String email, Long listaId, Long itemId) {
+        ListaCompra lista = buscarListaPropria(email, listaId);
+        ItemLista item = buscarItemDaLista(lista, itemId);
+
+        lista.getItens().remove(item);
+        itemListaRepository.delete(item);
+    }
+
+    private ListaResponse montarDetalhe(ListaCompra lista) {
+        List<ItemLista> itens = itemListaRepository.findByListaCompraId(lista.getId());
+
+        Map<Long, Produto> produtos = produtoRepository.findAllById(
+                itens.stream().map(item -> item.getProduto().getId()).toList())
+            .stream()
+            .collect(Collectors.toMap(Produto::getId, Function.identity()));
+
+        List<ItemListaResponse> itensResponse = itens.stream()
+            .map(item -> ItemListaResponse.from(item, produtos.get(item.getProduto().getId())))
+            .toList();
+
+        return ListaResponse.from(lista, itensResponse.size(), itensResponse);
+    }
+
+    private Usuario buscarUsuario(String email) {
+        return usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
+    }
+
+    private Produto buscarProduto(Long produtoId) {
+        return produtoRepository.findById(produtoId)
+            .orElseThrow(() -> new ProdutoNaoEncontradoException(produtoId));
+    }
+
+    private ListaCompra buscarListaPropria(String email, Long listaId) {
+        Long usuarioId = buscarUsuario(email).getId();
+        return listaCompraRepository.findByIdAndUsuarioId(listaId, usuarioId)
+            .orElseThrow(() -> new ListaNaoEncontradaException(listaId));
+    }
+
+    private ItemLista buscarItemDaLista(ListaCompra lista, Long itemId) {
+        return itemListaRepository.findByIdAndListaCompraId(itemId, lista.getId())
+            .orElseThrow(() -> new ItemListaNaoEncontradoException(itemId));
     }
 }

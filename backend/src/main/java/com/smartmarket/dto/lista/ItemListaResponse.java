@@ -1,10 +1,12 @@
 package com.smartmarket.dto.lista;
 
 import com.smartmarket.model.ItemLista;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.util.Map;
+import com.smartmarket.model.Produto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -15,25 +17,17 @@ public class ItemListaResponse {
 
     private Long id;
     private Long produtoId;
-    private String nomeProduto;
-    private String marcaProduto;
-    private Double quantidadeProduto;
-    private String unidade;
-    private String categoria;
+    private String produtoNome;
+    private String produtoMarca;
     private Integer quantidade;
-    private Map<Long, BigDecimal> precosPorMercado;
 
-    public static ItemListaResponse from(ItemLista item, Map<Long, BigDecimal> precos) {
+    public static ItemListaResponse from(ItemLista item, Produto produto) {
         return ItemListaResponse.builder()
             .id(item.getId())
-            .produtoId(item.getProduto().getId())
-            .nomeProduto(item.getProduto().getNome())
-            .marcaProduto(item.getProduto().getMarca())
-            .quantidadeProduto(item.getProduto().getQuantidade())
-            .unidade(item.getProduto().getUnidade())
-            .categoria(item.getProduto().getCategoria())
+            .produtoId(produto.getId())
+            .produtoNome(produto.getNome())
+            .produtoMarca(produto.getMarca())
             .quantidade(item.getQuantidade())
-            .precosPorMercado(precos)
             .build();
     }
 }

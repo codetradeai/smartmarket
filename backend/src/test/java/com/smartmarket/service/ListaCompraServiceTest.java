@@ -1,22 +1,30 @@
 package com.smartmarket.service;
 
 import com.smartmarket.dto.lista.ItemListaRequest;
-import com.smartmarket.dto.lista.ListaCompraRequest;
-import com.smartmarket.exception.ResourceNotFoundException;
-import com.smartmarket.model.*;
-import com.smartmarket.repository.*;
-import com.smartmarket.security.UsuarioAutenticado;
+import com.smartmarket.dto.lista.ItemListaResponse;
+import com.smartmarket.dto.lista.ListaRequest;
+import com.smartmarket.dto.lista.ListaResponse;
+import com.smartmarket.exception.ItemListaNaoEncontradoException;
+import com.smartmarket.exception.ListaNaoEncontradaException;
+import com.smartmarket.exception.ProdutoNaoEncontradoException;
+import com.smartmarket.model.ItemLista;
+import com.smartmarket.model.ListaCompra;
+import com.smartmarket.model.Papel;
+import com.smartmarket.model.Produto;
+import com.smartmarket.model.Usuario;
+import com.smartmarket.repository.ItemListaRepository;
+import com.smartmarket.repository.ListaCompraRepository;
+import com.smartmarket.repository.ProdutoRepository;
+import com.smartmarket.repository.UsuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Optional;
-import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,309 +32,228 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ListaCompraServiceTest {
-    @Mock ListaCompraRepository listaCompraRepository;
-    @Mock ItemListaRepository itemListaRepository;
-    @Mock ProdutoRepository produtoRepository;
-    @Mock MercadoRepository mercadoRepository;
-    @Mock PrecoRepository precoRepository;
-    @Mock PromocaoRepository promocaoRepository;
-    @Mock UsuarioAutenticado usuarioAutenticado;
-    @InjectMocks ListaCompraService service;
+
+    @Mock
+    private ListaCompraRepository listaCompraRepository;
+
+    @Mock
+    private ItemListaRepository itemListaRepository;
+
+    @Mock
+    private ProdutoRepository produtoRepository;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
+
+    @InjectMocks
+    private ListaCompraService listaCompraService;
+
+    private static final String EMAIL = "teste@email.com";
 
     private Usuario usuario;
-    private ListaCompra lista;
     private Produto produto;
+    private ListaCompra lista;
 
     @BeforeEach
-    void preparar() {
-        usuario = Usuario.builder().id(1L).email("usuario@teste.com").build();
-        produto = Produto.builder().id(9L).nome("Arroz").build();
-        lista = ListaCompra.builder().id(3L).nome("Compras").usuario(usuario).build();
-    }
+    void setUp() {
+        usuario = Usuario.builder()
+            .id(1L)
+            .nome("Teste")
+            .email(EMAIL)
+            .senha("$2a$10$hash")
+            .papel(Papel.USER)
+            .build();
 
-    private void permitirAcesso() {
-        when(listaCompraRepository.findById(3L)).thenReturn(Optional.of(lista));
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
+        produto = Produto.builder()
+            .id(1L)
+            .nome("Arroz Tio Joao 5kg")
+            .marca("Tio Joao")
+            .categoria("mercearia")
+            .build();
+
+        lista = ListaCompra.builder()
+            .id(1L)
+            .usuario(usuario)
+            .nome("Churrasco")
+            .build();
     }
 
     @Test
-    void listarMinhas_DeveRetornarApenasListasDoUsuario() {
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
-        when(listaCompraRepository.findByUsuarioId(1L)).thenReturn(List.of(lista));
-        assertThat(service.listarMinhas()).singleElement()
-            .satisfies(resposta -> assertThat(resposta.getNome()).isEqualTo("Compras"));
-    }
+    void criar_DeveCriarListaComItens() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(invocation -> {
+            ListaCompra salva = invocation.getArgument(0);
+            salva.setId(1L);
+            return salva;
+        });
 
-    @Test
-    void criar_DevePersistirListaDoUsuario() {
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
-        when(listaCompraRepository.save(any(ListaCompra.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        ListaRequest request = new ListaRequest();
+        request.setNome("Churrasco");
+        request.setItens(List.of(new ItemListaRequest(1L, 2)));
 
-        var request = ListaCompraRequest.builder().nome("  Mercado  ").build();
-        assertThat(service.criar(request).getNome()).isEqualTo("Mercado");
+        ListaResponse response = listaCompraService.criar(EMAIL, request);
+
+        assertThat(response.getId()).isEqualTo(1L);
+        assertThat(response.getNome()).isEqualTo("Churrasco");
+        assertThat(response.getTotalItens()).isEqualTo(1);
         verify(listaCompraRepository).save(any(ListaCompra.class));
     }
 
     @Test
-    void buscarPorId_DeOutroUsuario_DeveNegarAcesso() {
-        when(listaCompraRepository.findById(3L)).thenReturn(Optional.of(lista));
-        when(usuarioAutenticado.atual()).thenReturn(Usuario.builder().id(2L).build());
-        assertThatThrownBy(() -> service.buscarPorId(3L))
-            .isInstanceOf(AccessDeniedException.class);
+    void criar_ComProdutoInexistente_DeveLancarErro() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(produtoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ListaRequest request = new ListaRequest();
+        request.setNome("Churrasco");
+        request.setItens(List.of(new ItemListaRequest(99L, 1)));
+
+        assertThatThrownBy(() -> listaCompraService.criar(EMAIL, request))
+            .isInstanceOf(ProdutoNaoEncontradoException.class);
+
+        verify(listaCompraRepository, never()).save(any());
     }
 
     @Test
-    void renomear_DevePreservarItensEAlterarNome() {
-        permitirAcesso();
-        when(listaCompraRepository.save(lista)).thenReturn(lista);
-        var request = ListaCompraRequest.builder().nome("  Festa  ").build();
+    void listarPorUsuario_DeveRetornarListasComTotalDeItens() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByUsuarioId(1L)).thenReturn(List.of(lista));
+        when(itemListaRepository.countByListaCompraId(1L)).thenReturn(3L);
 
-        assertThat(service.renomear(3L, request).getNome()).isEqualTo("Festa");
-        verify(listaCompraRepository).save(lista);
+        List<ListaResponse> resposta = listaCompraService.listarPorUsuario(EMAIL);
+
+        assertThat(resposta).hasSize(1);
+        assertThat(resposta.getFirst().getNome()).isEqualTo("Churrasco");
+        assertThat(resposta.getFirst().getTotalItens()).isEqualTo(3);
+        assertThat(resposta.getFirst().getItens()).isNull();
     }
 
     @Test
-    void atualizarItem_DeveAlterarQuantidadeSemTrocarProduto() {
-        permitirAcesso();
-        var item = ItemLista.builder().id(7L).listaCompra(lista)
-            .produto(produto).quantidade(2).build();
-        lista.getItens().add(item);
-        when(itemListaRepository.findByIdAndListaCompraId(7L, 3L))
-            .thenReturn(Optional.of(item));
-        var request = ItemListaRequest.builder().produtoId(9L).quantidade(5).build();
+    void buscarPorId_DeveRetornarDetalheComItens() {
+        ItemLista item = ItemLista.builder().id(5L).listaCompra(lista).produto(produto).quantidade(2).build();
 
-        assertThat(service.atualizarItem(3L, 7L, request).getItens())
-            .singleElement().satisfies(response ->
-                assertThat(response.getQuantidade()).isEqualTo(5));
-        verify(itemListaRepository).save(item);
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.of(item));
+        when(produtoRepository.findAllById(List.of(1L))).thenReturn(List.of(produto));
+
+        ListaResponse response = listaCompraService.buscarPorId(EMAIL, 1L);
+
+        assertThat(response.getItens()).hasSize(1);
+        assertThat(response.getItens().getFirst().getProdutoNome()).isEqualTo("Arroz Tio Joao 5kg");
+        assertThat(response.getItens().getFirst().getQuantidade()).isEqualTo(2);
     }
 
     @Test
-    void atualizarItem_DeveImpedirTrocaDeProduto() {
-        permitirAcesso();
-        var item = ItemLista.builder().id(7L).listaCompra(lista)
-            .produto(produto).quantidade(2).build();
-        when(itemListaRepository.findByIdAndListaCompraId(7L, 3L))
-            .thenReturn(Optional.of(item));
+    void buscarPorId_DeveLancarErro_QuandoNaoEDono() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.empty());
 
-        var request = ItemListaRequest.builder().produtoId(8L).quantidade(5).build();
-        assertThatThrownBy(() -> service.atualizarItem(3L, 7L, request))
-            .isInstanceOf(IllegalArgumentException.class);
-        verify(itemListaRepository, never()).save(any());
+        assertThatThrownBy(() -> listaCompraService.buscarPorId(EMAIL, 1L))
+            .isInstanceOf(ListaNaoEncontradaException.class);
     }
 
     @Test
-    void atualizarItem_Inexistente_DeveRetornarErro() {
-        permitirAcesso();
-        when(itemListaRepository.findByIdAndListaCompraId(99L, 3L))
-            .thenReturn(Optional.empty());
-        var request = ItemListaRequest.builder().produtoId(9L).quantidade(5).build();
-        assertThatThrownBy(() -> service.atualizarItem(3L, 99L, request))
-            .isInstanceOf(ResourceNotFoundException.class);
+    void renomear_DeveAtualizarNome() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.of());
+
+        ListaRequest request = new ListaRequest();
+        request.setNome("Natal");
+
+        ListaResponse response = listaCompraService.renomear(EMAIL, 1L, request);
+
+        assertThat(response.getNome()).isEqualTo("Natal");
+        assertThat(lista.getNome()).isEqualTo("Natal");
     }
 
     @Test
-    void removerLista_DeveExcluirApenasListaPropria() {
-        permitirAcesso();
-        service.removerLista(3L);
+    void remover_DeveExcluirLista() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+
+        listaCompraService.remover(EMAIL, 1L);
+
         verify(listaCompraRepository).delete(lista);
     }
 
     @Test
-    void adicionarItem_ComProdutoInexistente_DeveRejeitar() {
-        permitirAcesso();
-        when(produtoRepository.findById(99L)).thenReturn(Optional.empty());
-        var request = ItemListaRequest.builder().produtoId(99L).quantidade(1).build();
-        assertThatThrownBy(() -> service.adicionarItem(3L, request))
-            .isInstanceOf(ResourceNotFoundException.class);
+    void adicionarItem_DeveCriarNovoItem() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(itemListaRepository.save(any(ItemLista.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ItemListaResponse response = listaCompraService
+            .adicionarItem(EMAIL, 1L, new ItemListaRequest(1L, 3));
+
+        assertThat(response.getQuantidade()).isEqualTo(3);
+        assertThat(response.getProdutoNome()).isEqualTo("Arroz Tio Joao 5kg");
+        assertThat(lista.getItens()).hasSize(1);
     }
 
-    @Test void listarMinhas_SemListas() {
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
-        when(listaCompraRepository.findByUsuarioId(1L)).thenReturn(List.of());
-        assertThat(service.listarMinhas()).isEmpty();
+    @Test
+    void adicionarItem_ComProdutoRepetido_DeveSomarQuantidade() {
+        lista.getItens().add(ItemLista.builder()
+            .id(5L).listaCompra(lista).produto(produto).quantidade(2).build());
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(itemListaRepository.save(any(ItemLista.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ItemListaResponse response = listaCompraService
+            .adicionarItem(EMAIL, 1L, new ItemListaRequest(1L, 3));
+
+        assertThat(response.getId()).isEqualTo(5L);
+        assertThat(response.getQuantidade()).isEqualTo(5);
+        assertThat(lista.getItens()).hasSize(1);
     }
 
-    @Test void buscarPorId_Inexistente() {
-        when(listaCompraRepository.findById(3L)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.buscarPorId(3L)).isInstanceOf(ResourceNotFoundException.class);
+    @Test
+    void atualizarItem_DeveAlterarQuantidade() {
+        ItemLista item = ItemLista.builder().id(5L).listaCompra(lista).produto(produto).quantidade(2).build();
+        lista.getItens().add(item);
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(itemListaRepository.findByIdAndListaCompraId(5L, 1L)).thenReturn(Optional.of(item));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(itemListaRepository.save(any(ItemLista.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ItemListaResponse response = listaCompraService
+            .atualizarItem(EMAIL, 1L, 5L, new ItemListaRequest(1L, 7));
+
+        assertThat(response.getQuantidade()).isEqualTo(7);
     }
 
-    @Test void criar_ComItemExistente() {
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
-        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
-        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(inv -> inv.getArgument(0));
-        var r = ListaCompraRequest.builder().nome("Feira")
-            .itens(List.of(ItemListaRequest.builder().produtoId(9L).quantidade(2).build())).build();
-        assertThat(service.criar(r).getItens()).hasSize(1);
-        verify(listaCompraRepository, times(2)).save(any(ListaCompra.class));
+    @Test
+    void removerItem_DeveExcluirItem() {
+        ItemLista item = ItemLista.builder().id(5L).listaCompra(lista).produto(produto).quantidade(2).build();
+        lista.getItens().add(item);
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(itemListaRepository.findByIdAndListaCompraId(5L, 1L)).thenReturn(Optional.of(item));
+
+        listaCompraService.removerItem(EMAIL, 1L, 5L);
+
+        verify(itemListaRepository).delete(item);
+        assertThat(lista.getItens()).isEmpty();
     }
 
-    @Test void criar_ProdutoInexistenteNaoSalvaSegundaVez() {
-        when(usuarioAutenticado.atual()).thenReturn(usuario);
-        when(listaCompraRepository.save(any(ListaCompra.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(produtoRepository.findById(9L)).thenReturn(Optional.empty());
-        var r = ListaCompraRequest.builder().nome("Feira")
-            .itens(List.of(ItemListaRequest.builder().produtoId(9L).quantidade(2).build())).build();
-        assertThatThrownBy(() -> service.criar(r)).isInstanceOf(ResourceNotFoundException.class);
-        verify(listaCompraRepository, times(1)).save(any(ListaCompra.class));
-    }
+    @Test
+    void removerItem_ItemInexistente_DeveLancarErro() {
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(itemListaRepository.findByIdAndListaCompraId(99L, 1L)).thenReturn(Optional.empty());
 
-    @Test void adicionarItem_NovoComQuantidadeMinima() {
-        permitirAcesso();
-        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
-        when(listaCompraRepository.save(lista)).thenReturn(lista);
-        var r = ItemListaRequest.builder().produtoId(9L).quantidade(0).build();
-        assertThat(service.adicionarItem(3L, r).getItens()).singleElement()
-            .satisfies(item -> assertThat(item.getQuantidade()).isEqualTo(1));
-    }
+        assertThatThrownBy(() -> listaCompraService.removerItem(EMAIL, 1L, 99L))
+            .isInstanceOf(ItemListaNaoEncontradoException.class);
 
-    @Test void adicionarItem_AtualizaProdutoJaPresente() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        when(produtoRepository.findById(9L)).thenReturn(Optional.of(produto));
-        when(listaCompraRepository.save(lista)).thenReturn(lista);
-        var r = ItemListaRequest.builder().produtoId(9L).quantidade(4).build();
-        assertThat(service.adicionarItem(3L, r).getItens()).singleElement()
-            .satisfies(item -> assertThat(item.getQuantidade()).isEqualTo(4));
-    }
-
-    @Test void removerItem_Existente() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        when(listaCompraRepository.save(lista)).thenReturn(lista);
-        assertThat(service.removerItem(3L, 9L).getItens()).isEmpty();
-    }
-
-    @Test void removerItem_InexistenteNaoAlteraItens() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        when(listaCompraRepository.save(lista)).thenReturn(lista);
-        assertThat(service.removerItem(3L, 10L).getItens()).hasSize(1);
-    }
-
-    @Test void compararCesta_SemMercados() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of());
-        assertThat(service.compararCesta(3L).getMercados()).isEmpty();
-    }
-
-    @Test void compararCesta_MercadoSemProdutoMarcaFalta() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
-        when(mercadoRepository.findByAtivoTrue())
-            .thenReturn(List.of(Mercado.builder().id(11L).nome("Fort").ativo(true).build()));
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercados()).singleElement()
-            .satisfies(cesta -> {
-                assertThat(cesta.getTotal()).isEqualByComparingTo(BigDecimal.ZERO);
-                assertThat(cesta.getItensIndisponiveis()).containsExactly("Arroz");
-            });
-    }
-
-    @Test void compararCesta_DoisMercadosCalculaEconomia() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
-        Mercado fort = Mercado.builder().id(11L).nome("Fort").ativo(true).build();
-        Mercado outro = Mercado.builder().id(12L).nome("Outro").ativo(true).build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(outro, fort));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(
-                Preco.builder().produto(produto).mercado(fort).valor(new BigDecimal("5")).build(),
-                Preco.builder().produto(produto).mercado(outro).valor(new BigDecimal("7")).build()));
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercados()).hasSize(2);
-        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("4");
-    }
-
-    @Test void compararCesta_DoisMercadosMesmaOfertaSemEconomia() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        Mercado a = Mercado.builder().id(11L).nome("A").build();
-        Mercado b = Mercado.builder().id(12L).nome("B").build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(a, b));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(
-                Preco.builder().produto(produto).mercado(a).valor(new BigDecimal("5")).build(),
-                Preco.builder().produto(produto).mercado(b).valor(new BigDecimal("5")).build()));
-        assertThat(service.compararCesta(3L).getEconomiaMaxima()).isEqualByComparingTo("0");
-    }
-
-    @Test void compararCesta_ListaVaziaNaoComparaMercados() {
-        permitirAcesso();
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercados()).isEmpty();
-        assertThat(resposta.getMercadoMaisBarato()).isNull();
-        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
-        verifyNoInteractions(mercadoRepository, promocaoRepository);
-    }
-
-    @Test void compararCesta_MercadoIncompletoNaoVenceMercadoCompleto() {
-        permitirAcesso();
-        Produto segundo = Produto.builder().id(10L).nome("Feijao").build();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        lista.getItens().add(ItemLista.builder().produto(segundo).quantidade(1).build());
-        Mercado completo = Mercado.builder().id(11L).nome("Completo").build();
-        Mercado parcial = Mercado.builder().id(12L).nome("Parcial").build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(parcial, completo));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(
-                Preco.builder().produto(produto).mercado(completo).valor(new BigDecimal("10")).build(),
-                Preco.builder().produto(segundo).mercado(completo).valor(new BigDecimal("10")).build(),
-                Preco.builder().produto(produto).mercado(parcial).valor(new BigDecimal("1")).build()));
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercadoMaisBarato().getMercadoId()).isEqualTo(11L);
-        assertThat(resposta.getMercados()).extracting(c -> c.getMercadoId()).containsExactly(11L, 12L);
-        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
-    }
-
-    @Test void compararCesta_NenhumMercadoCompletoNaoElegeVencedor() {
-        permitirAcesso();
-        Produto segundo = Produto.builder().id(10L).nome("Feijao").build();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        lista.getItens().add(ItemLista.builder().produto(segundo).quantidade(1).build());
-        Mercado mercado = Mercado.builder().id(11L).nome("Parcial").build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
-                .valor(new BigDecimal("3")).build()));
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercadoMaisBarato()).isNull();
-        assertThat(resposta.getEconomiaMaxima()).isEqualByComparingTo("0");
-        assertThat(resposta.getMercados()).hasSize(1);
-    }
-
-    @Test void compararCesta_PromocaoAtivaReduzCesta() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(2).build());
-        Mercado mercado = Mercado.builder().id(11L).nome("Fort").build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
-                .valor(new BigDecimal("10")).build()));
-        when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
-            eq(List.of(9L)), any(), any()))
-            .thenReturn(List.of(Promocao.builder().produto(produto).mercado(mercado)
-                .valorPromocional(new BigDecimal("7")).build()));
-        var resposta = service.compararCesta(3L);
-        assertThat(resposta.getMercadoMaisBarato().getTotal()).isEqualByComparingTo("14");
-    }
-
-    @Test void compararCesta_PromocaoInvalidaNaoAumentaPreco() {
-        permitirAcesso();
-        lista.getItens().add(ItemLista.builder().produto(produto).quantidade(1).build());
-        Mercado mercado = Mercado.builder().id(11L).nome("Fort").build();
-        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(mercado));
-        when(precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
-            .thenReturn(List.of(Preco.builder().produto(produto).mercado(mercado)
-                .valor(new BigDecimal("10")).build()));
-        when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
-            eq(List.of(9L)), any(), any()))
-            .thenReturn(List.of(Promocao.builder().produto(produto).mercado(mercado)
-                .valorPromocional(new BigDecimal("12")).build()));
-        assertThat(service.compararCesta(3L).getMercadoMaisBarato().getTotal())
-            .isEqualByComparingTo("10");
+        verify(itemListaRepository, never()).delete(any(ItemLista.class));
     }
 }

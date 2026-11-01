@@ -124,9 +124,9 @@ class ListaCompraServiceTest {
         List<ListaResponse> resposta = listaCompraService.listarPorUsuario(EMAIL);
 
         assertThat(resposta).hasSize(1);
-        assertThat(resposta.getFirst().getNome()).isEqualTo("Churrasco");
-        assertThat(resposta.getFirst().getTotalItens()).isEqualTo(3);
-        assertThat(resposta.getFirst().getItens()).isNull();
+        assertThat(resposta.get(0).getNome()).isEqualTo("Churrasco");
+        assertThat(resposta.get(0).getTotalItens()).isEqualTo(3);
+        assertThat(resposta.get(0).getItens()).isNull();
     }
 
     @Test
@@ -141,8 +141,8 @@ class ListaCompraServiceTest {
         ListaResponse response = listaCompraService.buscarPorId(EMAIL, 1L);
 
         assertThat(response.getItens()).hasSize(1);
-        assertThat(response.getItens().getFirst().getProdutoNome()).isEqualTo("Arroz Tio Joao 5kg");
-        assertThat(response.getItens().getFirst().getQuantidade()).isEqualTo(2);
+        assertThat(response.getItens().get(0).getProdutoNome()).isEqualTo("Arroz Tio Joao 5kg");
+        assertThat(response.getItens().get(0).getQuantidade()).isEqualTo(2);
     }
 
     @Test

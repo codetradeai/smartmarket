@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: smartmarket
       POSTGRES_USER: smartmarket
-      POSTGRES_PASSWORD: smartmarket123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina em .env — veja .env.example}
     ports:
       - "5432:5432"
     volumes:
@@ -39,10 +39,10 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/smartmarket
       SPRING_DATASOURCE_USERNAME: smartmarket
-      SPRING_DATASOURCE_PASSWORD: smartmarket123
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?defina em .env — veja .env.example}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SMARTMARKET_CORS_ORIGINS: "http://localhost:3000,http://localhost:80,http://localhost:5173"
-      SMARTMARKET_JWT_SECRET: "AuGDB2cOybnJOZ6CzfSQigrjx6Xpf1OcSSTWd8UPo0UrpMkMa7BKrQ4G50Iy8cwC"
+      SMARTMARKET_JWT_SECRET: ${SMARTMARKET_JWT_SECRET:?defina em .env — veja .env.example}
     ports:
       - "8080:8080"
     networks:

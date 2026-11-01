@@ -56,3 +56,24 @@ jobs:
       - name: Build Production Bundle
         working-directory: ./frontend
         run: npm run build
+
+  scraper-test:
+    name: Scraper Tests (Python 3.11)
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Scraper Dependencies
+        run: pip install -r scraper/requirements-dev.txt
+
+      # Os testes de PostgreSQL sao pulados automaticamente quando
+      # SMARTMARKET_TEST_DSN nao esta definido (ver tests/test_pipeline_postgres.py).
+      - name: Run Scraper Unit Tests
+        run: python -m unittest discover -s scraper/tests -v

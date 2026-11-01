@@ -13,8 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-    public class ItemListaRequest {
-    
+public class ItemListaRequest {
+
     @NotNull(message = "produtoId e obrigatorio")
     private Long produtoId;
 

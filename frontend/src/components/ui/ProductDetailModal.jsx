@@ -35,6 +35,8 @@ export function ProductDetailModal({
   const [relatedTab, setRelatedTab] = useState("other_brands") // 'other_brands' | 'same_brand'
   const [photoOffset, setPhotoOffset] = useState({ x: 0, y: 0 })
   const [isPhotoDragging, setIsPhotoDragging] = useState(false)
+  const [animateChart, setAnimateChart] = useState(false)
+  const [chartDisplayMode, setChartDisplayMode] = useState("preco") // 'preco' | 'diferenca'
   const photoDragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
   const relatedScrollRef = useRef(null)
 
@@ -44,6 +46,16 @@ export function ProductDetailModal({
   }, [product?.id, isOpen])
 
   const currentProduct = internalProduct || product
+
+  useEffect(() => {
+    if (!isOpen) {
+      setAnimateChart(false)
+      return
+    }
+    setAnimateChart(false)
+    const t = setTimeout(() => setAnimateChart(true), 60)
+    return () => clearTimeout(t)
+  }, [isOpen, currentProduct?.id, chartDisplayMode])
 
   // Reseta estado da galeria, modo e posição ao trocar de produto
   useEffect(() => {
@@ -546,14 +558,139 @@ export function ProductDetailModal({
               </div>
             )}
 
-            {/* SEÇÃO PREÇOS POR SUPERMERCADO (Dobra de Baixo - Cards da Foto 1 Reorganizados com Amplo Espaço) */}
-            <div className="pt-6 border-t border-slate-200/90 space-y-3">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                  <span>Preços por Supermercado (Ordenado por Menor Preço)</span>
-                </h3>
-                <span className="text-[11px] font-semibold text-slate-500">8 redes monitoradas</span>
+            {/* SEÇÃO PREÇOS POR SUPERMERCADO COM GRÁFICO INTERATIVO E ANIMADO */}
+            <div className="pt-6 border-t border-slate-200/90 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>📊 Gráfico Comparativo por Supermercado</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Barra verde indica onde você paga menos. Barra vermelha mostra onde custa mais caro.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setChartDisplayMode("preco")}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartDisplayMode === "preco"
+                        ? "bg-white text-slate-900 shadow-2xs font-extrabold"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    Preço (R$)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChartDisplayMode("diferenca")}
+                    className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      chartDisplayMode === "diferenca"
+                        ? "bg-white text-slate-900 shadow-2xs font-extrabold"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    Quanto Pago a Mais
+                  </button>
+                </div>
               </div>
+
+              {/* Barras Horizontais Animadas por Rede */}
+              {validPrices.length > 0 && (
+                <div className="bg-slate-50/70 rounded-2xl border border-slate-200/80 p-4 space-y-2.5">
+                  {validPrices.map((item, idx) => {
+                    const isBest = idx === 0
+                    const isWorst = idx === validPrices.length - 1 && validPrices.length > 2
+                    const minP = bestOffer?.price || item.price
+                    const maxP = highestOffer?.price || item.price
+                    const diff = Math.max(0, item.price - minP)
+                    const maxDiff = Math.max(0.01, maxP - minP)
+                    const widthPct =
+                      chartDisplayMode === "preco"
+                        ? maxP > minP
+                          ? 48 + ((item.price - minP) / (maxP - minP)) * 52
+                          : 100
+                        : isBest
+                          ? 16
+                          : 24 + (diff / maxDiff) * 76
+
+                    const barColor = isBest
+                      ? "from-emerald-500 to-teal-500"
+                      : isWorst || idx >= Math.ceil(validPrices.length * 0.65)
+                        ? "from-rose-500 to-orange-500"
+                        : "from-amber-400 to-amber-500"
+
+                    return (
+                      <div
+                        key={`bar-${item.market.id}`}
+                        className={`p-2.5 rounded-xl border transition-all ${
+                          isBest
+                            ? "bg-emerald-50/90 border-emerald-300 shadow-2xs"
+                            : "bg-white border-slate-200/80"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 mb-1.5 text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 ${
+                                isBest
+                                  ? "bg-emerald-600 text-white"
+                                  : isWorst
+                                    ? "bg-rose-100 text-rose-700"
+                                    : "bg-slate-200 text-slate-800"
+                              }`}
+                            >
+                              {idx + 1}º
+                            </span>
+                            <span className="font-extrabold text-slate-900 truncate">
+                              {item.market.name}
+                            </span>
+                            {item.isClube && (
+                              <span className="text-[9px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded shrink-0">
+                                🏷️ {item.clubeNome}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {!isBest && (
+                              <span className="text-[11px] font-bold text-rose-600">
+                                +R$ {diff.toFixed(2)}
+                              </span>
+                            )}
+                            <span
+                              className={`text-sm font-black ${
+                                isBest ? "text-emerald-700" : "text-slate-900"
+                              }`}
+                            >
+                              R$ {item.price.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="w-full h-6 bg-slate-100 rounded-lg overflow-hidden p-0.5 border border-slate-200/60">
+                          <div
+                            style={{
+                              width: animateChart ? `${widthPct}%` : "6%",
+                              transition:
+                                "width 800ms cubic-bezier(0.22, 1, 0.36, 1)",
+                            }}
+                            className={`h-full rounded-md bg-gradient-to-r ${barColor} flex items-center justify-end pr-2 text-[10px] font-extrabold text-white whitespace-nowrap overflow-hidden`}
+                          >
+                            {chartDisplayMode === "preco"
+                              ? isBest
+                                ? `★ R$ ${item.price.toFixed(2)} (Mais barato)`
+                                : `R$ ${item.price.toFixed(2)}`
+                              : isBest
+                                ? "R$ 0,00 a mais"
+                                : `+R$ ${diff.toFixed(2)} a mais`}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                 {/* Redes com Preço Válido Ordenadas */}

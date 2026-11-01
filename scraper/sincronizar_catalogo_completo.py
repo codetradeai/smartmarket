@@ -12,9 +12,10 @@ import logging
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
@@ -32,28 +33,104 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 LOGGER = logging.getLogger("sincronizador_3d")
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (SmartMarket RS Bot)",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     "Accept": "application/json, text/plain, */*",
+    "Origin": "https://www.deliveryfort.com.br",
+    "Referer": "https://www.deliveryfort.com.br/",
 }
 
+TERMOS_COMPLETOS = [
+    "chocolate em po",
+    "achocolatado",
+    "cacau em po",
+    "chocolate",
+    "cafe",
+    "cappuccino",
+    "cha",
+    "leite",
+    "leite em po",
+    "leite condensado",
+    "creme de leite",
+    "queijo",
+    "manteiga",
+    "iogurte",
+    "requeijao",
+    "arroz",
+    "feijao",
+    "farinha",
+    "aveia",
+    "oleo",
+    "azeite",
+    "acucar",
+    "macarrao",
+    "molho de tomate",
+    "maionese",
+    "biscoito",
+    "wafer",
+    "pao",
+    "bolo",
+    "refrigerante",
+    "cerveja",
+    "suco",
+    "agua",
+    "carne",
+    "frango",
+    "linguica",
+    "pizza",
+    "lasanha",
+    "sorvete",
+    "batata",
+    "tomate",
+    "banana",
+    "sabao",
+    "detergente",
+    "amaciante",
+    "desinfetante",
+    "papel higienico",
+    "shampoo",
+    "sabonete",
+    "creme dental",
+    "desodorante",
+]
 
-def detectar_categoria(nome: str) -> str:
+
+def detectar_categoria(nome: str, categorias_api: Optional[List[str]] = None) -> str:
     n = nome.lower()
-    if any(k in n for k in ["arroz", "feijao", "feijão", "lentilha", "grao", "grão", "farinha"]):
+    cats_txt = " ".join(categorias_api or []).lower()
+    if any(k in n for k in ["chocolate em pó", "chocolate em po", "achocolatado", "cacau em pó", "cacau em po", "toddy", "nescau", "cafe", "café", "cappuccino", "cha ", "chá ", "filtro de papel", "coador", "cápsula", "capsula"]):
+        return "cafe"
+    if any(k in n for k in ["biscoito", "bolacha", "chocolate", "bombom", "wafer", "cookie"]):
+        return "biscoitos"
+    if any(k in n for k in ["arroz", "feijao", "feijão", "lentilha", "grao", "grão", "farinha", "aveia", "amido"]):
         return "graos"
-    if any(k in n for k in ["leite", "iogurte", "queijo", "manteiga", "requeijao", "requeijão", "nata"]):
+    if any(k in n for k in ["leite", "iogurte", "queijo", "manteiga", "requeijao", "requeijão", "nata", "margarina"]):
         return "leites"
     if any(k in n for k in ["oleo", "óleo", "azeite", "vinagre"]):
         return "oleos"
-    if any(k in n for k in ["cafe", "café", "cha", "chá", "filtro", "coador", "capsula", "cápsula"]):
-        return "cafe"
-    if any(k in n for k in ["refrigerante", "cerveja", "suco", "agua", "água"]):
+    if any(k in n for k in ["refrigerante", "cerveja", "suco", "agua ", "água ", "vinho", "energético", "energetico"]):
         return "bebidas"
-    if any(k in n for k in ["carne", "frango", "costela", "picanha"]):
+    if any(k in n for k in ["carne", "frango", "costela", "picanha", "alcatra", "linguiça", "linguica", "bovina", "suína", "suina", "filé", "file"]):
         return "carnes"
-    if any(k in n for k in ["biscoito", "bolacha", "chocolate", "bombom", "wafer"]):
-        return "biscoitos"
-    if any(k in n for k in ["sabonete", "shampoo", "detergente", "papel", "limpeza"]):
+    if any(k in n for k in ["pão", "pao", "bolo", "torrada", "sonho", "cuca"]):
+        return "padaria"
+    if any(k in n for k in ["pizza", "lasanha", "sorvete", "hambúrguer", "hamburguer", "congelad"]):
+        return "congelados"
+    if any(k in n for k in ["banana", "maçã", "maca", "tomate", "batata", "cebola", "alho", "laranja", "alface", "cenoura"]):
+        if "molho" not in n and "extrato" not in n and "palha" not in n:
+            return "hortifruti"
+    if any(k in n for k in ["detergente", "sabão", "sabao", "amaciante", "desinfetante", "água sanitária", "agua sanitaria", "alvejante", "limpador", "esponja"]):
+        return "limpeza"
+    if any(k in n for k in ["sabonete", "shampoo", "condicionador", "creme dental", "desodorante", "papel higiênico", "papel higienico", "absorvente", "fralda"]):
+        return "higiene"
+    if "hortifruti" in cats_txt:
+        return "hortifruti"
+    if "padaria" in cats_txt:
+        return "padaria"
+    if "congelados" in cats_txt:
+        return "congelados"
+    if "limpeza" in cats_txt:
+        return "limpeza"
+    if "higiene" in cats_txt:
         return "higiene"
     return "mercearia"
 
@@ -95,69 +172,114 @@ def salvar_catalogo(cabecalho: str, produtos: List[Dict[str, Any]]) -> None:
     LOGGER.info("Catálogo atualizado com %d produtos! Vite HMR disparado.", len(produtos))
 
 
-def coletar_produtos_3d_e_precos() -> List[Dict[str, Any]]:
-    """Busca produtos com 3D nativo e preços reais no Asun e Fort."""
-    encontrados = []
+def extrair_hit_osuper(h: Dict[str, Any], supermercado: str, rede_key: str) -> Optional[Dict[str, Any]]:
+    pricing = h.get("pricing") or {}
+    promo = pricing.get("promotionalPrice")
+    normal = pricing.get("price")
+    clube_raw = (
+        pricing.get("clubPrice")
+        or pricing.get("customerClubPrice")
+        or pricing.get("loyaltyPrice")
+        or pricing.get("wholesalePrice")
+    )
+    preco = float(promo) if promo else (float(normal) if normal else 0.0)
+    if preco <= 0:
+        return None
+    is_clube = False
+    clube_nome = None
+    if clube_raw:
+        try:
+            cp = float(clube_raw)
+            if 0 < cp < preco:
+                preco = cp
+                is_clube = True
+                clube_nome = "Vuon Card / Clube Fort" if rede_key == "fort" else "Clube Asun"
+        except Exception:
+            pass
+    frames = h.get("threeDimensionalImage") or []
+    return {
+        "idOrigem": str(h.get("id")),
+        "nome": (h.get("name") or "").strip(),
+        "marca": h.get("brandName") or extrair_marca(h.get("name") or ""),
+        "descricao": h.get("description") or "",
+        "categorias_api": h.get("categories") or [],
+        "supermercado": supermercado,
+        "rede_key": rede_key,
+        "preco": preco,
+        "precoNormal": float(normal) if normal and float(normal) > preco else None,
+        "promo": bool(promo and normal and float(promo) < float(normal)) or is_clube,
+        "is_clube": is_clube,
+        "clube_nome": clube_nome,
+        "imagem": h.get("image") or "",
+        "slug": h.get("slug") or "",
+        "frames_3d": frames,
+        "has_3d": bool(len(frames) >= 2),
+    }
 
-    # 1. Asun Online
+
+def paginar_endpoint_osuper(url_base: str, params_base: Dict[str, Any], supermercado: str, rede_key: str) -> List[Dict[str, Any]]:
+    coletados = []
+    pagina = 0
+    tamanho = 20
+    sess = requests.Session()
+    sess.headers.update(HEADERS)
+    while True:
+        params = dict(params_base)
+        params["size"] = tamanho
+        params["from"] = pagina * tamanho
+        try:
+            resp = sess.get(url_base, params=params, timeout=10)
+            if resp.status_code != 200:
+                break
+            dados = resp.json()
+            if not isinstance(dados, dict) or dados.get("total") == 89632:
+                break
+            hits = dados.get("hits") or []
+            if not hits:
+                break
+            for h in hits:
+                extraido = extrair_hit_osuper(h, supermercado, rede_key)
+                if extraido and extraido["nome"]:
+                    coletados.append(extraido)
+            if not dados.get("hasNext", False):
+                break
+            pagina += 1
+        except Exception as exc:
+            LOGGER.warning("Erro paginando %s (%s): %s", url_base, params_base, exc)
+            break
+    return coletados
+
+
+def coletar_produtos_3d_e_precos() -> List[Dict[str, Any]]:
+    """Busca todos os produtos sem limites nas categorias e buscas do Fort Atacadista e Asun."""
+    encontrados = []
+    tarefas = []
+
     ASUN_CATS = ["1937090", "1937107", "1936826", "1936108", "1936221"]
     for cat in ASUN_CATS:
-        try:
-            url = f"https://sense.osuper.com.br/319/1560/category/{cat}?limit=50"
-            r = requests.get(url, headers=HEADERS, timeout=10).json()
-            for h in r.get("hits", []):
-                frames = h.get("threeDimensionalImage") or []
-                pricing = h.get("pricing", {})
-                promo = pricing.get("promotionalPrice")
-                normal = pricing.get("price")
-                preco = float(promo) if promo else (float(normal) if normal else 0.0)
-                if preco <= 0:
-                    continue
-                encontrados.append({
-                    "idOrigem": str(h.get("id")),
-                    "nome": h.get("name"),
-                    "supermercado": "Asun Supermercados",
-                    "rede_key": "asun",
-                    "preco": preco,
-                    "precoNormal": float(normal) if promo and normal else None,
-                    "promo": bool(promo),
-                    "imagem": h.get("image"),
-                    "slug": h.get("slug") or "",
-                    "frames_3d": frames,
-                    "has_3d": bool(len(frames) >= 2),
-                })
-        except Exception as exc:
-            LOGGER.warning("Erro ao consultar Asun cat %s: %s", cat, exc)
+        tarefas.append((f"https://sense.osuper.com.br/319/1560/category/{cat}", {}, "Asun Supermercados", "asun", f"Asun cat {cat}"))
 
-    # 2. Fort Atacadista
     FORT_CATS = ["1815215", "1815285"]
     for cat in FORT_CATS:
-        try:
-            url = f"https://sense.osuper.com.br/334/1585/category/{cat}?limit=50"
-            r = requests.get(url, headers=HEADERS, timeout=10).json()
-            for h in r.get("hits", []):
-                frames = h.get("threeDimensionalImage") or []
-                pricing = h.get("pricing", {})
-                promo = pricing.get("promotionalPrice")
-                normal = pricing.get("price")
-                preco = float(promo) if promo else (float(normal) if normal else 0.0)
-                if preco <= 0:
-                    continue
-                encontrados.append({
-                    "idOrigem": str(h.get("id")),
-                    "nome": h.get("name"),
-                    "supermercado": "Fort Atacadista",
-                    "rede_key": "fort",
-                    "preco": preco,
-                    "precoNormal": float(normal) if promo and normal else None,
-                    "promo": bool(promo),
-                    "imagem": h.get("image"),
-                    "slug": h.get("slug") or "",
-                    "frames_3d": frames,
-                    "has_3d": bool(len(frames) >= 2),
-                })
-        except Exception as exc:
-            LOGGER.warning("Erro ao consultar Fort cat %s: %s", cat, exc)
+        tarefas.append((f"https://sense.osuper.com.br/334/1585/category/{cat}", {}, "Fort Atacadista", "fort", f"Fort cat {cat}"))
+
+    for termo in TERMOS_COMPLETOS:
+        tarefas.append(("https://sense.osuper.com.br/334/1585/search", {"search": termo}, "Fort Atacadista", "fort", f"Fort '{termo}'"))
+        tarefas.append(("https://sense.osuper.com.br/319/1560/search", {"search": termo}, "Asun Supermercados", "asun", f"Asun '{termo}'"))
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        futuros = {
+            pool.submit(paginar_endpoint_osuper, url, params, nome_loja, rede): rotulo
+            for (url, params, nome_loja, rede, rotulo) in tarefas
+        }
+        for fut in as_completed(futuros):
+            rotulo = futuros[fut]
+            try:
+                lote = fut.result()
+                LOGGER.info("[✓] %s -> %d produtos coletados sem limites", rotulo, len(lote))
+                encontrados.extend(lote)
+            except Exception as exc:
+                LOGGER.warning("Falha em %s: %s", rotulo, exc)
 
     return encontrados
 
@@ -228,62 +350,69 @@ def sincronizar():
                 prod_existente["mercadoMenorPreco"] = menor_m
 
         else:
-            # Produto novo encontrado online! Se tiver 3D ou for de categoria essencial, adiciona!
-            if has_3d:
-                categoria = detectar_categoria(nome)
-                marca = extrair_marca(nome)
-                unidade = extrair_unidade(nome)
+            # Adiciona TODOS os produtos novos encontrados online (com ou sem 3D, sem travas)
+            categoria = detectar_categoria(nome, it.get("categorias_api"))
+            marca = it.get("marca") or extrair_marca(nome)
+            unidade = extrair_unidade(nome)
 
-                # Monta preços estimados comparativos nas outras redes
-                prices_novos = {
-                    rede: preco,
-                    "zaffari": round(preco * 1.05, 2),
-                    "rissul": round(preco * 1.02, 2),
-                    "stok": round(preco * 0.94, 2),
-                    "atacadao": round(preco * 0.95, 2),
-                    "master": round(preco * 1.03, 2),
-                }
-                if rede == "asun":
-                    prices_novos["fort"] = round(preco * 0.96, 2)
-                    prices_novos["carrefour"] = round(preco * 1.04, 2)
-                else:
-                    prices_novos["asun"] = round(preco * 1.04, 2)
-                    prices_novos["carrefour"] = round(preco * 1.02, 2)
+            prices_novos = {
+                rede: preco,
+                "zaffari": round(preco * 1.05, 2),
+                "rissul": round(preco * 1.02, 2),
+                "stok": round(preco * 0.94, 2),
+                "atacadao": round(preco * 0.95, 2),
+                "master": round(preco * 1.03, 2),
+            }
+            if rede == "asun":
+                prices_novos["fort"] = round(preco * 0.96, 2)
+                prices_novos["carrefour"] = round(preco * 1.04, 2)
+            else:
+                prices_novos["asun"] = round(preco * 1.04, 2)
+                prices_novos["carrefour"] = round(preco * 1.02, 2)
 
-                menor_m = min(prices_novos, key=prices_novos.get)
+            menor_m = min(prices_novos, key=prices_novos.get)
+            url_loja = (
+                f"https://www.asunonline.com.br/produto/{it['slug']}"
+                if rede == "asun"
+                else f"https://www.deliveryfort.com.br/produto/{it['slug']}"
+            )
+            img_principal = it["imagem"] or (frames[0] if frames else "")
 
-                novo_prod = {
-                    "id": f"p{next_id_num}",
-                    "name": nome,
-                    "brand": marca,
-                    "category": categoria,
-                    "unit": unidade,
-                    "image": "🧊",
-                    "imageUrl": it["imagem"] or (frames[0] if frames else ""),
-                    "imageLocal": frames[0] if frames else "",
-                    "descricao": f"{nome} - Qualidade garantida com modelo e rotação 360° interativa.",
-                    "prices": prices_novos,
-                    "menorPreco": prices_novos[menor_m],
-                    "mercadoMenorPreco": menor_m,
-                    "promo": it["promo"],
-                    "precoNormal": it["precoNormal"],
-                    "urlProduto": f"https://www.{rede}online.com.br/produto/{it['slug']}",
+            novo_prod = {
+                "id": f"p{next_id_num}",
+                "name": nome,
+                "brand": marca,
+                "category": categoria,
+                "unit": unidade,
+                "image": "🧊" if has_3d else "🛒",
+                "imageUrl": img_principal,
+                "imageLocal": frames[0] if frames else img_principal,
+                "descricao": it.get("descricao") or f"{nome} - Produto monitorado nas redes do RS.",
+                "prices": prices_novos,
+                "menorPreco": prices_novos[menor_m],
+                "mercadoMenorPreco": menor_m,
+                "promo": it["promo"],
+                "precoNormal": it["precoNormal"],
+                "isClube": it.get("is_clube", False),
+                "clubeNome": it.get("clube_nome"),
+                "urlProduto": url_loja,
+                "idOrigem": pid,
+                "supermercadoOrigem": it["supermercado"],
+                "recursosVisuais": {
+                    "has360": bool(has_3d),
+                    "totalFrames": len(frames),
+                    "origem": f"{it['supermercado']} (API Sense OSuper)",
                     "idOrigem": pid,
-                    "supermercadoOrigem": it["supermercado"],
-                    "recursosVisuais": {
-                        "has360": True,
-                        "totalFrames": len(frames),
-                        "origem": f"{it['supermercado']} (API Sense OSuper)",
-                        "idOrigem": pid,
-                        "frames": frames,
-                    }
-                }
-                catalogo.append(novo_prod)
-                mapa_por_id[pid] = novo_prod
-                mapa_por_nome[nome_key] = novo_prod
-                next_id_num += 1
-                novos_cadastrados += 1
-                print(f" [✨ NOVO PRODUTO 3D] {nome[:40]:<40} | R$ {preco:.2f} | {len(frames)} frames")
+                    "frames": frames,
+                },
+            }
+            catalogo.append(novo_prod)
+            mapa_por_id[pid] = novo_prod
+            mapa_por_nome[nome_key] = novo_prod
+            next_id_num += 1
+            novos_cadastrados += 1
+            if novos_cadastrados <= 40 or has_3d:
+                print(f" [✨ NOVO PRODUTO] {nome[:44]:<44} | R$ {preco:.2f} | cat={categoria}")
 
     print("-" * 80)
     print(" 📊 RESULTADO DA SINCRONIZAÇÃO:")

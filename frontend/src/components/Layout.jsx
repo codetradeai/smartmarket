@@ -79,7 +79,7 @@ export default function Layout() {
     { to: "/catalog", label: "Catálogo", icon: IconGrid },
     { to: "/favorites", label: "Favoritos", icon: IconHeart },
     { to: "/list", label: "Minha Lista", icon: IconList },
-    ...(isAdmin ? [{ to: "/admin", label: "Admin", icon: IconSettings }] : []),
+    ...(isAdmin ? [{ to: "/admin", label: "Administração", icon: IconSettings }] : []),
   ]
 
   const handleLogout = () => {
@@ -94,25 +94,48 @@ export default function Layout() {
       {/* Sidebar */}
       <aside
         style={{
-          width: "220px",
+          width: "260px",
           flexShrink: 0,
           background: C.navy,
           display: "flex",
           flexDirection: "column",
-          padding: "24px 16px",
+          padding: "18px 12px",
           position: "sticky",
           top: 0,
           height: "100vh",
         }}
       >
         {/* Logo */}
-        <div style={{ marginBottom: "28px", padding: "8px 10px", background: "#fff", borderRadius: 16, alignSelf: "flex-start" }}>
+        <NavLink
+          to="/"
+          title="Ir para a página inicial"
+          style={{
+            marginBottom: "24px",
+            padding: "10px 8px",
+            background: "#fff",
+            borderRadius: "16px",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 8px 22px -8px rgba(0, 0, 0, 0.4)",
+            textDecoration: "none",
+            overflow: "hidden",
+          }}
+        >
           <img
             src={logoImg}
             alt="SmartMarket"
-            style={{ height: "46px", width: "auto", objectFit: "contain", display: "block" }}
+            style={{
+              width: "100%",
+              maxHeight: "72px",
+              height: "auto",
+              objectFit: "contain",
+              display: "block",
+              transform: "scale(1.08)",
+            }}
           />
-        </div>
+        </NavLink>
 
         {/* Nav links */}
         <nav style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
@@ -185,7 +208,7 @@ export default function Layout() {
                     color: isAdmin ? C.green : "#A0BFB0",
                   }}
                 >
-                  {user?.papel || "USER"}
+                  {isAdmin ? "ADMINISTRADOR" : "USUÁRIO"}
                 </span>
               </div>
             </div>

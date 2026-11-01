@@ -52,6 +52,16 @@ export default function AuthPage() {
   // Determina se a URL veio com ?mode=register ou ?mode=login
   const queryParams = new URLSearchParams(location.search)
   const initialMode = queryParams.get("mode") === "register" ? "cadastro" : "login"
+  const intent = queryParams.get("intent")
+  const termoBusca = queryParams.get("q")
+  const convite = {
+    busca: termoBusca
+      ? `Para comparar “${termoBusca}”, entre ou crie sua conta.`
+      : "Para pesquisar preços, entre ou crie sua conta.",
+    comparador: "Para usar o comparador de preços, entre ou crie sua conta.",
+    lista: "Para montar a lista, entre ou crie sua conta.",
+    catalogo: "Para abrir o catálogo, entre ou crie sua conta.",
+  }[intent] || ""
   const isSessionExpired = queryParams.get("expired") === "true"
 
   const [tab, setTab] = useState(initialMode)
@@ -252,6 +262,11 @@ export default function AuthPage() {
             <h2 className="text-2xl font-extrabold text-brand-navy tracking-tight mt-1">
               {tab === "login" ? "Acesse sua conta" : "Comece a economizar"}
             </h2>
+            {convite && (
+              <p className="mt-3 rounded-xl bg-brand-green-light px-3 py-2 text-sm font-semibold text-brand-navy">
+                {convite}
+              </p>
+            )}
           </div>
 
           {/* Abas Alternadoras no Estilo Figma */}
@@ -366,7 +381,7 @@ export default function AuthPage() {
                       onClick={() => fillCredentials("admin")}
                       className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
                     >
-                      🛡️ Perfil Admin
+                      🛡️ Perfil Administrador
                     </button>
                     <button
                       type="button"

@@ -406,7 +406,7 @@ export default function AdminPage() {
               Painel Administrativo
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-brand-navy text-white tracking-wider">
-              ADMIN
+              ADMINISTRADOR
             </span>
           </div>
           <p className="text-sm text-brand-muted mt-1">
@@ -487,7 +487,7 @@ export default function AdminPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
                 Pipeline de Coleta
               </p>
-              <h3 className="text-2xl font-extrabold text-amber-600 mt-0.5">Online</h3>
+              <h3 className="text-2xl font-extrabold text-amber-600 mt-0.5">Operacional</h3>
               <span className="text-xs text-brand-muted font-medium">Rotina automática ativa</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl shadow-xs">
@@ -761,7 +761,7 @@ export default function AdminPage() {
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-3.5 px-4">Usuário</th>
                   <th className="py-3.5 px-4">E-mail</th>
-                  <th className="py-3.5 px-4">Papel (Role)</th>
+                  <th className="py-3.5 px-4">Papel no Sistema</th>
                   <th className="py-3.5 px-4">Listas Criadas</th>
                   <th className="py-3.5 px-4">Data Cadastro</th>
                   <th className="py-3.5 px-4">Status</th>
@@ -786,7 +786,7 @@ export default function AdminPage() {
                           u.role === "ADMIN" ? "bg-brand-navy text-white" : "bg-emerald-100 text-emerald-800"
                         }`}
                       >
-                        {u.role}
+                        {u.role === "ADMIN" ? "ADMINISTRADOR" : "USUÁRIO"}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 font-bold text-brand-navy">{u.lists}</td>
@@ -808,7 +808,7 @@ export default function AdminPage() {
                           className="h-8 px-2.5 text-xs"
                           onClick={() => toggleUserRole(u.id)}
                         >
-                          Mudar Role
+                          Alterar Papel
                         </Button>
                         <Button
                           variant="danger"

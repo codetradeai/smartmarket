@@ -15,10 +15,12 @@ export function Navbar({
   onSearch,
   onAddProduct,
   products,
+  modo = "app",
   className,
 }) {
   const authContext = useContext(AuthContext)
   const user = propUser || authContext?.user
+  const logout = authContext?.logout
   const isAdmin = authContext?.isAdmin || user?.papel === "ADMIN"
   const displayName = user?.nome || user?.name || ""
 
@@ -27,13 +29,140 @@ export function Navbar({
     { label: "Favoritos", href: "/favorites" },
     { label: "Minha Lista", href: "/list", badgeCount: cartCount },
     { label: "Comparador", href: "/compare" },
-    ...(isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
+    ...(isAdmin ? [{ label: "Administração", href: "/admin" }] : []),
   ]
 
   const activeNavLinks = navLinks || defaultNavLinks
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const location = useLocation()
+
+  if (modo === "apresentacao") {
+    const apresentacaoLinks = [
+      { label: "Redes", href: "#redes" },
+      { label: "Como funciona", href: "#como-funciona" },
+      { label: "Sobre", href: "#sobre" },
+    ]
+
+    return (
+      <header
+        className={cn(
+          "sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-brand-border/70",
+          className
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-8">
+            <Link to="/" className="flex items-center gap-3 select-none">
+              <SmartMarketLogo size="lg" />
+            </Link>
+            <nav className="hidden md:flex items-center gap-1" aria-label="Apresentação do site">
+              {apresentacaoLinks.map((link) =>
+                link.href.startsWith("#") ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-brand-muted hover:text-brand-navy hover:bg-slate-50"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-brand-muted hover:text-brand-navy hover:bg-slate-50"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/auth?mode=register&intent=comparador"
+              className="hidden sm:inline-flex items-center rounded-xl px-3 py-2 text-sm font-bold text-brand-navy hover:bg-brand-green-light"
+            >
+              Comparar preços
+            </Link>
+            <Link to="/auth?mode=login" className="hidden md:inline-flex">
+              <Button variant="outline" size="sm">
+                Entrar
+              </Button>
+            </Link>
+            <Link to="/auth?mode=register">
+              <Button variant="primary" size="sm">
+                Criar conta
+              </Button>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Abrir menu"
+              className="md:hidden p-2 rounded-xl text-brand-navy hover:bg-slate-100"
+            >
+              <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                {isMobileMenuOpen ? (
+                  <>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </>
+                ) : (
+                  <>
+                    <line x1="4" y1="6" x2="20" y2="6" />
+                    <line x1="4" y1="12" x2="20" y2="12" />
+                    <line x1="4" y1="18" x2="20" y2="18" />
+                  </>
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-brand-border bg-white px-4 pt-3 pb-6 flex flex-col gap-2">
+            {apresentacaoLinks.map((link) =>
+              link.href.startsWith("#") ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-brand-navy hover:bg-slate-50"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-brand-navy hover:bg-slate-50"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
+            <Link
+              to="/auth?mode=register&intent=comparador"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-4 py-2.5 rounded-xl text-sm font-bold text-brand-green hover:bg-brand-green-light"
+            >
+              Comparar preços
+            </Link>
+            <div className="flex gap-2 pt-3 border-t border-slate-100">
+              <Link to="/auth?mode=login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full">Entrar</Button>
+              </Link>
+              <Link to="/auth?mode=register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="primary" size="sm" className="w-full">Criar conta</Button>
+              </Link>
+            </div>
+          </div>
+        )}
+      </header>
+    )
+  }
 
   return (
     <header
@@ -47,9 +176,9 @@ export function Navbar({
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group select-none">
             {logoUrl ? (
-              <img src={logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
+              <img src={logoUrl} alt={brandName} className="h-12 w-auto object-contain" />
             ) : (
-              <SmartMarketLogo size="md" />
+              <SmartMarketLogo size="lg" />
             )}
           </Link>
 
@@ -130,8 +259,8 @@ export function Navbar({
 
           {/* Usuário ou Botão de Ação */}
           {user ? (
-            <div className="flex items-center gap-3 pl-2 border-l border-brand-border">
-              <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center">
+            <div className="flex items-center gap-2.5 pl-2 border-l border-brand-border">
+              <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center shrink-0">
                 {displayName[0]?.toUpperCase() || "U"}
               </div>
               <div className="hidden xl:flex flex-col text-left">
@@ -140,6 +269,18 @@ export function Navbar({
                 </span>
                 <span className="text-[10px] text-brand-muted">{user.email}</span>
               </div>
+              <button
+                type="button"
+                onClick={() => logout?.()}
+                title="Sair da conta"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-colors cursor-pointer"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Sair</span>
+              </button>
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
@@ -235,7 +376,35 @@ export function Navbar({
             })}
           </nav>
 
-          {!user && (
+          {user ? (
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-brand-green-light border border-brand-green/30 text-brand-green font-bold text-sm flex items-center justify-center shrink-0">
+                  {displayName[0]?.toUpperCase() || "U"}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-brand-navy truncate">
+                    {displayName || "Conta"}
+                  </p>
+                  <p className="text-[11px] text-brand-muted truncate">{user.email}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false)
+                  logout?.()
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-xs font-bold text-rose-600 hover:bg-rose-100 cursor-pointer shrink-0"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  <path d="M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Sair da conta</span>
+              </button>
+            </div>
+          ) : (
             <div className="flex gap-2 pt-3 border-t border-slate-100">
               <Link to="/auth?mode=login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">

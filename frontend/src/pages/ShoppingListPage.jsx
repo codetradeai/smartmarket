@@ -48,6 +48,18 @@ const C = {
   red: "#EF4444",
 };
 
+const C = {
+  navy: "#0D2137",
+  green: "#22A95E",
+  teal: "#1DB4A3",
+  greenDark: "#17864A",
+  bg: "#F4FAF7",
+  muted: "#6B8A7A",
+  border: "#D4E8DC",
+  white: "#FFFFFF",
+  error: "#D63B3B",
+};
+
 // Cesta sugerida inicial para que a página nunca abra vazia em testes de primeira viagem
 const INITIAL_DEMO_LIST = {
   p1: 2, // 2x Arroz Branco Tio João 5kg

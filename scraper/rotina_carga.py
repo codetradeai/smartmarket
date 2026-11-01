@@ -24,8 +24,14 @@ DIRETORIO_SCRAPER = Path(__file__).resolve().parent
 if str(DIRETORIO_SCRAPER) not in sys.path:
     sys.path.insert(0, str(DIRETORIO_SCRAPER))
 
+import coleta_asun as asun
+import coleta_atacadao as atacadao
 import coleta_carrefour as carrefour
 import coleta_fort_atacadista as fort
+import coleta_master as master
+import coleta_rissul as rissul
+import coleta_stok as stok
+import coleta_zaffari as zaffari
 from pipeline import carregar, ErroIngestao, validar_dsn
 
 LOGGER = logging.getLogger("rotina_carga")
@@ -46,6 +52,54 @@ REDES_CONFIG = {
         "store": "mercado",
         "mercado_id_default": 2,
         "fixture_padrao": "carrefour_valido.json",
+    },
+    "asun": {
+        "nome": "Asun Supermercados",
+        "modulo": asun,
+        "source": "asun",
+        "store": asun.STORE_ID,
+        "mercado_id_default": 3,
+        "fixture_padrao": "asun_valido.json",
+    },
+    "atacadao": {
+        "nome": "Atacadão",
+        "modulo": atacadao,
+        "source": "atacadao",
+        "store": "online",
+        "mercado_id_default": 4,
+        "fixture_padrao": "atacadao_valido.json",
+    },
+    "master": {
+        "nome": "Master Supermercados",
+        "modulo": master,
+        "source": "master",
+        "store": "filial_1",
+        "mercado_id_default": 5,
+        "fixture_padrao": "master_valido.json",
+    },
+    "zaffari": {
+        "nome": "Zaffari",
+        "modulo": zaffari,
+        "source": "zaffari",
+        "store": "online",
+        "mercado_id_default": 6,
+        "fixture_padrao": "zaffari_valido.json",
+    },
+    "rissul": {
+        "nome": "Rissul",
+        "modulo": rissul,
+        "source": "rissul",
+        "store": "online",
+        "mercado_id_default": 7,
+        "fixture_padrao": "rissul_valido.json",
+    },
+    "stok": {
+        "nome": "Stok Center",
+        "modulo": stok,
+        "source": "stok",
+        "store": "filial_1",
+        "mercado_id_default": 8,
+        "fixture_padrao": "stok_valido.json",
     },
 }
 

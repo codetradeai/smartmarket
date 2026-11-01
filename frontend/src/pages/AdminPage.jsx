@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { PRODUCTS, CATEGORIES } from "../data"
+import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
 import { produtoService, mercadoService, adminService } from "../services"
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   ModalTitle,
   ModalBody,
   ModalFooter,
+  ProductImage,
 } from "../components/ui"
 
 const INITIAL_USERS = [
@@ -20,44 +21,11 @@ const INITIAL_USERS = [
   { id: 5, name: "João Lima", email: "joao@email.com", role: "USER", createdAt: "2026-10-15", lists: 2, status: "ATIVO" },
 ]
 
-const INITIAL_MARKETS = [
-  {
-    id: "fort",
-    name: "Fort Atacadista",
-    city: "Porto Alegre",
-    address: "Av. Assis Brasil, 2600",
-    products: 40,
-    lastSync: "Hoje às 14:32",
-    active: true,
-    color: "#E63312",
-  },
-  {
-    id: "carrefour",
-    name: "Carrefour Mercado",
-    city: "Porto Alegre",
-    address: "Av. Ipiranga, 5300",
-    products: 40,
-    lastSync: "Hoje às 13:10",
-    active: true,
-    color: "#1A63B9",
-  },
-  {
-    id: "big",
-    name: "Big Bompreço",
-    city: "Porto Alegre",
-    address: "Av. Bento Gonçalves, 3200",
-    products: 18,
-    lastSync: "Hoje às 11:45",
-    active: true,
-    color: "#F5A623",
-  },
-]
-
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("produtos") // 'produtos' | 'mercados' | 'usuarios'
   const [search, setSearch] = useState("")
   const [products, setProducts] = useState(PRODUCTS)
-  const [markets, setMarkets] = useState(INITIAL_MARKETS)
+  const [markets, setMarkets] = useState(MARKETS)
   const [users, setUsers] = useState(INITIAL_USERS)
   const [stats, setStats] = useState(null)
   const [toastMessage, setToastMessage] = useState("")
@@ -438,7 +406,7 @@ export default function AdminPage() {
               Painel Administrativo
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-brand-navy text-white tracking-wider">
-              ADMIN
+              ADMINISTRADOR
             </span>
           </div>
           <p className="text-sm text-brand-muted mt-1">
@@ -519,7 +487,7 @@ export default function AdminPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-brand-muted">
                 Pipeline de Coleta
               </p>
-              <h3 className="text-2xl font-extrabold text-amber-600 mt-0.5">Online</h3>
+              <h3 className="text-2xl font-extrabold text-amber-600 mt-0.5">Operacional</h3>
               <span className="text-xs text-brand-muted font-medium">Rotina automática ativa</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl shadow-xs">
@@ -619,45 +587,70 @@ export default function AdminPage() {
                   <th className="py-3.5 px-4">Marca</th>
                   <th className="py-3.5 px-4">Categoria</th>
                   <th className="py-3.5 px-4">Unidade</th>
-                  <th className="py-3.5 px-4">Fort Atacadista</th>
-                  <th className="py-3.5 px-4">Carrefour</th>
-                  <th className="py-3.5 px-4">Big Bompreço</th>
+                  <th className="py-3.5 px-4">Melhor Oferta</th>
+                  <th className="py-3.5 px-4">Preço Médio</th>
                   <th className="py-3.5 px-4 text-right">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredProducts.map((p, index) => (
-                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4 text-brand-muted font-semibold">{index + 1}</td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{p.image || "📦"}</span>
-                        <div>
-                          <p className="font-bold text-brand-navy text-sm">{p.name}</p>
-                          {p.promo && (
-                            <span className="inline-block px-1.5 py-0.2 rounded-sm bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase mt-0.5">
-                              PROMO
-                            </span>
-                          )}
+                {filteredProducts.map((p, index) => {
+                  const validPrices = Object.entries(p.prices || {})
+                    .filter(([, v]) => typeof v === "number" && v > 0)
+                    .sort((a, b) => a[1] - b[1])
+
+                  const bestPrice = validPrices[0] ? validPrices[0][1] : null
+                  const bestMarket = validPrices[0]
+                    ? markets.find((m) => m.id === validPrices[0][0])?.name || validPrices[0][0]
+                    : "—"
+
+                  const avgPrice =
+                    validPrices.length > 0
+                      ? validPrices.reduce((acc, curr) => acc + curr[1], 0) / validPrices.length
+                      : null
+
+                  return (
+                    <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4 text-brand-muted font-semibold">{index + 1}</td>
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-50 border border-slate-200/80 shrink-0 flex items-center justify-center">
+                            <ProductImage
+                              src={p.imageUrl || p.image}
+                              alt={p.name}
+                              className="w-full h-full object-contain p-0.5"
+                            />
+                          </div>
+                          <div>
+                            <p className="font-bold text-brand-navy text-sm">{p.name}</p>
+                            {p.promo && (
+                              <span className="inline-block px-1.5 py-0.2 rounded-sm bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase mt-0.5">
+                                PROMO
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-brand-navy">{p.brand}</td>
-                    <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-brand-muted font-semibold">
-                        {CATEGORIES.find((c) => c.id === p.category)?.label.split(",")[0] || p.category}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-brand-muted font-medium">{p.unit}</td>
-                    <td className="py-3.5 px-4 font-bold text-brand-navy">
-                      {p.prices?.fort ? `R$ ${p.prices.fort.toFixed(2)}` : <span className="text-slate-300">—</span>}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-brand-navy">
-                      {p.prices?.carrefour ? `R$ ${p.prices.carrefour.toFixed(2)}` : <span className="text-slate-300">—</span>}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-brand-navy">
-                      {p.prices?.big ? `R$ ${p.prices.big.toFixed(2)}` : <span className="text-slate-300">—</span>}
-                    </td>
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-brand-navy">{p.brand}</td>
+                      <td className="py-3.5 px-4">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-brand-muted font-semibold">
+                          {CATEGORIES.find((c) => c.id === p.category)?.label.split(",")[0] || p.category}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-brand-muted font-medium">{p.unit}</td>
+                      <td className="py-3.5 px-4">
+                        {bestPrice ? (
+                          <div>
+                            <span className="font-extrabold text-brand-green">
+                              R$ {bestPrice.toFixed(2)}
+                            </span>
+                            <span className="block text-[10px] text-brand-muted">
+                              no {bestMarket}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
+                      </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
@@ -679,7 +672,8 @@ export default function AdminPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -767,7 +761,7 @@ export default function AdminPage() {
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-3.5 px-4">Usuário</th>
                   <th className="py-3.5 px-4">E-mail</th>
-                  <th className="py-3.5 px-4">Papel (Role)</th>
+                  <th className="py-3.5 px-4">Papel no Sistema</th>
                   <th className="py-3.5 px-4">Listas Criadas</th>
                   <th className="py-3.5 px-4">Data Cadastro</th>
                   <th className="py-3.5 px-4">Status</th>
@@ -792,7 +786,7 @@ export default function AdminPage() {
                           u.role === "ADMIN" ? "bg-brand-navy text-white" : "bg-emerald-100 text-emerald-800"
                         }`}
                       >
-                        {u.role}
+                        {u.role === "ADMIN" ? "ADMINISTRADOR" : "USUÁRIO"}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 font-bold text-brand-navy">{u.lists}</td>
@@ -814,7 +808,7 @@ export default function AdminPage() {
                           className="h-8 px-2.5 text-xs"
                           onClick={() => toggleUserRole(u.id)}
                         >
-                          Mudar Role
+                          Alterar Papel
                         </Button>
                         <Button
                           variant="danger"

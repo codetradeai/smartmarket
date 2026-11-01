@@ -1,0 +1,28 @@
+{
+  "C:7": [
+    {
+      "productId": "887766",
+      "productName": "Arroz Branco Tipo 1 Blue Ville 5kg",
+      "brand": "Blue Ville",
+      "linkText": "arroz-branco-tipo-1-blue-ville-5kg",
+      "link": "https://www.rissul.com.br/arroz-branco-tipo-1-blue-ville-5kg/p",
+      "description": "<p>Arroz Branco Blue Ville tradicional do Rio Grande do Sul.</p>",
+      "items": [
+        {
+          "name": "Arroz Branco Tipo 1 Blue Ville 5kg",
+          "images": [
+            {"imageUrl": "https://rissul.vteximg.com.br/arquivos/ids/554433/arroz-blueville.jpg"}
+          ],
+          "sellers": [
+            {
+              "commertialOffer": {
+                "Price": 26.90,
+                "ListPrice": 29.90
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

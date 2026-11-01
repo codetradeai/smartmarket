@@ -1,0 +1,31 @@
+{
+  "1937090": [{"hits": [
+    {
+      "id": "cafe-asun-1",
+      "name": "Café em pó Melitta Tradicional 500g",
+      "brandName": "Melitta",
+      "slug": "cafe-em-po-melitta-tradicional-500g",
+      "pricing": {"price": 26.90, "promotionalPrice": 24.90, "promotion": true},
+      "image": "https://edge.osuper.com.br/sample_melitta.webp",
+      "description": "Café torrado e moído Melitta Tradicional 500g"
+    },
+    {
+      "id": "filtro-asun-1",
+      "name": "Filtro De Papel Melitta Brigitta 102 30 Unidades",
+      "brandName": "Brigitta",
+      "slug": "filtro-de-papel-melitta-brigitta-102-30-unidades",
+      "pricing": {"price": 6.49, "promotionalPrice": null, "promotion": false},
+      "image": "https://edge.osuper.com.br/sample_filtro.webp"
+    }
+  ], "hasNext": false}],
+  "1936826": [{"hits": [
+    {
+      "id": "leite-asun-1",
+      "name": "Leite UHT Integral Piá 1L",
+      "brandName": "Piá",
+      "slug": "leite-uht-integral-pia-1l",
+      "pricing": {"price": 4.99, "promotionalPrice": null, "promotion": false},
+      "image": "https://edge.osuper.com.br/sample_leite.webp"
+    }
+  ], "hasNext": false}]
+}

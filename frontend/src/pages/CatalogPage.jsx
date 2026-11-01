@@ -1,23 +1,142 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   CATEGORIES,
   MARKETS as DEFAULT_MARKETS,
   PRODUCTS as DEFAULT_PRODUCTS,
 } from "../data";
 import { produtoService, mercadoService, favoritoService } from "../services";
+import { ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui";
+import logoFort from "../../logo/logo-fort.png";
+import logoAsun from "../../logo/logo-asun.png";
+import logoStok from "../../logo/logo-stok.png";
+import logoAtacadao from "../../logo/logo-atacadao.png";
+import logoCarrefour from "../../logo/logo-carrefour.png";
+import logoRissul from "../../logo/logo-rissul,.png";
+import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
+import logoMaster from "../../logo/mastersupermercados-logo.png";
 
-const C = {
-  navy: "#0D2137",
-  green: "#22A95E",
-  teal: "#1DB4A3",
-  bg: "#F4FAF7",
-  muted: "#6B8A7A",
-  border: "#D4E8DC",
-  white: "#FFFFFF",
-  amber: "#F59E0B",
+const MARKET_LOGOS = {
+  fort: logoFort,
+  asun: logoAsun,
+  stok: logoStok,
+  atacadao: logoAtacadao,
+  carrefour: logoCarrefour,
+  rissul: logoRissul,
+  zaffari: logoZaffari,
+  master: logoMaster,
 };
 
-// Helpers de persistência
+// Compensação óptica para equilibrar o peso visual de cada PNG (alguns arquivos têm margem interna maior)
+const MARKET_LOGO_OPTICAL_CLASS = {
+  zaffari: "max-h-10 sm:max-h-11 scale-[1.18]",
+  rissul: "max-h-11 sm:max-h-12 scale-[1.85]",
+  asun: "max-h-10 sm:max-h-11 scale-[1.38]",
+  stok: "max-h-10 sm:max-h-11 scale-[1.42]",
+  atacadao: "max-h-9 sm:max-h-10 scale-[1.16]",
+  master: "max-h-9 sm:max-h-10 scale-[1.18]",
+  fort: "max-h-10 sm:max-h-11 scale-[1.48]",
+  carrefour: "max-h-10 sm:max-h-11 scale-[1.48]",
+};
+
+
+// Cores e Tokens oficiais SmartMarket (consistentes com index.css e Figma)
+const C = {
+  navy: "#0D2137",
+  navyLight: "#16324F",
+  green: "#22A95E",
+  greenHover: "#1B8C4D",
+  greenLight: "#E8F8F0",
+  teal: "#1DB4A3",
+  tealLight: "#E6F7F5",
+  bg: "#F4FAF7",
+  card: "#FFFFFF",
+  muted: "#6B8A7A",
+  border: "#D4E8DC",
+  amber: "#F59E0B",
+  coral: "#FF6B4A",
+  coralLight: "#FFF1EE",
+};
+
+// Mapeamento visual autêntico das categorias com banners verticais temáticos (253x453 do Asun e Fort)
+const CATEGORY_META = {
+  graos: {
+    bannerVertical: "/images/categorias/banner_vertical_graos.jpg",
+    subtitulo: "Arroz gaúcho, feijões nobres, farinhas e grãos essenciais",
+    cor: "#00863F",
+  },
+  leites: {
+    bannerVertical: "/images/categorias/banner_vertical_laticinios.webp",
+    subtitulo: "Leites UHT integrais e desnatados, queijos e derivados",
+    cor: "#1A63B9",
+  },
+  oleos: {
+    bannerVertical: "/images/categorias/banner_vertical_oleos.jpg",
+    subtitulo: "Óleos de soja, azeites de oliva extravirgem e vinagres",
+    cor: "#D97706",
+  },
+  cafe: {
+    bannerVertical: "/images/categorias/banner_vertical_matinais.png",
+    subtitulo: "Cafés tradicionais e torrados, chás e achocolatados",
+    cor: "#78350F",
+  },
+  bebidas: {
+    bannerVertical: "/images/categorias/banner_vertical_bebidas.webp",
+    subtitulo: "Refrigerantes, sucos, cervejas e águas minerais",
+    cor: "#2563EB",
+  },
+  carnes: {
+    bannerVertical: "/images/categorias/banner_vertical_carnes.webp",
+    subtitulo: "Cortes bovinos nobres, aves e linguiças selecionadas",
+    cor: "#DC2626",
+  },
+  higiene: {
+    bannerVertical: "/images/categorias/banner_vertical_higiene.webp",
+    subtitulo: "Itens de higiene pessoal, sabonetes, xampus e cremes dentais",
+    cor: "#0D9488",
+  },
+  biscoitos: {
+    bannerVertical: "/images/categorias/banner_vertical_biscoitos.png",
+    subtitulo: "Biscoitos doces, salgados, wafers e chocolates",
+    cor: "#EA580C",
+  },
+  mercearia: {
+    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
+    subtitulo: "Molhos, massas, condimentos, conservas e itens de despensa",
+    cor: "#4B5563",
+  },
+  hortifruti: {
+    bannerVertical: "/images/categorias/banner_vertical_hortifruti.webp",
+    subtitulo: "Frutas frescas, legumes, verduras e produtos da horta",
+    cor: "#16A34A",
+  },
+  limpeza: {
+    bannerVertical: "/images/categorias/banner_vertical_limpeza.webp",
+    subtitulo: "Detergentes, sabão em pó, desinfetantes e alvejantes",
+    cor: "#0284C7",
+  },
+  padaria: {
+    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    subtitulo: "Pães frescos, bolos, tortas, doces e salgados",
+    cor: "#D97706",
+  },
+  congelados: {
+    bannerVertical: "/images/categorias/banner_vertical_congelados.webp",
+    subtitulo: "Pizzas, hambúrgueres e pratos prontos congelados",
+    cor: "#0284C7",
+  },
+  petshop: {
+    bannerVertical: "/images/categorias/banner_vertical_petshop.webp",
+    subtitulo: "Rações balanceadas, petiscos e cuidados para pets",
+    cor: "#059669",
+  },
+  bazar: {
+    bannerVertical: "/images/categorias/banner_vertical_bazar.webp",
+    subtitulo: "Panelas, utilidades domésticas e descartáveis",
+    cor: "#475569",
+  },
+};
+
+// Persistência local da lista de compras
 function getList() {
   try {
     return JSON.parse(sessionStorage.getItem("sm_list") || "{}");
@@ -29,52 +148,70 @@ function saveList(l) {
   sessionStorage.setItem("sm_list", JSON.stringify(l));
 }
 
+// Extrai o preço do produto para uma rede específica
 function getPriceForMarket(product, market) {
   if (!product || !product.prices) return null;
-  return (
-    product.prices[market.id] ??
-    product.prices[market.id?.toString()] ??
-    product.prices[
-      market.name?.toLowerCase().includes("fort")
-        ? "fort"
-        : market.name?.toLowerCase().includes("carrefour")
-          ? "carrefour"
-          : "big"
-    ] ??
-    null
-  );
+  const mId = market.id?.toString().toLowerCase();
+  const mName = market.name?.toLowerCase() || "";
+
+  if (product.prices[mId] !== undefined) return product.prices[mId];
+
+  for (const [key, val] of Object.entries(product.prices)) {
+    const k = key.toLowerCase();
+    if (mId && (k === mId || mId.includes(k) || k.includes(mId))) return val;
+    if (mName && (mName.includes(k) || k.includes(mName.split(" ")[0]))) return val;
+  }
+  return null;
 }
 
-function cheapest(product, markets) {
+// Identifica a melhor oferta e a variação de preço
+function getProductPricing(product, markets) {
   if (!product || !product.prices) return null;
   const valid = markets
-    .map((m) => [m.id, getPriceForMarket(product, m)])
-    .filter(([, v]) => v !== null && v !== undefined);
-  if (!valid.length) return null;
-  return valid.reduce((a, b) => (b[1] < a[1] ? b : a));
+    .map((m) => {
+      const p = getPriceForMarket(product, m);
+      const isClube = Boolean(
+        product.clubPrices?.[m.id] ||
+        (product.isClube && (product.mercadoMenorPreco === m.id || product.supermercadoOrigem?.toLowerCase().includes(m.name?.toLowerCase().split(" ")[0]))) ||
+        (m.id === "stok" && product.promo && product.supermercadoOrigem === "Stok Center")
+      );
+      const clubeNome = product.clubPrices?.[m.id] || m.clube || "Preço Clube";
+      return { market: m, price: p, isClube, clubeNome };
+    })
+    .filter((item) => item.price !== null && item.price !== undefined && Number(item.price) > 0);
+
+  if (valid.length === 0) return null;
+
+  valid.sort((a, b) => Number(a.price) - Number(b.price));
+  const cheapest = valid[0];
+  const mostExpensive = valid[valid.length - 1];
+  const economia = mostExpensive.price - cheapest.price;
+
+  return {
+    bestMarket: cheapest.market,
+    bestPrice: Number(cheapest.price),
+    highestPrice: Number(mostExpensive.price),
+    economia,
+    allPrices: valid,
+    isClube: cheapest.isClube,
+    clubeNome: cheapest.clubeNome,
+  };
 }
 
+// -----------------------------------------------------------------------------
+// Ícones SVG minimalistas
+// -----------------------------------------------------------------------------
 function IconSearch() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <circle cx="7.5" cy="7.5" r="5.5" stroke="#6B8A7A" strokeWidth="1.6" />
-      <path
-        d="M12 12l3.5 3.5"
-        stroke="#6B8A7A"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+      <path d="M12 12l3.5 3.5" stroke="#6B8A7A" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
 function IconStar({ filled }) {
   return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 15 15"
-      fill={filled ? "#F59E0B" : "none"}
-    >
+    <svg width="14" height="14" viewBox="0 0 15 15" fill={filled ? "#F59E0B" : "none"}>
       <path
         d="M7.5 1.5l1.72 3.49 3.85.56-2.79 2.71.66 3.84L7.5 10.27l-3.44 1.83.66-3.84L1.93 5.55l3.85-.56L7.5 1.5z"
         stroke={filled ? "#F59E0B" : "#9BB8AA"}
@@ -86,118 +223,256 @@ function IconStar({ filled }) {
 }
 function IconCart() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
       <path
-        d="M1 1h2l1.6 7h6.5l1.4-5H4.2"
+        d="M1 1h2.2l1.6 7.2h6.8l1.4-5H4.2"
         stroke="currentColor"
-        strokeWidth="1.4"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="6" cy="12" r="1" fill="currentColor" />
-      <circle cx="10" cy="12" r="1" fill="currentColor" />
+      <circle cx="6" cy="12.5" r="1.1" fill="currentColor" />
+      <circle cx="10.5" cy="12.5" r="1.1" fill="currentColor" />
     </svg>
   );
 }
 function IconHeart({ filled }) {
   return (
-    <svg
-      width="15"
-      height="15"
-      viewBox="0 0 15 15"
-      fill={filled ? "#E11D48" : "none"}
-    >
+    <svg width="15" height="15" viewBox="0 0 15 15" fill={filled ? "#E11D48" : "none"}>
       <path
         d="M7.5 13S2 9.5 2 5.5A3.5 3.5 0 0 1 7.5 3 3.5 3.5 0 0 1 13 5.5C13 9.5 7.5 13 7.5 13z"
         stroke={filled ? "#E11D48" : "#9BB8AA"}
-        strokeWidth="1.3"
+        strokeWidth="1.4"
         strokeLinejoin="round"
       />
     </svg>
   );
 }
-function IconFilter() {
+function IconChevronLeft() {
   return (
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-      <path
-        d="M1 3h13M3 7.5h9M5.5 12h4"
-        stroke="#6B8A7A"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function IconChevronRight() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function FavMarketsStrip({ markets, favs, onToggle }) {
+// -----------------------------------------------------------------------------
+// Componente: Fita de Mercados Favoritos com Destaque (Apenas Logos das Redes + Opção de Favoritar)
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+// Mapeamento visual estilo Master Supermercados (Badges circulares verdes + composição fotográfica)
+// -----------------------------------------------------------------------------
+const MASTER_CATEGORY_CAROUSEL = [
+  { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
+  { id: "hortifruti", label: "Hortifrúti", img: "/images/categorias/master/hortifruti.png", icon: "🍎" },
+  { id: "carnes", label: "Carnes", img: "/images/categorias/master/carnes.png", icon: "🥩" },
+  { id: "padaria", label: "Padaria", img: "/images/categorias/master/padaria.png", icon: "🥖" },
+  { id: "leites", label: "Frios e Laticínios", img: "/images/categorias/master/leites.png", icon: "🥛" },
+  { id: "bebidas", label: "Bebidas", img: "/images/categorias/master/bebidas.png", icon: "🍺" },
+  { id: "congelados", label: "Congelados", img: "/images/categorias/master/congelados.png", icon: "🧊" },
+  { id: "graos", label: "Grãos e Arroz", img: "/images/categorias/master/graos.png", icon: "🌾" },
+  { id: "cafe", label: "Café e Matinais", img: "/images/categorias/master/cafe.png", icon: "☕" },
+  { id: "limpeza", label: "Limpeza", img: "/images/categorias/master/limpeza.png", icon: "🧹" },
+  { id: "higiene", label: "Higiene", img: "/images/categorias/master/higiene.png", icon: "🧴" },
+  { id: "oleos", label: "Óleos e Azeites", img: "/images/categorias/master/oleos.png", icon: "🫙" },
+  { id: "biscoitos", label: "Biscoitos", img: "/images/categorias/master/biscoitos.png", icon: "🍪" },
+  { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
+  { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
+];
+
+function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScroll, { passive: true });
+      window.addEventListener("resize", checkScroll);
+      return () => {
+        el.removeEventListener("scroll", checkScroll);
+        window.removeEventListener("resize", checkScroll);
+      };
+    }
+  }, []);
+
+  const handleScroll = (dir) => {
+    if (!scrollRef.current) return;
+    const offset = dir === "left" ? -340 : 340;
+    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+  };
+
   return (
-    <div className="bg-white rounded-2xl border border-brand-border p-3 sm:p-4 flex items-center gap-3 flex-wrap shadow-xs">
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="text-amber-500 text-sm">⭐</span>
-        <span className="text-xs font-bold text-brand-navy whitespace-nowrap">
-          Mercados favoritos:
-        </span>
-      </div>
+    <div className="relative bg-white rounded-2xl border border-brand-border/70 p-2 sm:p-2.5 shadow-xs">
+      {/* Botão de Rolar para Esquerda */}
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => handleScroll("left")}
+          className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-brand-border/90 text-brand-navy hover:text-brand-green shadow-md flex items-center justify-center transition-all cursor-pointer hover:scale-105"
+          title="Departamentos anteriores"
+          aria-label="Departamentos anteriores"
+        >
+          <IconChevronLeft />
+        </button>
+      )}
+
+      {/* Rolo Horizontal de Departamentos */}
       <div
-        style={{
-          width: "1px",
-          height: "20px",
-          background: C.border,
-          flexShrink: 0,
-        }}
-      />
-      {markets.map((m) => {
-        const isFav = favs.includes(m.id);
-        return (
-          <button
-            key={m.id}
-            onClick={() => onToggle(m.id)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "7px",
-              padding: "6px 14px",
-              borderRadius: "20px",
-              border: "none",
-              background: isFav ? "#FFFBEB" : C.bg,
-              cursor: "pointer",
-              transition: "all 0.18s",
-              outline: isFav
-                ? `1.5px solid ${C.amber}`
-                : `1.5px solid ${C.border}`,
-            }}
-          >
-            <div
-              style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                background: m.color,
-              }}
-            />
-            <span
-              style={{
-                fontSize: "12px",
-                fontWeight: isFav ? 700 : 500,
-                color: isFav ? "#92400E" : C.navy,
-                fontFamily: "Poppins, sans-serif",
-              }}
+        ref={scrollRef}
+        className="flex items-start justify-between gap-4 sm:gap-6 md:gap-7 overflow-x-auto no-scrollbar scroll-smooth py-1.5 px-3"
+      >
+        {MASTER_CATEGORY_CAROUSEL.map((cat) => {
+          const isActive = selectedCat === cat.id;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onSelectCat(cat.id)}
+              className="group flex flex-col items-center shrink-0 cursor-pointer select-none transition-all duration-200 outline-none"
+              title={`Ver ${cat.label}`}
             >
-              {m.name}
-            </span>
-            <IconStar filled={isFav} />
-          </button>
-        );
-      })}
-      {favs.length === 0 && (
-        <span className="text-xs text-brand-muted italic">
-          Clique em uma rede para destacar seus preços prioritários.
-        </span>
+              {/* Círculo Badge Verde Master Supermercados */}
+              <div
+                className={`relative w-20 h-20 sm:w-24 sm:h-24 md:w-26 md:h-26 flex items-center justify-center rounded-2xl transition-all duration-300 ${
+                  isActive
+                    ? "ring-3 ring-[#065417] ring-offset-2 scale-105 bg-emerald-50/70 shadow-sm"
+                    : "group-hover:scale-105"
+                }`}
+              >
+                <img
+                  src={cat.img}
+                  alt={cat.label}
+                  loading="lazy"
+                  style={{ clipPath: "inset(0 0 8% 0)" }}
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-108 pointer-events-none"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    if (e.currentTarget.nextSibling) {
+                      e.currentTarget.nextSibling.style.display = "flex";
+                    }
+                  }}
+                />
+                <div
+                  style={{ display: "none" }}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#065417] text-white flex items-center justify-center text-2xl shadow-inner font-sans"
+                >
+                  {cat.icon}
+                </div>
+              </div>
+
+              {/* Rótulo do Departamento */}
+              <span
+                className={`mt-1.5 text-xs sm:text-[13px] font-extrabold text-center tracking-tight transition-colors line-clamp-1 ${
+                  isActive
+                    ? "text-[#065417] underline decoration-2 underline-offset-4"
+                    : "text-[#065417]/90 group-hover:text-[#065417]"
+                }`}
+              >
+                {cat.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Botão de Rolar para Direita */}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => handleScroll("right")}
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/95 border border-brand-border/90 text-brand-navy hover:text-brand-green shadow-md flex items-center justify-center transition-all cursor-pointer hover:scale-105"
+          title="Mais departamentos"
+          aria-label="Mais departamentos"
+        >
+          <IconChevronRight />
+        </button>
       )}
     </div>
   );
 }
 
+function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggleFav }) {
+  return (
+    <div className="bg-white rounded-2xl border border-brand-border/70 p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3 shadow-xs overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-2 shrink-0 px-2.5 sm:px-3.5 py-1.5 border-r border-brand-border/60">
+        <span className="text-amber-500 text-base">⭐</span>
+        <span className="text-xs sm:text-sm font-extrabold text-brand-navy whitespace-nowrap tracking-tight">
+          Redes do RS:
+        </span>
+      </div>
+      <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap flex-1 min-w-0">
+        {markets.map((m) => {
+          const isSelected = selectedMkt === m.id;
+          const isFav = favs.includes(m.id);
+          const logoSrc = MARKET_LOGOS[m.id];
+          const opticalClass = MARKET_LOGO_OPTICAL_CLASS[m.id] || "max-h-9 sm:max-h-10";
+          return (
+            <div
+              key={m.id}
+              onClick={() => onSelectMkt(isSelected ? "todos" : m.id)}
+              className={`group flex items-center justify-between gap-1.5 h-13 sm:h-14 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
+                isSelected
+                  ? "bg-emerald-50/90 border-brand-green ring-2 ring-brand-green/35 shadow-xs"
+                  : isFav
+                    ? "bg-amber-50/70 border-amber-300 shadow-2xs"
+                    : "bg-white border-brand-border/80 hover:bg-slate-50 hover:border-brand-green/50 shadow-2xs"
+              }`}
+              title={`Clique na logo para filtrar por ${m.name} ou na estrela para favoritar a rede`}
+            >
+              <div className="h-9 sm:h-10 flex-1 min-w-0 flex items-center justify-center overflow-hidden px-1">
+                {logoSrc ? (
+                  <img
+                    src={logoSrc}
+                    alt={m.name}
+                    className={`w-full object-contain transition-transform duration-200 group-hover:scale-105 ${opticalClass}`}
+                  />
+                ) : (
+                  <span className="text-xs sm:text-sm font-bold text-brand-navy truncate">
+                    {m.name}
+                  </span>
+                )}
+              </div>
+              {onToggleFav && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFav(m.id);
+                  }}
+                  title={isFav ? `${m.name} favoritado (clique para remover)` : `Favoritar rede ${m.name}`}
+                  className="shrink-0 p-1 rounded-lg transition-transform duration-200 hover:scale-110 cursor-pointer"
+                >
+                  <IconStar filled={isFav} />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Componente: Card de Produto (Compacto, Rico e Ergonômico)
 function ProductCard({
   product,
   markets,
@@ -205,320 +480,600 @@ function ProductCard({
   isFavProduct,
   onToggleFavProduct,
   onAdd,
+  onUpdateQty,
+  quantity = 0,
+  onOpenDetail,
+  isShelf = false,
 }) {
-  const [added, setAdded] = useState(false);
-  const best = cheapest(product, markets);
-  const bestMkt = best ? markets.find((m) => m.id === best[0]) : null;
+  const [justAdded, setJustAdded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
 
-  const favBest =
-    favMarkets.length > 0
-      ? markets
-          .filter((m) => favMarkets.includes(m.id))
-          .map((m) => [m.id, getPriceForMarket(product, m)])
-          .filter(([, v]) => v !== null && v !== undefined)
-          .sort((a, b) => a[1] - b[1])[0]
-      : null;
-  const favBestMkt = favBest ? markets.find((m) => m.id === favBest[0]) : null;
+  const imgSrc =
+    product.imageLocal ||
+    product.imagem_local ||
+    product.imageUrl ||
+    product.imagem_url ||
+    (typeof product.image === "string" && product.image.startsWith("http")
+      ? product.image
+      : null);
 
-  function handleAdd() {
-    const list = getList();
-    list[product.id] = (list[product.id] || 0) + 1;
-    saveList(list);
-    setAdded(true);
-    onAdd();
-    setTimeout(() => setAdded(false), 1400);
+  function handleAddClick(e) {
+    e.stopPropagation();
+    onAdd(product);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1200);
+  }
+
+  function handleIncrement(e) {
+    e.stopPropagation();
+    onUpdateQty(product.id, quantity + 1);
+  }
+
+  function handleDecrement(e) {
+    e.stopPropagation();
+    onUpdateQty(product.id, Math.max(0, quantity - 1));
+  }
+
+  if (!isShelf) {
+    return (
+      <div
+        onClick={() => {
+          setIsHovered(false);
+          if (onOpenDetail) onOpenDetail(product);
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="group relative bg-white rounded-3xl border border-brand-border/80 p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:border-brand-green/60 hover:-translate-y-0.5 cursor-pointer select-none w-full"
+      >
+        <div>
+          {/* Botão de Favoritar Produto */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavProduct(product.id);
+            }}
+            className={`absolute top-6 right-6 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+              isFavProduct
+                ? "bg-rose-50 text-rose-600 border border-rose-200"
+                : "bg-white/85 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-0 group-hover:opacity-100"
+            }`}
+            title={isFavProduct ? "Remover dos favoritos" : "Salvar nos favoritos"}
+          >
+            <IconHeart filled={isFavProduct} />
+          </button>
+
+          {/* Imagem do Produto com Preview 360° e Badges */}
+          <div className="relative w-full h-48 bg-slate-50/70 rounded-2xl overflow-hidden mb-3.5 border border-slate-100 flex items-center justify-center p-3 group-hover:bg-emerald-50/30 transition-colors">
+            <Product360HoverPreview
+              product={product}
+              alt={product.name}
+              className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-105"
+              fallbackIcon={product.image || "📦"}
+              isCardHovered={isHovered}
+            />
+
+            {product.promo && (
+              <span className="absolute top-2.5 left-2.5 bg-brand-coral text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-xs uppercase tracking-wider pointer-events-none">
+                Oferta
+              </span>
+            )}
+
+            <span className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-brand-navy text-[10px] font-bold px-2 py-0.5 rounded-lg border border-slate-200 pointer-events-none">
+              {product.unit || "1 un"}
+            </span>
+          </div>
+
+          {/* Categoria e Marca */}
+          <div className="flex items-start justify-between gap-2">
+            <span className="text-[11px] font-bold text-brand-green bg-brand-green-light px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              {product.category}
+            </span>
+            <span className="text-xs text-brand-muted font-medium truncate">
+              {product.brand || "Geral"}
+            </span>
+          </div>
+
+          {/* Nome e Descrição */}
+          <h3 className="text-sm font-bold text-brand-navy mt-2 line-clamp-2 leading-snug group-hover:text-brand-green transition-colors">
+            {product.name}
+          </h3>
+
+          <p className="line-clamp-2 text-[11px] text-brand-muted mt-1 min-h-[1.75rem]">
+            {product.descricao || product.name}
+          </p>
+        </div>
+
+        {/* Preço, Comparativo e Ação */}
+        <div className="space-y-2.5 pt-3 mt-2">
+          {pricing ? (
+            <>
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-green-light/60 border border-brand-green/20 text-xs">
+                <div className="min-w-0">
+                  <span className="block text-[10px] font-semibold text-emerald-800 truncate">
+                    Melhor Preço ({pricing.bestMarket.name})
+                    {pricing.isClube && (
+                      <span className="ml-1 text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                        🏷️ {pricing.clubeNome}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-lg font-black text-brand-green">
+                    R$ {pricing.bestPrice.toFixed(2)}
+                  </span>
+                </div>
+                {pricing.economia > 0 && (
+                  <span className="text-[10px] font-black text-white bg-brand-green px-2 py-1 rounded-lg shadow-xs shrink-0">
+                    -R$ {pricing.economia.toFixed(2)}
+                  </span>
+                )}
+              </div>
+
+              <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
+                <span>Comparado em {pricing.allPrices.length} mercados</span>
+                <span className="text-brand-navy font-bold group-hover:underline">
+                  Ver comparativo &rarr;
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="p-3 text-center text-xs text-brand-muted bg-slate-50 rounded-2xl">
+              Preço sob consulta
+            </div>
+          )}
+
+          <div className="pt-1">
+            {quantity > 0 ? (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-between bg-emerald-50 border border-brand-green/40 rounded-xl p-1 text-xs font-bold text-brand-navy"
+              >
+                <button
+                  type="button"
+                  onClick={handleDecrement}
+                  className="w-7 h-7 rounded-lg bg-white border border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                  title="Diminuir"
+                >
+                  –
+                </button>
+                <span className="px-2 font-black text-brand-green">
+                  {quantity} na lista
+                </span>
+                <button
+                  type="button"
+                  onClick={handleIncrement}
+                  className="w-7 h-7 rounded-lg bg-white border border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                  title="Aumentar"
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAddClick}
+                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
+                  justAdded
+                    ? "bg-emerald-600 text-white"
+                    : "bg-brand-green text-white hover:bg-brand-green-hover hover:shadow-md active:scale-98"
+                }`}
+              >
+                {justAdded ? <>✓ Adicionado à Lista!</> : <>+ Adicionar à Minha Lista</>}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div
-      style={{
-        background: C.white,
-        borderRadius: "16px",
-        border: `1px solid ${C.border}`,
-        padding: "16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-        position: "relative",
-        transition: "all 0.2s cubic-bezier(0.4,0,0.2,1)",
-        boxShadow: "0 1px 4px rgba(13,33,55,0.04)",
+      onClick={() => {
+        setIsHovered(false);
+        if (onOpenDetail) onOpenDetail(product);
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-3px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(13,33,55,0.09)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "none";
-        e.currentTarget.style.boxShadow = "0 1px 4px rgba(13,33,55,0.04)";
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`group relative bg-white rounded-2xl border border-brand-border/70 p-3 sm:p-3.5 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:border-brand-green/50 hover:-translate-y-1 cursor-pointer select-none ${
+        isShelf
+          ? "w-[205px] sm:w-[225px] shrink-0 snap-start"
+          : "w-full"
+      }`}
     >
+      {/* Botão de Favoritar Produto */}
       <button
-        onClick={() => onToggleFavProduct(product.id)}
-        title={isFavProduct ? "Remover dos favoritos" : "Favoritar produto"}
-        style={{
-          position: "absolute",
-          top: "12px",
-          right: "12px",
-          background: isFavProduct ? "#FFF1F2" : C.bg,
-          border: `1px solid ${isFavProduct ? "#FECDD3" : C.border}`,
-          borderRadius: "50%",
-          width: "30px",
-          height: "30px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          transition: "all 0.18s",
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavProduct(product.id);
         }}
+        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+          isFavProduct
+            ? "bg-rose-50 text-rose-600 border border-rose-200"
+            : "bg-white/80 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-0 group-hover:opacity-100 sm:opacity-70"
+        }`}
+        title={isFavProduct ? "Remover dos favoritos" : "Salvar nos favoritos"}
       >
         <IconHeart filled={isFavProduct} />
       </button>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <div
-          style={{
-            width: "48px",
-            height: "48px",
-            borderRadius: "12px",
-            background: C.bg,
-            border: `1px solid ${C.border}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "24px",
-            flexShrink: 0,
-          }}
-        >
-          {product.image && product.image.length <= 4 ? product.image : "📦"}
-        </div>
-        <div style={{ flex: 1, minWidth: 0, paddingRight: "28px" }}>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "11px",
-              color: C.muted,
-              fontWeight: 500,
-              textTransform: "uppercase",
-              letterSpacing: "0.4px",
-            }}
-          >
-            {product.brand || "Geral"}
-          </p>
-          <h3
-            style={{
-              margin: "1px 0 0",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: C.navy,
-              lineHeight: 1.3,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {product.name}
-          </h3>
-          <p style={{ margin: "2px 0 0", fontSize: "11px", color: C.muted }}>
-            {product.unit}
-          </p>
-        </div>
+      {/* Área da Imagem do Produto com Suporte a Preview 360° no Hover */}
+      <div className="relative w-full h-36 sm:h-38 bg-slate-50/60 rounded-xl overflow-hidden flex items-center justify-center p-2 mb-2 border border-slate-100 group-hover:bg-white transition-colors">
+        <Product360HoverPreview
+          product={product}
+          alt={product.name}
+          className="w-full h-full object-contain"
+          fallbackIcon={product.image || "📦"}
+          isCardHovered={isHovered}
+        />
+
+        {/* Badge de Oferta / Promoção */}
+        {product.promo && (
+          <span className="absolute top-2 left-2 bg-brand-coral text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">
+            Oferta
+          </span>
+        )}
+
+        {/* Unidade / Medida */}
+        <span className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200/80 shadow-2xs pointer-events-none">
+          {product.unit || "1 un"}
+        </span>
       </div>
 
-      <div style={{ height: "1px", background: C.border }} />
+      {/* Informações Textuais */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-[10px] text-brand-muted font-bold uppercase tracking-wider">
+          <span className="line-clamp-1">{product.brand || "Geral"}</span>
+          <span className="text-slate-400 font-normal capitalize">
+            {product.category}
+          </span>
+        </div>
 
-      {best && bestMkt && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: "#F0FDF4",
-            border: "1px solid #BBF7D0",
-            borderRadius: "10px",
-            padding: "8px 12px",
-          }}
-        >
+        <h3 className="text-xs sm:text-sm font-bold text-brand-navy line-clamp-2 leading-snug min-h-[2.5rem] group-hover:text-brand-green transition-colors">
+          {product.name}
+        </h3>
+      </div>
+
+      {/* Bloco de Preços e Comparação */}
+      <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+        {pricing ? (
           <div>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "10px",
-                color: C.green,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.3px",
-              }}
-            >
-              Melhor Preço
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "17px",
-                fontWeight: 800,
-                color: C.green,
-              }}
-            >
-              R$ {Number(best[1]).toFixed(2)}
-            </p>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "10px",
-                color: C.muted,
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <span
-                style={{
-                  width: "6px",
-                  height: "6px",
-                  borderRadius: "50%",
-                  background: bestMkt.color,
-                  display: "inline-block",
-                }}
-              />
-              {bestMkt.name}
-            </p>
-          </div>
-          {favBest && favBestMkt && favBestMkt.id !== bestMkt.id && (
-            <div
-              style={{
-                background: "#FFFBEB",
-                border: "1px solid #FDE68A",
-                borderRadius: "8px",
-                padding: "4px 8px",
-                textAlign: "right",
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "9px",
-                  color: "#92400E",
-                  fontWeight: 700,
-                }}
-              >
-                ⭐ {favBestMkt.name}
-              </p>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: "#92400E",
-                }}
-              >
-                R$ {Number(favBest[1]).toFixed(2)}
-              </p>
+            <div className="flex items-baseline justify-between gap-1">
+              <span className="text-[10px] text-brand-muted font-medium">
+                Melhor preço:
+              </span>
+              {pricing.economia > 0 && (
+                <span className="text-[10px] font-extrabold text-brand-green bg-emerald-50 px-1.5 py-0.2 rounded">
+                  -R$ {pricing.economia.toFixed(2)}
+                </span>
+              )}
             </div>
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-lg font-black text-brand-green leading-tight">
+                R$ {pricing.bestPrice.toFixed(2)}
+              </span>
+              <span className="text-[10px] text-brand-navy font-semibold truncate">
+                no {pricing.bestMarket.name}
+              </span>
+              {pricing.isClube && (
+                <span className="text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
+                  🏷️ {pricing.clubeNome}
+                </span>
+              )}
+            </div>
+
+            {/* Mini fita comparativa com preços nas redes */}
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pt-1.5">
+              {pricing.allPrices.slice(0, 3).map((item) => (
+                <span
+                  key={item.market.id}
+                  className={`text-[9px] px-1.5 py-0.5 rounded border whitespace-nowrap flex items-center gap-1 ${
+                    item.market.id === pricing.bestMarket.id
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200 font-bold"
+                      : "bg-slate-50 text-slate-600 border-slate-200"
+                  }`}
+                  title={`${item.market.name}: R$ ${Number(item.price).toFixed(2)}`}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: item.market.color || C.navy }}
+                  />
+                  <span>R$ {Number(item.price).toFixed(2)}</span>
+                </span>
+              ))}
+              {pricing.allPrices.length > 3 && (
+                <span className="text-[9px] text-brand-muted font-bold pl-0.5">
+                  +{pricing.allPrices.length - 3}
+                </span>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="text-xs text-brand-muted font-medium py-1">
+            Preço sob consulta
+          </div>
+        )}
+
+        {/* Botão de Adicionar ou Controle de Quantidade */}
+        <div className="pt-1">
+          {quantity > 0 ? (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center justify-between bg-emerald-50 border border-brand-green/40 rounded-xl p-1 text-xs font-bold text-brand-navy"
+            >
+              <button
+                type="button"
+                onClick={handleDecrement}
+                className="w-7 h-7 rounded-lg bg-white border border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                title="Diminuir"
+              >
+                –
+              </button>
+              <span className="px-2 font-black text-brand-green">
+                {quantity} na lista
+              </span>
+              <button
+                type="button"
+                onClick={handleIncrement}
+                className="w-7 h-7 rounded-lg bg-white border border-brand-green/30 text-brand-green hover:bg-brand-green hover:text-white flex items-center justify-center transition-colors shadow-2xs"
+                title="Aumentar"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddClick}
+              className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
+                justAdded
+                  ? "bg-emerald-600 text-white"
+                  : "bg-gradient-to-r from-brand-green to-brand-teal text-white hover:opacity-95 hover:shadow-md active:scale-98"
+              }`}
+            >
+              {justAdded ? (
+                <>✓ Adicionado!</>
+              ) : (
+                <>
+                  <IconCart /> Adicionar
+                </>
+              )}
+            </button>
           )}
         </div>
-      )}
-
-      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-        {markets.map((m) => {
-          const price = getPriceForMarket(product, m);
-          const isBest = best?.[0] === m.id;
-          const isFav = favMarkets.includes(m.id);
-          return (
-            <div
-              key={m.id}
-              title={m.name}
-              style={{
-                padding: "2px 7px",
-                borderRadius: "6px",
-                fontSize: "10px",
-                fontWeight: isBest ? 700 : 400,
-                background: isBest ? "#F0FDF4" : isFav ? "#FFFBEB" : C.bg,
-                color: isBest ? C.green : isFav ? "#92400E" : C.muted,
-                border: `1px solid ${isBest ? "#BBF7D0" : isFav ? "#FDE68A" : C.border}`,
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-              }}
-            >
-              <span
-                style={{
-                  width: "5px",
-                  height: "5px",
-                  borderRadius: "50%",
-                  background: m.color,
-                  display: "inline-block",
-                }}
-              />
-              {price !== null && price !== undefined
-                ? `R$ ${Number(price).toFixed(2)}`
-                : "—"}
-            </div>
-          );
-        })}
       </div>
-
-      <button
-        onClick={handleAdd}
-        style={{
-          marginTop: "auto",
-          width: "100%",
-          padding: "9px",
-          borderRadius: "10px",
-          border: "none",
-          background: added
-            ? "#F0FDF4"
-            : `linear-gradient(135deg, ${C.green}, ${C.teal})`,
-          color: added ? C.green : C.white,
-          fontFamily: "Poppins, sans-serif",
-          fontSize: "12px",
-          fontWeight: 700,
-          cursor: "pointer",
-          transition: "all 0.2s",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "6px",
-          boxShadow: added ? "none" : "0 2px 8px rgba(34,169,94,0.25)",
-          outline: added ? `1.5px solid #BBF7D0` : "none",
-        }}
-      >
-        {added ? (
-          <>✓ Adicionado!</>
-        ) : (
-          <>
-            <IconCart /> Adicionar à lista
-          </>
-        )}
-      </button>
     </div>
   );
 }
 
+// -----------------------------------------------------------------------------
+// Componente: Prateleira Horizontal por Categoria (Inspirada no Fort & Asun)
+// -----------------------------------------------------------------------------
+function CategoryShelf({
+  category,
+  products,
+  markets,
+  favMarkets,
+  favProducts,
+  onToggleFavProduct,
+  onAdd,
+  onUpdateQty,
+  listQuantities,
+  onOpenDetail,
+  onSelectCategory,
+}) {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const meta = CATEGORY_META[category.id] || {
+    banner: null,
+    subtitulo: `${products.length} itens disponíveis`,
+    cor: C.navy,
+  };
+
+  const updateScrollButtons = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setCanScrollLeft(scrollLeft > 8);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 8);
+  };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", updateScrollButtons, { passive: true });
+      window.addEventListener("resize", updateScrollButtons);
+      return () => {
+        el.removeEventListener("scroll", updateScrollButtons);
+        window.removeEventListener("resize", updateScrollButtons);
+      };
+    }
+  }, [products]);
+
+  const scroll = (direction) => {
+    if (!scrollRef.current) return;
+    const offset = direction === "left" ? -680 : 680;
+    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+  };
+
+  if (!products || products.length === 0) return null;
+
+  return (
+    <section className="bg-white rounded-3xl border border-brand-border/70 p-4 sm:p-6 shadow-xs space-y-4">
+      {/* Cabeçalho da Seção de Categoria idêntico às referências */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-brand-border/60">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-brand-green border border-emerald-100 flex items-center justify-center text-xl shadow-xs shrink-0">
+            {category.icon || "🛒"}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-extrabold text-brand-navy tracking-tight">
+                {category.label}
+              </h2>
+              <span className="text-[11px] font-bold text-brand-muted bg-brand-bg px-2.5 py-0.5 rounded-full border border-brand-border/70">
+                {products.length} itens
+              </span>
+            </div>
+            <p className="text-xs text-brand-muted mt-0.5">
+              {meta.subtitulo}
+            </p>
+          </div>
+        </div>
+
+        {/* Controles de Navegação Lateral da Prateleira */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            type="button"
+            onClick={() => onSelectCategory(category.id)}
+            className="text-xs font-bold text-brand-green hover:text-brand-green-hover hover:underline px-2 py-1"
+          >
+            Ver mais &rarr;
+          </button>
+          <div className="flex items-center gap-1.5 pl-2 border-l border-brand-border/60">
+            <button
+              type="button"
+              onClick={() => scroll("left")}
+              disabled={!canScrollLeft}
+              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                canScrollLeft
+                  ? "bg-white border-brand-border text-brand-navy hover:bg-brand-bg hover:border-brand-green/60 shadow-xs cursor-pointer"
+                  : "bg-slate-50 border-slate-200 text-slate-300 cursor-not-allowed"
+              }`}
+              title="Voltar produtos"
+            >
+              <IconChevronLeft />
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll("right")}
+              disabled={!canScrollRight}
+              className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
+                canScrollRight
+                  ? "bg-white border-brand-border text-brand-navy hover:bg-brand-bg hover:border-brand-green/60 shadow-xs cursor-pointer"
+                  : "bg-slate-50 border-slate-200 text-slate-300 cursor-not-allowed"
+              }`}
+              title="Avançar produtos"
+            >
+              <IconChevronRight />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Prateleira Horizontal com o Detalhe Lateral Vertical 253x453 no início */}
+      <div
+        ref={scrollRef}
+        className="flex items-stretch gap-4 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-0.5"
+      >
+        {/* DETALHE LATERAL VERTICAL DA CATEGORIA (253x453) - Idêntico às referências visuais */}
+        {meta.bannerVertical && (
+          <div
+            onClick={() => onSelectCategory(category.id)}
+            className="w-[160px] sm:w-[185px] md:w-[205px] shrink-0 self-stretch rounded-2xl overflow-hidden relative shadow-xs border border-brand-border/70 group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 snap-start bg-slate-50 flex items-center justify-center"
+            style={{ minHeight: "360px" }}
+            title={`Ver todos os produtos de ${category.label}`}
+          >
+            <img
+              src={meta.bannerVertical}
+              alt={`Departamento ${category.label}`}
+              loading="lazy"
+              className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-103"
+              onError={(e) => {
+                e.currentTarget.src =
+                  "https://edge.osuper.com.br/A7OpgT2DfMtAB4B3wwXrE5fMcic=/253x453/smart/https://osuper-ecommerce-asun.s3.sa-east-1.amazonaws.com/f683d8f8-bfb3c2f9padariaeconfeitaria.webp";
+              }}
+            />
+            {/* Tag flutuante sutil apenas no hover para indicar ação */}
+            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between text-white text-xs font-bold">
+              <span>Explorar {category.label}</span>
+              <span className="text-emerald-300 font-extrabold">&rarr;</span>
+            </div>
+          </div>
+        )}
+
+        {/* CARDS DE PRODUTOS DA CATEGORIA */}
+        {products.slice(0, 24).map((prod) => (
+          <ProductCard
+            key={prod.id}
+            product={prod}
+            markets={markets}
+            favMarkets={favMarkets}
+            isFavProduct={favProducts.includes(prod.id)}
+            onToggleFavProduct={onToggleFavProduct}
+            onAdd={onAdd}
+            onUpdateQty={onUpdateQty}
+            quantity={listQuantities[prod.id] || 0}
+            onOpenDetail={onOpenDetail}
+            isShelf={true}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// PÁGINA PRINCIPAL DO CATÁLOGO SMARTMARKET
+// -----------------------------------------------------------------------------
 export default function CatalogPage() {
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [markets, setMarkets] = useState(DEFAULT_MARKETS);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [cat, setCat] = useState("todos");
+  const [selectedCat, setSelectedCat] = useState("todos");
   const [mktFilter, setMktFilter] = useState("todos");
+  const [sortBy, setSortBy] = useState("relevancia");
+  const [viewMode, setViewMode] = useState("prateleiras"); // 'prateleiras' | 'grade'
   const [favMarkets, setFavMarkets] = useState([]);
-  const [favProducts, setFavProducts] = useState([]);
-  const [listCount, setListCount] = useState(() =>
-    Object.values(getList()).reduce((a, b) => a + b, 0),
+  const [favProducts, setFavProducts] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("sm_fav_products") || "[]");
+      return Array.isArray(saved) ? saved.map(String) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [selectedProductDetail, setSelectedProductDetail] = useState(null);
+  const [visibleLimit, setVisibleLimit] = useState(48);
+
+  useEffect(() => {
+    setVisibleLimit(48);
+  }, [selectedCat, search, mktFilter, sortBy, viewMode]);
+
+  // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
+  const [listQuantities, setListQuantities] = useState(() => getList());
+  const listCount = useMemo(
+    () => Object.values(listQuantities).filter((qty) => Number(qty || 0) > 0).length,
+    [listQuantities]
   );
 
+  // Carrega produtos da API com fallback robusto
   useEffect(() => {
     async function carregarDados() {
       try {
         setLoading(true);
-        const [prodsData, mktsData, favMktsData, favProdsData] =
-          await Promise.all([
-            produtoService.buscarCatalogoComPrecos(),
-            mercadoService.listar(),
-            favoritoService.listarMercados(),
-            favoritoService.listarProdutos(),
-          ]);
-        if (prodsData && prodsData.length > 0) setProducts(prodsData);
+        const [prodsData, mktsData, favMktsData, favProdsData] = await Promise.all([
+          produtoService.buscarCatalogoComPrecos().catch(() => null),
+          mercadoService.listar().catch(() => null),
+          favoritoService.listarMercados().catch(() => []),
+          favoritoService.listarProdutos().catch(() => []),
+        ]);
+        if (prodsData && prodsData.length > 0) {
+          const apiMap = new Map(prodsData.map((item) => [String(item.id), item]));
+          const merged = DEFAULT_PRODUCTS.map((defItem) =>
+            apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
+          );
+          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
+          prodsData.forEach((item) => {
+            if (!existingIds.has(String(item.id))) merged.push(item);
+          });
+          setProducts(merged);
+        }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
         if (Array.isArray(favMktsData)) {
           setFavMarkets(favMktsData.map((f) => f.mercadoId || f.id || f));
@@ -527,7 +1082,7 @@ export default function CatalogPage() {
           setFavProducts(favProdsData.map((f) => f.produtoId || f.id || f));
         }
       } catch {
-        // Fallback gracioso mantem dados padrao
+        // Fallback mantém DEFAULT_PRODUCTS e DEFAULT_MARKETS
       } finally {
         setLoading(false);
       }
@@ -535,15 +1090,20 @@ export default function CatalogPage() {
     carregarDados();
   }, []);
 
+  // Gestão de produtos favoritos (persiste sempre no localStorage)
   async function toggleFavProduct(id) {
-    const isFav = favProducts.includes(id);
-    const next = isFav
-      ? favProducts.filter((f) => f !== id)
-      : [...favProducts, id];
+    const idStr = String(id);
+    const isFav = favProducts.includes(idStr);
+    const next = isFav ? favProducts.filter((f) => f !== idStr) : [...favProducts, idStr];
     setFavProducts(next);
     try {
-      if (isFav) await favoritoService.desfavoritarProduto(id);
-      else await favoritoService.favoritarProduto(id);
+      localStorage.setItem("sm_fav_products", JSON.stringify(next));
+    } catch {
+      // fallback
+    }
+    try {
+      if (isFav) await favoritoService.desfavoritarProduto(idStr);
+      else await favoritoService.favoritarProduto(idStr);
     } catch {
       // silencioso fallback
     }
@@ -551,9 +1111,7 @@ export default function CatalogPage() {
 
   async function toggleFavMarket(id) {
     const isFav = favMarkets.includes(id);
-    const next = isFav
-      ? favMarkets.filter((f) => f !== id)
-      : [...favMarkets, id];
+    const next = isFav ? favMarkets.filter((f) => f !== id) : [...favMarkets, id];
     setFavMarkets(next);
     try {
       if (isFav) await favoritoService.desfavoritarMercado(id);
@@ -563,262 +1121,448 @@ export default function CatalogPage() {
     }
   }
 
-  function onAdd() {
-    setListCount(Object.values(getList()).reduce((a, b) => a + b, 0));
+  // Gestão de itens na lista
+  function handleAddToList(prod) {
+    const next = { ...listQuantities, [prod.id]: (listQuantities[prod.id] || 0) + 1 };
+    setListQuantities(next);
+    saveList(next);
   }
 
-  const filtered = products.filter((p) => {
-    if (
-      cat !== "todos" &&
-      p.category?.toLowerCase() !== cat.toLowerCase() &&
-      !p.category?.toLowerCase().includes(cat.toLowerCase())
-    )
-      return false;
-    if (mktFilter !== "todos") {
-      const price = getPriceForMarket(p, { id: mktFilter });
-      if (price === null || price === undefined) return false;
+  function handleUpdateQty(prodId, qty) {
+    const next = { ...listQuantities };
+    if (qty <= 0) {
+      delete next[prodId];
+    } else {
+      next[prodId] = qty;
     }
-    if (
-      search &&
-      !p.name?.toLowerCase().includes(search.toLowerCase()) &&
-      !p.brand?.toLowerCase().includes(search.toLowerCase())
-    )
-      return false;
-    return true;
-  });
+    setListQuantities(next);
+    saveList(next);
+  }
+
+  // Filtragem e ordenação inteligente dos produtos
+  const filteredProducts = useMemo(() => {
+    let result = products.filter((p) => {
+      // Filtro de Categoria
+      if (
+        selectedCat !== "todos" &&
+        p.category?.toLowerCase() !== selectedCat.toLowerCase() &&
+        !p.category?.toLowerCase().includes(selectedCat.toLowerCase())
+      ) {
+        return false;
+      }
+      // Filtro de Rede
+      if (mktFilter !== "todos") {
+        const price = getPriceForMarket(p, { id: mktFilter });
+        if (price === null || price === undefined || Number(price) <= 0) return false;
+      }
+      // Filtro de Texto (Nome e Marca — insensível a acentos e respeitando fronteira de palavras curtas)
+      if (search.trim()) {
+        const fold = (s) =>
+          String(s || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+        const queryFolded = fold(search).trim();
+        const nameAndBrand = `${fold(p.name)} ${fold(p.brand)}`;
+        if (!nameAndBrand.includes(queryFolded)) {
+          const words = nameAndBrand.split(/[^a-z0-9]+/).filter(Boolean);
+          const tokens = queryFolded.split(/\s+/).filter((tk) => tk.length > 1 && tk !== "de" && tk !== "em" && tk !== "do" && tk !== "da" && tk !== "com" && tk !== "para");
+          if (tokens.length === 0) return false;
+          const allMatch = tokens.every((tk) =>
+            tk.length <= 3 ? words.includes(tk) : words.some((w) => w.includes(tk))
+          );
+          if (!allMatch) return false;
+        }
+      }
+      return true;
+    });
+
+    // Ordenação (prioriza correspondência exata do termo buscado no nome)
+    if (search.trim()) {
+      const qFold = search
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+      result.sort((a, b) => {
+        const aExact = (a.name || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(qFold)
+          ? 0
+          : 1;
+        const bExact = (b.name || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .includes(qFold)
+          ? 0
+          : 1;
+        return aExact - bExact;
+      });
+    }
+    if (sortBy === "menor-preco") {
+      result.sort((a, b) => {
+        const pA = getProductPricing(a, markets)?.bestPrice || 99999;
+        const pB = getProductPricing(b, markets)?.bestPrice || 99999;
+        return pA - pB;
+      });
+    } else if (sortBy === "maior-economia") {
+      result.sort((a, b) => {
+        const pA = getProductPricing(a, markets)?.economia || 0;
+        const pB = getProductPricing(b, markets)?.economia || 0;
+        return pB - pA;
+      });
+    } else if (sortBy === "nome") {
+      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    }
+
+    return result;
+  }, [products, selectedCat, mktFilter, search, sortBy, markets]);
+
+  // Agrupamento por categorias para o layout horizontal de prateleiras
+  const groupedCategories = useMemo(() => {
+    const catsToRender =
+      selectedCat === "todos"
+        ? CATEGORIES.filter((c) => c.id !== "todos")
+        : CATEGORIES.filter((c) => c.id === selectedCat);
+
+    return catsToRender
+      .map((category) => {
+        const prods = filteredProducts.filter((p) => {
+          const catP = (p.category || "").toLowerCase();
+          return catP === category.id.toLowerCase() || catP.includes(category.id.toLowerCase());
+        });
+        return { category, products: prods };
+      })
+      .filter((group) => group.products.length > 0);
+  }, [filteredProducts, selectedCat]);
 
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", minHeight: "100%" }}
-    >
-      {/* Top bar */}
-      <div
-        style={{
-          background: C.white,
-          borderBottom: `1px solid ${C.border}`,
-          padding: "20px 28px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <div style={{ flex: 1 }}>
-            <h1
-              style={{
-                fontSize: "18px",
-                fontWeight: 800,
-                color: C.navy,
-                margin: 0,
-                letterSpacing: "-0.3px",
-              }}
-            >
-              Catálogo de Produtos
-            </h1>
-            <p style={{ fontSize: "11px", color: C.muted, margin: "1px 0 0" }}>
-              {loading
-                ? "Carregando catálogo..."
-                : `SmartMarket API Conectada · ${products.length} itens encontrados`}
-            </p>
-          </div>
-          <div style={{ position: "relative", flex: 1, maxWidth: "480px" }}>
-            <div
-              style={{
-                position: "absolute",
-                left: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                pointerEvents: "none",
-              }}
-            >
-              <IconSearch />
+    <div className="flex flex-col min-h-screen bg-brand-bg text-brand-navy">
+      {/* 1. TOPO FIXO E CONTROLES DE NAVEGAÇÃO */}
+      <header className="bg-white border-b border-brand-border/80 sticky top-0 z-30 shadow-xs">
+        <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-3.5 space-y-3">
+          {/* Linha 1: Título, Busca Rápida e Botão Minha Lista */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl sm:text-2xl font-black text-brand-navy tracking-tight">
+                  Catálogo SmartMarket
+                </h1>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-brand-green border border-emerald-200">
+                  RS
+                </span>
+              </div>
+              <p className="text-xs text-brand-muted mt-0.5">
+                {loading
+                  ? "Sincronizando prateleiras..."
+                  : `8 Redes do RS integradas · ${filteredProducts.length} produtos disponíveis`}
+              </p>
             </div>
-            <input
-              type="text"
-              placeholder="Buscar produto, marca ou categoria…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px 16px 12px 44px",
-                borderRadius: "14px",
-                border: `1.5px solid ${search ? C.green : C.border}`,
-                background: C.bg,
-                color: C.navy,
-                fontSize: "14px",
-                fontFamily: "Poppins, sans-serif",
-                outline: "none",
-                transition: "border-color 0.18s",
-                boxSizing: "border-box",
-              }}
-            />
-            {search && (
-              <button
-                onClick={() => setSearch("")}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: C.muted,
-                  fontSize: "16px",
-                  lineHeight: 1,
-                  padding: "2px",
-                }}
+
+            {/* Input de Busca Especializada */}
+            <div className="relative flex-1 max-w-lg">
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                <IconSearch />
+              </div>
+              <input
+                type="text"
+                placeholder="Buscar arroz, leite, café, marca ou categoria…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-brand-border/80 bg-brand-bg text-sm text-brand-navy placeholder:text-brand-muted focus:outline-none focus:border-brand-green focus:bg-white transition-all shadow-2xs font-sans"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-navy text-xs font-bold p-1"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Controles Rápidos + Botão Minha Lista */}
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {/* Filtro por Supermercado */}
+              <select
+                value={mktFilter}
+                onChange={(e) => setMktFilter(e.target.value)}
+                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer"
+                title="Filtrar por rede"
               >
-                ✕
-              </button>
-            )}
+                <option value="todos">Todas as redes</option>
+                {markets.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Ordenar */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer hidden sm:block"
+                title="Critério de ordenação"
+              >
+                <option value="relevancia">Relevância</option>
+                <option value="menor-preco">Menor Preço</option>
+                <option value="maior-economia">Maior Economia</option>
+                <option value="nome">Nome (A-Z)</option>
+              </select>
+
+              {/* Toggle: Prateleiras vs Grade */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-brand-border/70">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("prateleiras")}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "prateleiras"
+                      ? "bg-white text-brand-navy shadow-xs"
+                      : "text-brand-muted hover:text-brand-navy"
+                  }`}
+                  title="Visualização em prateleiras horizontais por categoria"
+                >
+                  Prateleiras
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grade")}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    viewMode === "grade"
+                      ? "bg-white text-brand-navy shadow-xs"
+                      : "text-brand-muted hover:text-brand-navy"
+                  }`}
+                  title="Visualização em grade contínua"
+                >
+                  Grade
+                </button>
+              </div>
+
+              <a
+                href="/list"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-teal text-white text-xs font-bold shadow-sm hover:shadow-md transition-all shrink-0"
+              >
+                <IconCart />
+                <span>Minha Lista</span>
+                {listCount > 0 && (
+                  <span className="bg-white/25 px-2 py-0.5 rounded-full text-[11px] font-black">
+                    {listCount}
+                  </span>
+                )}
+              </a>
+            </div>
           </div>
-          <a
-            href="/list"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "11px 18px",
-              borderRadius: "12px",
-              textDecoration: "none",
-              background: `linear-gradient(135deg, ${C.green}, ${C.teal})`,
-              color: C.white,
-              fontSize: "13px",
-              fontWeight: 700,
-              boxShadow: "0 2px 10px rgba(34,169,94,0.28)",
-              flexShrink: 0,
-            }}
-          >
-            <IconCart />
-            Minha lista
-            {listCount > 0 && (
-              <span
-                style={{
-                  background: "rgba(255,255,255,0.25)",
-                  borderRadius: "20px",
-                  padding: "1px 7px",
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  minWidth: "20px",
-                  textAlign: "center",
-                }}
-              >
-                {listCount}
-              </span>
-            )}
-          </a>
+
+          {/* Linha 2: Fita de Redes do RS */}
+          <FavMarketsStrip
+            markets={markets}
+            selectedMkt={mktFilter}
+            onSelectMkt={setMktFilter}
+            favs={favMarkets}
+            onToggleFav={toggleFavMarket}
+          />
+
+          {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados) */}
+          <DepartmentVisualCarousel
+            selectedCat={selectedCat}
+            onSelectCat={setSelectedCat}
+          />
         </div>
+      </header>
 
-        <FavMarketsStrip
-          markets={markets}
-          favs={favMarkets}
-          onToggle={toggleFavMarket}
-        />
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            overflowX: "auto",
-            paddingBottom: "2px",
-          }}
-        >
-          {CATEGORIES.map((c) => {
-            const active = cat === c.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setCat(c.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "7px 14px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: active ? C.navy : C.bg,
-                  color: active ? C.white : C.navy,
-                  fontSize: "12px",
-                  fontWeight: active ? 700 : 500,
-                  fontFamily: "Poppins, sans-serif",
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                  whiteSpace: "nowrap",
-                  outline: active ? "none" : `1px solid ${C.border}`,
-                }}
-              >
-                <span>{c.icon}</span>
-                <span>{c.label}</span>
-              </button>
-            );
-          })}
-
-          <div
-            style={{
-              marginLeft: "auto",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              flexShrink: 0,
-            }}
-          >
-            <IconFilter />
-            <select
-              value={mktFilter}
-              onChange={(e) => setMktFilter(e.target.value)}
-              style={{
-                padding: "6px 10px",
-                borderRadius: "8px",
-                border: `1px solid ${C.border}`,
-                background: C.bg,
-                color: C.navy,
-                fontSize: "12px",
-                fontFamily: "Poppins, sans-serif",
-                cursor: "pointer",
-                outline: "none",
-              }}
+      {/* 2. CONTEÚDO PRINCIPAL DO CATÁLOGO */}
+      <main className="w-full max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 space-y-8">
+        {/* Banner de Contexto de Busca Ativa */}
+        {search.trim() && (
+          <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs text-brand-muted">Resultados da busca para:</p>
+              <h2 className="text-base font-extrabold text-brand-navy">
+                &ldquo;{search}&rdquo;
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="text-xs font-bold text-brand-green hover:underline"
             >
-              <option value="todos">Todos os mercados</option>
-              {markets.map((m) => (
-                <option key={m.id} value={m.id}>
-                  Apenas {m.name}
-                </option>
-              ))}
-            </select>
+              Limpar busca
+            </button>
           </div>
-        </div>
-      </div>
+        )}
 
-      <div style={{ flex: 1, padding: "24px 28px", background: C.bg }}>
-        <p style={{ margin: "0 0 16px", fontSize: "12px", color: C.muted }}>
-          Exibindo <strong>{filtered.length}</strong> de {products.length}{" "}
-          produtos
-        </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-            gap: "16px",
-          }}
-        >
-          {filtered.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              markets={markets}
-              favMarkets={favMarkets}
-              isFavProduct={favProducts.includes(p.id)}
-              onToggleFavProduct={toggleFavProduct}
-              onAdd={onAdd}
-            />
-          ))}
-        </div>
-      </div>
+        {/* MODO A: PRATELEIRAS HORIZONTAIS (QUANDO EM "TODOS OS DEPARTAMENTOS", SEM BUSCA ATIVA E MODO PRATELEIRAS) */}
+        {viewMode === "prateleiras" && selectedCat === "todos" && !search.trim() && (
+          <div className="space-y-8">
+            {groupedCategories.length > 0 ? (
+              groupedCategories.map(({ category, products: catProds }) => (
+                <CategoryShelf
+                  key={category.id}
+                  category={category}
+                  products={catProds}
+                  markets={markets}
+                  favMarkets={favMarkets}
+                  favProducts={favProducts}
+                  onToggleFavProduct={toggleFavProduct}
+                  onAdd={handleAddToList}
+                  onUpdateQty={handleUpdateQty}
+                  listQuantities={listQuantities}
+                  onOpenDetail={setSelectedProductDetail}
+                  onSelectCategory={(id) => {
+                    setSelectedCat(id);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                />
+              ))
+            ) : (
+              <div className="bg-white rounded-3xl border border-brand-border p-12 text-center space-y-3">
+                <div className="text-4xl">🔍</div>
+                <h3 className="text-base font-extrabold text-brand-navy">
+                  Nenhum produto encontrado com os filtros aplicados
+                </h3>
+                <p className="text-xs text-brand-muted max-w-sm mx-auto">
+                  Tente alterar o termo digitado ou redefinir a rede selecionada.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setSelectedCat("todos");
+                    setMktFilter("todos");
+                  }}
+                  className="mt-2 px-4 py-2 rounded-xl bg-brand-green text-white text-xs font-bold hover:bg-brand-green-hover"
+                >
+                  Restaurar Catálogo Completo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MODO B: GRADE VERTICAL DE PRODUTOS (AO CLICAR EM UMA CATEGORIA, PESQUISAR OU ATIVAR MODO GRADE) */}
+        {(viewMode === "grade" || selectedCat !== "todos" || Boolean(search.trim())) && (
+          <div className="space-y-5">
+            {selectedCat !== "todos" ? (
+              (() => {
+                const activeCatObj = CATEGORIES.find((c) => c.id === selectedCat);
+                const meta = CATEGORY_META[selectedCat];
+                return (
+                  <div className="bg-white rounded-2xl border border-brand-border/80 px-4 py-3.5 sm:px-5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-brand-green border border-emerald-100 flex items-center justify-center text-xl shadow-xs shrink-0">
+                        {activeCatObj?.icon || "🛒"}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-base sm:text-lg font-extrabold text-brand-navy tracking-tight">
+                            {activeCatObj?.label || selectedCat}
+                          </h2>
+                          <span className="text-[11px] font-bold text-brand-muted bg-brand-bg px-2.5 py-0.5 rounded-full border border-brand-border/70">
+                            {filteredProducts.length} itens
+                          </span>
+                        </div>
+                        {meta?.subtitulo && (
+                          <p className="text-xs text-brand-muted mt-0.5">
+                            {meta.subtitulo}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCat("todos")}
+                      className="text-xs font-bold text-brand-green hover:text-brand-green-hover hover:underline px-3 py-1.5 rounded-xl bg-brand-green-light/70 cursor-pointer"
+                    >
+                      &larr; Ver todos os departamentos
+                    </button>
+                  </div>
+                );
+              })()
+            ) : (
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-brand-muted uppercase tracking-wider">
+                  Mostrando {filteredProducts.length} produtos
+                </span>
+              </div>
+            )}
+
+            {filteredProducts.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filteredProducts.slice(0, visibleLimit).map((prod) => (
+                    <ProductCard
+                      key={prod.id}
+                      product={prod}
+                      markets={markets}
+                      favMarkets={favMarkets}
+                      isFavProduct={favProducts.includes(prod.id)}
+                      onToggleFavProduct={toggleFavProduct}
+                      onAdd={handleAddToList}
+                      onUpdateQty={handleUpdateQty}
+                      quantity={listQuantities[prod.id] || 0}
+                      onOpenDetail={setSelectedProductDetail}
+                      isShelf={false}
+                    />
+                  ))}
+                </div>
+                {filteredProducts.length > visibleLimit && (
+                  <div className="flex flex-col items-center justify-center pt-6 gap-2">
+                    <span className="text-xs font-semibold text-brand-muted">
+                      Exibindo {visibleLimit} de {filteredProducts.length} produtos encontrados
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setVisibleLimit((prev) => prev + 48)}
+                      className="px-6 py-3 rounded-2xl bg-brand-navy text-white text-xs sm:text-sm font-extrabold hover:bg-brand-green transition-colors shadow-sm cursor-pointer"
+                    >
+                      Carregar mais produtos (+48)
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-white rounded-3xl border border-brand-border p-12 text-center space-y-3">
+                <div className="text-4xl">🔍</div>
+                <h3 className="text-base font-extrabold text-brand-navy">
+                  Nenhum produto encontrado nesta categoria
+                </h3>
+                <p className="text-xs text-brand-muted max-w-sm mx-auto">
+                  Tente alterar o termo digitado ou redefinir a rede selecionada.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setSelectedCat("todos");
+                    setMktFilter("todos");
+                  }}
+                  className="mt-2 px-4 py-2 rounded-xl bg-brand-green text-white text-xs font-bold hover:bg-brand-green-hover"
+                >
+                  Restaurar Catálogo Completo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* 3. MODAL DE DETALHES 360º DO PRODUTO */}
+      <ProductDetailModal
+        product={selectedProductDetail}
+        allProducts={products}
+        onSelectProduct={setSelectedProductDetail}
+        markets={markets}
+        isOpen={Boolean(selectedProductDetail)}
+        onClose={() => setSelectedProductDetail(null)}
+        onAddToList={handleAddToList}
+        isFavorite={selectedProductDetail ? favProducts.includes(selectedProductDetail.id) : false}
+        onToggleFavorite={toggleFavProduct}
+      />
     </div>
   );
 }

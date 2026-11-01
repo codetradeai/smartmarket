@@ -174,8 +174,17 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                     produto_id = aprovado
                 else:
                     p = row['produto']
-                    cur.execute('INSERT INTO produto(nome,nome_normalizado,marca,quantidade,unidade,codigo_barras,categoria) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
-                                tuple(p[k] for k in ['nome','nome_normalizado','marca','quantidade','unidade','codigo_barras','categoria']))
+                    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='produto'")
+                    cols_produto = {r[0] for r in cur.fetchall()}
+                    campos = ['nome', 'nome_normalizado', 'marca', 'quantidade', 'unidade', 'codigo_barras', 'categoria']
+                    if 'imagem_url' in cols_produto and p.get('imagem_url') is not None:
+                        campos.append('imagem_url')
+                    if 'descricao' in cols_produto and p.get('descricao') is not None:
+                        campos.append('descricao')
+                    cols_str = ','.join(campos)
+                    placeholders = ','.join(['%s'] * len(campos))
+                    cur.execute(f'INSERT INTO produto({cols_str}) VALUES({placeholders}) RETURNING id',
+                                tuple(p[k] for k in campos))
                     produto_id = cur.fetchone()[0]
                     resumo['produtos_criados'] += 1
                 if not existente:

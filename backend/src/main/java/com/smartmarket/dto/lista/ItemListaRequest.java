@@ -2,7 +2,11 @@ package com.smartmarket.dto.lista;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -11,11 +15,10 @@ import lombok.*;
 @Builder
 public class ItemListaRequest {
 
-    @NotNull(message = "O ID do produto e obrigatorio")
+    @NotNull(message = "produtoId e obrigatorio")
     private Long produtoId;
 
-    @NotNull(message = "A quantidade e obrigatoria")
-    @Positive(message = "A quantidade deve ser maior que zero")
-    @Builder.Default
-    private Integer quantidade = 1;
+    @NotNull(message = "quantidade e obrigatoria")
+    @Positive(message = "quantidade deve ser maior que zero")
+    private Integer quantidade;
 }

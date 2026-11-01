@@ -5,9 +5,15 @@ import com.smartmarket.dto.produto.ProdutoResponse;
 import com.smartmarket.exception.ProdutoNaoEncontradoException;
 import com.smartmarket.model.Produto;
 import com.smartmarket.repository.ProdutoRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -84,6 +90,54 @@ class ProdutoServiceTest {
 
         assertThat(resultado.getContent()).hasSize(1);
         verify(produtoRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "\t"})
+    @SuppressWarnings("unchecked")
+    void buscar_ComNomeECategoriaEmBranco_NaoDeveAplicarFiltros(String emBranco) {
+        Specification<Produto> spec = capturarSpecification(emBranco, emBranco);
+
+        Root<Produto> root = mock(Root.class);
+        spec.toPredicate(root, mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
+
+        verifyNoInteractions(root);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void buscar_SomenteComNome_DeveAplicarApenasFiltroDeNome() {
+        Specification<Produto> spec = capturarSpecification("arroz", "  ");
+
+        Root<Produto> root = mock(Root.class);
+        spec.toPredicate(root, mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
+
+        verify(root).get("nome");
+        verify(root, never()).get("categoria");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void buscar_SomenteComCategoria_DeveAplicarApenasFiltroDeCategoria() {
+        Specification<Produto> spec = capturarSpecification("", "mercearia");
+
+        Root<Produto> root = mock(Root.class);
+        spec.toPredicate(root, mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
+
+        verify(root, atLeastOnce()).get("categoria");
+        verify(root, never()).get("nome");
+    }
+
+    @SuppressWarnings("unchecked")
+    private Specification<Produto> capturarSpecification(String nome, String categoria) {
+        when(produtoRepository.findAll(any(Specification.class), any(Pageable.class)))
+            .thenReturn(Page.empty(pageable));
+
+        produtoService.buscar(nome, categoria, pageable);
+
+        ArgumentCaptor<Specification<Produto>> captor = ArgumentCaptor.forClass(Specification.class);
+        verify(produtoRepository).findAll(captor.capture(), any(Pageable.class));
+        return captor.getValue();
     }
 
     @Test

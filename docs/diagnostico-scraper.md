@@ -221,3 +221,81 @@ Um commit por item, na branch `fix/scraper-precos-reais`. Suíte do scraper: `py
 - **`data_fim` NULL × backend:** `Promocao.dataFim` está como `nullable = false` em `backend/.../model/Promocao.java:39` e `PromocaoRequest` exige `dataFim`. Se o SQL gerado for aplicado num banco com essa restrição, os INSERTs de promoção sem validade vão falhar. É preciso decidir entre tornar a coluna opcional no backend ou não gerar promoção sem validade.
 - **Tempo de execução do sincronizador:** com 2 s entre requisições, a varredura completa (≈ 60 termos mais 7 categorias, com várias páginas cada) leva bastante mais do que antes.
 - **Produtos sem preço por rede** (projeção sobre os 9.406 produtos atuais do `data.js`, antes de regenerá-lo): ver a resposta na conversa; o `data.js` **não foi regenerado**.
+
+---
+
+## 14. EAN/GTIN e casamento de produtos entre redes (levantamento de 2026-11-03)
+
+Nenhum código foi alterado. Os scripts de sondagem ficaram fora do repositório. Todas as requisições respeitaram **2 s por host** e usaram o User-Agent `SmartMarketBot/0.1 (… contato …)`. Para Zaffari e Rissul (`Disallow: /api` no robots) **não usei a API**: li as páginas de produto (`…/p`), que o robots permite. Para o Carrefour, também li as páginas de produto, porque a listagem não traz EAN.
+
+### 14.1 Quem expõe EAN, em qual campo, e se o coletor já guarda
+
+| Rede | Fonte do EAN | Campo | Amostra com EAN (de 20) | GTIN válido (dígito verificador) | O coletor guarda hoje? |
+|---|---|---|---|---|---|
+| Zaffari | HTML da página de produto (estado embutido); a API VTEX também traz | `"ean"` / `items[0].ean` | **20/20** | 20 | Não |
+| Rissul | idem Zaffari | `"ean"` / `items[0].ean` | **20/20** | 20 | Não |
+| Atacadão | API VTEX | `items[0].ean` (também filtra por `fq=alternateIds_Ean:<ean>`) | **20/20** | 20 | Não |
+| Master | API VipCommerce | `codigo_barras` | **20/20** preenchidos | 16 EAN-13 + 1 de 12 dígitos; **3 são códigos internos** (`364670001`, `49072`, `39870001`) | Não (só usa como ID de reserva) |
+| Stok | API VipCommerce | `codigo_barras` | **20/20** | 20 | Não (idem Master) |
+| Carrefour | Só na **página do produto**; a listagem (`items[0].ean`) vem vazia | `"ean"` | **19/20** | 19 | Não |
+| Asun | **Não expõe** (nem na API, nem na página) | só `id` interno OSuper (7 dígitos) | **0/20** | — | — |
+| Fort | **Não expõe** (idem Asun) | só `id` interno OSuper | **0/20** | — | — |
+
+- A amostra foi de **4 produtos por termo** (arroz, feijão, leite, café, açúcar), preferindo marcas nacionais comuns. **Exceção:** a amostra do Zaffari são 20 URLs da coleta anterior, porque o sitemap do Zaffari não lista produtos. Ela é mais heterogênea, e a taxa de EAN não depende disso.
+- O banco já tem `produto.codigo_barras` (`Produto.java:32`, `pipeline.py:179`), mas `normalizacao.py:43` grava sempre `None` e o `data.sql` diz que "o arquivo de coleta não traz EAN". **O EAN existe em 6 das 8 redes e hoje é descartado.**
+- No Master, ~15% da amostra tinha `codigo_barras` que não é EAN (códigos internos de 5 a 9 dígitos). É preciso validar comprimento e dígito verificador antes de confiar no campo.
+
+### 14.2 Sobreposição de EANs
+
+A amostra de 20 por rede, comparada diretamente, quase não se cruza (4 EANs repetidos em 113): são 20 itens de catálogos com milhares de produtos. Por isso fiz uma segunda medição: peguei os **112 EANs únicos válidos** da amostra e procurei cada um por EAN em **Atacadão, Master e Stok**, as três redes cuja API deixa buscar por EAN (Atacadão por filtro, Master e Stok pela busca por termo). Zaffari, Rissul e Carrefour não têm busca por EAN permitida, então **só medem pares com essas três**.
+
+**Origem → alvo: quantos EANs da amostra da origem foram achados no alvo**
+
+| Origem (amostra) | no Master | no Stok | no Atacadão |
+|---|---|---|---|
+| Zaffari | 4/20 | 3/20 | 6/20 |
+| Rissul | 6/20 | 7/20 | 10/20 |
+| Carrefour | 7/19 | 4/19 | 14/19 |
+| Stok | 12/20 | — | 16/20 |
+| Atacadão | 7/20 | 4/20 | — |
+| Master | — | 6/17 | 10/17 |
+
+**Matriz de sobreposição** (EANs em comum, dos 112 sondados; `n/m` = não mensurável, sem busca por EAN)
+
+| | Zaffari | Rissul | Carrefour | Stok | Atacadão | Master |
+|---|---|---|---|---|---|---|
+| **Zaffari** | — | n/m | n/m | 3 | 6 | 4 |
+| **Rissul** | n/m | — | n/m | 7 | 10 | 6 |
+| **Carrefour** | n/m | n/m | — | 4 | 14 | 7 |
+| **Stok** | 3 | 7 | 4 | — | 35 | 27 |
+| **Atacadão** | 6 | 10 | 14 | 35 | — | 39 |
+| **Master** | 4 | 6 | 7 | 27 | 39 | — |
+
+- **Maiores sobreposições:** Atacadão–Master (39), Atacadão–Stok (35) e Master–Stok (27). Depois vêm Atacadão–Carrefour (14) e Atacadão–Rissul (10). O Atacadão é o par mais forte de quase todas as redes.
+- **Distribuição por EAN** (entre as 6 redes sondáveis): 49 de 112 estão em **uma** rede só, 27 em duas, 27 em três e 9 em quatro. Ou seja, **56% dos EANs da amostra aparecem em pelo menos duas redes**. Esse valor é um **piso**, porque Zaffari, Rissul e Carrefour só foram consultadas nos pares acima.
+- **Viés da amostra:** são itens de marcas nacionais populares em 5 categorias de mercearia. Em hortifruti, açougue, padaria e marcas próprias a sobreposição tende a ser bem menor.
+- Asun e Fort não entram na matriz por não terem EAN.
+
+### 14.3 Produtos sem EAN (Asun e Fort): dá para casar por marca + nome + unidade?
+
+Medi a heurística nos pares em que o EAN é a verdade: **116 pares** (mesmo EAN, redes diferentes). A chave usada foi: nome sem acentos e sem as palavras vazias ("de", "tipo", "uht"…), tokens ordenados, e unidade normalizada para g/ml (1 kg = 1000 g, 1 l = 1000 ml).
+
+| Regra | Pares reais que casaram | Colisões entre produtos de EAN diferente (1.953 pares) |
+|---|---|---|
+| Chave **idêntica** | 25 de 116 (**22%**) | 0 |
+| Mesma unidade + tokens com Jaccard ≥ 0,6 | 68 de 116 (**59%**) | **3** |
+
+- **Falhas por abreviação e variação de nome:** "Arroz Bco Blue Ville Tp1 1kg" × "Arroz Blue Ville Branco Tipo 1 1kg"; "Café Melitta Regiões Mogiana 250g" × "…Brasileiras Mogiana 250g"; "Leite em Pó Nan Comfort N2 800g" × "Fórmula Infantil Nestlé Nan Comfor 2 800g".
+- **As 3 colisões da regra tolerante são perigosas, porque mesma marca e mesma unidade não bastam:** "Leite Italac UHT Integral 1l" × "Leite **sem Lactose** Integral UHT Italac 1 Litro"; "Leite Condensado Italac **Semidesnatado** 395g" × "…**Integral** 395g"; "Café Melitta … Tradicional 500g" × "…**Sabor da Fazenda** Tradicional 500g".
+- **Em nomes de Asun e Fort**, todos os 40 itens da amostra tinham unidade extraível e marca (campo `brandName`). Contra o pool de 112+ nomes com EAN, o casamento tolerante achou candidato **único** em 6 de 20 (Asun) e 3 de 20 (Fort), ambíguo em 2 e 0, e **nenhum** em 12 e 17. O pool é pequeno, então isso mostra pouco sobre cobertura e **nada sobre acerto**.
+- **Conclusão para casar sem EAN:**
+  - A chave marca + nome + unidade **não é segura sozinha**: perde cerca de 4 em cada 10 pares reais e, quando é frouxa, junta variantes diferentes da mesma marca.
+  - Serve para **propor** pares, não para casar automaticamente. Uma regra segura seria: aceitar só chave idêntica, ou tolerante com revisão humana quando houver diferença de variante (sem lactose, integral/semi, sabor, tipo).
+  - **Ponte por EAN:** casar Asun/Fort com uma rede que tem EAN (Atacadão, Master, Stok) por nome, e herdar o EAN daí, ainda exige confirmação humana. A melhor saída continua sendo achar uma fonte de EAN para Asun/Fort (o OSuper não tem; a página do produto também não).
+- **Pares com o mesmo EAN e nomes muito diferentes** apareceram na medição (ex.: "Arroz Bco Blue Ville Tp1 1kg" no Master e "Arroz Blue Ville Agulhinha Tipo 1 1kg" para o mesmo EAN em outra rede). **Não verifiquei qual dos dois está certo**; pode haver EAN reaproveitado ou cadastrado errado em alguma rede.
+
+### 14.4 Limitações
+
+- Amostras pequenas (20 por rede) e enviesadas para marcas nacionais de mercearia. Os percentuais indicam ordem de grandeza e não são estimativas com intervalo de confiança.
+- A sobreposição só foi medida contra Atacadão, Master e Stok. Zaffari, Rissul e Carrefour só aparecem como origem.
+- Os preços não foram comparados. EAN igual não garante mesma embalagem ou gramatura em todas as redes.

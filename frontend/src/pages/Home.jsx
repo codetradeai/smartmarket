@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -21,27 +21,9 @@ import {
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
+  CarrosselRedes,
 } from "../components/ui"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
-import logoFort from "../../logo/logo-fort.png"
-import logoAsun from "../../logo/logo-asun.png"
-import logoStok from "../../logo/logo-stok.png"
-import logoAtacadao from "../../logo/logo-atacadao.png"
-import logoCarrefour from "../../logo/logo-carrefour.png"
-import logoRissul from "../../logo/logo-rissul,.png"
-import logoZaffari from "../../logo/zaffari-bourbon-logo.png"
-import logoMaster from "../../logo/mastersupermercados-logo.png"
-
-const MARKET_LOGOS = {
-  fort: logoFort,
-  asun: logoAsun,
-  stok: logoStok,
-  atacadao: logoAtacadao,
-  carrefour: logoCarrefour,
-  rissul: logoRissul,
-  zaffari: logoZaffari,
-  master: logoMaster,
-}
 
 const SECTOR_BANNERS = [
   { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
@@ -60,221 +42,6 @@ const SECTOR_BANNERS = [
   { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
   { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
 ]
-
-const RAIL_GAP = 14
-const RAIL_SPEED = 42
-
-function CarrosselRedes({ selectedMarket, onSelect }) {
-  const n = MARKETS.length
-  const viewportRef = useRef(null)
-  const trackRef = useRef(null)
-  const meterRef = useRef(null)
-  const offsetRef = useRef(n)
-  const logicalRef = useRef(0)
-  const centerRef = useRef(n)
-  const fromPointer = useRef(false)
-  const [viewportWidth, setViewportWidth] = useState(0)
-  const [logical, setLogical] = useState(0)
-  const [centerIndex, setCenterIndex] = useState(n)
-  const [pointerInside, setPointerInside] = useState(false)
-  const [focusInside, setFocusInside] = useState(false)
-  const [reduced, setReduced] = useState(false)
-  const [hidden, setHidden] = useState(false)
-
-  useEffect(() => {
-    const el = viewportRef.current
-    if (!el) return undefined
-    const measure = () => setViewportWidth(el.clientWidth)
-    measure()
-    if (typeof ResizeObserver === "undefined") return undefined
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return undefined
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const applyMedia = () => setReduced(media?.matches ?? false)
-    applyMedia()
-    media?.addEventListener?.("change", applyMedia)
-    const onHide = () => setHidden(document.hidden)
-    document.addEventListener("visibilitychange", onHide)
-    return () => {
-      media?.removeEventListener?.("change", applyMedia)
-      document.removeEventListener("visibilitychange", onHide)
-    }
-  }, [])
-
-  const paused = pointerInside || focusInside || reduced || hidden || selectedMarket !== "todos"
-  const cardWidth = viewportWidth < 640
-    ? Math.min(Math.max(viewportWidth * 0.78, 210), 280)
-    : viewportWidth < 1024
-      ? 250
-      : Math.min(320, Math.max(280, viewportWidth * 0.29))
-  const step = cardWidth + RAIL_GAP
-  const slides = [...MARKETS, ...MARKETS, ...MARKETS]
-
-  function place(offset) {
-    let next = offset
-    while (next >= n * 2) next -= n
-    while (next < n) next += n
-    offsetRef.current = next
-    const width = viewportRef.current?.clientWidth || viewportWidth
-    const translate = width > 0 ? width / 2 - cardWidth / 2 - next * step : 0
-    if (trackRef.current) trackRef.current.style.transform = `translate3d(${translate}px, 0, 0)`
-    if (meterRef.current) meterRef.current.style.transform = `scaleX(${next - Math.floor(next)})`
-    const center = Math.min(n * 3 - 1, Math.max(0, Math.round(next)))
-    const nextLogical = ((center % n) + n) % n
-    if (centerRef.current !== center) {
-      centerRef.current = center
-      setCenterIndex(center)
-    }
-    if (logicalRef.current !== nextLogical) {
-      logicalRef.current = nextLogical
-      setLogical(nextLogical)
-    }
-  }
-
-  useLayoutEffect(() => {
-    place(offsetRef.current)
-  })
-
-  useEffect(() => {
-    if (paused || viewportWidth <= 0) return undefined
-    let frame = 0
-    let last = performance.now()
-    const tick = (now) => {
-      const dt = Math.min(0.05, (now - last) / 1000)
-      last = now
-      place(offsetRef.current + (RAIL_SPEED / step) * dt)
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [paused, viewportWidth, step, cardWidth, n])
-
-  function stepBy(direction) {
-    place(offsetRef.current + direction)
-  }
-
-  function goTo(target) {
-    const current = logicalRef.current
-    if (target === current) return
-    const delta = target > current ? target - current : target + n - current
-    place(offsetRef.current + delta)
-  }
-
-  return (
-    <div
-      className={`sm-rail ${paused ? "is-paused" : ""}`}
-      role="region"
-      aria-roledescription="carrossel"
-      aria-label="Redes do catálogo"
-      onMouseEnter={() => setPointerInside(true)}
-      onMouseLeave={() => setPointerInside(false)}
-      onPointerDown={() => {
-        fromPointer.current = true
-      }}
-      onFocus={(event) => {
-        if (fromPointer.current) {
-          fromPointer.current = false
-          return
-        }
-        if (event.target instanceof Element && event.target.matches(":focus-visible")) setFocusInside(true)
-      }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocusInside(false)
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "ArrowRight") {
-          event.preventDefault()
-          stepBy(1)
-        } else if (event.key === "ArrowLeft") {
-          event.preventDefault()
-          stepBy(-1)
-        }
-      }}
-    >
-      <div className="sm-rail-stage">
-        <button type="button" className="sm-rail-nav is-prev" aria-label="Rede anterior" onClick={() => stepBy(-1)}>
-          <span aria-hidden="true">←</span>
-        </button>
-
-        <div
-          className="sm-rail-window min-w-0"
-          ref={viewportRef}
-          style={{ opacity: viewportWidth > 0 ? 1 : 0 }}
-        >
-          <div
-            ref={trackRef}
-            className="sm-rail-track"
-            style={{ gap: RAIL_GAP }}
-          >
-            {slides.map((market, slideIndex) => {
-              const isSelected = selectedMarket === market.id
-              const clone = Math.floor(slideIndex / n) !== 1
-              return (
-                <button
-                  key={`${market.id}-${slideIndex}`}
-                  type="button"
-                  aria-hidden={clone}
-                  tabIndex={clone ? -1 : 0}
-                  aria-label={market.name}
-                  aria-pressed={isSelected}
-                  onClick={() => {
-                    place(slideIndex)
-                    onSelect(market.id)
-                  }}
-                  className={`sm-rail-card market-card ${slideIndex === centerIndex ? "is-center" : ""} ${
-                    isSelected ? "is-selected" : ""
-                  }`}
-                  style={{ width: cardWidth || 240, "--market": market.color || "#22A95E" }}
-                >
-                  <span className="sm-rail-logo">
-                    {MARKET_LOGOS[market.id] ? (
-                      <img src={MARKET_LOGOS[market.id]} alt="" />
-                    ) : (
-                      <span className="sm-rail-sigla" style={{ backgroundColor: market.color || "#0D2137" }}>
-                        {market.sigla || market.name.slice(0, 2).toUpperCase()}
-                      </span>
-                    )}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <button type="button" className="sm-rail-nav is-next" aria-label="Próxima rede" onClick={() => stepBy(1)}>
-          <span aria-hidden="true">→</span>
-        </button>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between gap-4 px-1">
-        <p className="font-display text-sm font-extrabold tabular-nums text-brand-navy" aria-hidden="true">
-          {String(logical + 1).padStart(2, "0")}
-          <span className="font-semibold text-brand-muted"> / {String(n).padStart(2, "0")}</span>
-        </p>
-        <div className="sm-rail-meter" aria-hidden="true">
-          <span ref={meterRef} />
-        </div>
-        <div className="flex items-center gap-1.5" role="group" aria-label="Escolher rede">
-          {MARKETS.map((market, dotIndex) => (
-            <button
-              key={market.id}
-              type="button"
-              aria-label={market.name}
-              aria-current={dotIndex === logical ? "true" : undefined}
-              onClick={() => goTo(dotIndex)}
-              className={`sm-rail-pip ${dotIndex === logical ? "is-on" : ""}`}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -498,7 +265,7 @@ export function Home() {
                   }}
                 >
                   <label htmlFor="busca-home" className="sr-only">Buscar no catálogo</label>
-                  <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)]">
+                  <div className="flex flex-col gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)] xl:flex-row xl:items-center">
                     <input
                       id="busca-home"
                       name="q"
@@ -507,9 +274,9 @@ export function Home() {
                       value={termoConvite}
                       onChange={(event) => setTermoConvite(event.target.value)}
                       placeholder="Arroz, leite, café…"
-                      className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
+                      className="min-w-0 w-full flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
                     />
-                    <button type="submit" className="sm-cta shrink-0">
+                    <button type="submit" className="sm-cta w-full justify-center xl:w-auto shrink-0">
                       Criar conta e buscar
                     </button>
                   </div>
@@ -584,44 +351,51 @@ export function Home() {
         </div>
       </section>
 
-      {/* 3. SHOWCASE DAS 8 REDES DO RIO GRANDE DO SUL (INSPIRADO NO DESCO & ATACAREJOS) */}
-      <section id="redes" className="scroll-mt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-brand-border pb-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-green uppercase tracking-wider mb-1">
-              <span>●</span> Redes Conectadas
+      <section id="redes" className="scroll-mt-24 w-full py-12 sm:py-16">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <header className="mb-8 flex flex-col gap-5 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-green">
+                <span className="h-1.5 w-1.5 rounded-[2px] bg-brand-green" aria-hidden="true" />
+                Ecossistema de varejo
+              </p>
+              <h2 className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-brand-navy sm:text-[2rem] text-balance">
+                Redes que fazem parte da sua economia.
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
+                Explore as redes disponíveis e descubra onde sua lista de compras pode custar menos.
+              </p>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-navy">
-              Redes de Supermercados & Atacarejos do RS
-            </h2>
-            <p className="text-xs sm:text-sm text-brand-muted mt-0.5">
-              A faixa passa pelas redes do catálogo. Clique em uma para filtrar os produtos.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-2">
-            {selectedMarket !== "todos" && (
-              <button
-                type="button"
-                onClick={() => setSelectedMarket("todos")}
-                className="text-xs font-bold text-brand-green hover:underline cursor-pointer"
-              >
-                Limpar Filtro ({MARKETS.find((m) => m.id === selectedMarket)?.name})
-              </button>
-            )}
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-brand-green-light text-brand-green border border-brand-green/20">
-              8 Redes Ativas
-            </span>
-          </div>
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end lg:pb-1">
+              {selectedMarket !== "todos" && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedMarket("todos")}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-brand-green/25 bg-brand-green-light px-3 py-1.5 text-xs font-semibold text-brand-green transition-colors duration-200 hover:bg-brand-green/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+                >
+                  Filtrando: {MARKETS.find((m) => m.id === selectedMarket)?.name}
+                  <span aria-hidden="true">×</span>
+                  <span className="sr-only">Limpar filtro de rede</span>
+                </button>
+              )}
+              <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
+                <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
+                  {String(MARKETS.length).padStart(2, "0")}
+                </span>
+                <span className="font-medium text-brand-muted">redes disponíveis</span>
+              </p>
+            </div>
+          </header>
+
+          <CarrosselRedes
+            selectedMarket={selectedMarket}
+            onSelect={(id) => {
+              setSelectedMarket((current) => (current === id ? "todos" : id))
+              document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+            }}
+          />
         </div>
-
-        <CarrosselRedes
-          selectedMarket={selectedMarket}
-          onSelect={(id) => {
-            setSelectedMarket((current) => (current === id ? "todos" : id))
-            document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-          }}
-        />
       </section>
 
       {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}

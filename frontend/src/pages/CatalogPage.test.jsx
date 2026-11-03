@@ -261,6 +261,27 @@ describe('CatalogPage', () => {
       expect(screen.getByTitle('Carrefour favoritado (clique para remover)')).toBeInTheDocument()
     })
 
+    // Achado 7: favoritoService.listarMercados devolve ids em texto ("1"), mas os mercados da API
+    // têm id numérico (1). A estrela comparava favs.includes(m.id) e nunca marcava ao carregar.
+    it('marca a estrela do mercado que o servidor devolve como favorito (ids em texto)', async () => {
+      await renderizar({ favMercados: ['1'] })
+
+      expect(screen.getByTitle('Fort Atacadista favoritado (clique para remover)')).toBeInTheDocument()
+      expect(screen.getByTitle('Favoritar rede Carrefour')).toBeInTheDocument()
+    })
+
+    it('desfavorita pela estrela um mercado que veio favoritado do servidor', async () => {
+      await renderizar({ favMercados: ['1'] })
+
+      await act(async () => {
+        fireEvent.click(screen.getByTitle('Fort Atacadista favoritado (clique para remover)'))
+      })
+
+      expect(favoritoService.desfavoritarMercado).toHaveBeenCalledWith(1)
+      expect(favoritoService.favoritarMercado).not.toHaveBeenCalled()
+      expect(screen.getByTitle('Favoritar rede Fort Atacadista')).toBeInTheDocument()
+    })
+
     // Recurso removido no redesenho: CatalogPage passa favMarkets ao ProductCard, mas o cartão não
     // usa mais essa prop, então não existe destaque "⭐ <mercado favorito>". Os 3 testes abaixo ficam
     // pulados até decidirem se o destaque volta (e, nesse caso, voltam a valer como estão).

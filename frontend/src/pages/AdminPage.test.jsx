@@ -3,6 +3,39 @@ import AdminPage from './AdminPage'
 import { produtoService, mercadoService, adminService } from '../services'
 import { PRODUCTS } from '../data'
 
+// O catálogo real (src/data.js) tem ~32 MB e 9.406 produtos: importá-lo custa ~11 s por arquivo e
+// renderizar a tabela leva ~20 s por teste, o que fazia esta suíte nunca terminar no CI.
+// Aqui usamos uma fixture pequena, com os mesmos formatos (id textual = dado local, sem backend).
+jest.mock('../data', () => ({
+  CATEGORIES: [
+    { id: 'todos', label: 'Todos os Departamentos', icon: '🏪' },
+    { id: 'graos', label: 'Grãos, Arroz e Farinhas', icon: '🌾' },
+    { id: 'padaria', label: 'Padaria e Confeitaria', icon: '🥖' },
+    { id: 'hortifruti', label: 'Hortifruti e Feira', icon: '🍎' },
+    { id: 'carnes', label: 'Açougue e Carnes Nobres', icon: '🥩' },
+    { id: 'leites', label: 'Leites e Laticínios', icon: '🥛' },
+    { id: 'cafe', label: 'Café, Chá e Matinais', icon: '☕' },
+    { id: 'bebidas', label: 'Bebidas e Cervejas', icon: '🍺' },
+    { id: 'limpeza', label: 'Limpeza e Lavanderia', icon: '🧹' },
+    { id: 'higiene', label: 'Higiene e Cuidados Pessoais', icon: '🧴' },
+    { id: 'congelados', label: 'Congelados e Pratos Prontos', icon: '🧊' },
+    { id: 'oleos', label: 'Óleos, Azeites e Vinagres', icon: '🫙' },
+    { id: 'mercearia', label: 'Mercearia e Despensa', icon: '🛒' },
+    { id: 'bazar', label: 'Bazar e Descartáveis', icon: '🍽️' },
+    { id: 'biscoitos', label: 'Biscoitos e Chocolates', icon: '🍪' },
+  ],
+  MARKETS: [
+    { id: 'fort', name: 'Fort Atacadista', color: '#F5651B', sigla: 'FA', cidade: 'Canoas / Grande POA', city: 'Canoas', address: 'Av. Local, 1', active: true, products: 3, lastSync: 'Hoje às 08:00' },
+    { id: 'carrefour', name: 'Carrefour Mercado', color: '#1A63B9', sigla: 'CF', cidade: 'Porto Alegre / RS', city: 'Porto Alegre', address: 'Av. Local, 2', active: true, products: 3, lastSync: 'Hoje às 08:00' },
+    { id: 'zaffari', name: 'Zaffari / Bourbon', color: '#7A1526', sigla: 'ZF', cidade: 'Porto Alegre / RS', city: 'Porto Alegre', address: 'Av. Local, 3', active: true, products: 3, lastSync: 'Hoje às 08:00' },
+  ],
+  PRODUCTS: [
+    { id: 'p1', name: 'Arroz Branco Tipo 1', brand: 'Camil', category: 'graos', unit: '5 kg', image: '🌾', promo: false, prices: { fort: 28.9, carrefour: 29.9, zaffari: 31.5 } },
+    { id: 'p2', name: 'Leite Integral', brand: 'Italac', category: 'leites', unit: '1 L', image: '🥛', promo: false, prices: { fort: 4.99, carrefour: 5.49, zaffari: 5.79 } },
+    { id: 'p3', name: 'Café em Pó Tradicional', brand: 'Melitta', category: 'cafe', unit: '500 g', image: '☕', promo: true, prices: { fort: 23.9, carrefour: 25.9, zaffari: 26.5 } },
+  ],
+}))
+
 jest.mock('../services', () => ({
   produtoService: {
     buscarCatalogoComPrecos: jest.fn(),
@@ -108,7 +141,7 @@ describe('AdminPage', () => {
 
       const linha = within(linhaDe('Ana'))
       expect(linha.getByText('ana@email.com')).toBeInTheDocument()
-      expect(linha.getByText('ADMIN')).toBeInTheDocument()
+      expect(linha.getByText('ADMINISTRADOR')).toBeInTheDocument()
       expect(linha.getByText('2026-10-01')).toBeInTheDocument()
       expect(linha.getByText('SUSPENSO')).toBeInTheDocument()
     })
@@ -118,7 +151,7 @@ describe('AdminPage', () => {
       abrirAba('Usuários')
 
       const linha = within(linhaDe('Bia'))
-      expect(linha.getByText('USER')).toBeInTheDocument()
+      expect(linha.getByText('USUÁRIO')).toBeInTheDocument()
       expect(linha.getByText('2026-10-10')).toBeInTheDocument()
       expect(linha.getByText('0')).toBeInTheDocument()
       expect(linha.getByText('ATIVO')).toBeInTheDocument()
@@ -163,9 +196,11 @@ describe('AdminPage', () => {
       expect(linha.getByText('PROMO')).toBeInTheDocument()
       expect(linha.getByText('Camil')).toBeInTheDocument()
       expect(linha.getByText('Grãos')).toBeInTheDocument()
+      // A tabela mostra só o menor preço e a rede que o oferece (preço 8.00 do Carrefour não aparece).
       expect(linha.getByText('R$ 7.50')).toBeInTheDocument()
-      expect(linha.getByText('R$ 8.00')).toBeInTheDocument()
-      expect(linha.getByText('—')).toBeInTheDocument()
+      expect(linha.getByText('no Fort Atacadista')).toBeInTheDocument()
+      expect(linha.queryByText('R$ 8.00')).not.toBeInTheDocument()
+      expect(linha.queryByText('—')).not.toBeInTheDocument()
     })
 
     it('mostra a categoria bruta quando ela nao existe na lista e usa icone padrao sem imagem', async () => {
@@ -173,9 +208,9 @@ describe('AdminPage', () => {
 
       const linha = within(linhaDe('Item Raro'))
       expect(linha.getByText('outra')).toBeInTheDocument()
-      expect(linha.getByText('📦')).toBeInTheDocument()
+      expect(linha.getByText('🛒')).toBeInTheDocument()
       expect(linha.queryByText('PROMO')).not.toBeInTheDocument()
-      expect(linha.getAllByText('—')).toHaveLength(3)
+      expect(linha.getAllByText('—')).toHaveLength(1)
     })
 
     it('filtra por nome ou marca e informa quantos registros exibe', async () => {
@@ -279,8 +314,10 @@ describe('AdminPage', () => {
         expect(produtoService.atualizar).toHaveBeenCalledWith(1, expect.objectContaining({ nome: 'Arroz Integral Premium' }))
         expect(screen.getByText("Produto 'Arroz Integral Premium' atualizado com sucesso!")).toBeInTheDocument()
         const linha = within(linhaDe('Arroz Integral Premium'))
+        // Sem o preço do Fort, o menor passa a ser o do Carrefour e a linha não mostra mais "—".
         expect(linha.getByText('R$ 8.00')).toBeInTheDocument()
-        expect(linha.getAllByText('—')).toHaveLength(2)
+        expect(linha.getByText('no Carrefour Mercado')).toBeInTheDocument()
+        expect(linha.queryByText('—')).not.toBeInTheDocument()
       })
 
       it('nao chama o backend para produtos locais (id textual), mas atualiza a tabela', async () => {
@@ -545,7 +582,7 @@ describe('AdminPage', () => {
 
       const linha = within(linhaDe('Maria Santos'))
       expect(linha.getByText('maria@email.com')).toBeInTheDocument()
-      expect(linha.getByText('USER')).toBeInTheDocument()
+      expect(linha.getByText('USUÁRIO')).toBeInTheDocument()
       expect(linha.getByText('7')).toBeInTheDocument()
       expect(linha.getByText('ATIVO')).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: /Novo/ })).not.toBeInTheDocument()
@@ -569,18 +606,18 @@ describe('AdminPage', () => {
       abrirAba('Usuários')
 
       await act(async () => {
-        fireEvent.click(within(linhaDe('Maria Santos')).getByRole('button', { name: 'Mudar Role' }))
+        fireEvent.click(within(linhaDe('Maria Santos')).getByRole('button', { name: 'Alterar Papel' }))
       })
 
       expect(adminService.alterarPapel).toHaveBeenCalledWith(4, 'ADMIN')
-      expect(within(linhaDe('Maria Santos')).getByText('ADMIN')).toBeInTheDocument()
+      expect(within(linhaDe('Maria Santos')).getByText('ADMINISTRADOR')).toBeInTheDocument()
       expect(screen.getByText('Papel do usuário Maria Santos alterado para ADMIN.')).toBeInTheDocument()
 
       await act(async () => {
-        fireEvent.click(within(linhaDe('Maria Santos')).getByRole('button', { name: 'Mudar Role' }))
+        fireEvent.click(within(linhaDe('Maria Santos')).getByRole('button', { name: 'Alterar Papel' }))
       })
       expect(adminService.alterarPapel).toHaveBeenLastCalledWith(4, 'USER')
-      expect(within(linhaDe('Maria Santos')).getByText('USER')).toBeInTheDocument()
+      expect(within(linhaDe('Maria Santos')).getByText('USUÁRIO')).toBeInTheDocument()
     })
 
     it('altera o papel na tabela mesmo se o backend falhar', async () => {
@@ -589,10 +626,10 @@ describe('AdminPage', () => {
       abrirAba('Usuários')
 
       await act(async () => {
-        fireEvent.click(within(linhaDe('Davi Souza')).getByRole('button', { name: 'Mudar Role' }))
+        fireEvent.click(within(linhaDe('Davi Souza')).getByRole('button', { name: 'Alterar Papel' }))
       })
 
-      expect(within(linhaDe('Davi Souza')).getByText('USER')).toBeInTheDocument()
+      expect(within(linhaDe('Davi Souza')).getByText('USUÁRIO')).toBeInTheDocument()
     })
 
     it('suspende e reativa um usuario, avisando a cada mudanca', async () => {

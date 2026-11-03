@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
 import { ProductDetailModal } from './ProductDetailModal'
 
 describe('ProductDetailModal (Fase 2)', () => {
@@ -36,7 +35,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={false}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
     expect(container.firstChild).toBeNull()
@@ -48,7 +47,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -65,7 +64,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -82,7 +81,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -98,7 +97,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -109,7 +108,7 @@ describe('ProductDetailModal (Fase 2)', () => {
   })
 
   it('chama onClose ao clicar no botão de fechar', () => {
-    const handleClose = vi.fn()
+    const handleClose = jest.fn()
     render(
       <ProductDetailModal
         product={mockProductComprovado}
@@ -130,7 +129,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -156,7 +155,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={productCom360}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -179,7 +178,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -243,7 +242,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={[]}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -257,7 +256,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={mockCatalogoRelacionados}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -277,7 +276,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={mockCatalogoRelacionados}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -291,9 +290,9 @@ describe('ProductDetailModal (Fase 2)', () => {
     })
 
     it('ao clicar em uma alternativa, atualiza o produto no modal sem fechá-lo e dispara onSelectProduct', () => {
-      const handleSelect = vi.fn()
-      const handleClose = vi.fn()
-      const handleAddToList = vi.fn()
+      const handleSelect = jest.fn()
+      const handleClose = jest.fn()
+      const handleAddToList = jest.fn()
 
       render(
         <ProductDetailModal
@@ -331,10 +330,10 @@ describe('ProductDetailModal (Fase 2)', () => {
       let currentSelected = mockProductComprovado // Produto A (Melitta 500g)
       let modalOpen = true
 
-      const handleSelect = vi.fn((newProd) => {
+      const handleSelect = jest.fn((newProd) => {
         currentSelected = newProd
       })
-      const handleClose = vi.fn(() => {
+      const handleClose = jest.fn(() => {
         modalOpen = false
       })
 

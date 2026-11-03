@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { getRelatedProducts, getLowestPrice, normalizeUnit, isValidBrand } from './relatedProducts'
 
 describe('relatedProducts - Algoritmo de Produtos Relacionados (Fase 4)', () => {

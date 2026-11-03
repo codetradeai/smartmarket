@@ -1245,8 +1245,8 @@ export default function CatalogPage() {
       <header className="bg-white border-b border-brand-border/80 sticky top-0 z-30 shadow-xs">
         <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-3.5 space-y-3">
           {/* Linha 1: Título, Busca Rápida e Botão Minha Lista */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-brand-navy tracking-tight">
                   Catálogo SmartMarket
@@ -1263,7 +1263,7 @@ export default function CatalogPage() {
             </div>
 
             {/* Input de Busca Especializada */}
-            <div className="relative flex-1 max-w-lg">
+            <div className="relative min-w-[12rem] max-w-lg flex-1 basis-[18rem]">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
                 <IconSearch />
               </div>
@@ -1286,7 +1286,7 @@ export default function CatalogPage() {
             </div>
 
             {/* Controles Rápidos + Botão Minha Lista */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Filtro por Supermercado */}
               <select
                 value={mktFilter}
@@ -1306,7 +1306,7 @@ export default function CatalogPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer hidden sm:block"
+                className="bg-white border border-brand-border/80 rounded-xl px-2.5 py-2 text-xs font-semibold text-brand-navy focus:outline-none cursor-pointer max-w-full"
                 title="Critério de ordenação"
               >
                 <option value="relevancia">Relevância</option>

@@ -257,8 +257,8 @@ export default function ShoppingListPage() {
       {/* Header Principal da Página */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="min-w-0 text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
               Minha Lista de Compras
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-brand-green">
@@ -270,7 +270,7 @@ export default function ShoppingListPage() {
             supermercados.
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {items.length > 0 && (
             <button
               onClick={clear}
@@ -394,15 +394,15 @@ export default function ShoppingListPage() {
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-7 p-5 sm:p-7 hover:bg-emerald-50/25 transition-colors"
+                    className="group flex flex-col justify-between gap-4 p-5 sm:p-7 hover:bg-emerald-50/25 transition-colors"
                   >
                     {/* Bloco Esquerdo: Imagem Grande + Informações do Produto */}
                     <div
                       onClick={() => setSelectedProductDetail(product)}
-                      className="flex items-center gap-5 sm:gap-6 flex-1 min-w-0 cursor-pointer"
+                      className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0 cursor-pointer"
                       title="Ver foto e detalhes do produto"
                     >
-                      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-brand-border/80 flex items-center justify-center text-4xl shrink-0 overflow-hidden p-3 shadow-xs group-hover:bg-white group-hover:border-brand-green/50 transition-all">
+                      <div className="w-[4.5rem] h-[4.5rem] sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-brand-border/80 flex items-center justify-center text-3xl sm:text-4xl shrink-0 overflow-hidden p-2 sm:p-3 shadow-xs group-hover:bg-white group-hover:border-brand-green/50 transition-all">
                         {imgSrc ? (
                           <ProductImage
                             src={imgSrc}
@@ -453,7 +453,7 @@ export default function ShoppingListPage() {
                     </div>
 
                     {/* Bloco Direito: Subtotal + Controle de Quantidade Ampliado */}
-                    <div className="flex items-center justify-between md:justify-end gap-5 sm:gap-7 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 shrink-0">
+                    <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 pt-3 border-t border-slate-100 min-w-0">
                       {subtotal !== null && (
                         <div className="text-left md:text-right">
                           <span className="block text-xs font-bold uppercase tracking-wider text-brand-muted">

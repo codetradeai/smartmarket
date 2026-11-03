@@ -498,8 +498,8 @@ export default function FavoritesPage() {
           {/* Linha 1: Título, Busca e Ações */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-black text-brand-navy tracking-tight">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="min-w-0 text-xl sm:text-2xl font-black text-brand-navy tracking-tight">
                   Meus Produtos Favoritos
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700">
@@ -673,8 +673,8 @@ export default function FavoritesPage() {
         )}
 
         {/* Tabs de Navegação (Foco em Produtos Favoritos e Alertas de Preço) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-border/70 pb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-brand-border/70 pb-3">
+          <div className="flex min-w-0 w-full flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => setActiveTab("produtos")}

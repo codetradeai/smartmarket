@@ -33,6 +33,7 @@ jobs:
   frontend-test:
     name: Frontend Tests & Production Build (React / Vite)
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Repository
@@ -49,7 +50,8 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: Run Vitest Unit Tests
+      - name: Run Frontend Unit Tests (Jest)
+        timeout-minutes: 15
         working-directory: ./frontend
         run: npm test
 

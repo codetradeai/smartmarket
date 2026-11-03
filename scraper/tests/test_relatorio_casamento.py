@@ -83,6 +83,17 @@ class RelatorioCasamentoTest(unittest.TestCase):
         self.assertIn("| Atacadão | 1 | 1 | 100% |", md)
         self.assertIn("ean = 3", md)
         self.assertIn("nome = 1", md)
+        self.assertIn("Pares entre redes", md)
+
+    def test_relatorio_lista_pares_em_revisao_e_status_da_embalagem(self):
+        dados = [reg("Atacadão", "1", "Lã de Aço Bombril 45g", "7891022868036", marca="Bombril"),
+                 reg("Master", "2", "Esponja Aço Bombril Eco Com 6 Unidade", "7891022868036", marca="Bombril")]
+        por_rede = rc.agrupar_por_rede(dados)
+        pres = rc.presencas(por_rede)
+        md = rc.renderizar(por_rede, casar(por_rede), pres, None, rc.pares_nomes_divergentes(pres), data="2026-11-03")
+        self.assertIn("### 4.1 Pares em revisão", md)
+        self.assertIn("embalagem_diferente", md)
+        self.assertIn("revisar (embalagem_diferente)", md)
 
 
 if __name__ == "__main__":

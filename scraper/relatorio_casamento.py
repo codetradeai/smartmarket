@@ -17,7 +17,7 @@ import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from casamento import casar
+from casamento import casar, embalagens_compativeis
 from ean import ean_canonico
 from normalizacao import MEDIDA, texto_normalizado
 
@@ -244,17 +244,32 @@ def renderizar(por_rede, resultado_casamento, pres_direta, pres_cruzada=None, di
     out.append(f"- Produtos canônicos com 2+ redes: **{len(multi)}** (de {len(prods)} agrupamentos).")
     out.append(f"- Vínculos por origem: **ean = {vinc.get('ean', 0)}**, **nome = {vinc.get('nome', 0)}** (chave idêntica marca+nome+unidade; sem chave tolerante).")
     out.append(f"- Ambíguos (chave igual para EANs diferentes, não vinculados): {len(resultado_casamento['ambiguos'])}.")
-    out.append(f"- Sem vínculo: {len(resultado_casamento['sem_vinculo'])}.\n")
+    out.append(f"- Sem vínculo: {len(resultado_casamento['sem_vinculo'])}.")
+    pares = resultado_casamento.get("pares", [])
+    revisar = [p for p in pares if p["status"] == "revisar"]
+    out.append(f"- Pares entre redes: **{len(pares)}**; confirmados (entram no comparador): **{len(pares) - len(revisar)}**; "
+               f"em revisão (mesmo EAN, embalagem ou quantidade diferente; **fora do comparador**): **{len(revisar)}**.\n")
+    if revisar:
+        out.append("### 4.1 Pares em revisão (não aparecem no comparador)\n")
+        out.append("| Rede A — nome | Rede B — nome | Motivo |\n|---|---|---|")
+        for p in revisar[:20]:
+            out.append(f"| {ROTULOS.get(p['a']['rede'], p['a']['rede'])} — {p['a']['nome']} | "
+                       f"{ROTULOS.get(p['b']['rede'], p['b']['rede'])} — {p['b']['nome']} | {p['motivo']} |")
+        out.append("")
     out.append("## 5. Pares com o mesmo EAN e nomes muito diferentes (revisão humana)\n")
     if not divergentes:
         out.append("Nenhum par encontrado com similaridade de nomes abaixo de 0,5 nesta amostra.\n")
     else:
         out.append(f"Critério: mesmo EAN em redes diferentes e similaridade de palavras (Jaccard, sem medidas) < 0,5. "
                    f"Listados {len(divergentes)} (máx. 20). **Não verifiquei qual nome está certo.**\n")
-        out.append("| # | EAN | Rede A — nome | Rede B — nome | Similaridade |\n|---|---|---|---|---|")
+        out.append("A coluna **Status** aplica a regra de embalagem: `revisar` = medida ou número de unidades diferentes "
+                   "(fora do comparador); `confirmado` = só redação diferente.\n")
+        out.append("| # | EAN | Rede A — nome | Rede B — nome | Similaridade | Status |\n|---|---|---|---|---|---|")
         for i, d in enumerate(divergentes, 1):
+            ok, motivo = embalagens_compativeis(d["nome_a"], d["nome_b"])
+            status = "confirmado" if ok else f"revisar ({motivo})"
             out.append(f"| {i} | {d['ean'].lstrip('0')} | {ROTULOS.get(d['rede_a'], d['rede_a'])} — {d['nome_a']} | "
-                       f"{ROTULOS.get(d['rede_b'], d['rede_b'])} — {d['nome_b']} | {d['similaridade']:.2f} |")
+                       f"{ROTULOS.get(d['rede_b'], d['rede_b'])} — {d['nome_b']} | {d['similaridade']:.2f} | {status} |")
         out.append("")
     return "\n".join(out) + "\n"
 

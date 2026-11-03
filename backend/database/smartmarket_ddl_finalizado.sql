@@ -5,6 +5,7 @@
 -- ============================================================
 
 -- Limpa as tabelas caso o script seja executado novamente
+DROP TABLE IF EXISTS vinculo_produto CASCADE;
 DROP TABLE IF EXISTS alerta CASCADE;
 DROP TABLE IF EXISTS favorito CASCADE;
 DROP TABLE IF EXISTS item_lista CASCADE;
@@ -248,6 +249,34 @@ CREATE INDEX idx_alerta_usuario_id
 
 CREATE INDEX idx_alerta_produto_id
     ON alerta(produto_id);
+
+-- ============================================================
+-- VINCULO_PRODUTO (mesmo item em redes diferentes; 'revisar' fica fora do comparador)
+-- ============================================================
+
+CREATE TABLE vinculo_produto (
+    id BIGSERIAL PRIMARY KEY,
+    produto_a_id BIGINT NOT NULL,
+    produto_b_id BIGINT NOT NULL,
+    origem VARCHAR(10) NOT NULL,
+    status VARCHAR(10) NOT NULL,
+    motivo VARCHAR(100),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+
+    CONSTRAINT fk_vinculo_produto_a
+        FOREIGN KEY (produto_a_id) REFERENCES produto(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vinculo_produto_b
+        FOREIGN KEY (produto_b_id) REFERENCES produto(id) ON DELETE CASCADE,
+    CONSTRAINT chk_vinculo_ordem CHECK (produto_a_id < produto_b_id),
+    CONSTRAINT chk_vinculo_origem CHECK (origem IN ('ean', 'nome')),
+    CONSTRAINT chk_vinculo_status CHECK (status IN ('confirmado', 'revisar')),
+    CONSTRAINT uk_vinculo_produto_par UNIQUE (produto_a_id, produto_b_id)
+);
+
+CREATE INDEX idx_vinculo_produto_a ON vinculo_produto(produto_a_id);
+CREATE INDEX idx_vinculo_produto_b ON vinculo_produto(produto_b_id);
+CREATE INDEX idx_vinculo_produto_status ON vinculo_produto(status);
 
 -- ============================================================
 -- FIM DO SCRIPT

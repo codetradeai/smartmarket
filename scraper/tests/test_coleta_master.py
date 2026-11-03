@@ -144,5 +144,27 @@ class TestColetaMaster(unittest.TestCase):
         self.assertEqual(len(produtos), 2)
 
 
+
+
+class TestCsvComClube(unittest.TestCase):
+    """Regressão: o CSV falhava com exit 1 por is_clube/clube_nome fora de CAMPOS."""
+
+    def test_salvar_arquivos_gera_csv_com_campos_de_clube(self):
+        import csv
+        import tempfile
+        from coleta_master import salvar_arquivos, processar_item
+
+        item = {"produto_id": 1, "descricao": "Arroz Teste 1kg", "preco": "5.00", "imagem": "a.jpg",
+                "em_oferta": True, "oferta": {"nome": "Clube", "preco_antigo": "6.00", "preco_oferta": "4.50"}}
+        prod = processar_item(item, "Arroz", "2026-11-02T00:00:00Z")
+        self.assertTrue(prod["is_clube"])
+        with tempfile.TemporaryDirectory() as tmp:
+            salvar_arquivos([prod], Path(tmp))
+            with open(Path(tmp) / "produtos_coletados.csv", encoding="utf-8", newline="") as f:
+                linhas = list(csv.DictReader(f))
+        self.assertEqual(linhas[0]["is_clube"], "True")
+        self.assertEqual(linhas[0]["clube_nome"], "Clube Master")
+
+
 if __name__ == "__main__":
     unittest.main()

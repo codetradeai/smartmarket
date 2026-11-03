@@ -77,5 +77,28 @@ class TestColetaStok(unittest.TestCase):
         self.assertEqual(produtos[0]["nome_bruto"], "Arroz Branco Tipo 1 Emoções 5kg")
 
 
+
+
+class TestCsvComClube(unittest.TestCase):
+    """Regressão: o CSV falhava com exit 1 por is_clube/clube_nome fora de CAMPOS."""
+
+    def test_salvar_arquivos_gera_csv_com_campos_de_clube(self):
+        import csv
+        import tempfile
+        from coleta_stok import salvar_arquivos
+
+        prod = {"nome_bruto": "Arroz Teste 1kg", "preco": 4.5, "preco_normal": 6.0, "em_promocao": True,
+                "marca": None, "categoria": "Arroz", "slug": "x", "id_produto_origem": "1",
+                "supermercado": "Stok Center", "data_coleta": "2026-11-02T00:00:00Z",
+                "imagem_url": None, "descricao": None, "url_produto": None,
+                "is_clube": True, "clube_nome": "Clube Stok"}
+        with tempfile.TemporaryDirectory() as tmp:
+            salvar_arquivos([prod], Path(tmp))
+            with open(Path(tmp) / "produtos_coletados.csv", encoding="utf-8", newline="") as f:
+                linhas = list(csv.DictReader(f))
+        self.assertEqual(linhas[0]["is_clube"], "True")
+        self.assertEqual(linhas[0]["clube_nome"], "Clube Stok")
+
+
 if __name__ == "__main__":
     unittest.main()

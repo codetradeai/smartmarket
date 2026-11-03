@@ -86,6 +86,8 @@ CAMPOS = (
     "imagem_url",
     "descricao",
     "url_produto",
+    "is_clube",
+    "clube_nome",
 )
 
 

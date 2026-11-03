@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartMarket · Mapa técnico</title>
+<style>
+:root{
+  --bg:#14171c; --surface:#1b1f26; --surface2:#222730; --line:#2c333d; --line2:#3a434f;
+  --text:#e6e9ee; --mut:#8c97a6; --acc:#2dd4bf; --acc-bg:rgba(45,212,191,.10); --acc-line:rgba(45,212,191,.45);
+  --warn:#f5b041; --warn-bg:rgba(245,176,65,.10); --bad:#f87171; --bad-bg:rgba(248,113,113,.10);
+  --r:14px; --t:.2s;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+
+/* cabeçalho */
+header{position:sticky;top:0;z-index:20;background:rgba(20,23,28,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{max-width:1280px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:.2px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px var(--acc-bg)}
+.brand small{color:var(--mut);font-weight:400}
+nav[role=tablist]{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:10px;color:var(--mut);transition:color var(--t),background var(--t);font-size:.92rem;white-space:nowrap}
+.tab:hover{color:var(--text);background:var(--surface)}
+.tab[aria-selected=true]{color:var(--acc);background:var(--acc-bg)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--line2);border-radius:10px;color:var(--text);transition:border-color var(--t),background var(--t),color var(--t);font-size:.9rem}
+.btn:hover{border-color:var(--acc-line);background:var(--surface)}
+.btn.primary{background:var(--acc);color:#0b1412;border-color:var(--acc);font-weight:600}
+.btn.primary:hover{background:#5eead4}
+.btn[disabled]{opacity:.4;cursor:default}
+
+main{max-width:1280px;margin:0 auto;padding:36px 24px 72px}
+.panel{display:none;animation:fade .25s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h1{font-size:1.6rem;margin:0 0 6px;font-weight:650;letter-spacing:-.01em}
+h2{font-size:1.05rem;margin:0 0 14px;font-weight:600}
+.lead{color:var(--mut);margin:0 0 28px;max-width:70ch}
+.eyebrow{color:var(--acc);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+
+/* planta */
+.search{position:relative;max-width:420px;margin-bottom:28px}
+.search .ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mut)}
+.search input{width:100%;padding:11px 14px 11px 40px;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:var(--text);font:inherit;transition:border-color var(--t)}
+.search input:focus{outline:none;border-color:var(--acc-line)}
+.hits{display:flex;flex-wrap:wrap;gap:8px;margin:-14px 0 24px;min-height:0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;border:1px solid var(--line2);font-size:.8rem;color:var(--text);transition:border-color var(--t),background var(--t)}
+button.chip:hover{border-color:var(--acc-line);background:var(--acc-bg)}
+.chip .k{color:var(--mut)}
+
+.flow{display:flex;align-items:stretch;gap:0}
+.node{flex:1;min-width:0;text-align:left;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);transition:border-color var(--t),background var(--t),opacity var(--t),transform var(--t),box-shadow var(--t);position:relative;display:flex;flex-direction:column;gap:6px}
+button.node:hover{border-color:var(--line2);transform:translateY(-2px)}
+.node .ico{width:40px;height:40px;border-radius:11px;background:var(--surface2);color:var(--acc);display:grid;place-items:center;margin-bottom:6px}
+.node .ico .ic{width:22px;height:22px}
+.node b{font-size:1.05rem;font-weight:600}
+.node span.sub{color:var(--mut);font-size:.84rem}
+.node .count{position:absolute;top:14px;right:14px;font-size:.72rem;color:var(--mut);border:1px solid var(--line);padding:2px 8px;border-radius:999px}
+.node.sel{border-color:var(--acc);background:linear-gradient(180deg,var(--acc-bg),var(--surface));box-shadow:0 0 0 3px var(--acc-bg)}
+.node.dim{opacity:.35}
+.node.match{border-color:var(--acc-line)}
+.node.active{border-color:var(--acc);background:linear-gradient(180deg,var(--acc-bg),var(--surface));box-shadow:0 0 0 3px var(--acc-bg)}
+.node.idle{opacity:.45}
+.edge{width:84px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--line2)}
+.edge svg{width:60px;height:24px;overflow:visible;transition:color var(--t)}
+.edge .l{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.edge em{font-style:normal;font-size:.68rem;color:var(--mut);text-align:center;line-height:1.2}
+.edge.on{color:var(--acc)}
+.edge.on .l.line{stroke-dasharray:5 5;animation:dash .8s linear infinite}
+.edge.rev svg{transform:scaleX(-1)}
+@keyframes dash{to{stroke-dashoffset:-20}}
+
+.drill{margin-top:28px;display:none}
+.drill.on{display:block;animation:fade .2s ease}
+.drill-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.drill p.d{color:var(--mut);margin:0 0 18px;max-width:75ch}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:left;transition:border-color var(--t),transform var(--t),opacity var(--t);display:flex;flex-direction:column;gap:6px}
+button.card:hover{border-color:var(--acc-line);transform:translateY(-2px)}
+.card b{font-weight:600}
+.card span{color:var(--mut);font-size:.86rem}
+.card.hit{border-color:var(--acc-line);background:var(--acc-bg)}
+.card.dim{opacity:.3}
+.card small{color:var(--mut);font-size:.74rem;margin-top:auto;padding-top:6px}
+
+/* drawer */
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity var(--t);z-index:40}
+.veil.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--surface);border-left:1px solid var(--line);z-index:41;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer header{position:static;background:none;backdrop-filter:none;border:0;padding:22px 24px 8px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.drawer h3{margin:0;font-size:1.2rem;font-weight:650}
+.drawer .tag{color:var(--acc);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+.drawer .body{padding:8px 24px 32px;overflow:auto}
+.drawer h4{margin:22px 0 8px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.drawer p{margin:0;color:var(--text)}
+.drawer ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.drawer li{font-size:.9rem;padding-left:14px;position:relative}
+.drawer li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--acc)}
+.drawer li.f{font-family:ui-monospace,Consolas,monospace;font-size:.8rem;color:var(--text);word-break:break-all}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.io h5{margin:0 0 6px;font-size:.8rem;color:var(--acc);font-weight:600}
+.kv{width:100%;border-collapse:collapse;font-size:.84rem}
+.kv td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.kv td:first-child{color:var(--mut);padding-right:14px;white-space:nowrap}
+
+/* simulador */
+.seg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.seg .btn[aria-pressed=true]{border-color:var(--acc);background:var(--acc-bg);color:var(--acc)}
+.sim-grid{display:grid;grid-template-columns:1fr;gap:22px}
+.legend{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.legend .n{color:var(--acc);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.legend h3{margin:4px 0 8px;font-size:1.2rem;font-weight:600}
+.legend p{margin:0 0 12px;color:var(--text);max-width:80ch}
+.legend .nota{color:var(--mut);font-size:.85rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.prog{display:flex;gap:6px;margin:0 0 18px}
+.prog i{flex:1;height:4px;border-radius:2px;background:var(--line);transition:background var(--t)}
+.prog i.done{background:var(--acc-line)}
+.prog i.cur{background:var(--acc)}
+.ctrls{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+
+/* métricas */
+.group{margin-bottom:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.metric{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:4px}
+.metric .v{font-size:2.3rem;font-weight:650;letter-spacing:-.02em;line-height:1.1}
+.metric .v small{font-size:1rem;font-weight:500;color:var(--mut);margin-left:4px}
+.metric .lb{font-weight:550}
+.metric .nt{color:var(--mut);font-size:.82rem}
+.metric .src{color:var(--mut);font-size:.72rem;margin-top:auto;padding-top:10px;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+.note{background:var(--surface);border:1px dashed var(--line2);border-radius:12px;padding:14px 18px;color:var(--mut);font-size:.88rem}
+
+/* roadmap */
+.cols{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:start}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.item .top{display:flex;gap:10px;align-items:flex-start}
+.item .ok{color:var(--acc);margin-top:2px}
+.item b{font-weight:600}
+.item .ev{color:var(--mut);font-size:.8rem;margin-top:4px;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+.item .rec{margin:10px 0 0;font-size:.92rem}
+.item .rec span{color:var(--acc);font-weight:600}
+.item details{margin-top:10px}
+.item summary{cursor:pointer;color:var(--mut);font-size:.82rem}
+.item details p{margin:8px 0 0;color:var(--mut);font-size:.86rem}
+.prio{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.prio h2{margin:0}
+.prio .sw{width:10px;height:10px;border-radius:50%}
+.prio.a .sw{background:var(--bad)} .prio.m .sw{background:var(--warn)} .prio.b .sw{background:var(--acc)}
+.prio span{color:var(--mut);font-size:.85rem}
+.item.a{border-left:3px solid var(--bad)} .item.m{border-left:3px solid var(--warn)} .item.b{border-left:3px solid var(--line2)}
+.id{font-size:.72rem;color:var(--mut);border:1px solid var(--line);padding:1px 7px;border-radius:999px;font-family:ui-monospace,Consolas,monospace}
+.sec-gap{margin-top:30px}
+
+footer{max-width:1280px;margin:0 auto;padding:0 24px 40px;color:var(--mut);font-size:.8rem}
+.hint kbd{border:1px solid var(--line2);border-radius:5px;padding:0 6px;font-size:.75rem;background:var(--surface)}
+
+/* modo apresentação */
+body.pres .apoio{display:none!important}
+body.pres main{padding-top:48px;max-width:1500px}
+body.pres{font-size:18px}
+body.pres header{background:transparent;border:0;backdrop-filter:none}
+
+@media (max-width:1100px){.cols{grid-template-columns:1fr}}
+@media (max-width:820px){
+  .bar{padding:10px 16px;gap:10px}
+  nav[role=tablist]{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap}
+  main{padding:24px 16px 56px}
+  .flow{flex-direction:column}
+  .edge{width:auto;height:64px;flex-direction:row;gap:10px}
+  .edge svg{transform:rotate(90deg)}
+  .edge.rev svg{transform:rotate(90deg) scaleX(-1)}
+  .io{grid-template-columns:1fr}
+  .node .count{top:12px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="apoio-h">
+  <div class="bar">
+    <div class="brand"><span class="dot"></span><span>SmartMarket</span><small class="apoio">Mapa técnico</small></div>
+    <nav role="tablist" aria-label="Seções" id="tabs"></nav>
+    <button class="btn" id="btnPres" type="button"></button>
+  </div>
+</header>
+<main>
+  <section class="panel" id="p0" role="tabpanel"></section>
+  <section class="panel" id="p1" role="tabpanel"></section>
+  <section class="panel" id="p2" role="tabpanel"></section>
+  <section class="panel" id="p3" role="tabpanel"></section>
+</main>
+<footer class="apoio">
+  <p class="hint"><kbd>←</kbd> <kbd>→</kbd> trocam de aba · <kbd>Esc</kbd> fecha o painel · <kbd>P</kbd> modo apresentação</p>
+  <p id="fonte"></p>
+</footer>
+<div class="veil" id="veil"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" aria-hidden="true"></aside>
+
+<script>
+var LEV={"meta":{"gerado_em":"2026-11-02","branch":"feature/home-busca-carrossel-precos-clube","metodo":"Leitura direta do código + execução offline de `python -m unittest discover -s scraper/tests` + contagem estática (@Test / it()) nos demais módulos. Nada foi executado contra banco, backend ou frontend em runtime.","fase":"1 de 2 (levantamento; nenhum código da aplicação alterado)"},"scrapers":{"redes":[{"nome":"Zaffari / Bourbon","tipo_api":"VTEX Catalog System (REST JSON)","arquivo":"scraper/coleta_zaffari.py","linha":35,"mercado_id_no_sql_de_carga":6},{"nome":"Rissul","tipo_api":"VTEX Catalog System (REST JSON)","arquivo":"scraper/coleta_rissul.py","linha":35,"mercado_id_no_sql_de_carga":7},{"nome":"Atacadão","tipo_api":"VTEX Catalog System (REST JSON)","arquivo":"scraper/coleta_atacadao.py","linha":35,"mercado_id_no_sql_de_carga":4},{"nome":"Asun","tipo_api":"Sense/OSuper (REST JSON, sense.osuper.com.br)","arquivo":"scraper/coleta_asun.py","linha":38,"mercado_id_no_sql_de_carga":3},{"nome":"Fort Atacadista","tipo_api":"Sense/OSuper (REST JSON, sense.osuper.com.br)","arquivo":"scraper/coleta_fort_atacadista.py","linha":40,"mercado_id_no_sql_de_carga":1},{"nome":"Stok Center","tipo_api":"VipCommerce (services.vipcommerce.com.br/api-admin/v1)","arquivo":"scraper/coleta_stok.py","linha":37,"mercado_id_no_sql_de_carga":8},{"nome":"Master Supermercados","tipo_api":"VipCommerce (services.vipcommerce.com.br/api-admin/v1)","arquivo":"scraper/coleta_master.py","linha":37,"mercado_id_no_sql_de_carga":5},{"nome":"Carrefour Mercado","tipo_api":"SSR / HTML com fluxo React Router (streamController.enqueue) parseado por regex; sem API pública","arquivo":"scraper/coleta_carrefour.py","linha":4,"mercado_id_no_sql_de_carga":2}],"total_redes":8,"contrato_extracao_v1":{"arquivo":"scraper/README.md","linha":54,"campos":["nome_bruto","preco","preco_normal","em_promocao","marca","categoria","slug","id_produto_origem","supermercado","data_coleta"],"formatos":"JSON e CSV com colunas idênticas","regras":"preco finito e estritamente positivo; preco_normal positivo ou null; data_coleta ISO 8601 UTC (+00:00); moeda BRL","observacao":"A tabela do README cita só 'Fort Atacadista' e 'Carrefour' e só duas categorias (Graos_Arrozes_Feijoes, Leites): está desatualizada em relação às 8 redes."},"decimal":{"evidencia":"`parse_float=Decimal` presente nos 8 coletores (coleta_*.py); Fort usa também validação `Decimal(str(numero)) != decimal` (coleta_fort_atacadista.py:124-132)."},"gravacao_atomica":{"evidencia":"Arquivo temporário + `Path.replace()` em todos os 8 coletores (ex.: coleta_asun.py:322,335; coleta_master.py:447,455; coleta_carrefour.py:333; coleta_fort_atacadista.py:343) e em rotina_carga.py / executar_pipeline.py (`salvar_atomico`)."},"idempotencia":{"mecanismo":"Hash SHA-256 do payload (pipeline.py:18) + schema `smartmarket_ingest` com tabelas source_store, run, source_product e event (PK source+store+external_id+collected_at). Rodar duas vezes o mesmo run_id/payload é reconhecido por comparação de payload_hash.","arquivos":["scraper/pipeline.py:144-204","scraper/ingest_schema.sql"]},"historico_precos":"Cada coleta bem-sucedida insere nova linha em `preco` (pipeline.py:201) e vincula em smartmarket_ingest.event. Nenhum UPDATE de valor: o histórico é preservado.","indisponibilidade":"Produto ausente da coleta tem a linha de preço MAIS RECENTE marcada `disponivel = FALSE` (scraper/rotina_carga.py:174-185). Linhas antigas continuam TRUE (ver achado A-01).","trava_validar_dsn":{"arquivo":"scraper/pipeline.py","linha":32,"regras":"Rejeita `service`/`hostaddr`/PGSERVICE/PGHOSTADDR; exige host localhost/127.0.0.1/::1 ou diretório de socket; exige dbname começando com `smartmarket_fixture_`, ou (se permitir_banco_app=True) `smartmarket`, `smartmarket_dev`, `smartmarket_test`.","observacao":"As funções executar_ciclo_rede/executar_rodada_completa têm `permitir_banco_app=True` por padrão (rotina_carga.py:198,264); a CLI usa a flag --allow-app-db (rotina_carga.py:329,341)."},"agendamento":{"github_actions":{"arquivo":".github/workflows/coleta_diaria.yml","linha":5,"cron":"0 7 * * *","horario":"07:00 UTC = 04:00 BRT (UTC-3; Brasil sem horário de verão desde 2019)"},"systemd":{"arquivo":"scraper/smartmarket-scraper.service","horario":"HORA_COLETA_DIARIA=4, MINUTO_COLETA_DIARIA=0","fuso":"não definido: agendador_servico.py usa datetime.now() (fuso local do servidor)"},"cron":{"arquivo":"scraper/cron_coleta_diaria.sh","linha":7,"expressao":"0 4 * * *","fuso":"fuso do servidor"},"agendador_python":{"arquivo":"scraper/agendador_servico.py","linha":27,"padrao":"04:00, sem fuso explícito"}},"testes":{"total_coletados_pelo_unittest":126,"executados_sem_banco":99,"pulados":27,"motivo_dos_pulos":"Exigem SMARTMARKET_TEST_DSN (PostgreSQL local): 18 em test_pipeline_postgres.py + 9 em test_revisao_adversarial.py","por_arquivo":{"test_coleta_asun.py":5,"test_coleta_atacadao.py":3,"test_coleta_carrefour.py":17,"test_coleta_fort_atacadista.py":24,"test_coleta_master.py":9,"test_coleta_rissul.py":5,"test_coleta_stok.py":5,"test_coleta_zaffari.py":5,"test_normalizacao_pipeline.py":10,"test_pipeline_postgres.py":18,"test_revisao_adversarial.py":17,"test_rotina_carga.py":8},"comando_executado":"python -m unittest discover -s scraper/tests -> 'Ran 126 tests ... OK (skipped=27)'","cobertura_configurada":"scraper/.coveragerc: fail_under = 70, branch = True (coverage>=7 em requirements-dev.txt). Não é executada em nenhum workflow."},"formas_de_execucao_por_SO":{"multiplataforma":["scraper/rotina_carga.py","scraper/agendador_servico.py"],"somente_unix":["scraper/executar_pipeline.py (import fcntl)","scraper/cron_coleta_diaria.sh","scraper/smartmarket-scraper.service"]},"limites_de_coleta_por_codigo":"Zaffari: LIMITE_POR_CATEGORIA=20, MAX_PAGINAS_POR_CATEGORIA=5 (coleta_zaffari.py:49-52). Carrefour: 2 categorias apenas (coleta_carrefour.py:29-32). Os 530 produtos do SQL vêm de coletas anteriores consolidadas, não necessariamente desses limites."},"banco":{"versao_postgresql":"16 (imagem postgres:16-alpine)","evidencia_versao":["docker-compose.yml:6","backend/docker-compose.yml:3"],"portas":{"compose_raiz":"5432:5432 (docker-compose.yml:14)","compose_backend":"5436:5432 (backend/docker-compose.yml:10)","perfil_dev":"localhost:5436 (application-dev.properties:6)","perfil_prod":"postgres:5432 (application-prod.properties:6)","rotina_carga_padrao":"localhost:5436 (scraper/rotina_carga.py:142)"},"tabelas":[{"nome":"usuario","colunas":["id BIGSERIAL PK","nome","email UNIQUE NOT NULL","senha (BCrypt)","papel CHECK IN ('USER','ADMIN')","created_at"],"arquivo":"backend/database/smartmarket_ddl_finalizado.sql:22"},{"nome":"produto","colunas":["id","nome","nome_normalizado","marca","quantidade","unidade","codigo_barras","categoria","imagem_url","descricao","created_at"],"arquivo":"backend/database/smartmarket_ddl_finalizado.sql:38"},{"nome":"mercado","colunas":["id","nome","endereco","logo_url","ativo BOOLEAN DEFAULT TRUE","created_at"],"arquivo":"backend/database/smartmarket_ddl_finalizado.sql:56"},{"nome":"preco","colunas":["id","produto_id FK","mercado_id FK","valor NUMERIC(10,2)","coletado_em","origem","nome_bruto","disponivel BOOLEAN DEFAULT TRUE","created_at"],"relacoes":"FK produto e mercado com ON DELETE CASCADE","arquivo":"backend/database/smartmarket_ddl_finalizado.sql:69"},{"nome":"promocao","colunas":["id","produto_id FK","mercado_id FK","valor_original","valor_promocional","data_inicio","data_fim","coletado_em","created_at"],"regras":"CHECK valor_promocional <= valor_original; CHECK data_fim >= data_inicio","arquivo":"backend/database/smartmarket_ddl_finalizado.sql:95"},{"nome":"lista_compra","colunas":["id","usuario_id FK","nome","created_at","updated_at"],"arquivo":"backend/database/smartmarket_ddl_finalizado.sql:127"},{"nome":"item_lista","colunas":["id","lista_compra_id FK","produto_id FK","quantidade","created_at"],"regras":"CHECK quantidade > 0","arquivo":"backend/database/smartmarket_ddl_finalizado.sql:144"},{"nome":"favorito","colunas":["id","usuario_id FK","mercado_id FK","created_at"],"regras":"UNIQUE (usuario_id, mercado_id)","arquivo":"backend/database/smartmarket_ddl_finalizado.sql:169"},{"nome":"alerta","colunas":["id","usuario_id FK","produto_id FK","preco_alvo","ativo","created_at"],"regras":"CHECK preco_alvo >= 0; UNIQUE (usuario_id, produto_id) na entidade JPA","arquivo":"backend/database/smartmarket_ddl_finalizado.sql:193; backend/src/main/java/com/smartmarket/model/Alerta.java:9-10"},{"nome":"favorito_produto","colunas":["id","usuario_id FK","produto_id FK","created_at"],"regras":"UNIQUE (usuario_id, produto_id)","arquivo":"backend/src/main/java/com/smartmarket/model/FavoritoProduto.java:8","observacao":"Existe como entidade JPA, mas NÃO consta no DDL SQL (grep sem resultado em backend/database nem em data.sql)."}],"total_tabelas_aplicacao":10,"tabelas_do_schema_de_ingestao":["smartmarket_ingest.source_store","smartmarket_ingest.run","smartmarket_ingest.source_product","smartmarket_ingest.event"],"indices":"11 índices em FKs (smartmarket_ddl_finalizado.sql:219-249)","regras_de_integridade":["FKs com ON DELETE CASCADE em preco e demais tabelas filhas","CHECK de papel, quantidade, preco_alvo, datas e valores de promoção","UNIQUE em usuario.email, favorito e alerta","preco.valor NUMERIC(10,2) (sem float)"],"regra_de_indisponibilidade":"preco.disponivel=FALSE marcado pelo scraper (rotina_carga.py:174-185); consultas do backend filtram `disponivel = true` (PrecoRepository.java:12-15).","ddl_auto":{"padrao":"validate (application.properties:7)","dev":"update (application-dev.properties:12)","prod":"update por padrão (application-prod.properties:12; docker-compose.yml:43)","test":"create-drop em H2 (application-test.properties:13)"}},"backend":{"java":"17 (backend/pom.xml:22; Dockerfile eclipse-temurin:17)","spring_boot":"4.0.8 (backend/pom.xml:11)","springdoc_openapi":"3.1.0 (pom.xml:98)","pacotes":["controller","service","repository","model","dto/{admin,alerta,auth,favorito,lista,mercado,preco,produto,promocao}","security","exception","util"],"dominios":["auth","produto","mercado","preco","promoção","favorito","lista de compras","alerta","admin"],"controllers":{"AuthController":["POST /api/auth/register (público)","POST /api/auth/login (público)","GET /api/auth/me (autenticado)"],"ProdutoController":["GET /api/produtos (público, paginado; size máx. TAMANHO_MAXIMO)","GET /api/produtos/{id} (público)","POST /api/produtos (ADMIN)","PUT /api/produtos/{id} (ADMIN)","DELETE /api/produtos/{id} (ADMIN)"],"MercadoController":["GET /api/mercados (público)","GET /api/mercados/todos (ADMIN)","GET /api/mercados/{id} (público)","POST /api/mercados (ADMIN)","PUT /api/mercados/{id} (ADMIN)","DELETE /api/mercados/{id} (ADMIN)"],"PrecoController":["GET /api/precos/catalogo (público, sem paginação)","GET /api/precos/produto/{produtoId} (público)","GET /api/precos/produto/{produtoId}/mercado/{mercadoId} (público)","POST /api/precos (ADMIN)","DELETE /api/precos/{id} (ADMIN)"],"FavoritoController":["GET /api/favoritos","POST /api/favoritos","DELETE /api/favoritos/mercados/{mercadoId}","GET /api/favoritos/produtos","POST /api/favoritos/produtos/{produtoId}","DELETE /api/favoritos/produtos/{produtoId}"],"AlertaController":["GET /api/alertas","POST /api/alertas","PUT /api/alertas/{id}","DELETE /api/alertas/{id}"],"ListaCompraController":["GET /api/listas","GET /api/listas/{id}","POST /api/listas","PUT /api/listas/{id}","POST /api/listas/{id}/itens","PUT /api/listas/{id}/itens/{itemId}","DELETE /api/listas/{id}/itens/{produtoId}","DELETE /api/listas/{id}","GET /api/listas/{id}/comparar"],"AdminController":["GET /api/admin/painel","GET /api/admin/usuarios","PATCH /api/admin/usuarios/{id}/papel"],"PromocaoController":["GET /api/admin/promocoes","POST /api/admin/promocoes"]},"total_de_rotas_declaradas":43,"arquivos_controllers":"backend/src/main/java/com/smartmarket/controller/*.java","services":["AdminService","AlertaService","AuthService","ComparadorService","ConsultaMenorPreco","FavoritoService","ListaCompraService","MercadoService","PrecoService","ProdutoService","ProdutoSpecification","PromocaoService"],"comparador_service":{"existe":true,"arquivo":"backend/src/main/java/com/smartmarket/service/ComparadorService.java","comportamento":"comparar(email, listaId): valida que a lista pertence ao usuário, busca o preço disponível mais recente por produto×mercado, aplica promoção vigente, soma por mercado ativo, ordena por 'completo' e menor total e marca o mais barato (linhas 42-90)."},"repositories":["AlertaRepository","FavoritoProdutoRepository","FavoritoRepository","ItemListaRepository","ListaCompraRepository","MercadoRepository","PrecoRepository","ProdutoRepository","PromocaoRepository","UsuarioRepository"],"seguranca":{"jwt":"Spring OAuth2 Resource Server com NimbusJwtEncoder/Decoder, HS256; claim `papel` vira ROLE_*; expiração padrão 86400000 ms (24 h) (JwtTokenProvider.java:22-43; SecurityConfig.java:100-130; application.properties:11-12)","senha":"BCryptPasswordEncoder (SecurityConfig.java)","rate_limiting":"RateLimitingFilter em memória (ConcurrentHashMap), 15 req/min por IP, apenas POST /api/auth/login e /api/auth/register; resposta 429; desligável por security.rate-limit.enabled (RateLimitingFilter.java:28,72)","cors":"Origens por cors.allowed-origins / SMARTMARKET_CORS_ORIGINS; métodos GET,POST,PUT,DELETE,PATCH,OPTIONS; headers *; credentials true; só em /api/** (SecurityConfig.java:49-60)","csrf":"desabilitado (stateless) — SecurityConfig.java:67","autorizacao":"Regras por rota em SecurityConfig.java:72-101 + @PreAuthorize('hasRole(ADMIN)') em AdminController e PromocaoController + @EnableMethodSecurity","papeis":"USER, ADMIN (model/Papel.java)"},"tratamento_global_de_excecoes":{"arquivo":"backend/src/main/java/com/smartmarket/exception/GlobalExceptionHandler.java","handlers":{"404":"ListaNaoEncontrada / ItemListaNaoEncontrado / ProdutoNaoEncontrado / ResourceNotFound","400":"FiltroInvalido / MethodArgumentNotValid / IllegalArgument","401":"BadCredentials","403":"AccessDenied","409":"DataIntegrityViolation"},"ausente":"Não há handler genérico para Exception/RuntimeException."},"open_in_view":"false (application.properties:8)","testes":{"total_metodos_de_teste":171,"arquivos":19,"por_arquivo":{"SmartMarketApplicationTests":1,"AuthControllerIntegrationTest":5,"FavoritoAlertaAdminIntegrationTest":6,"ListaCompraControllerIntegrationTest":6,"ProdutoControllerIntegrationTest":19,"RateLimitingFilterTest":11,"AdminServiceTest":8,"AlertaServiceTest":11,"AuthServiceTest":6,"ComparadorServiceTest":6,"FavoritoServiceTest":13,"ListaCompraServiceTest":26,"MercadoServiceTest":9,"PrecoServiceTest":14,"ProdutoServiceTest":14,"ProdutoSpecificationTest":3,"PromocaoServiceTest":6,"UnidadeConversorAdicionalTest":3,"UnidadeConversorTest":4},"metodo_de_contagem":"grep de @Test/@ParameterizedTest (contagem estática, não execução; @ParameterizedTest pode gerar mais casos em runtime). Os testes de integração rodam em H2, não em PostgreSQL."},"queries_otimizadas":"backend/database/smartmarket_queries_otimizadas.sql e cópia idêntica em backend/smartmarket_queries_otimizadas.sql (diff sem diferenças)."},"frontend":{"react":"^19.2.8 (frontend/package.json)","vite":"^8.2.2","tailwind":"^4.3.3 via @tailwindcss/vite","react_router_dom":"^7.18.2","axios":"^1.20.0","vitest":"^5.0.5","node":"CI usa Node 24 (ci.yml:41); Dockerfile usa node:20-alpine (frontend/Dockerfile:6)","porta_dev":"5174 (frontend/vite.config.js:10)","paginas_reais":{"Home":"frontend/src/pages/Home.jsx (rota /, pública, 970 linhas)","CatalogPage":"frontend/src/pages/CatalogPage.jsx (rota /catalog, protegida, 1568 linhas)","ShoppingListPage":"frontend/src/pages/ShoppingListPage.jsx (rotas /list e /compare, protegida)","FavoritesPage":"frontend/src/pages/FavoritesPage.jsx (rotas /favorites e /favoritos, protegida)","AdminPage":"frontend/src/pages/AdminPage.jsx (rota /admin, ADMIN)","AuthPage":"frontend/src/pages/AuthPage.jsx (rotas /auth, /login, /register)","Sobre":"frontend/src/pages/Sobre.jsx existe (92 linhas) mas NÃO é importada em lugar nenhum; /sobre redireciona para /#sobre (App.jsx:19)"},"contexts":["AuthContext (frontend/src/contexts/AuthContext.jsx) + hook useAuth (hooks/useAuth.js)"],"rotas_protegidas":{"componente":"frontend/src/components/ProtectedRoute.jsx","regras":"isLoading -> spinner; sem login -> Navigate /auth; requiredRole='ADMIN' e !isAdmin -> tela 'Acesso Restrito (403)'","uso":"App.jsx:25-39 — /catalog, /favorites, /favoritos, /list, /compare exigem login; /admin exige ADMIN"},"interceptors":{"arquivo":"frontend/src/services/api.js","request":"Injeta `Authorization: Bearer <sm_token>` do localStorage (linhas 15-28)","response":"Apenas 401: limpa sm_token e sm_user e redireciona para /auth?mode=login&expired=true (linhas 32-52). NÃO trata 403 (o CLAUDE.md afirma 401/403).","timeout":"10000 ms; baseURL = VITE_API_URL ou localhost:8080/api"},"chaves_storage":{"localStorage":["sm_token","sm_user","sm_fav_products","sm_fav_markets","sm_price_alerts"],"sessionStorage":["sm_list"]},"services":["adminService","api","authService","favoritoService","listaService","mercadoService","produtoService"],"componentes_ui":["Button","Card","CarrosselRedes","Input","Modal","Navbar","Product360HoverPreview","ProductDetailModal","ProductImage","ProductViewer360","SearchSuggest","SmartMarketLogo"],"testes":{"total_casos_it":38,"arquivos":{"App.test.jsx":1,"Product360HoverPreview.test.jsx":7,"ProductDetailModal.test.jsx":14,"ProductViewer360.test.jsx":5,"relatedProducts.test.js":11},"metodo_de_contagem":"grep de it()/test() — contagem estática, não executada.","observacao":"Nenhuma página (Home, Catalog, Admin, Auth...) nem serviço/contexto tem teste."}},"metricas":{"produtos_no_sql_de_carga":{"total":530,"arquivo":"backend/database/carga_completa_530_produtos.sql","evidencia":"530 linhas `INSERT INTO produto`; 530 `INSERT INTO preco`; 8 `INSERT INTO mercado`"},"produtos_com_foto":{"linhas_com_imagem_url_local":528,"arquivos_unicos_referenciados":408,"arquivos_existentes_em_frontend/public/images/produtos":408,"produtos_sem_foto":2,"dimensao_maior_lado_px":{"min":400,"mediana":500,"max":1980,"com_pelo_menos_500px":403,"com_pelo_menos_1000px":160}},"seed_dev":{"arquivo":"backend/src/main/resources/data.sql","conteudo":"3 mercados, 30 produtos, 270 linhas de preço (cabeçalho do arquivo)","observacao":"Carrefour e Big Bompreço no seed dev são cenário de teste, não coleta (cabeçalho, linhas 4-13)."},"dados_coletados_versionados":"scraper/produtos_coletados.json tem apenas 40 registros; scraper/output/ é ignorado pelo git (scraper/.gitignore:3).","total_redes":8,"testes":{"scraper":126,"backend":171,"frontend":38,"total":335,"observacao":"scraper executado de fato; backend e frontend contados estaticamente"},"meta_de_cobertura":{"backend":"70% LINE e 70% BRANCH, regra JaCoCo `check` na fase test — build quebra abaixo disso (backend/pom.xml:24,129-172)","frontend":"NENHUMA configuração: sem threshold no vite.config.js e sem @vitest/coverage-* em package.json/node_modules (só mocker e spy) — `npm run test:coverage` não funcionaria","scraper":"fail_under = 70 em scraper/.coveragerc, sem execução em CI"},"ci_cd":{"ci":{"arquivo":".github/workflows/ci.yml","gatilhos":"push em main/develop/feature/*; PR em main/develop","jobs":["backend: JDK 17 Temurin, `./mvnw clean test -B`","frontend: Node 24, npm ci, npm test, npm run build"],"nao_inclui":"testes do scraper, lint, cobertura do frontend, deploy"},"coleta_diaria":{"arquivo":".github/workflows/coleta_diaria.yml","gatilhos":"cron 0 7 * * * e workflow_dispatch","passos":"Python 3.11, instala dependências, roda unittest, rotina_carga.py, download_imagens.py, gerar_catalogo_e_sql.py, upload de artifact (14 dias)"},"deploy":null},"commits_no_repositorio":155},"achados_de_auditoria":[{"id":"A-01","titulo":"Comparador e catálogo podem exibir preço antigo como se fosse atual quando o produto some da coleta","severidade":"alta","arquivo_linha":["scraper/rotina_carga.py:174-185","backend/src/main/java/com/smartmarket/service/ComparadorService.java:61-66","backend/src/main/java/com/smartmarket/repository/PrecoRepository.java:15","backend/src/main/java/com/smartmarket/service/PrecoService.java:78-90"],"evidencia":"O scraper marca disponivel=FALSE apenas na linha de preço mais recente. As consultas do backend filtram `disponivel = true` e ordenam por coletado_em DESC; ao descartar a linha mais nova, a segunda mais nova (ainda TRUE) vira o 'preço atual'.","recomendacao":"Buscar o preço mais recente SEM filtrar disponivel e só então descartar se estiver indisponível (ou marcar todas as linhas do par produto×mercado como FALSE). Adicionar teste em ComparadorServiceTest cobrindo histórico com a última linha indisponível."},{"id":"A-02","titulo":"Segredo JWT real versionado como valor padrão e no compose","severidade":"alta","arquivo_linha":["backend/src/main/resources/application.properties:11","docker-compose.yml:45"],"evidencia":"Existe um valor padrão de segredo de assinatura versionado no repositório e repetido em arquivo de orquestração (valor omitido aqui). Quem tem acesso ao código poderia forjar tokens em ambientes que não definam a variável.","recomendacao":"Remover o default de application.properties (falhar na inicialização se não houver variável), gerar novo segredo, rotacionar o atual e ler o do compose de um .env fora do git. Considerar o segredo atual comprometido."},{"id":"A-03","titulo":"Usuário ADMIN com senha fraca criada automaticamente no perfil dev","severidade":"alta","arquivo_linha":["backend/src/main/java/com/smartmarket/DataSeeder.java:44-61"],"evidencia":"O seed do perfil de desenvolvimento cria contas de teste com credenciais fixas (omitidas aqui), e dev é o perfil padrão da aplicação.","recomendacao":"Trocar o perfil padrão (ou removê-lo) e ler a senha do seed de variável de ambiente; nunca imprimir credenciais em docs de entrega."},{"id":"A-04","titulo":"Senha do Postgres hardcoded em vários lugares (inclusive default do perfil prod e do scraper)","severidade":"média","arquivo_linha":["docker-compose.yml:12,42","backend/docker-compose.yml:8","backend/src/main/resources/application-dev.properties:8","backend/src/main/resources/application-prod.properties:8","scraper/rotina_carga.py:142"],"evidencia":"A senha do banco de desenvolvimento aparece em texto puro em 5 arquivos (valor omitido aqui); dois deles a usam como valor de reserva em produção e no scraper.","recomendacao":"Usar .env (não versionado) com .env.example; remover fallback de senha no prod e no scraper; publicar a porta do banco só em 127.0.0.1 (`127.0.0.1:5432:5432`)."},{"id":"A-05","titulo":"CORS padrão não inclui a porta do Vite (5174) — frontend em dev é bloqueado","severidade":"média","arquivo_linha":["backend/src/main/resources/application.properties:15","frontend/vite.config.js:10","docker-compose.yml:44"],"evidencia":"O Vite sobe em 5174, mas o padrão de cors.allowed-origins é localhost:5173,localhost:4173 e o perfil dev não sobrescreve. Sem definir SMARTMARKET_CORS_ORIGINS, as chamadas do navegador falham por CORS. (Compose lista 3000, 80 e 5173; também não inclui 5174.) Não executei o app para confirmar em runtime.","recomendacao":"Adicionar localhost:5174 aos padrões de dev e documentar. Em prod, restringir à origem real."},{"id":"A-06","titulo":"Workflow de coleta diária provavelmente falha e não grava no banco","severidade":"alta","arquivo_linha":[".github/workflows/coleta_diaria.yml:33,40-48","scraper/rotina_carga.py:134-143","scraper/pipeline.py:39"],"evidencia":"(1) `pip install -r requirements.txt` aponta para a raiz, mas o arquivo está em scraper/; o fallback instala psycopg2-binary, enquanto o código usa psycopg 3. (2) O workflow define DB_HOST/DB_USER/DB_PASS, mas rotina_carga.py só lê SMARTMARKET_DSN/SMARTMARKET_LOCAL_DSN e cai no default localhost:5436 com senha fixa. (3) validar_dsn só aceita host local, então um banco remoto nunca seria usado. Por inferência do código, a etapa de carga falha no runner (não há Postgres lá). Não há como verificar o histórico de execuções do Actions a partir daqui.","recomendacao":"Corrigir para `pip install -r scraper/requirements.txt`; ou rodar um serviço postgres no job, ou mover a coleta para um servidor com o banco (systemd) e deixar o Actions só como teste. Alinhar nomes das variáveis (DSN)."},{"id":"A-07","titulo":"Rate limiting confia em X-Forwarded-For e X-Real-IP enviados pelo cliente","severidade":"média","arquivo_linha":["backend/src/main/java/com/smartmarket/security/RateLimitingFilter.java:84-95"],"evidencia":"O IP usado para o limite vem do primeiro valor de X-Forwarded-For sem verificar se a requisição veio de proxy confiável. Um atacante troca o header a cada tentativa e contorna o limite de 15/min no login. Além disso o mapa de contadores nunca é limpo (cresce com cada IP).","recomendacao":"Usar `server.forward-headers-strategy=native` + RemoteIpFilter do Tomcat com proxies confiáveis (o Nginx) e usar request.getRemoteAddr(); expirar entradas antigas (ex.: Caffeine/Bucket4j)."},{"id":"A-08","titulo":"Portas e compose divergentes (5432 × 5436) com o mesmo container_name","severidade":"baixa","arquivo_linha":["docker-compose.yml:8,14","backend/docker-compose.yml:4,10","backend/src/main/resources/application-dev.properties:6","scraper/rotina_carga.py:142"],"evidencia":"Dois compose definem container `smartmarket-db`; o da raiz expõe 5432 e o do backend, 5436. Dev e scraper apontam para 5436, prod para 5432 (rede interna). Subir os dois ao mesmo tempo gera conflito de nome; o volume `pgdata` também é duplicado.","recomendacao":"Escolher uma porta de host única e documentá-la, ou renomear o container do compose de dev; manter o CLAUDE.md/README alinhados."},{"id":"A-09","titulo":"Swagger/OpenAPI liberado sem autenticação, inclusive no perfil prod","severidade":"baixa","arquivo_linha":["backend/src/main/java/com/smartmarket/security/SecurityConfig.java:75"],"evidencia":"/swagger-ui/** e /v3/api-docs/** são permitAll e não há propriedade springdoc para desligar em prod; expõe o mapa completo da API.","recomendacao":"Definir springdoc.api-docs.enabled=false e springdoc.swagger-ui.enabled=false em application-prod.properties."},{"id":"A-10","titulo":"GET /api/precos/catalogo público devolve todos os produtos com preços, sem paginação nem cache","severidade":"média","arquivo_linha":["backend/src/main/java/com/smartmarket/controller/PrecoController.java:25-28","backend/src/main/java/com/smartmarket/service/PrecoService.java:78-90","backend/src/main/java/com/smartmarket/security/SecurityConfig.java:80"],"evidencia":"O serviço faz produtoRepository.findAll() e carrega todos os preços disponíveis em memória a cada chamada, sem autenticação e fora do rate limit (que só cobre login/registro). Fácil de usar para sobrecarregar o serviço ou para extrair a base inteira.","recomendacao":"Paginar ou consultar com agrupamento no banco, adicionar cache com TTL curto e aplicar rate limit também nos endpoints públicos de leitura."},{"id":"A-11","titulo":"Sem handler genérico de exceção: erros 500 vazam formato padrão do Spring","severidade":"baixa","arquivo_linha":["backend/src/main/java/com/smartmarket/exception/GlobalExceptionHandler.java:18-70"],"evidencia":"Existem 9 handlers específicos, nenhum para Exception. Falhas inesperadas voltam no corpo padrão do Spring (formato diferente de {\"erro\": ...}), o que o frontend não trata de forma uniforme. Também ex.getMessage() é ecoado ao cliente em IllegalArgument e demais (linhas 22,28,34,53).","recomendacao":"Adicionar @ExceptionHandler(Exception.class) com mensagem genérica e log com identificador; revisar quais mensagens internas podem ser expostas."},{"id":"A-12","titulo":"Token JWT em localStorage e interceptor sem tratamento de 403","severidade":"baixa","arquivo_linha":["frontend/src/services/api.js:18,32-52","frontend/src/contexts/AuthContext.jsx:85,124"],"evidencia":"O token fica em localStorage (legível por qualquer XSS). O interceptor trata somente 401; o CLAUDE.md descreve 401/403. Não há uso de dangerouslySetInnerHTML nas fontes (grep sem resultados), o que reduz o risco de XSS.","recomendacao":"Se possível, mover para cookie HttpOnly + SameSite; no mínimo, tratar 403 no interceptor (mensagem/redirecionamento) e manter CSP no Nginx."},{"id":"A-13","titulo":"Cobertura de 70% no frontend citada, mas inexistente","severidade":"média","arquivo_linha":["frontend/package.json:13","frontend/vite.config.js:14-18",".github/workflows/ci.yml:52-54"],"evidencia":"`test:coverage` chama `vitest run --coverage`, mas não há @vitest/coverage-v8/istanbul instalado, nem thresholds. Só 5 arquivos de teste (38 casos) para ~6.400 linhas de páginas; nenhuma página, serviço ou contexto testado. O CI também não roda os testes do scraper nem o lint.","recomendacao":"Instalar @vitest/coverage-v8, configurar `test.coverage.thresholds` e rodar no CI; incluir `npm run lint` e `unittest` do scraper no ci.yml. Se não der tempo, não anunciar a meta de 70% para o frontend."},{"id":"A-14","titulo":"Modelo e DDL fora de sincronia (favorito_produto) e prod com ddl-auto=update","severidade":"média","arquivo_linha":["backend/src/main/java/com/smartmarket/model/FavoritoProduto.java:8","backend/database/smartmarket_ddl_finalizado.sql","backend/src/main/resources/application-prod.properties:12","docker-compose.yml:43"],"evidencia":"A tabela favorito_produto existe só na entidade. O padrão global é `validate`, mas prod e compose usam `update`, que mascara o desvio e altera o schema em produção sem controle. Não há ferramenta de migração (Flyway/Liquibase) no pom.","recomendacao":"Adicionar a tabela ao DDL e adotar Flyway; em prod usar validate."},{"id":"A-15","titulo":"Scripts e agendamento amarrados a um sistema operacional e fuso do servidor","severidade":"baixa","arquivo_linha":["scraper/executar_pipeline.py:4,27","scraper/cron_coleta_diaria.sh:1","scraper/smartmarket-scraper.service:7-8","scraper/agendador_servico.py:93"],"evidencia":"executar_pipeline.py importa fcntl (só Unix) e o .sh/.service são Linux (User=ubuntu, /opt/smartmarket); o desenvolvimento ocorre em Windows (mvnw.cmd). O agendador usa datetime.now() sem fuso, então '04:00 BRT' só vale se o servidor estiver em America/Sao_Paulo.","recomendacao":"Usar zoneinfo('America/Sao_Paulo') no agendador ou definir Environment=TZ=America/Sao_Paulo no service; trocar fcntl por lock multiplataforma (como rotina_carga.py já faz)."},{"id":"A-16","titulo":"Documentação e README com números desatualizados","severidade":"baixa","arquivo_linha":["README.md:7,30","docs/EXPANSAO_RS_SCRAPERS.md:106,110","docs/STATUS-DO-PROJETO-ONDE-PARAMOS.md:13,44","CLAUDE.md:10","scraper/README.md:54-70","backend/src/main/java/com/smartmarket/security/RateLimitingFilter.java:22"],"evidencia":"README, documentos de status e o contrato do scraper citam quantidades e versões anteriores às atuais; o Javadoc do rate limit também diverge do código (15 requisições por minuto).","recomendacao":"Atualizar os números antes da apresentação (ou usar os valores reais deste levantamento) e conferir os slides contra docs/levantamento.json."},{"id":"A-17","titulo":"Docker do frontend em Node 20 enquanto CI usa Node 24; Python 3.11 no CI x 3.14 local","severidade":"baixa","arquivo_linha":["frontend/Dockerfile:6",".github/workflows/ci.yml:41",".github/workflows/coleta_diaria.yml:27"],"evidencia":"Vite 8 / Vitest 5 podem exigir Node mais novo; a imagem compila com Node 20 e o CI testa com 24. O fallback `npm ci || npm install` esconde divergências de lockfile.","recomendacao":"Padronizar a versão de Node (ex.: node:24-alpine) e remover o `|| npm install`. Não testei o build da imagem."}],"pontos_fortes":[{"titulo":"Autorização por camadas e isolamento por usuário","evidencia":"Regras por rota + @EnableMethodSecurity + @PreAuthorize nos controllers admin; ComparadorService valida posse da lista (buscarListaPropria).","arquivo":"backend/src/main/java/com/smartmarket/security/SecurityConfig.java:72-101; controller/AdminController.java:26; service/ComparadorService.java:43"},{"titulo":"Cobertura mínima de 70% imposta no build do backend","evidencia":"JaCoCo `check` em LINE e BRANCH vinculado à fase test.","arquivo":"backend/pom.xml:129-172"},{"titulo":"Trava de segurança no carregamento de dados","evidencia":"validar_dsn só aceita host local e bancos smartmarket*, impedindo carga acidental em banco remoto.","arquivo":"scraper/pipeline.py:32-47"},{"titulo":"Idempotência e rastreabilidade da carga","evidencia":"Hash SHA-256 do payload, schema smartmarket_ingest com run/event ligados a preco(id).","arquivo":"scraper/pipeline.py:18,144-204; scraper/ingest_schema.sql"},{"titulo":"Precisão monetária ponta a ponta","evidencia":"Decimal nos coletores (parse_float=Decimal) e NUMERIC(10,2) no banco.","arquivo":"scraper/coleta_*.py; backend/database/smartmarket_ddl_finalizado.sql:73"},{"titulo":"Gravação atômica e contrato único entre as 8 redes","evidencia":"Temp file + replace em todos os coletores; JSON/CSV com as mesmas colunas.","arquivo":"scraper/coleta_*.py; scraper/README.md:54"},{"titulo":"Suíte de scrapers 100% offline com fixtures","evidencia":"126 testes, 99 executados sem banco e todos passando; fixtures em scraper/tests/fixtures.","arquivo":"scraper/tests/"},{"titulo":"Integridade no banco além da aplicação","evidencia":"CHECKs (papel, quantidade, datas, valor promocional), UNIQUEs e FKs com índices.","arquivo":"backend/database/smartmarket_ddl_finalizado.sql"},{"titulo":"Sessões stateless com senha em BCrypt e limitação de tentativas de login","evidencia":"SessionCreationPolicy.STATELESS, BCryptPasswordEncoder, RateLimitingFilter com resposta 429.","arquivo":"backend/src/main/java/com/smartmarket/security/SecurityConfig.java:67-70,119; RateLimitingFilter.java"},{"titulo":"Docker de produção com usuário não-root e multi-stage","evidencia":"adduser smartmarket + USER smartmarket, JRE no estágio final, Nginx com proxy /api e fallback SPA.","arquivo":"backend/Dockerfile:30-37; frontend/nginx.conf"},{"titulo":"Open-in-view desligado e DTOs por domínio","evidencia":"spring.jpa.open-in-view=false; dto/<domínio>; exceções centralizadas.","arquivo":"backend/src/main/resources/application.properties:8; backend/src/main/java/com/smartmarket/dto"},{"titulo":"Rotas protegidas com papel no frontend e limpeza de sessão expirada","evidencia":"ProtectedRoute com requiredRole; isTokenValid no AuthContext; interceptor limpa token em 401.","arquivo":"frontend/src/components/ProtectedRoute.jsx; contexts/AuthContext.jsx:33-50; services/api.js:32-52"}]};
+</script>
+<script>
+(function(){
+"use strict";
+var L = LEV;
+
+/* ---------- utilidades ---------- */
+function $(s,r){return (r||document).querySelector(s)}
+function esc(s){return String(s==null?"":s).replace(/`/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function norm(s){return String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()}
+function ver(s,n){var m=String(s).match(/\d+(\.\d+)*/);return m?(n?m[0].split(".").slice(0,n).join("."):m[0]):String(s)}
+function ic(n){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+ICONS[n]+'</svg>'}
+var ICONS={
+ scrapers:'<path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>',
+ db:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+ backend:'<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>',
+ frontend:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+ close:'<path d="M6 6l12 12M18 6L6 18"/>',
+ play:'<path d="M7 5l12 7-12 7z"/>',
+ pause:'<path d="M8 5v14M16 5v14"/>',
+ reset:'<path d="M4 4v6h6"/><path d="M5.5 15a7.5 7.5 0 101.8-7.8L4 10"/>',
+ prev:'<path d="M15 5l-7 7 7 7"/>',
+ next:'<path d="M9 5l7 7-7 7"/>',
+ full:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+ exit:'<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+};
+
+/* ---------- derivados do levantamento ---------- */
+var redes = L.scrapers.redes;
+var tipoVtex = redes.filter(function(r){return /VTEX/.test(r.tipo_api)}).map(function(r){return r.nome});
+var tipoOs = redes.filter(function(r){return /OSuper/.test(r.tipo_api)}).map(function(r){return r.nome});
+var tipoVip = redes.filter(function(r){return /VipCommerce/.test(r.tipo_api)}).map(function(r){return r.nome});
+var tipoSsr = redes.filter(function(r){return /SSR/.test(r.tipo_api)}).map(function(r){return r.nome});
+var resumoApis = "VTEX ("+tipoVtex.join(", ")+"), Sense/OSuper ("+tipoOs.join(", ")+"), VipCommerce ("+tipoVip.join(", ")+") e SSR ("+tipoSsr.join(", ")+")";
+var jv = ver(L.backend.java), sb = ver(L.backend.spring_boot);
+var reactM = ver(L.frontend.react,1), tailM = ver(L.frontend.tailwind,1), viteM = ver(L.frontend.vite,1), pgM = ver(L.banco.versao_postgresql,1);
+var T = L.scrapers.testes, BT = L.backend.testes, FT = L.frontend.testes;
+var JP = "backend/src/main/java/com/smartmarket/";
+var tabela = function(n){return L.banco.tabelas.filter(function(t){return t.nome===n})[0]};
+var tabelasKV = function(ns){return ns.map(function(n){var t=tabela(n);return {k:n,v:t.colunas.join(", ")+(t.regras?" · "+t.regras:"")}})};
+var ctr = L.backend.controllers;
+var epList = function(ks){var o=[];ks.forEach(function(k){(ctr[k]||[]).forEach(function(e){o.push(e)})});return o};
+var seg = L.backend.seguranca;
+var rotasProt = L.frontend.rotas_protegidas;
+
+/* ---------- módulos ---------- */
+var BLOCOS = [
+ {id:"scrapers",nome:"Scrapers",sub:"Python · "+redes.length+" redes",icone:"scrapers",
+  desc:"Coleta preços de "+redes.length+" redes do RS, valida, normaliza e carrega no PostgreSQL com histórico.",
+  mods:[
+  {id:"coletores",nome:"Coletores das "+redes.length+" redes",resumo:"Um módulo coleta_<rede>.py por rede, todos no mesmo contrato de saída.",
+   faz:"Cada coletor consulta a loja online da rede, converte os preços com Decimal e grava JSON e CSV com colunas idênticas. Falha parcial e falha total têm códigos de saída próprios (0 sucesso, 2 parcial, 1 falha total, preservando a saída anterior).",
+   arquivos:redes.map(function(r){return r.arquivo}),
+   entra:["Respostas das lojas online: "+resumoApis],
+   sai:["JSON e CSV no Contrato de Extração v1"],
+   regras:["Decimal estrito: parse_float=Decimal nos "+redes.length+" coletores","Gravação atômica: arquivo temporário + replace","Preço finito e estritamente positivo, moeda BRL","Testes offline com fixtures por rede"],
+   extra:redes.map(function(r){return {k:r.nome,v:r.tipo_api}})},
+  {id:"contrato",nome:"Contrato de Extração v1",resumo:"Mesmas "+L.scrapers.contrato_extracao_v1.campos.length+" colunas para todas as redes.",
+   faz:"Define o formato único de saída dos coletores, para que a carga trate qualquer rede do mesmo jeito.",
+   arquivos:[L.scrapers.contrato_extracao_v1.arquivo],
+   entra:["Registros brutos de cada rede"],sai:["Arquivos .json e .csv padronizados"],
+   regras:L.scrapers.contrato_extracao_v1.campos.map(function(c){return "campo: "+c}).concat(["preco finito e estritamente positivo; preco_normal positivo ou null","data_coleta em ISO 8601 UTC (+00:00)"])},
+  {id:"pipeline",nome:"Normalização e carga idempotente",resumo:"Normaliza nomes e medidas e carrega em transação, sem duplicar.",
+   faz:"Normaliza nomes e medidas dos produtos e grava no banco. Um hash SHA-256 do conteúdo permite reprocessar a mesma coleta sem duplicar linhas; cada coleta bem-sucedida gera uma nova linha em preco, preservando o histórico.",
+   arquivos:["scraper/normalizacao.py","scraper/pipeline.py","scraper/ingest_schema.sql"],
+   entra:["Arquivos do Contrato v1"],sai:["Novas linhas em preco","Eventos de rastreio em smartmarket_ingest"],
+   regras:["Idempotência por hash SHA-256 do payload","Histórico: nenhuma atualização de valor, só inserções","Cada preço fica ligado ao evento e à execução que o gerou"]},
+  {id:"trava",nome:"Trava de segurança do banco",resumo:"validar_dsn impede carga acidental fora do ambiente local.",
+   faz:"Antes de qualquer gravação, valida a conexão: só aceita servidor local e bancos do próprio SmartMarket.",
+   arquivos:["scraper/pipeline.py"],
+   entra:["String de conexão (DSN)"],sai:["Configuração validada ou erro"],
+   regras:["Host precisa ser localhost, 127.0.0.1, ::1 ou socket local","Banco precisa ser smartmarket_fixture_* ou, quando permitido, smartmarket, smartmarket_dev ou smartmarket_test","Rejeita service e hostaddr (PGSERVICE, PGHOSTADDR)"]},
+  {id:"rotina",nome:"Rotina de carga e indisponibilidade",resumo:"Orquestra coleta + carga e marca o que sumiu.",
+   faz:"Executa as redes em sequência (uma vez ou como serviço), usa um bloqueio de processo multiplataforma e marca como indisponível o que deixou de aparecer na coleta.",
+   arquivos:["scraper/rotina_carga.py"],
+   entra:["Saída dos coletores","DSN do banco"],sai:["preco.disponivel = FALSE para o que sumiu","Relatório da rodada"],
+   regras:[L.scrapers.indisponibilidade]},
+  {id:"agenda",nome:"Agendamento da coleta",resumo:"Coleta agendada para 04:00 no horário de Brasília.",
+   faz:"Formas de agendar a rotina diária: workflow, serviço local e cron.",
+   arquivos:[".github/workflows/coleta_diaria.yml","scraper/agendador_servico.py","scraper/smartmarket-scraper.service","scraper/cron_coleta_diaria.sh"],
+   entra:["Relógio"],sai:["Execução da rotina de carga"],
+   regras:["Workflow agendado (coleta_diaria.yml): cron "+L.scrapers.agendamento.github_actions.cron+" = "+L.scrapers.agendamento.github_actions.horario,"Agendador local e systemd: HORA_COLETA_DIARIA=4 (04:00), no fuso do servidor","Cron em Linux: "+L.scrapers.agendamento.cron.expressao],
+   extra:[{k:"Workflow agendado",v:L.scrapers.agendamento.github_actions.horario},{k:"systemd",v:L.scrapers.agendamento.systemd.horario},{k:"Fuso (local)",v:L.scrapers.agendamento.systemd.fuso}]},
+  {id:"tscr",nome:"Testes dos scrapers",resumo:T.total_coletados_pelo_unittest+" testes ("+T.executados_sem_banco+" offline).",
+   faz:"Suíte unittest que roda sem internet, com fixtures por rede.",
+   arquivos:["scraper/tests/"],entra:["Fixtures JSON"],sai:["Resultado dos testes"],
+   regras:[T.executados_sem_banco+" rodam sem banco; "+T.pulados+" exigem PostgreSQL local (SMARTMARKET_TEST_DSN)","Cobertura mínima configurada em 70% (.coveragerc)"],
+   extra:Object.keys(T.por_arquivo).map(function(k){return {k:k.replace(/^test_|\.py$/g,""),v:String(T.por_arquivo[k])}})}
+ ]},
+ {id:"banco",nome:"PostgreSQL",sub:"PostgreSQL "+pgM+" · "+L.banco.total_tabelas_aplicacao+" tabelas",icone:"db",
+  desc:"Guarda produtos, mercados, o histórico de preços e os dados dos usuários.",
+  mods:[
+  {id:"nucleo",nome:"Catálogo e preços",resumo:"produto, mercado, preco e promocao.",
+   faz:"Tabelas centrais do comparador. Cada coleta acrescenta uma linha em preco, formando o histórico.",
+   arquivos:["backend/database/smartmarket_ddl_finalizado.sql"].concat(["Produto","Mercado","Preco","Promocao"].map(function(m){return JP+"model/"+m+".java"})),
+   entra:["Cargas do scraper","Cadastros do admin"],sai:["Consultas do backend"],
+   regras:["preco.valor é NUMERIC(10,2)","preco.disponivel indica se o item ainda é vendido","promocao: valor promocional ≤ original e fim ≥ início"],
+   extra:tabelasKV(["produto","mercado","preco","promocao"])},
+  {id:"conta",nome:"Usuários e listas",resumo:"usuario, lista_compra e item_lista.",
+   faz:"Contas e listas de compras de cada usuário.",
+   arquivos:["backend/database/smartmarket_ddl_finalizado.sql"].concat(["Usuario","ListaCompra","ItemLista","Papel"].map(function(m){return JP+"model/"+m+".java"})),
+   entra:["Cadastro, login e edição de listas"],sai:["Listas e papéis dos usuários"],
+   regras:["e-mail único","papel restrito a USER ou ADMIN","quantidade de item maior que zero"],
+   extra:tabelasKV(["usuario","lista_compra","item_lista"])},
+  {id:"engaj",nome:"Favoritos e alertas",resumo:"favorito, favorito_produto e alerta.",
+   faz:"Preferências do usuário: mercados favoritos, produtos favoritos e preço-alvo por produto.",
+   arquivos:["backend/database/smartmarket_ddl_finalizado.sql"].concat(["Favorito","FavoritoProduto","Alerta"].map(function(m){return JP+"model/"+m+".java"})),
+   entra:["Ações do usuário autenticado"],sai:["Listas de favoritos e alertas"],
+   regras:["um favorito por usuário e mercado; um alerta por usuário e produto","preço-alvo não negativo","favorito_produto existe na entidade JPA, mas ainda não está no DDL SQL"],
+   extra:tabelasKV(["favorito","favorito_produto","alerta"])},
+  {id:"ingest",nome:"Schema de ingestão",resumo:"smartmarket_ingest: rastreio das cargas.",
+   faz:"Registra de onde veio cada preço: execuções, produtos de origem e eventos de coleta.",
+   arquivos:["scraper/ingest_schema.sql"],
+   entra:["Cargas do pipeline"],sai:["Auditoria e idempotência"],
+   regras:L.banco.tabelas_do_schema_de_ingestao.map(function(t){return "tabela "+t})},
+  {id:"integr",nome:"Integridade e índices",resumo:"Regras no banco, além da aplicação.",
+   faz:"Garante consistência mesmo fora do backend.",
+   arquivos:["backend/database/smartmarket_ddl_finalizado.sql"],
+   entra:["Qualquer gravação"],sai:["Gravação aceita ou rejeitada"],
+   regras:L.banco.regras_de_integridade.concat([L.banco.indices]),
+   extra:[{k:"ddl-auto (padrão)",v:L.banco.ddl_auto.padrao},{k:"dev",v:L.banco.ddl_auto.dev},{k:"test",v:L.banco.ddl_auto.test}]},
+  {id:"cargas",nome:"Cargas e seeds",resumo:L.metricas.produtos_no_sql_de_carga.total+" produtos no SQL de carga.",
+   faz:"Scripts SQL que populam o banco: a carga completa e um seed menor para desenvolvimento.",
+   arquivos:[L.metricas.produtos_no_sql_de_carga.arquivo,L.metricas.seed_dev.arquivo,"backend/database/migration_add_produto_imagem_descricao.sql"],
+   entra:["Scripts SQL"],sai:["Banco populado"],
+   regras:["Carga completa: "+L.metricas.produtos_no_sql_de_carga.total+" produtos, "+L.metricas.total_redes+" mercados","Seed de desenvolvimento: "+L.metricas.seed_dev.conteudo]}
+ ]},
+ {id:"backend",nome:"Backend",sub:"Spring Boot "+sb+" · Java "+jv,icone:"backend",
+  desc:"API REST em camadas (controller → service → repository) com autenticação JWT.",
+  mods:[
+  {id:"seg",nome:"Autenticação e segurança",resumo:"JWT, BCrypt, rate limit e CORS.",
+   faz:"Cadastra e autentica usuários, emite o token JWT e protege as rotas por papel.",
+   arquivos:["SecurityConfig","JwtTokenProvider","RateLimitingFilter","CustomUserDetailsService","UsuarioAutenticado"].map(function(f){return JP+"security/"+f+".java"}).concat([JP+"controller/AuthController.java",JP+"service/AuthService.java"]),
+   entra:["E-mail e senha","Token Bearer nas requisições"],sai:["Token JWT","Decisão de acesso (200, 401, 403)"],
+   regras:[seg.jwt,seg.senha,seg.rate_limiting,seg.autorizacao,"CSRF desabilitado: "+seg.csrf],
+   extra:ctr.AuthController.map(function(e){var p=e.split(" ");return {k:p[0],v:p.slice(1).join(" ")}})},
+  {id:"cat",nome:"Catálogo: produtos, mercados e preços",resumo:"Leitura pública; escrita só para ADMIN.",
+   faz:"Expõe o catálogo e os preços por mercado. Quem não está logado pode consultar; cadastrar, editar e remover é restrito a ADMIN.",
+   arquivos:["ProdutoController","MercadoController","PrecoController"].map(function(f){return JP+"controller/"+f+".java"}).concat(["ProdutoService","MercadoService","PrecoService","ProdutoSpecification"].map(function(f){return JP+"service/"+f+".java"})),
+   entra:["Filtros, página, ordenação","Cadastros do admin"],sai:["Produtos paginados","Preços por mercado"],
+   regras:["Produtos paginados com tamanho máximo","Leitura de produtos, mercados e preços sem login","Escrita restrita a ADMIN","Consultas só consideram preços disponíveis"],
+   extra:epList(["ProdutoController","MercadoController","PrecoController"]).map(function(e){var p=e.split(" ");return {k:p[0],v:p.slice(1).join(" ")}})},
+  {id:"lista",nome:"Listas e ComparadorService",resumo:"Compara o total da lista em cada mercado.",
+   faz:L.backend.comparador_service.comportamento,
+   arquivos:["ListaCompraController","ComparadorService","ListaCompraService","ConsultaMenorPreco"].map(function(f){return JP+(f==="ListaCompraController"?"controller/":"service/")+f+".java"}).concat([JP+"util/UnidadeConversor.java"]),
+   entra:["Lista de compras do usuário","Preços disponíveis e promoções vigentes"],sai:["Total por mercado","Mercado mais barato"],
+   regras:["A lista precisa pertencer ao usuário autenticado","Usa o preço disponível mais recente por produto e mercado","Aplica promoção vigente","Mercados com lista completa vêm primeiro; desempate pelo menor total"],
+   extra:ctr.ListaCompraController.map(function(e){var p=e.split(" ");return {k:p[0],v:p.slice(1).join(" ")}})},
+  {id:"fav",nome:"Favoritos e alertas",resumo:"Mercados e produtos favoritos, preço-alvo.",
+   faz:"Guarda as preferências do usuário autenticado.",
+   arquivos:["FavoritoController","AlertaController"].map(function(f){return JP+"controller/"+f+".java"}).concat(["FavoritoService","AlertaService"].map(function(f){return JP+"service/"+f+".java"})),
+   entra:["Produto ou mercado escolhido","Preço-alvo"],sai:["Favoritos e alertas do usuário"],
+   regras:["Rotas /api/favoritos e /api/alertas exigem login","Um alerta por usuário e produto"],
+   extra:epList(["FavoritoController","AlertaController"]).map(function(e){var p=e.split(" ");return {k:p[0],v:p.slice(1).join(" ")}})},
+  {id:"adm",nome:"Administração e promoções",resumo:"Painel, usuários e promoções (ADMIN).",
+   faz:"Painel administrativo, gestão de papéis e cadastro de promoções.",
+   arquivos:["AdminController","PromocaoController"].map(function(f){return JP+"controller/"+f+".java"}).concat(["AdminService","PromocaoService"].map(function(f){return JP+"service/"+f+".java"})),
+   entra:["Requisição de ADMIN"],sai:["Indicadores, usuários, promoções"],
+   regras:["@PreAuthorize hasRole('ADMIN') nos dois controllers","/api/admin/** exige ADMIN"],
+   extra:epList(["AdminController","PromocaoController"]).map(function(e){var p=e.split(" ");return {k:p[0],v:p.slice(1).join(" ")}})},
+  {id:"err",nome:"Tratamento global de erros",resumo:"Respostas padronizadas em JSON.",
+   faz:"Converte exceções em respostas HTTP com o corpo {\"erro\": ...}.",
+   arquivos:[L.backend.tratamento_global_de_excecoes.arquivo],
+   entra:["Exceções lançadas"],sai:["404, 400, 401, 403 e 409"],
+   regras:Object.keys(L.backend.tratamento_global_de_excecoes.handlers).map(function(k){return k+": "+L.backend.tratamento_global_de_excecoes.handlers[k]}).concat(["open-in-view desligado: sem lazy loading fora de transação"])},
+  {id:"tbk",nome:"Testes do backend",resumo:BT.total_metodos_de_teste+" métodos em "+BT.arquivos+" arquivos.",
+   faz:"Testes unitários e de integração (H2 em memória). Cobertura mínima de 70% em linhas e ramos, imposta no build.",
+   arquivos:["backend/src/test/java/com/smartmarket/","backend/pom.xml"],entra:["Código do backend"],sai:["Build aprovado ou falho"],
+   regras:["Contagem estática de @Test/@ParameterizedTest","JaCoCo: mínimo 70% LINE e BRANCH"]}
+ ]},
+ {id:"frontend",nome:"Frontend",sub:"React "+reactM+" · Vite "+viteM+" · Tailwind "+tailM,icone:"frontend",
+  desc:"Aplicação de página única que consome a API e guarda a sessão no navegador.",
+  mods:[
+  {id:"pag",nome:"Páginas e rotas",resumo:"6 páginas roteadas; Sobre implementada, ainda não roteada.",
+   faz:"Home pública com apresentação; catálogo, lista, favoritos e admin atrás de login.",
+   arquivos:["frontend/src/App.jsx"].concat(["Home","CatalogPage","ShoppingListPage","FavoritesPage","AdminPage","AuthPage","Sobre"].map(function(p){return "frontend/src/pages/"+p+".jsx"})),
+   entra:["URL"],sai:["Tela renderizada"],
+   regras:["Públicas: /, /auth, /login, /register","Com login: /catalog, /favorites, /favoritos, /list, /compare","Só ADMIN: /admin","Sobre (Sobre.jsx): implementada, ainda não roteada; /sobre redireciona para a seção #sobre da Home","Rota desconhecida volta para /"],
+   extra:[{k:"Home",v:"roteada · pública"},{k:"AuthPage",v:"roteada · pública"},{k:"CatalogPage",v:"roteada · com login"},{k:"ShoppingListPage",v:"roteada · com login"},{k:"FavoritesPage",v:"roteada · com login"},{k:"AdminPage",v:"roteada · só ADMIN"},{k:"Sobre",v:"implementada, ainda não roteada"}]},
+  {id:"auth",nome:"Sessão e rotas protegidas",resumo:"AuthContext, useAuth e ProtectedRoute.",
+   faz:"Mantém o usuário logado, valida a expiração do token e bloqueia rotas conforme o papel.",
+   arquivos:["frontend/src/contexts/AuthContext.jsx","frontend/src/hooks/useAuth.js","frontend/src/components/ProtectedRoute.jsx"],
+   entra:["Token e usuário no armazenamento local"],sai:["Estado de autenticação"],
+   regras:[rotasProt.regras]},
+  {id:"api",nome:"Camada de serviços e interceptors",resumo:"Uma instância axios, um serviço por domínio.",
+   faz:"Centraliza as chamadas à API e injeta o token automaticamente.",
+   arquivos:L.frontend.services.map(function(s){return "frontend/src/services/"+s+".js"}),
+   entra:["Chamadas das páginas"],sai:["Requisições REST com Bearer"],
+   regras:[L.frontend.interceptors.request,L.frontend.interceptors.response,"Timeout e URL: "+L.frontend.interceptors.timeout]},
+  {id:"ui",nome:"Componentes de interface",resumo:L.frontend.componentes_ui.length+" componentes reutilizáveis.",
+   faz:"Peças visuais compartilhadas: botões, cartões, modal, carrossel de redes, visualizador 360° do produto.",
+   arquivos:["frontend/src/components/ui/","frontend/DESIGN-SYSTEM.md"],entra:["Props"],sai:["Elementos de interface"],
+   regras:L.frontend.componentes_ui},
+  {id:"store",nome:"Armazenamento no navegador",resumo:"Chaves em localStorage e sessionStorage.",
+   faz:"Guarda sessão, favoritos locais, alertas locais e a lista em montagem.",
+   arquivos:["frontend/src/contexts/AuthContext.jsx","frontend/src/services/favoritoService.js","frontend/src/services/listaService.js"],
+   entra:["Ações do usuário"],sai:["Dados persistidos no navegador"],
+   regras:["localStorage: "+L.frontend.chaves_storage.localStorage.join(", "),"sessionStorage: "+L.frontend.chaves_storage.sessionStorage.join(", ")]},
+  {id:"tfe",nome:"Testes do frontend",resumo:FT.total_casos_it+" casos em "+Object.keys(FT.arquivos).length+" arquivos.",
+   faz:"Vitest com jsdom e Testing Library, cobrindo componentes de produto e utilitário de relacionados.",
+   arquivos:Object.keys(FT.arquivos),entra:["Componentes"],sai:["Resultado dos testes"],
+   regras:["Contagem estática de it()/test()"],
+   extra:Object.keys(FT.arquivos).map(function(k){return {k:k,v:String(FT.arquivos[k])}})}
+  ]}
+];
+var TABS = ["Planta baixa","Simulador de fluxo","Métricas","Roadmap de evolução"];
+
+/* ---------- abas ---------- */
+var cur = 0;
+function buildTabs(){
+  var nav=$("#tabs");
+  nav.innerHTML=TABS.map(function(t,i){return '<button class="tab" role="tab" type="button" id="t'+i+'" aria-controls="p'+i+'" data-i="'+i+'">'+t+'</button>'}).join("");
+  nav.addEventListener("click",function(e){var b=e.target.closest(".tab");if(b)setTab(+b.dataset.i)});
+}
+function setTab(i){
+  cur=(i+TABS.length)%TABS.length;
+  for(var k=0;k<TABS.length;k++){
+    var on=k===cur;
+    $("#t"+k).setAttribute("aria-selected",on);$("#t"+k).tabIndex=on?0:-1;
+    $("#p"+k).classList.toggle("on",on);
+  }
+  if(cur!==1)simPause();
+  try{history.replaceState(null,"","#"+["planta","simulador","metricas","roadmap"][cur])}catch(e){}
+}
+
+/* ---------- diagrama ---------- */
+var EDGE_LABELS=["carga transacional","JPA / JDBC","REST + JWT"];
+function diagramHTML(interativo){
+  var h='<div class="flow">';
+  BLOCOS.forEach(function(b,i){
+    var tag=interativo?"button":"div";
+    h+='<'+tag+' class="node" '+(interativo?'type="button" aria-expanded="false" ':'')+'data-b="'+b.id+'">'+
+      '<span class="ico">'+ic(b.icone)+'</span><b>'+esc(b.nome)+'</b><span class="sub">'+esc(b.sub)+'</span>'+
+      (interativo?'<span class="count">'+b.mods.length+' módulos</span>':'')+'</'+tag+'>';
+    if(i<BLOCOS.length-1){
+      h+='<div class="edge" data-e="'+i+'"><svg viewBox="0 0 60 24" aria-hidden="true"><path class="l line" d="M2 12H54"/><path class="l" d="M47 5l8 7-8 7"/></svg><em>'+EDGE_LABELS[i]+'</em></div>';
+    }
+  });
+  return h+'</div>';
+}
+
+/* ---------- aba 1: planta ---------- */
+var selBloco=null, query="";
+function buildPlanta(){
+  var p=$("#p0");
+  p.innerHTML='<div class="eyebrow">Arquitetura</div><h1>Planta baixa do SmartMarket</h1>'+
+   '<p class="lead">Quatro blocos ligados por dados: os scrapers alimentam o PostgreSQL, o backend expõe a API e o frontend a consome. Clique em um bloco para ver seus módulos e em um módulo para ver o detalhe.</p>'+
+   '<div class="search apoio">'+ic("search")+'<input id="q" type="search" placeholder="Buscar módulo, arquivo ou regra (ex.: JWT, preco, Decimal)" aria-label="Buscar módulos"></div>'+
+   '<div class="hits" id="hits"></div>'+
+   '<div id="dg">'+diagramHTML(true)+'</div><div class="drill" id="drill"></div>';
+  $("#dg").addEventListener("click",function(e){var n=e.target.closest(".node");if(n)selecionar(n.dataset.b)});
+  $("#q").addEventListener("input",function(e){query=e.target.value;aplicaBusca()});
+  $("#drill").addEventListener("click",function(e){var c=e.target.closest("[data-m]");if(c)abrirDrawer(c.dataset.b,c.dataset.m,c)});
+}
+function haystack(m){
+  return norm([m.nome,m.resumo,m.faz,(m.arquivos||[]).join(" "),(m.entra||[]).join(" "),(m.sai||[]).join(" "),(m.regras||[]).join(" "),(m.extra||[]).map(function(x){return x.k+" "+x.v}).join(" ")].join(" "));
+}
+function modHit(m,q){return !q||haystack(m).indexOf(q)>=0}
+function selecionar(id){
+  selBloco=(selBloco===id)?null:id;
+  desenhaDrill();aplicaBusca(true);
+}
+function desenhaDrill(){
+  var d=$("#drill");
+  document.querySelectorAll("#dg .node").forEach(function(n){var s=n.dataset.b===selBloco;n.classList.toggle("sel",s);n.setAttribute("aria-expanded",s)});
+  if(!selBloco){d.classList.remove("on");d.innerHTML="";return}
+  var b=BLOCOS.filter(function(x){return x.id===selBloco})[0];
+  var q=norm(query.trim());
+  d.innerHTML='<div class="drill-head"><h2>'+esc(b.nome)+'</h2><span class="chip"><span class="k">módulos</span> '+b.mods.length+'</span></div><p class="d">'+esc(b.desc)+'</p><div class="cards">'+
+   b.mods.map(function(m){
+     var hit=q&&modHit(m,q);var dim=q&&!hit;
+     return '<button class="card'+(hit?' hit':'')+(dim?' dim':'')+'" type="button" data-b="'+b.id+'" data-m="'+m.id+'"><b>'+esc(m.nome)+'</b><span>'+esc(m.resumo)+'</span><small>'+(m.arquivos||[]).length+' arquivo(s)</small></button>';
+   }).join("")+'</div>';
+  d.classList.add("on");
+}
+function aplicaBusca(semDrill){
+  var q=norm(query.trim()),hits=[];
+  BLOCOS.forEach(function(b){
+    var ms=b.mods.filter(function(m){return q&&modHit(m,q)});
+    var nm=q&&norm(b.nome+" "+b.sub+" "+b.desc).indexOf(q)>=0;
+    var n=$('#dg .node[data-b="'+b.id+'"]');
+    n.classList.toggle("match",!!(q&&(ms.length||nm)));
+    n.classList.toggle("dim",!!(q&&!ms.length&&!nm));
+    ms.forEach(function(m){hits.push({b:b,m:m})});
+  });
+  var hs=$("#hits");
+  hs.innerHTML=q?(hits.length?hits.map(function(h){return '<button class="chip" type="button" data-b="'+h.b.id+'" data-m="'+h.m.id+'"><span class="k">'+esc(h.b.nome)+'</span> '+esc(h.m.nome)+'</button>'}).join(""):'<span class="chip"><span class="k">Nenhum módulo encontrado</span></span>'):"";
+  if(!semDrill&&selBloco)desenhaDrill();
+}
+document.addEventListener("click",function(e){
+  var c=e.target.closest("#hits [data-m]");if(c)abrirDrawer(c.dataset.b,c.dataset.m,c);
+});
+
+/* ---------- drawer ---------- */
+var lastFocus=null;
+function lista(a,f){return '<ul>'+a.map(function(x){return '<li'+(f?' class="f"':'')+'>'+esc(x)+'</li>'}).join("")+'</ul>'}
+function abrirDrawer(bid,mid,origem){
+  var b=BLOCOS.filter(function(x){return x.id===bid})[0];
+  var m=b.mods.filter(function(x){return x.id===mid})[0];
+  lastFocus=origem||document.activeElement;
+  var d=$("#drawer");
+  d.innerHTML='<header><div><div class="tag">'+esc(b.nome)+'</div><h3 id="dTitle">'+esc(m.nome)+'</h3></div><button class="btn" id="dClose" type="button" aria-label="Fechar painel">'+ic("close")+'</button></header>'+
+   '<div class="body"><h4>O que faz</h4><p>'+esc(m.faz)+'</p>'+
+   '<h4>Arquivos reais no projeto</h4>'+lista(m.arquivos||[],true)+
+   '<h4>Dados que entram e saem</h4><div class="io"><div><h5>Entram</h5>'+lista(m.entra||[])+'</div><div><h5>Saem</h5>'+lista(m.sai||[])+'</div></div>'+
+   '<h4>Regras de negócio</h4>'+lista(m.regras||[])+
+   (m.extra&&m.extra.length?'<h4>Detalhamento</h4><table class="kv">'+m.extra.map(function(x){return '<tr><td>'+esc(x.k)+'</td><td>'+esc(x.v)+'</td></tr>'}).join("")+'</table>':'')+'</div>';
+  d.classList.add("on");d.setAttribute("aria-hidden","false");$("#veil").classList.add("on");
+  $("#dClose").addEventListener("click",fecharDrawer);
+  $("#dClose").focus();
+}
+function fecharDrawer(){
+  var d=$("#drawer");if(!d.classList.contains("on"))return;
+  d.classList.remove("on");d.setAttribute("aria-hidden","true");$("#veil").classList.remove("on");
+  if(lastFocus&&lastFocus.focus)try{lastFocus.focus()}catch(e){}
+}
+$("#veil").addEventListener("click",fecharDrawer);
+
+/* ---------- aba 2: simulador ---------- */
+var CEN = [
+ {id:"coleta",nome:"Coleta das 04:00 até o banco",steps:[
+  {n:[0],e:[],t:"Disparo agendado às 04:00 (Brasília)",d:"A coleta é agendada via workflow (cron às 07:00 UTC, que equivale a 04:00 em Brasília). O agendador local (serviço ou cron) dispara no horário do servidor.",c:[".github/workflows/coleta_diaria.yml","scraper/agendador_servico.py"]},
+  {n:[0],e:[],t:"Coleta nas "+redes.length+" redes",d:"Cada coletor consulta a loja da rede: "+resumoApis+".",c:redes.map(function(r){return r.nome})},
+  {n:[0],e:[],t:"Validação e gravação atômica",d:"Preços viram Decimal, precisam ser positivos e ficam em BRL. A saída é gravada num arquivo temporário e só então substitui o definitivo, em JSON e CSV (Contrato de Extração v1).",c:["Decimal","preço > 0","JSON + CSV"]},
+  {n:[0],e:[],t:"Normalização",d:"Nomes e medidas dos produtos são padronizados para que o mesmo item de redes diferentes possa ser comparado.",c:["scraper/normalizacao.py"]},
+  {n:[0,1],e:[0],dir:"f",t:"Trava de segurança do banco",d:"Antes de gravar, validar_dsn confirma que o destino é um servidor local e um banco do SmartMarket.",c:["validar_dsn","scraper/pipeline.py"]},
+  {n:[0,1],e:[0],dir:"f",t:"Carga idempotente, com histórico",d:"Um hash SHA-256 do conteúdo evita duplicar uma coleta já processada. Cada coleta nova vira uma nova linha em preco, e o evento é registrado em smartmarket_ingest.",c:["preco","smartmarket_ingest.event"]},
+  {n:[1],e:[],t:"Indisponibilidade e banco pronto",d:"O que deixou de aparecer na coleta tem a linha de preço mais recente marcada como indisponível (disponivel = FALSE). O backend já pode servir os dados atualizados.",c:["preco.disponivel = FALSE","scraper/rotina_carga.py"]}
+ ]},
+ {id:"jornada",nome:"Jornada do usuário: busca e comparação",steps:[
+  {n:[3],e:[],t:"Visitante na Home pública",d:"A Home apresenta o SmartMarket sem exigir login. Busca e comparador levam ao cadastro.",c:["/","Home.jsx"]},
+  {n:[3,2],e:[2],dir:"r",t:"Cadastro e login",d:"O navegador envia as credenciais à API. As duas rotas têm limite de 15 requisições por minuto por IP.",c:["POST /api/auth/register","POST /api/auth/login"]},
+  {n:[2,1],e:[1],dir:"r",t:"Conferência no banco",d:"O backend consulta a tabela usuario e valida a senha, que é guardada com BCrypt.",c:["usuario","BCrypt"]},
+  {n:[2,3],e:[2],dir:"f",t:"Token JWT de volta ao navegador",d:"O backend emite um JWT assinado (HS256) com o papel do usuário e validade padrão de 24 horas. O front guarda sm_token e sm_user no localStorage.",c:["JWT HS256","sm_token","sm_user"]},
+  {n:[3,2],e:[2],dir:"r",t:"Busca no catálogo",d:"O interceptor do axios anexa o cabeçalho Authorization: Bearer. A leitura do catálogo é pública e paginada. Se a API responder 401, a sessão é limpa e o usuário vai para /auth.",c:["GET /api/produtos","Authorization: Bearer"]},
+  {n:[2,1],e:[1],dir:"r",t:"Preços por mercado",d:"O backend lê em preco apenas os registros disponíveis do produto, de todos os mercados.",c:["GET /api/precos/produto/{produtoId}","preco.disponivel = true"]},
+  {n:[1,2,3],e:[1,2],dir:"f",t:"Comparação na tela",d:"Os preços de cada mercado chegam ao navegador e são apresentados lado a lado para o usuário comparar.",c:["REST + JSON"]}
+ ]},
+ {id:"lista",nome:"Lista de compras e alertas",steps:[
+  {n:[3],e:[],t:"Montagem da lista no navegador",d:"Enquanto o usuário escolhe itens, a lista fica em sm_list (sessionStorage).",c:["ShoppingListPage.jsx","sm_list"]},
+  {n:[3,2],e:[2],dir:"r",t:"Lista enviada à API",d:"Com o usuário logado, a lista e seus itens são criados pela API. Todas as rotas /api/listas exigem JWT.",c:["POST /api/listas","POST /api/listas/{id}/itens"]},
+  {n:[2,1],e:[1],dir:"r",t:"Gravação no banco",d:"Lista e itens são gravados em lista_compra e item_lista. A quantidade de cada item precisa ser maior que zero.",c:["lista_compra","item_lista"]},
+  {n:[3,2],e:[2],dir:"r",t:"Pedido de comparação",d:"O usuário pede para comparar a lista entre os mercados.",c:["GET /api/listas/{id}/comparar"]},
+  {n:[2,1],e:[1],dir:"r",t:"ComparadorService consulta o banco",d:"O serviço confirma que a lista é do usuário e lê o preço disponível mais recente de cada produto por mercado, mais a promoção vigente.",c:["ComparadorService","preco","promocao"]},
+  {n:[1,2,3],e:[1,2],dir:"f",t:"Resultado da comparação",d:"O total é somado por mercado ativo. Mercados que têm todos os itens vêm primeiro, ordenados pelo menor total, e o mais barato é marcado.",c:["mercadoMaisBarato"]},
+  {n:[3,2,1],e:[2,1],dir:"r",t:"Alerta de preço",d:"O usuário define um preço-alvo para um produto. Existe no máximo um alerta por usuário e produto, e o valor não pode ser negativo.",c:["POST /api/alertas","alerta"],nota:"O levantamento não cobre o envio de notificações ao usuário."}
+ ]}
+];
+var simC=0, simS=0, simPlaying=false, simTimer=null, DELAY=4200;
+function buildSim(){
+  var p=$("#p1");
+  p.innerHTML='<div class="eyebrow">Simulação</div><h1>Como os dados percorrem o sistema</h1>'+
+   '<p class="lead">Escolha um cenário e acompanhe, passo a passo, quais blocos entram em ação e que endpoints ou arquivos reais estão envolvidos.</p>'+
+   '<div class="seg" id="seg">'+CEN.map(function(c,i){return '<button class="btn" type="button" data-c="'+i+'" aria-pressed="false">'+esc(c.nome)+'</button>'}).join("")+'</div>'+
+   '<div class="sim-grid"><div id="sdg">'+diagramHTML(false)+'</div>'+
+   '<div class="legend" aria-live="polite"><div class="prog" id="prog"></div><div class="n" id="sn"></div><h3 id="st"></h3><p id="sd"></p><div class="chips" id="sc"></div><p class="nota" id="snota"></p>'+
+   '<div class="ctrls"><button class="btn primary" id="bPlay" type="button"></button><button class="btn" id="bPrev" type="button">'+ic("prev")+'Anterior</button><button class="btn" id="bNext" type="button">Próximo'+ic("next")+'</button><button class="btn" id="bReset" type="button">'+ic("reset")+'Reiniciar</button></div></div></div>';
+  $("#seg").addEventListener("click",function(e){var b=e.target.closest("[data-c]");if(b){simC=+b.dataset.c;simS=0;renderSim();simPlay()}});
+  $("#bPlay").addEventListener("click",function(){if(simPlaying)simPause();else{if(simS>=CEN[simC].steps.length-1)simS=0;simPlay()}renderSim()});
+  $("#bPrev").addEventListener("click",function(){simPause();simS=Math.max(0,simS-1);renderSim()});
+  $("#bNext").addEventListener("click",function(){simPause();simS=Math.min(CEN[simC].steps.length-1,simS+1);renderSim()});
+  $("#bReset").addEventListener("click",function(){simPause();simS=0;renderSim()});
+  renderSim();
+}
+function simPlay(){
+  simPause();simPlaying=true;
+  simTimer=setInterval(function(){
+    if(simS<CEN[simC].steps.length-1){simS++;renderSim()}else{simPause();renderSim()}
+  },DELAY);
+  renderSim();
+}
+function simPause(){simPlaying=false;if(simTimer){clearInterval(simTimer);simTimer=null}if($("#bPlay"))renderBtn()}
+function renderBtn(){
+  var last=simS>=CEN[simC].steps.length-1;
+  $("#bPlay").innerHTML=simPlaying?ic("pause")+"Pausar":(last?ic("reset")+"Repetir":ic("play")+(simS===0?"Iniciar":"Continuar"));
+}
+function renderSim(){
+  var c=CEN[simC],s=c.steps[simS];
+  document.querySelectorAll("#seg [data-c]").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.c===simC)});
+  document.querySelectorAll("#sdg .node").forEach(function(n,i){var on=s.n.indexOf(i)>=0;n.classList.toggle("active",on);n.classList.toggle("idle",!on)});
+  document.querySelectorAll("#sdg .edge").forEach(function(e,i){var on=s.e.indexOf(i)>=0;e.classList.toggle("on",on);e.classList.toggle("rev",on&&s.dir==="r")});
+  $("#prog").innerHTML=c.steps.map(function(_,i){return '<i class="'+(i<simS?'done':i===simS?'cur':'')+'"></i>'}).join("");
+  $("#sn").textContent="Passo "+(simS+1)+" de "+c.steps.length+" · "+c.nome;
+  $("#st").textContent=s.t;$("#sd").textContent=s.d;
+  $("#sc").innerHTML=s.c.map(function(x){return '<span class="chip mono">'+esc(x)+'</span>'}).join("");
+  $("#snota").textContent=s.nota||"";
+  $("#bPrev").disabled=simS===0;$("#bNext").disabled=simS>=c.steps.length-1;
+  renderBtn();
+}
+
+/* ---------- aba 3: métricas ---------- */
+function buildMetricas(){
+  var tot=T.total_coletados_pelo_unittest+BT.total_metodos_de_teste+FT.total_casos_it;
+  var pc=L.metricas.produtos_com_foto, pn=L.metricas.produtos_no_sql_de_carga;
+  var grupos=[
+   {t:"Escopo",c:[
+    [L.metricas.total_redes,"","Redes monitoradas","Zaffari, Rissul, Asun, Stok, Atacadão, Master, Fort e Carrefour.","scraper/coleta_*.py"],
+    [pn.total,"","Produtos na carga completa","Linhas de produto e de preço no SQL de carga.",pn.arquivo],
+    [pc.linhas_com_imagem_url_local,"","Produtos com foto","em "+pc.arquivos_unicos_referenciados+" arquivos distintos; "+pc.produtos_sem_foto+" sem foto. Mediana de "+pc.dimensao_maior_lado_px.mediana+" px no maior lado.","frontend/public/images/produtos"],
+    [L.backend.total_de_rotas_declaradas,"","Rotas REST declaradas",Object.keys(ctr).length+" controllers.",JP+"controller/"],
+    [L.banco.total_tabelas_aplicacao,"","Tabelas da aplicação","Mais "+L.banco.tabelas_do_schema_de_ingestao.length+" no schema de ingestão.","backend/database/smartmarket_ddl_finalizado.sql"],
+    [Object.keys(L.frontend.paginas_reais).filter(function(k){return k!=="Sobre"}).length,"","Páginas roteadas","Home, Catálogo, Lista, Favoritos, Admin e Autenticação. Sobre está implementada, ainda não roteada.","frontend/src/App.jsx"]
+   ]},
+   {t:"Qualidade",c:[
+    [T.total_coletados_pelo_unittest,"","Testes dos scrapers",T.executados_sem_banco+" rodam offline; "+T.pulados+" exigem PostgreSQL local. Executados nesta verificação.","scraper/tests/"],
+    [BT.total_metodos_de_teste,"","Testes do backend","Métodos de teste em "+BT.arquivos+" arquivos (contagem no código, não execução).","backend/src/test/"],
+    [FT.total_casos_it,"","Testes do frontend","Casos em "+Object.keys(FT.arquivos).length+" arquivos (contagem no código).","frontend/src/**/*.test.*"],
+    [tot,"","Testes no total","Soma das três contagens acima; só a dos scrapers foi executada.","docs/levantamento.json"],
+    ["70","%","Cobertura no backend","JaCoCo, quebra o build abaixo disso (70% de linhas e de ramos). Sem meta de cobertura configurada no frontend.","backend/pom.xml"]
+   ]},
+   {t:"Stack e operação",c:[
+    [sb,"","Spring Boot","Java "+jv+".","backend/pom.xml"],
+    [reactM,"","React","Declarado como "+L.frontend.react+" · Vite "+viteM+" · Tailwind "+tailM+".","frontend/package.json"],
+    [pgM,"","PostgreSQL","Imagem postgres:16-alpine.","docker-compose.yml"],
+    ["04:00","","Coleta agendada (Brasília)","Agendada via workflow (cron 07:00 UTC) e pelo agendador local.",".github/workflows/coleta_diaria.yml"],
+    [L.metricas.ci_cd.ci.jobs.length,"","Jobs de CI","Backend (JDK "+jv+") e frontend (testes + build) a cada push ou PR.",".github/workflows/ci.yml"]
+   ]}
+  ];
+  $("#p2").innerHTML='<div class="eyebrow">Números</div><h1>O projeto em números</h1><p class="lead">Todos os valores vêm do levantamento feito no repositório. Onde a contagem é estática (lida no código, sem executar), o card diz isso.</p>'+
+   grupos.map(function(g){return '<div class="group"><h2>'+g.t+'</h2><div class="grid">'+g.c.map(function(m){
+     return '<div class="metric"><div class="v">'+esc(m[0])+(m[1]?'<small>'+esc(m[1])+'</small>':'')+'</div><div class="lb">'+esc(m[2])+'</div><div class="nt">'+esc(m[3])+'</div><div class="src apoio">'+esc(m[4])+'</div></div>'}).join("")+'</div></div>'}).join("")+
+   '<div class="note">Cobertura de testes medida em porcentagem: não há relatório versionado, então o painel mostra apenas a regra do backend (70%, JaCoCo).</div>';
+}
+
+/* ---------- aba 4: roadmap ---------- */
+function buildRoadmap(){
+  var A=L.achados_de_auditoria;
+  var grp=[{k:"a",t:"Antes de ir para produção",s:"alta",d:"Itens que afetam segurança ou a confiança nos preços exibidos."},
+           {k:"m",t:"Próximo ciclo",s:"média",d:"Robustez, desempenho e processo."},
+           {k:"b",t:"Refinamentos",s:"baixa",d:"Ajustes de conforto, consistência e documentação."}];
+  var fortes='<h2>O que já está sólido</h2>'+L.pontos_fortes.map(function(p){
+    return '<div class="item"><div class="top"><span class="ok">'+ic("check")+'</span><div><b>'+esc(p.titulo)+'</b><div class="ev">'+esc(p.arquivo)+'</div><p style="margin:8px 0 0;color:var(--mut);font-size:.88rem">'+esc(p.evidencia)+'</p></div></div></div>'}).join("");
+  var prox='<h2>Próximos passos para produção</h2>'+grp.map(function(g,gi){
+    var its=A.filter(function(a){return a.severidade===g.s||(g.s==="média"&&a.severidade==="média")});
+    return '<div class="'+(gi?'sec-gap':'')+'"><div class="prio '+g.k+'"><span class="sw"></span><h2>'+g.t+'</h2><span>'+its.length+' itens · '+g.d+'</span></div>'+its.map(function(a){
+      return '<div class="item '+g.k+'"><div class="top"><div style="flex:1"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="id">'+esc(a.id)+'</span><b>'+esc(a.titulo)+'</b></div><div class="ev">'+esc(a.arquivo_linha.join("  ·  "))+'</div>'+
+       '<p class="rec"><span>Como avançar: </span>'+esc(a.recomendacao)+'</p>'+
+       '<details><summary>Ver evidência</summary><p>'+esc(a.evidencia)+'</p></details></div></div></div>'}).join("")+'</div>';
+  }).join("");
+  $("#p3").innerHTML='<div class="eyebrow">Evolução</div><h1>Roadmap de evolução</h1><p class="lead">A base está sólida em segurança de acesso, qualidade dos dados e testes. Abaixo, o que o levantamento recomenda fortalecer para operar em produção, em ordem de prioridade. Valores de segredos não são exibidos; cada item aponta onde corrigir.</p>'+
+   '<div class="cols"><div>'+fortes+'</div><div>'+prox+'</div></div>';
+}
+
+/* ---------- apresentação ---------- */
+function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function renderPresBtn(){
+  var on=document.body.classList.contains("pres");
+  $("#btnPres").innerHTML=ic(on?"exit":"full")+(on?"Sair da apresentação":"Modo apresentação");
+}
+function setPres(on){
+  document.body.classList.toggle("pres",on);
+  renderPresBtn();
+  var el=document.documentElement;
+  try{
+    if(on&&!isFull()){var r=(el.requestFullscreen||el.webkitRequestFullscreen);if(r){var pr=r.call(el);if(pr&&pr.catch)pr.catch(function(){})}}
+    if(!on&&isFull()){var x=(document.exitFullscreen||document.webkitExitFullscreen);if(x){var p2=x.call(document);if(p2&&p2.catch)p2.catch(function(){})}}
+  }catch(e){}
+}
+function onFs(){if(!isFull()&&document.body.classList.contains("pres")){document.body.classList.remove("pres");renderPresBtn()}}
+document.addEventListener("fullscreenchange",onFs);
+document.addEventListener("webkitfullscreenchange",onFs);
+$("#btnPres").addEventListener("click",function(){setPres(!document.body.classList.contains("pres"))});
+
+/* ---------- teclado ---------- */
+document.addEventListener("keydown",function(e){
+  var tag=(e.target&&e.target.tagName)||"";
+  var typing=/INPUT|TEXTAREA|SELECT/.test(tag);
+  if(e.key==="Escape"){
+    if($("#drawer").classList.contains("on")){fecharDrawer();e.preventDefault()}
+    return;
+  }
+  if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="ArrowRight"){setTab(cur+1);e.preventDefault()}
+  else if(e.key==="ArrowLeft"){setTab(cur-1);e.preventDefault()}
+  else if(e.key==="p"||e.key==="P"){setPres(!document.body.classList.contains("pres"))}
+});
+
+/* ---------- init ---------- */
+buildTabs();buildPlanta();buildSim();buildMetricas();buildRoadmap();
+$("#fonte").textContent="Fonte dos dados: docs/levantamento.json · levantamento de "+L.meta.gerado_em+" · branch "+L.meta.branch;
+renderPresBtn();
+var h={planta:0,simulador:1,metricas:2,roadmap:3}[(location.hash||"").replace("#","")];
+setTab(h==null?0:h);
+})();
+</script>
+</body>
+</html>

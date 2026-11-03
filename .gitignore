@@ -152,3 +152,4 @@ node_modules/
 output/
 
 frontend/templates/**/*.zip
+docs/auditoria-interna.md

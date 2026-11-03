@@ -44,6 +44,22 @@ class TestGeradorSemFatores(unittest.TestCase):
         for p in produtos:
             self.assertLess(len(p["prices"]), len(REDES))
 
+    def test_promocao_sem_validade_grava_null(self):
+        sql = gerador.sql_promocao(1, 3, 10.0, 8.0)
+        self.assertIn("CURRENT_TIMESTAMP, NULL, TRUE", sql)
+        self.assertNotIn("INTERVAL", sql)
+
+    def test_promocao_com_validade_informada_pela_rede(self):
+        sql = gerador.sql_promocao(1, 3, 10.0, 8.0, "2026-12-31")
+        self.assertIn("'2026-12-31'", sql)
+
+    def test_sql_gerado_nao_contem_validade_fixa(self):
+        itens = [{"nome_bruto": "Arroz Tipo 1 1kg", "preco": 5.0, "preco_normal": 6.0,
+                  "em_promocao": True, "supermercado": "Zaffari", "id_produto_origem": "1"}]
+        _, sql = self._gerar(itens)
+        self.assertIn("INSERT INTO promocao", sql)
+        self.assertNotIn("INTERVAL '7 days'", sql)
+
 
 class TestSincronizadorSemFatores(unittest.TestCase):
     def test_produto_novo_tem_preco_apenas_da_rede_coletada(self):

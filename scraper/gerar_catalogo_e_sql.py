@@ -113,6 +113,15 @@ def carregar_todos_produtos():
     return todos
 
 
+def sql_promocao(prod_id, mercado_id, preco_normal, preco, valida_ate=None) -> str:
+    """INSERT de promoção. Sem validade informada pela rede, data_fim é NULL (nunca estimada)."""
+    data_fim = escape_sql(valida_ate)
+    return (
+        f"INSERT INTO promocao (produto_id, mercado_id, valor_original, valor_promocional, data_inicio, data_fim, ativa) "
+        f"VALUES ({prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, {data_fim}, TRUE);"
+    )
+
+
 def montar_precos(mercado_key: str, preco: float) -> dict:
     """Preços por rede de um item coletado: apenas a rede de origem.
 
@@ -210,10 +219,7 @@ def gerar_sql_e_data():
         )
 
         if em_promo and preco_normal > preco:
-            linhas_sql.append(
-                f"INSERT INTO promocao (produto_id, mercado_id, valor_original, valor_promocional, data_inicio, data_fim, ativa) "
-                f"VALUES ({prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '7 days', TRUE);"
-            )
+            linhas_sql.append(sql_promocao(prod_id, mercado_id, preco_normal, preco, item.get("promocao_valida_ate")))
 
         # Adiciona ao objeto do frontend: somente a rede onde o preço foi realmente coletado
         prices_dict = montar_precos(mercado_key, preco)

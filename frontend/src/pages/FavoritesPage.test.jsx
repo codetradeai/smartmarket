@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import FavoritesPage from './FavoritesPage'
+import { AuthContext } from '../contexts/AuthContext'
 import { favoritoService } from '../services'
 
 // Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
@@ -23,14 +24,20 @@ jest.mock('../services', () => ({
 const PRODUTOS_PADRAO = ['p1', 'p3', 'p9', 'p17']
 const MERCADOS_PADRAO = ['fort', 'carrefour']
 
-async function renderizar() {
+// Sessão de um usuário logado. Sem `auth`, a página é renderizada como visitante (fora do provider).
+const USUARIO_LOGADO = { isAuthenticated: true, isAdmin: false, user: { nome: 'Ana', papel: 'USER' } }
+
+async function renderizar({ auth = null } = {}) {
+  const pagina = (
+    <MemoryRouter>
+      <FavoritesPage />
+    </MemoryRouter>
+  )
+  let resultado
   await act(async () => {
-    render(
-      <MemoryRouter>
-        <FavoritesPage />
-      </MemoryRouter>
-    )
+    resultado = render(auth ? <AuthContext.Provider value={auth}>{pagina}</AuthContext.Provider> : pagina)
   })
+  return resultado
 }
 
 const lerLocal = (chave) => JSON.parse(localStorage.getItem(chave))
@@ -74,7 +81,7 @@ describe('FavoritesPage', () => {
     it.each([
       ['nao ha nada guardado', null],
       ['o armazenamento esta corrompido', '{nao-e-json'],
-    ])('volta aos favoritos padrao e os grava quando %s', async (_caso, conteudo) => {
+    ])('visitante volta aos favoritos padrao e os grava quando %s', async (_caso, conteudo) => {
       if (conteudo) {
         localStorage.setItem('sm_fav_products', conteudo)
         localStorage.setItem('sm_fav_markets', conteudo)
@@ -84,6 +91,31 @@ describe('FavoritesPage', () => {
       expect(resumo()).toHaveTextContent('4 produtos · 0 alertas ativos')
       expect(lerLocal('sm_fav_products')).toEqual(PRODUTOS_PADRAO)
       expect(lerLocal('sm_fav_markets')).toEqual(MERCADOS_PADRAO)
+    })
+
+    it('favoritos vazios continuam vazios ao reabrir a pagina', async () => {
+      const { unmount } = await renderizar()
+      for (const nome of ['Arroz Branco Tipo 1', 'Feijão Carioca', 'Leite Integral UHT', 'Café Torrado e Moído']) {
+        fireEvent.click(within(cartaoDe(nome)).getByTitle('Remover dos favoritos'))
+      }
+      expect(lerLocal('sm_fav_products')).toEqual([])
+      unmount()
+
+      await renderizar()
+
+      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('0 produtos · 0 alertas ativos')
+      expect(lerLocal('sm_fav_products')).toEqual([])
+    })
+
+    it('usuario logado nao recebe favoritos de demonstracao', async () => {
+      await renderizar({ auth: USUARIO_LOGADO })
+
+      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('0 produtos · 0 alertas ativos')
+      expect(abaMercados()).toHaveTextContent(/\(Opcional\)\s*0$/)
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
     })
 
     it('substitui os favoritos pelos devolvidos pelo servidor e grava no navegador', async () => {

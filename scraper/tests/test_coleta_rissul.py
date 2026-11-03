@@ -65,5 +65,38 @@ class TestColetaRissul(unittest.TestCase):
         self.assertEqual(produtos[0]["nome_bruto"], "Arroz Branco Tipo 1 Blue Ville 5kg")
 
 
+class TestCodigoBarrasPagina(unittest.TestCase):
+    """EAN só pela página do produto, nunca pela API (robots.txt proíbe /api)."""
+
+    def test_transformar_produto_nao_le_ean_da_api(self):
+        from coleta_rissul import transformar_produto
+        item = {"productId": "1", "productName": "Arroz 1kg", "brand": "X", "linkText": "arroz-1",
+                "link": "https://exemplo.invalid/arroz-1/p",
+                "items": [{"ean": "7896011906881",
+                           "sellers": [{"commertialOffer": {"Price": 5.0, "ListPrice": 5.0}}]}]}
+        res = transformar_produto(item, "Mercearia", datetime(2026, 11, 3, tzinfo=timezone.utc))
+        self.assertIsNone(res["codigo_barras"])
+
+    def test_campo_no_contrato_csv(self):
+        from coleta_rissul import CAMPOS
+        self.assertIn("codigo_barras", CAMPOS)
+
+    def test_fixture_nao_acessa_rede_para_ean(self):
+        import tempfile
+        from unittest import mock
+        import ean_pagina
+        from coleta_rissul import main
+        fixture = Path(__file__).resolve().parent / "fixtures" / "rissul_valido.json"
+        with tempfile.TemporaryDirectory() as tmp,              mock.patch.object(ean_pagina, "buscar_html", side_effect=AssertionError("rede proibida")):
+            self.assertEqual(main(["--fixture", str(fixture), "--output-dir", tmp]), 0)
+
+    def test_enriquecimento_preenche_codigo_barras_pela_pagina(self):
+        from ean_pagina import enriquecer_com_ean
+        prods = [{"url_produto": "https://exemplo.invalid/a/p"}]
+        enriquecer_com_ean(prods, url_de=lambda p: p["url_produto"],
+                           buscar=lambda u: '"ean":"7896279600538"', dormir=lambda s: None)
+        self.assertEqual(prods[0]["codigo_barras"], "7896279600538")
+
+
 if __name__ == "__main__":
     unittest.main()

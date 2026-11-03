@@ -88,6 +88,11 @@ def preparar(registros):
                 if not normal.is_finite() or normal <= 0:
                     raise ValueError('preco_normal_invalido')
                 canonico['preco_normal'] = chave_decimal(normal)
+            # O hash usa o EAN validado (não o texto bruto). Sem EAN, o campo some do
+            # payload canônico e o hash de cargas antigas continua idêntico.
+            canonico.pop('codigo_barras', None)
+            if produto['codigo_barras']:
+                canonico['codigo_barras'] = produto['codigo_barras']
             preparados.append({'external_id': str(externo), 'valor': valor,
                                'instante': instante.astimezone(timezone.utc),
                                'produto': produto, 'hash': hash_dados(canonico),
@@ -100,6 +105,25 @@ def preparar(registros):
         except (ValueError, TypeError, KeyError, InvalidOperation, OverflowError) as exc:
             raise ErroIngestao(f'registro_{indice}: {exc}') from exc
     return preparados
+
+
+def sincronizar_codigo_barras(cur, produto_id, codigo):
+    """Grava o EAN em produto.codigo_barras quando ainda está vazio.
+
+    Divergência com um EAN já gravado exige revisão humana (nunca sobrescreve).
+    Retorna True se gravou.
+    """
+    if not codigo:
+        return False
+    cur.execute('SELECT codigo_barras FROM produto WHERE id=%s', (produto_id,))
+    linha = cur.fetchone()
+    atual = linha[0] if linha else None
+    if atual in (None, ''):
+        cur.execute('UPDATE produto SET codigo_barras=%s WHERE id=%s', (codigo, produto_id))
+        return True
+    if atual != codigo:
+        raise ErroIngestao('ean_divergente_exige_revisao')
+    return False
 
 
 def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=None, permitir_banco_app=False):
@@ -126,7 +150,7 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                              'eventos': sorted(row['hash'] for row in preparados),
                              'mapeamento': mapeamento})
     resumo = {'run_id': run_id, 'produtos_criados': 0, 'precos_inseridos': 0,
-              'eventos_repetidos': 0, 'reexecucao': False, 'moeda': 'BRL',
+              'eventos_repetidos': 0, 'eans_gravados': 0, 'reexecucao': False, 'moeda': 'BRL',
               'pendencias': [{'external_id': row['external_id'], 'motivos': row['produto']['pendencias']}
                             for row in preparados if row['produto']['pendencias']]}
     with psycopg.connect(**config) as conn:
@@ -187,6 +211,9 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                                 tuple(p[k] for k in campos))
                     produto_id = cur.fetchone()[0]
                     resumo['produtos_criados'] += 1
+                if existente or aprovado:
+                    if sincronizar_codigo_barras(cur, produto_id, row['produto']['codigo_barras']):
+                        resumo['eans_gravados'] += 1
                 if not existente:
                     cur.execute('INSERT INTO smartmarket_ingest.source_product(source,store,external_id,produto_id,source_signature) VALUES(%s,%s,%s,%s,%s)', (*key, produto_id, row['source_signature']))
                 cur.execute('SELECT payload_hash FROM smartmarket_ingest.event WHERE source=%s AND store=%s AND external_id=%s AND collected_at=%s', (*key,row['instante']))

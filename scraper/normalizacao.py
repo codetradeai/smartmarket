@@ -3,6 +3,8 @@ import re
 import unicodedata
 from decimal import Decimal
 
+from ean import validar_ean
+
 MEDIDA = re.compile(r'(?<![\w.,+\-])(\d+(?:[.,]\d+)?)\s*(kg|ml|mg|g|l|un)(?![a-z])', re.I)
 MULTIPACK = re.compile(
     r'\d\s*[x×]|(?:kit|pack|pacote\s+com|leve\s+\d)|'
@@ -37,10 +39,15 @@ def normalizar_produto(registro):
             pendencias.append('embalagem_invalida')
     if marca is None:
         pendencias.append('marca_ausente')
-    # Não inferir EAN, converter tamanhos, nem fundir marcas/embalagens.
+    # EAN só é aceito se vier da fonte E for GTIN válido (comprimento + dígito
+    # verificador); nunca é inferido. Não converter tamanhos nem fundir marcas/embalagens.
+    bruto = registro.get('codigo_barras')
+    codigo_barras = validar_ean(bruto)
+    if bruto not in (None, '') and codigo_barras is None:
+        pendencias.append('ean_invalido_descartado')
     return {'nome': nome.strip(), 'nome_normalizado': nome_normalizado,
             'marca': marca.strip() if marca else None, 'quantidade': quantidade,
-            'unidade': unidade, 'codigo_barras': None,
+            'unidade': unidade, 'codigo_barras': codigo_barras,
             'categoria': registro.get('categoria'),
             'imagem_url': registro.get('imagem_url'),
             'descricao': registro.get('descricao'),

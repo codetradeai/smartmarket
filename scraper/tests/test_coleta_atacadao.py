@@ -78,6 +78,12 @@ class TestCodigoBarrasAtacadao(unittest.TestCase):
                 res = transformar_produto(self._produto(ruim), "Mercearia", instante)
                 self.assertIsNone(res["codigo_barras"])
 
+    def test_codigo_interno_de_8_digitos_nao_vira_ean(self):
+        # "39870001" passa no dígito verificador por acaso (EAN-8), mas é código interno de granel/PLU
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        res = transformar_produto(self._produto("39870001"), "Hortifruti", instante)
+        self.assertIsNone(res["codigo_barras"])
+
     def test_codigo_barras_esta_no_contrato_csv(self):
         from coleta_atacadao import CAMPOS
         self.assertIn("codigo_barras", CAMPOS)

@@ -221,7 +221,7 @@ def transformar_produto(produto_raw: dict, nome_categoria: str, instante: dateti
         "imagem_url": obter_url_imagem_alta_resolucao(primeiro_sku),
         "descricao": descricao_limpa if descricao_limpa else None,
         "url_produto": link_direto,
-        "codigo_barras": validar_ean(primeiro_sku.get("ean")),
+        "codigo_barras": validar_ean(primeiro_sku.get("ean"), aceitar_ean8=False),
         "is_clube": is_clube,
         "clube_nome": clube_nome,
     }

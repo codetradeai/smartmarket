@@ -122,5 +122,14 @@ class TestCodigoBarras(unittest.TestCase):
         self.assertIn("codigo_barras", CAMPOS)
 
 
+class TestUserAgentIdentificavel(unittest.TestCase):
+    def test_user_agent_e_identificavel_e_nao_finge_ser_navegador(self):
+        from coleta_stok import HEADERS_BASE
+        ua = HEADERS_BASE["User-Agent"]
+        self.assertIn("SmartMarketBot", ua)
+        self.assertIn("contato", ua)
+        self.assertNotIn("Mozilla", ua)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -66,7 +66,7 @@ PAUSA_ENTRE_REQUISICOES = 1.0
 MAX_PAGINAS_POR_CATEGORIA = 5
 
 HEADERS_BASE = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (SmartMarket RS Bot)",
+    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)",
     "Accept": "application/json, text/plain, */*",
     "Origin": STOREFRONT_BASE_URL,
     "Referer": f"{STOREFRONT_BASE_URL}/",

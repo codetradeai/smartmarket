@@ -299,3 +299,33 @@ Medi a heurística nos pares em que o EAN é a verdade: **116 pares** (mesmo EAN
 - Amostras pequenas (20 por rede) e enviesadas para marcas nacionais de mercearia. Os percentuais indicam ordem de grandeza e não são estimativas com intervalo de confiança.
 - A sobreposição só foi medida contra Atacadão, Master e Stok. Zaffari, Rissul e Carrefour só aparecem como origem.
 - Os preços não foram comparados. EAN igual não garante mesma embalagem ou gramatura em todas as redes.
+
+---
+
+## 15. Fase C1 — captura e uso de EAN (2026-11-03)
+
+Um commit por item. A suíte do scraper passou de 144 para **212 testes**, todos verdes (27 ignorados, como antes). Os testes de integração com PostgreSQL continuam ignorados porque não há `SMARTMARKET_TEST_DSN` aqui: **o SQL de `carregar()` não foi executado contra um banco**. A lógica nova de EAN foi isolada em `sincronizar_codigo_barras()` e testada com um cursor falso. Dados do relatório: [casamento-produtos.md](casamento-produtos.md).
+
+| # | O que mudou | Commits |
+|---|---|---|
+| 1 | Novo módulo `scraper/ean.py`: aceita só EAN-8, UPC-12, EAN-13 e GTIN-14 com dígito verificador correto; `ean_canonico()` devolve GTIN-14 para comparar UPC-12 com EAN-13 com zero à esquerda. Master e Stok recusam também EAN-8, porque os códigos internos curtos passam no dígito verificador por acaso (`39870001` passa). | `680c7e7` |
+| 2 | Coletores gravam `codigo_barras` (coluna nova em `CAMPOS`, no fim): **Atacadão** (`items[0].ean`), **Master** e **Stok** (`codigo_barras`; os 3 códigos internos de 5 a 9 dígitos são descartados), **Zaffari** e **Rissul** (só pela página do produto, `"ean"` no estado da página, nunca pela API), **Carrefour** (página do produto, `"gtin"` do JSON-LD). Novo `scraper/ean_pagina.py`: 1 requisição por vez, pausa mínima de 2 s, User-Agent `SmartMarketBot/0.1 (… contato …)`, para no primeiro 403/429 e não aceita EAN-8. Opção `--sem-ean` desliga a consulta às páginas. | `66589d5`, `a7af982`, `345017d`, `3192008`, `75f1d60`, `4116c9b` |
+| 3 | `normalizacao.py:43` agora grava o EAN validado em vez de `None`; EAN inválido ou interno vira `None` com a pendência `ean_invalido_descartado`. O hash do evento passa a incluir o EAN validado e, **sem EAN, o hash fica idêntico ao de antes** (carga antiga não muda). Em produto já existente, `codigo_barras` vazio é preenchido; EAN divergente do já gravado levanta `ean_divergente_exige_revisao`, sem sobrescrever. `source_signature` não mudou, então nenhuma carga antiga pede revisão. | `adf4205` |
+| 4 | Novo `scraper/casamento.py`: primeiro por EAN canônico; depois, só pela chave **idêntica** (marca + palavras do nome sem a medida + quantidade e unidade-base). Não existe chave tolerante. Se a chave aponta para dois EANs diferentes, o item fica "ambíguo" e não é vinculado. Dois EANs diferentes nunca se fundem por nome. Cada vínculo traz `origem: "ean"` ou `"nome"`. | `b34c1d9` |
+| 5 | Novo `scraper/relatorio_casamento.py` e o relatório [docs/casamento-produtos.md](casamento-produtos.md). | `cd5cdf7` |
+
+**Custo da captura de EAN por página (Zaffari, Rissul, Carrefour):** cada produto passa a custar 1 requisição extra, de 300 KB a 1 MB, com pelo menos 2 s de pausa. Uma coleta padrão de 160 produtos leva mais ≈ 5,5 min e ≈ 160 MB de tráfego por rede. Para rodar sem isso: `--sem-ean`.
+
+**Resultados da amostra ao vivo** (≤ 20 por rede, 131 produtos no total; detalhes no relatório):
+- **EAN válido capturado:** Zaffari 16/16, Stok 12/12, Carrefour 19/20, Master 10/12, Rissul 12/16, Atacadão 10/15. Os que ficaram sem EAN são hortifruti, granel e pesáveis (carne moída, pão francês, cebola), cujo código de 8 dígitos ou menos é interno e foi descartado de propósito. Asun e Fort: 0.
+- **EANs em 2 ou mais redes:** 4 de 75 só nos dados coletados e **47 de 75** com a consulta cruzada por EAN em Atacadão, Master e Stok. Esse é um piso, porque Zaffari, Rissul e Carrefour não têm busca por EAN.
+- **Maiores sobreposições (consulta cruzada):** Atacadão–Master 27, Atacadão–Stok 24, Master–Stok 23, Atacadão–Carrefour 13, Master–Carrefour 10.
+- **Casamento sobre a amostra:** 79 vínculos por EAN, **0 por nome**, 0 ambíguos, 52 itens sem vínculo. O casamento por nome ainda não ajuda, porque Asun e Fort (os únicos sem EAN) quase não têm produtos em comum com a amostra pequena das demais redes.
+
+**Pares com o mesmo EAN e nomes muito diferentes (20 listados para revisão):** a maioria é só redação diferente do mesmo produto ("Pepsi Cola Zero" × "Pepsi Black Sem Açúcar"; "Bco Tp1" × "Agulhinha Tipo 1" no mesmo Blue Ville). **Os mais suspeitos de erro de cadastro são os de embalagem diferente:** a lã de aço Bombril 45g no Atacadão tem o mesmo EAN de "Esponja Aço Bombril Eco Com 6 Unidade" no Master e no Stok (similaridade 0,22). Esses casos precisam de revisão humana antes de qualquer fusão.
+
+**Pontos em aberto**
+- Zaffari e Rissul continuam **listando produtos pela API** (`Disallow: /api` no robots.txt), como apontado na seção 1 e na seção 2. A Fase C1 só garantiu que o EAN não vem de lá. Isso precisa de uma decisão sua.
+- O vínculo com `origem` existe como saída do `casamento.py`, mas **não é gravado no banco**. `mapeamento` do `pipeline.py` continua sendo um dicionário `id externo → produto_id`, e criar uma tabela de vínculos exige alterar o schema da ingestão.
+- Master e Stok ainda usam, nos coletores antigos, o User-Agent com `Mozilla/5.0 … (SmartMarket RS Bot)`. O código novo usa o User-Agent identificável completo; a troca nos coletores antigos não foi pedida.
+- O `data.js` **não foi regenerado**.

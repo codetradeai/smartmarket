@@ -355,20 +355,8 @@ def sincronizar():
             marca = it.get("marca") or extrair_marca(nome)
             unidade = extrair_unidade(nome)
 
-            prices_novos = {
-                rede: preco,
-                "zaffari": round(preco * 1.05, 2),
-                "rissul": round(preco * 1.02, 2),
-                "stok": round(preco * 0.94, 2),
-                "atacadao": round(preco * 0.95, 2),
-                "master": round(preco * 1.03, 2),
-            }
-            if rede == "asun":
-                prices_novos["fort"] = round(preco * 0.96, 2)
-                prices_novos["carrefour"] = round(preco * 1.04, 2)
-            else:
-                prices_novos["asun"] = round(preco * 1.04, 2)
-                prices_novos["carrefour"] = round(preco * 1.02, 2)
+            # Somente o preço realmente coletado; as demais redes ficam ausentes.
+            prices_novos = {rede: preco}
 
             menor_m = min(prices_novos, key=prices_novos.get)
             url_loja = (

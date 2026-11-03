@@ -1003,7 +1003,7 @@ function CategoryShelf({
             product={prod}
             markets={markets}
             favMarkets={favMarkets}
-            isFavProduct={favProducts.includes(prod.id)}
+            isFavProduct={favProducts.includes(String(prod.id))}
             onToggleFavProduct={onToggleFavProduct}
             onAdd={onAdd}
             onUpdateQty={onUpdateQty}
@@ -1079,7 +1079,9 @@ export default function CatalogPage() {
           setFavMarkets(favMktsData.map((f) => f.mercadoId || f.id || f));
         }
         if (Array.isArray(favProdsData)) {
-          setFavProducts(favProdsData.map((f) => f.produtoId || f.id || f));
+          // Favoritos de produto sempre como texto (igual ao localStorage e a toggleFavProduct):
+          // ids da API são numéricos e "10" !== 10.
+          setFavProducts(favProdsData.map((f) => String(f.produtoId || f.id || f)));
         }
       } catch {
         // Fallback mantém DEFAULT_PRODUCTS e DEFAULT_MARKETS
@@ -1500,7 +1502,7 @@ export default function CatalogPage() {
                       product={prod}
                       markets={markets}
                       favMarkets={favMarkets}
-                      isFavProduct={favProducts.includes(prod.id)}
+                      isFavProduct={favProducts.includes(String(prod.id))}
                       onToggleFavProduct={toggleFavProduct}
                       onAdd={handleAddToList}
                       onUpdateQty={handleUpdateQty}
@@ -1560,7 +1562,7 @@ export default function CatalogPage() {
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}
         onAddToList={handleAddToList}
-        isFavorite={selectedProductDetail ? favProducts.includes(selectedProductDetail.id) : false}
+        isFavorite={selectedProductDetail ? favProducts.includes(String(selectedProductDetail.id)) : false}
         onToggleFavorite={toggleFavProduct}
       />
     </div>

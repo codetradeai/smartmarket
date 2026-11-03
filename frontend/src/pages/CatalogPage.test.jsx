@@ -378,4 +378,55 @@ describe('CatalogPage', () => {
       expect(linkDaLista()).toHaveTextContent(/^Minha Lista$/)
     })
   })
+
+  // Achado 5: produtos vindos da API têm id numérico (Long do backend), mas os favoritos ficam
+  // guardados como texto (favoritoService.listarProdutos devolve String; toggleFavProduct grava
+  // String(id)). A comparação favProducts.includes(prod.id) nunca casava "10" com 10.
+  describe('coracao de produto vindo da API (id numerico)', () => {
+    it('marca na grade o produto que o servidor devolve como favorito', async () => {
+      await renderizar({ favProdutos: ['10'] }, { grade: true })
+
+      expect(within(cartaoDe('Quinoa Real')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+      expect(within(cartaoDe('Kefir Natural')).getByTitle('Salvar nos favoritos')).toBeInTheDocument()
+    })
+
+    it('marca na prateleira o produto que o servidor devolve como favorito', async () => {
+      await renderizar({ favProdutos: ['10'] })
+
+      expect(within(cartaoDe('Quinoa Real')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+    })
+
+    it('marca e desmarca ao clicar no coracao', async () => {
+      await renderizar({}, { grade: true })
+      const cartao = () => within(cartaoDe('Quinoa Real'))
+
+      await act(async () => {
+        fireEvent.click(cartao().getByTitle('Salvar nos favoritos'))
+      })
+      expect(cartao().getByTitle('Remover dos favoritos')).toBeInTheDocument()
+      expect(favoritoService.favoritarProduto).toHaveBeenCalledWith('10')
+
+      await act(async () => {
+        fireEvent.click(cartao().getByTitle('Remover dos favoritos'))
+      })
+      expect(cartao().getByTitle('Salvar nos favoritos')).toBeInTheDocument()
+      expect(favoritoService.desfavoritarProduto).toHaveBeenCalledWith('10')
+    })
+
+    it('mostra como favorito no detalhe do produto', async () => {
+      await renderizar({ favProdutos: ['10'] }, { grade: true })
+
+      fireEvent.click(screen.getByRole('heading', { level: 3, name: 'Quinoa Real' }))
+
+      const detalhe = within(screen.getByRole('dialog'))
+      expect(detalhe.getAllByTitle('Remover dos favoritos').length).toBeGreaterThan(0)
+      expect(detalhe.queryByTitle('Salvar nos favoritos')).not.toBeInTheDocument()
+    })
+
+    it('aceita favoritos do servidor em objeto com id numerico', async () => {
+      await renderizar({ favProdutos: [{ produtoId: 11 }] }, { grade: true })
+
+      expect(within(cartaoDe('Kefir Natural')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+    })
+  })
 })

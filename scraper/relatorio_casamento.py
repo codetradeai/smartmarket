@@ -271,6 +271,14 @@ def renderizar(por_rede, resultado_casamento, pres_direta, pres_cruzada=None, di
             out.append(f"| {i} | {d['ean'].lstrip('0')} | {ROTULOS.get(d['rede_a'], d['rede_a'])} — {d['nome_a']} | "
                        f"{ROTULOS.get(d['rede_b'], d['rede_b'])} — {d['nome_b']} | {d['similaridade']:.2f} | {status} |")
         out.append("")
+    out.append("## 6. Como os vínculos são usados\n")
+    out.append("- `scraper/casamento.py` gera os pares com `origem` (`ean` ou `nome`) e `status` (`confirmado` ou `revisar`).")
+    out.append("- `scraper/vinculos.py` grava os pares na tabela `vinculo_produto` (migração `backend/database/migration_add_vinculo_produto.sql`), "
+               "um registro por par, com `produto_a_id < produto_b_id`. Um vínculo `ean` nunca é rebaixado para `nome`.")
+    out.append("- `GET /api/precos/produto/{id}/vinculados` devolve o preço mais recente, por mercado, do produto e dos produtos com "
+               "**vínculo confirmado**. Vínculos `revisar` não aparecem.")
+    out.append("- Um par vira `revisar` quando o EAN é igual, mas a quantidade ou o número de unidades da embalagem diferem "
+               "(ex.: 45g × 6 unidades). Medida ausente num dos lados não prova divergência e não gera `revisar`.")
     return "\n".join(out) + "\n"
 
 

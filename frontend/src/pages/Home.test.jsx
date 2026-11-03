@@ -2,6 +2,9 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Home from './Home'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
 jest.mock('../hooks/useAuth', () => ({
   useAuth: () => {
     throw new Error('sem provider')

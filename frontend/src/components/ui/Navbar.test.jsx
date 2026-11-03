@@ -3,6 +3,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { Navbar } from './Navbar'
 import { useAuth } from '../../hooks/useAuth'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../../data', () => require('../../test/dataFixture'))
+
 jest.mock('../../hooks/useAuth', () => ({ useAuth: jest.fn() }))
 
 function renderizar(props = {}, rota = '/') {

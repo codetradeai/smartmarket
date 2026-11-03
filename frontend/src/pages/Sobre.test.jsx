@@ -2,6 +2,9 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Sobre from './Sobre'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
 function renderizar() {
   return render(
     <MemoryRouter>

@@ -73,6 +73,13 @@ describe('ProductDetailModal (Fase 2)', () => {
     expect(screen.getAllByText('R$ 24.90').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('R$ 26.50').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Melhor Preço do RS/i)).toBeInTheDocument()
+
+    // A ordem importa: no ranking de barras, cada posição (1º, 2º, 3º) fica na mesma linha
+    // que a rede correspondente. Sem isto, inverter a ordenação passaria despercebido.
+    const linhaDaPosicao = (posicao) => screen.getByText(posicao).parentElement
+    expect(linhaDaPosicao('1º')).toHaveTextContent('Stok Center')
+    expect(linhaDaPosicao('2º')).toHaveTextContent('Asun Supermercados')
+    expect(linhaDaPosicao('3º')).toHaveTextContent('Zaffari / Bourbon')
   })
 
   it('exibe a comprovação promocional quando precoNormal > menor preço', () => {

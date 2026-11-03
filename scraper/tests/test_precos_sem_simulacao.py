@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import gerar_catalogo_e_sql as gerador
 import sincronizar_catalogo_completo as sincronizador
+import verificar_e_atualizar_precos as verificador
 
 REDES = {"zaffari", "rissul", "asun", "stok", "atacadao", "master", "fort", "carrefour"}
 
@@ -78,6 +79,27 @@ class TestSincronizadorSemFatores(unittest.TestCase):
         self.assertEqual(salvo["p"][0]["prices"], {"fort": 20.0})
         self.assertEqual(salvo["p"][0]["menorPreco"], 20.0)
         self.assertEqual(salvo["p"][0]["mercadoMenorPreco"], "fort")
+
+
+class TestVerificadorMercadoId(unittest.TestCase):
+    def test_asun_usa_mercado_id_do_mapa(self):
+        sql = verificador.sql_atualizacao_preco("p1", "Cafe Teste", "asun", 24.9)
+        self.assertEqual(gerador.MERCADOS_MAP["asun"]["id"], 3)
+        self.assertIn("), 3, 24.90, NOW()", sql)
+        self.assertNotIn("), 1, ", sql)
+
+    def test_fort_usa_mercado_id_do_mapa(self):
+        sql = verificador.sql_atualizacao_preco("p1", "Cafe Teste", "fort", 20.0)
+        self.assertIn("), 1, 20.00, NOW()", sql)
+
+    def test_nome_com_aspas_e_escapado(self):
+        sql = verificador.sql_atualizacao_preco("p1", "Leite d'Ouro", "asun", 5.0)
+        self.assertIn("nome = 'Leite d''Ouro'", sql)
+
+    def test_todo_mercado_do_mapa_gera_sql_valido(self):
+        for chave, dados in gerador.MERCADOS_MAP.items():
+            sql = verificador.sql_atualizacao_preco("p1", "X", chave, 1.0)
+            self.assertIn(f", {dados['id']}, 1.00,", sql)
 
 
 if __name__ == "__main__":

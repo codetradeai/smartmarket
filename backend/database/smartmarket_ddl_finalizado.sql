@@ -100,7 +100,7 @@ CREATE TABLE promocao (
     valor_original NUMERIC(10, 2) NOT NULL,
     valor_promocional NUMERIC(10, 2) NOT NULL,
     data_inicio DATE NOT NULL,
-    data_fim DATE NOT NULL,
+    data_fim DATE, -- opcional: rede pode não informar validade
     coletado_em TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

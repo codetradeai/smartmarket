@@ -71,6 +71,37 @@ class PromocaoServiceTest {
         assertThatThrownBy(() -> service.criar(r)).isInstanceOf(ResourceNotFoundException.class);
     }
 
+    @Test void criar_SemDataFim_AceitaEGravaNull() {
+        var hoje = LocalDate.now();
+        var r = request(hoje, null, "10", "8");
+        when(r.getProdutoId()).thenReturn(4L);
+        when(r.getMercadoId()).thenReturn(5L);
+        when(produtos.findById(4L)).thenReturn(Optional.of(Produto.builder().id(4L).nome("Leite").build()));
+        when(mercados.findById(5L)).thenReturn(Optional.of(Mercado.builder().id(5L).nome("Fort").build()));
+        when(promocoes.save(any(Promocao.class))).thenAnswer(i -> i.getArgument(0));
+
+        var resposta = service.criar(r);
+
+        assertThat(resposta.getDataFim()).isNull();
+        verify(promocoes).save(argThat((Promocao p) -> p.getDataFim() == null && p.getDataInicio().equals(hoje)));
+    }
+
+    @Test void listar_OrdenaPorDataFimComNuloPorUltimo() {
+        var hoje = LocalDate.now();
+        Promocao semFim = promo(1L, hoje, null), tarde = promo(2L, hoje, hoje.plusDays(9)), cedo = promo(3L, hoje, hoje.plusDays(1));
+        when(promocoes.findAll()).thenReturn(List.of(semFim, tarde, cedo));
+
+        assertThat(service.listar()).extracting("id").containsExactly(3L, 2L, 1L);
+    }
+
+    private Promocao promo(long id, LocalDate inicio, LocalDate fim) {
+        return Promocao.builder().id(id)
+            .produto(Produto.builder().id(4L).nome("Leite").build())
+            .mercado(Mercado.builder().id(5L).nome("Fort").build())
+            .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("8"))
+            .dataInicio(inicio).dataFim(fim).build();
+    }
+
     @Test void criar_ValidaEntidadesESalvaValores() {
         var hoje = LocalDate.now();
         var r = request(hoje, hoje.plusDays(2), "10", "8");

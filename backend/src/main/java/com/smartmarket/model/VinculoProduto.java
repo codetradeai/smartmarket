@@ -2,6 +2,8 @@ package com.smartmarket.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -29,10 +31,12 @@ public class VinculoProduto {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE) // espelha o ON DELETE CASCADE do DDL
     @JoinColumn(name = "produto_a_id", nullable = false)
     private Produto produtoA;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "produto_b_id", nullable = false)
     private Produto produtoB;
 

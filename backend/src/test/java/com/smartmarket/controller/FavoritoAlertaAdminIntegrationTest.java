@@ -247,6 +247,20 @@ class FavoritoAlertaAdminIntegrationTest {
     }
 
     @Test
+    void promocao_SemDataFim_E_AceitaEFicaComDataFimNula() throws Exception {
+        String semFim = """
+            {"produtoId":%d,"mercadoId":%d,"valorOriginal":10.00,"valorPromocional":8.50,"dataInicio":"2026-10-01"}
+            """.formatted(produtoId, mercadoId);
+
+        mockMvc.perform(post("/api/admin/promocoes")
+                .header("Authorization", "Bearer " + tokenAdmin)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(semFim))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.dataFim").doesNotExist());
+    }
+
+    @Test
     void alterarPapel_NaoPermiteOProprioAdministrador() throws Exception {
         MvcResult me = mockMvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + tokenAdmin))
             .andExpect(status().isOk())

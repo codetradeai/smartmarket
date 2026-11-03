@@ -8,6 +8,7 @@ import com.smartmarket.repository.MercadoRepository;
 import com.smartmarket.repository.PrecoRepository;
 import com.smartmarket.repository.ProdutoRepository;
 import com.smartmarket.repository.VinculoProdutoRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,14 @@ class PrecosVinculadosIntegrationTest {
         vincular(lascaAtacadao, esponjaStok, "ean", "revisar");
         vincular(esponjaMaster, esponjaStok, "ean", "confirmado");
         vincular(arrozA, arrozB, "ean", "confirmado");
+    }
+
+    @AfterEach
+    void limpar() {
+        vinculoRepository.deleteAll();
+        precoRepository.deleteAll();
+        produtoRepository.deleteAll();
+        mercadoRepository.deleteAll();
     }
 
     private Produto produto(String nome) {

@@ -1,0 +1,419 @@
+{
+  "meta": {
+    "gerado_em": "2026-11-02",
+    "branch": "feature/home-busca-carrossel-precos-clube",
+    "metodo": "Leitura direta do código + execução offline de `python -m unittest discover -s scraper/tests` + contagem estática (@Test / it()) nos demais módulos. Nada foi executado contra banco, backend ou frontend em runtime.",
+    "fase": "1 de 2 (levantamento; nenhum código da aplicação alterado)"
+  },
+
+  "scrapers": {
+    "redes": [
+      { "nome": "Zaffari / Bourbon", "tipo_api": "VTEX Catalog System (REST JSON)", "arquivo": "scraper/coleta_zaffari.py", "linha": 35, "mercado_id_no_sql_de_carga": 6 },
+      { "nome": "Rissul", "tipo_api": "VTEX Catalog System (REST JSON)", "arquivo": "scraper/coleta_rissul.py", "linha": 35, "mercado_id_no_sql_de_carga": 7 },
+      { "nome": "Atacadão", "tipo_api": "VTEX Catalog System (REST JSON)", "arquivo": "scraper/coleta_atacadao.py", "linha": 35, "mercado_id_no_sql_de_carga": 4 },
+      { "nome": "Asun", "tipo_api": "Sense/OSuper (REST JSON, sense.osuper.com.br)", "arquivo": "scraper/coleta_asun.py", "linha": 38, "mercado_id_no_sql_de_carga": 3 },
+      { "nome": "Fort Atacadista", "tipo_api": "Sense/OSuper (REST JSON, sense.osuper.com.br)", "arquivo": "scraper/coleta_fort_atacadista.py", "linha": 40, "mercado_id_no_sql_de_carga": 1 },
+      { "nome": "Stok Center", "tipo_api": "VipCommerce (services.vipcommerce.com.br/api-admin/v1)", "arquivo": "scraper/coleta_stok.py", "linha": 37, "mercado_id_no_sql_de_carga": 8 },
+      { "nome": "Master Supermercados", "tipo_api": "VipCommerce (services.vipcommerce.com.br/api-admin/v1)", "arquivo": "scraper/coleta_master.py", "linha": 37, "mercado_id_no_sql_de_carga": 5 },
+      { "nome": "Carrefour Mercado", "tipo_api": "SSR / HTML com fluxo React Router (streamController.enqueue) parseado por regex; sem API pública", "arquivo": "scraper/coleta_carrefour.py", "linha": 4, "mercado_id_no_sql_de_carga": 2 }
+    ],
+    "total_redes": 8,
+    "contrato_extracao_v1": {
+      "arquivo": "scraper/README.md",
+      "linha": 54,
+      "campos": ["nome_bruto", "preco", "preco_normal", "em_promocao", "marca", "categoria", "slug", "id_produto_origem", "supermercado", "data_coleta"],
+      "formatos": "JSON e CSV com colunas idênticas",
+      "regras": "preco finito e estritamente positivo; preco_normal positivo ou null; data_coleta ISO 8601 UTC (+00:00); moeda BRL",
+      "observacao": "A tabela do README cita só 'Fort Atacadista' e 'Carrefour' e só duas categorias (Graos_Arrozes_Feijoes, Leites): está desatualizada em relação às 8 redes."
+    },
+    "decimal": {
+      "evidencia": "`parse_float=Decimal` presente nos 8 coletores (coleta_*.py); Fort usa também validação `Decimal(str(numero)) != decimal` (coleta_fort_atacadista.py:124-132)."
+    },
+    "gravacao_atomica": {
+      "evidencia": "Arquivo temporário + `Path.replace()` em todos os 8 coletores (ex.: coleta_asun.py:322,335; coleta_master.py:447,455; coleta_carrefour.py:333; coleta_fort_atacadista.py:343) e em rotina_carga.py / executar_pipeline.py (`salvar_atomico`)."
+    },
+    "idempotencia": {
+      "mecanismo": "Hash SHA-256 do payload (pipeline.py:18) + schema `smartmarket_ingest` com tabelas source_store, run, source_product e event (PK source+store+external_id+collected_at). Rodar duas vezes o mesmo run_id/payload é reconhecido por comparação de payload_hash.",
+      "arquivos": ["scraper/pipeline.py:144-204", "scraper/ingest_schema.sql"]
+    },
+    "historico_precos": "Cada coleta bem-sucedida insere nova linha em `preco` (pipeline.py:201) e vincula em smartmarket_ingest.event. Nenhum UPDATE de valor: o histórico é preservado.",
+    "indisponibilidade": "Produto ausente da coleta tem a linha de preço MAIS RECENTE marcada `disponivel = FALSE` (scraper/rotina_carga.py:174-185). Linhas antigas continuam TRUE (ver achado A-01).",
+    "trava_validar_dsn": {
+      "arquivo": "scraper/pipeline.py",
+      "linha": 32,
+      "regras": "Rejeita `service`/`hostaddr`/PGSERVICE/PGHOSTADDR; exige host localhost/127.0.0.1/::1 ou diretório de socket; exige dbname começando com `smartmarket_fixture_`, ou (se permitir_banco_app=True) `smartmarket`, `smartmarket_dev`, `smartmarket_test`.",
+      "observacao": "As funções executar_ciclo_rede/executar_rodada_completa têm `permitir_banco_app=True` por padrão (rotina_carga.py:198,264); a CLI usa a flag --allow-app-db (rotina_carga.py:329,341)."
+    },
+    "agendamento": {
+      "github_actions": { "arquivo": ".github/workflows/coleta_diaria.yml", "linha": 5, "cron": "0 7 * * *", "horario": "07:00 UTC = 04:00 BRT (UTC-3; Brasil sem horário de verão desde 2019)" },
+      "systemd": { "arquivo": "scraper/smartmarket-scraper.service", "horario": "HORA_COLETA_DIARIA=4, MINUTO_COLETA_DIARIA=0", "fuso": "não definido: agendador_servico.py usa datetime.now() (fuso local do servidor)" },
+      "cron": { "arquivo": "scraper/cron_coleta_diaria.sh", "linha": 7, "expressao": "0 4 * * *", "fuso": "fuso do servidor" },
+      "agendador_python": { "arquivo": "scraper/agendador_servico.py", "linha": 27, "padrao": "04:00, sem fuso explícito" }
+    },
+    "testes": {
+      "total_coletados_pelo_unittest": 126,
+      "executados_sem_banco": 99,
+      "pulados": 27,
+      "motivo_dos_pulos": "Exigem SMARTMARKET_TEST_DSN (PostgreSQL local): 18 em test_pipeline_postgres.py + 9 em test_revisao_adversarial.py",
+      "por_arquivo": {
+        "test_coleta_asun.py": 5, "test_coleta_atacadao.py": 3, "test_coleta_carrefour.py": 17, "test_coleta_fort_atacadista.py": 24,
+        "test_coleta_master.py": 9, "test_coleta_rissul.py": 5, "test_coleta_stok.py": 5, "test_coleta_zaffari.py": 5,
+        "test_normalizacao_pipeline.py": 10, "test_pipeline_postgres.py": 18, "test_revisao_adversarial.py": 17, "test_rotina_carga.py": 8
+      },
+      "comando_executado": "python -m unittest discover -s scraper/tests -> 'Ran 126 tests ... OK (skipped=27)'",
+      "cobertura_configurada": "scraper/.coveragerc: fail_under = 70, branch = True (coverage>=7 em requirements-dev.txt). Não é executada em nenhum workflow."
+    },
+    "formas_de_execucao_por_SO": {
+      "multiplataforma": ["scraper/rotina_carga.py", "scraper/agendador_servico.py"],
+      "somente_unix": ["scraper/executar_pipeline.py (import fcntl)", "scraper/cron_coleta_diaria.sh", "scraper/smartmarket-scraper.service"]
+    },
+    "limites_de_coleta_por_codigo": "Zaffari: LIMITE_POR_CATEGORIA=20, MAX_PAGINAS_POR_CATEGORIA=5 (coleta_zaffari.py:49-52). Carrefour: 2 categorias apenas (coleta_carrefour.py:29-32). Os 530 produtos do SQL vêm de coletas anteriores consolidadas, não necessariamente desses limites."
+  },
+
+  "banco": {
+    "versao_postgresql": "16 (imagem postgres:16-alpine)",
+    "evidencia_versao": ["docker-compose.yml:6", "backend/docker-compose.yml:3"],
+    "portas": { "compose_raiz": "5432:5432 (docker-compose.yml:14)", "compose_backend": "5436:5432 (backend/docker-compose.yml:10)", "perfil_dev": "localhost:5436 (application-dev.properties:6)", "perfil_prod": "postgres:5432 (application-prod.properties:6)", "rotina_carga_padrao": "localhost:5436 (scraper/rotina_carga.py:142)" },
+    "tabelas": [
+      { "nome": "usuario", "colunas": ["id BIGSERIAL PK", "nome", "email UNIQUE NOT NULL", "senha (BCrypt)", "papel CHECK IN ('USER','ADMIN')", "created_at"], "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:22" },
+      { "nome": "produto", "colunas": ["id", "nome", "nome_normalizado", "marca", "quantidade", "unidade", "codigo_barras", "categoria", "imagem_url", "descricao", "created_at"], "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:38" },
+      { "nome": "mercado", "colunas": ["id", "nome", "endereco", "logo_url", "ativo BOOLEAN DEFAULT TRUE", "created_at"], "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:56" },
+      { "nome": "preco", "colunas": ["id", "produto_id FK", "mercado_id FK", "valor NUMERIC(10,2)", "coletado_em", "origem", "nome_bruto", "disponivel BOOLEAN DEFAULT TRUE", "created_at"], "relacoes": "FK produto e mercado com ON DELETE CASCADE", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:69" },
+      { "nome": "promocao", "colunas": ["id", "produto_id FK", "mercado_id FK", "valor_original", "valor_promocional", "data_inicio", "data_fim", "coletado_em", "created_at"], "regras": "CHECK valor_promocional <= valor_original; CHECK data_fim >= data_inicio", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:95" },
+      { "nome": "lista_compra", "colunas": ["id", "usuario_id FK", "nome", "created_at", "updated_at"], "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:127" },
+      { "nome": "item_lista", "colunas": ["id", "lista_compra_id FK", "produto_id FK", "quantidade", "created_at"], "regras": "CHECK quantidade > 0", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:144" },
+      { "nome": "favorito", "colunas": ["id", "usuario_id FK", "mercado_id FK", "created_at"], "regras": "UNIQUE (usuario_id, mercado_id)", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:169" },
+      { "nome": "alerta", "colunas": ["id", "usuario_id FK", "produto_id FK", "preco_alvo", "ativo", "created_at"], "regras": "CHECK preco_alvo >= 0; UNIQUE (usuario_id, produto_id) na entidade JPA", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql:193; backend/src/main/java/com/smartmarket/model/Alerta.java:9-10" },
+      { "nome": "favorito_produto", "colunas": ["id", "usuario_id FK", "produto_id FK", "created_at"], "regras": "UNIQUE (usuario_id, produto_id)", "arquivo": "backend/src/main/java/com/smartmarket/model/FavoritoProduto.java:8", "observacao": "Existe como entidade JPA, mas NÃO consta no DDL SQL (grep sem resultado em backend/database nem em data.sql)." }
+    ],
+    "total_tabelas_aplicacao": 10,
+    "tabelas_do_schema_de_ingestao": ["smartmarket_ingest.source_store", "smartmarket_ingest.run", "smartmarket_ingest.source_product", "smartmarket_ingest.event"],
+    "indices": "11 índices em FKs (smartmarket_ddl_finalizado.sql:219-249)",
+    "regras_de_integridade": ["FKs com ON DELETE CASCADE em preco e demais tabelas filhas", "CHECK de papel, quantidade, preco_alvo, datas e valores de promoção", "UNIQUE em usuario.email, favorito e alerta", "preco.valor NUMERIC(10,2) (sem float)"],
+    "regra_de_indisponibilidade": "preco.disponivel=FALSE marcado pelo scraper (rotina_carga.py:174-185); consultas do backend filtram `disponivel = true` (PrecoRepository.java:12-15).",
+    "ddl_auto": { "padrao": "validate (application.properties:7)", "dev": "update (application-dev.properties:12)", "prod": "update por padrão (application-prod.properties:12; docker-compose.yml:43)", "test": "create-drop em H2 (application-test.properties:13)" }
+  },
+
+  "backend": {
+    "java": "17 (backend/pom.xml:22; Dockerfile eclipse-temurin:17)",
+    "spring_boot": "4.0.8 (backend/pom.xml:11) — NÃO é 3.4",
+    "springdoc_openapi": "3.1.0 (pom.xml:98)",
+    "pacotes": ["controller", "service", "repository", "model", "dto/{admin,alerta,auth,favorito,lista,mercado,preco,produto,promocao}", "security", "exception", "util"],
+    "dominios": ["auth", "produto", "mercado", "preco", "promoção", "favorito", "lista de compras", "alerta", "admin"],
+    "controllers": {
+      "AuthController": ["POST /api/auth/register (público)", "POST /api/auth/login (público)", "GET /api/auth/me (autenticado)"],
+      "ProdutoController": ["GET /api/produtos (público, paginado; size máx. TAMANHO_MAXIMO)", "GET /api/produtos/{id} (público)", "POST /api/produtos (ADMIN)", "PUT /api/produtos/{id} (ADMIN)", "DELETE /api/produtos/{id} (ADMIN)"],
+      "MercadoController": ["GET /api/mercados (público)", "GET /api/mercados/todos (ADMIN)", "GET /api/mercados/{id} (público)", "POST /api/mercados (ADMIN)", "PUT /api/mercados/{id} (ADMIN)", "DELETE /api/mercados/{id} (ADMIN)"],
+      "PrecoController": ["GET /api/precos/catalogo (público, sem paginação)", "GET /api/precos/produto/{produtoId} (público)", "GET /api/precos/produto/{produtoId}/mercado/{mercadoId} (público)", "POST /api/precos (ADMIN)", "DELETE /api/precos/{id} (ADMIN)"],
+      "FavoritoController": ["GET /api/favoritos", "POST /api/favoritos", "DELETE /api/favoritos/mercados/{mercadoId}", "GET /api/favoritos/produtos", "POST /api/favoritos/produtos/{produtoId}", "DELETE /api/favoritos/produtos/{produtoId}"],
+      "AlertaController": ["GET /api/alertas", "POST /api/alertas", "PUT /api/alertas/{id}", "DELETE /api/alertas/{id}"],
+      "ListaCompraController": ["GET /api/listas", "GET /api/listas/{id}", "POST /api/listas", "PUT /api/listas/{id}", "POST /api/listas/{id}/itens", "PUT /api/listas/{id}/itens/{itemId}", "DELETE /api/listas/{id}/itens/{produtoId}", "DELETE /api/listas/{id}", "GET /api/listas/{id}/comparar"],
+      "AdminController": ["GET /api/admin/painel", "GET /api/admin/usuarios", "PATCH /api/admin/usuarios/{id}/papel"],
+      "PromocaoController": ["GET /api/admin/promocoes", "POST /api/admin/promocoes"]
+    },
+    "total_de_rotas_declaradas": 43,
+    "arquivos_controllers": "backend/src/main/java/com/smartmarket/controller/*.java",
+    "services": ["AdminService", "AlertaService", "AuthService", "ComparadorService", "ConsultaMenorPreco", "FavoritoService", "ListaCompraService", "MercadoService", "PrecoService", "ProdutoService", "ProdutoSpecification", "PromocaoService"],
+    "comparador_service": {
+      "existe": true,
+      "arquivo": "backend/src/main/java/com/smartmarket/service/ComparadorService.java",
+      "comportamento": "comparar(email, listaId): valida que a lista pertence ao usuário, busca o preço disponível mais recente por produto×mercado, aplica promoção vigente, soma por mercado ativo, ordena por 'completo' e menor total e marca o mais barato (linhas 42-90)."
+    },
+    "repositories": ["AlertaRepository", "FavoritoProdutoRepository", "FavoritoRepository", "ItemListaRepository", "ListaCompraRepository", "MercadoRepository", "PrecoRepository", "ProdutoRepository", "PromocaoRepository", "UsuarioRepository"],
+    "seguranca": {
+      "jwt": "Spring OAuth2 Resource Server com NimbusJwtEncoder/Decoder, HS256; claim `papel` vira ROLE_*; expiração padrão 86400000 ms (24 h) (JwtTokenProvider.java:22-43; SecurityConfig.java:100-130; application.properties:11-12)",
+      "senha": "BCryptPasswordEncoder (SecurityConfig.java)",
+      "rate_limiting": "RateLimitingFilter em memória (ConcurrentHashMap), 15 req/min por IP, apenas POST /api/auth/login e /api/auth/register; resposta 429; desligável por security.rate-limit.enabled (RateLimitingFilter.java:28,72)",
+      "cors": "Origens por cors.allowed-origins / SMARTMARKET_CORS_ORIGINS; métodos GET,POST,PUT,DELETE,PATCH,OPTIONS; headers *; credentials true; só em /api/** (SecurityConfig.java:49-60)",
+      "csrf": "desabilitado (stateless) — SecurityConfig.java:67",
+      "autorizacao": "Regras por rota em SecurityConfig.java:72-101 + @PreAuthorize('hasRole(ADMIN)') em AdminController e PromocaoController + @EnableMethodSecurity",
+      "papeis": "USER, ADMIN (model/Papel.java)"
+    },
+    "tratamento_global_de_excecoes": {
+      "arquivo": "backend/src/main/java/com/smartmarket/exception/GlobalExceptionHandler.java",
+      "handlers": { "404": "ListaNaoEncontrada / ItemListaNaoEncontrado / ProdutoNaoEncontrado / ResourceNotFound", "400": "FiltroInvalido / MethodArgumentNotValid / IllegalArgument", "401": "BadCredentials", "403": "AccessDenied", "409": "DataIntegrityViolation" },
+      "ausente": "Não há handler genérico para Exception/RuntimeException."
+    },
+    "open_in_view": "false (application.properties:8)",
+    "testes": {
+      "total_metodos_de_teste": 171,
+      "arquivos": 19,
+      "por_arquivo": {
+        "SmartMarketApplicationTests": 1, "AuthControllerIntegrationTest": 5, "FavoritoAlertaAdminIntegrationTest": 6, "ListaCompraControllerIntegrationTest": 6,
+        "ProdutoControllerIntegrationTest": 19, "RateLimitingFilterTest": 11, "AdminServiceTest": 8, "AlertaServiceTest": 11, "AuthServiceTest": 6,
+        "ComparadorServiceTest": 6, "FavoritoServiceTest": 13, "ListaCompraServiceTest": 26, "MercadoServiceTest": 9, "PrecoServiceTest": 14,
+        "ProdutoServiceTest": 14, "ProdutoSpecificationTest": 3, "PromocaoServiceTest": 6, "UnidadeConversorAdicionalTest": 3, "UnidadeConversorTest": 4
+      },
+      "metodo_de_contagem": "grep de @Test/@ParameterizedTest (contagem estática, não execução; @ParameterizedTest pode gerar mais casos em runtime). Os testes de integração rodam em H2, não em PostgreSQL."
+    },
+    "queries_otimizadas": "backend/database/smartmarket_queries_otimizadas.sql e cópia idêntica em backend/smartmarket_queries_otimizadas.sql (diff sem diferenças)."
+  },
+
+  "frontend": {
+    "react": "^19.2.8 (frontend/package.json)",
+    "vite": "^8.2.2",
+    "tailwind": "^4.3.3 via @tailwindcss/vite",
+    "react_router_dom": "^7.18.2",
+    "axios": "^1.20.0",
+    "vitest": "^5.0.5",
+    "node": "CI usa Node 24 (ci.yml:41); Dockerfile usa node:20-alpine (frontend/Dockerfile:6)",
+    "porta_dev": "5174 (frontend/vite.config.js:10)",
+    "paginas_reais": {
+      "Home": "frontend/src/pages/Home.jsx (rota /, pública, 970 linhas)",
+      "CatalogPage": "frontend/src/pages/CatalogPage.jsx (rota /catalog, protegida, 1568 linhas)",
+      "ShoppingListPage": "frontend/src/pages/ShoppingListPage.jsx (rotas /list e /compare, protegida)",
+      "FavoritesPage": "frontend/src/pages/FavoritesPage.jsx (rotas /favorites e /favoritos, protegida)",
+      "AdminPage": "frontend/src/pages/AdminPage.jsx (rota /admin, ADMIN)",
+      "AuthPage": "frontend/src/pages/AuthPage.jsx (rotas /auth, /login, /register)",
+      "Sobre": "frontend/src/pages/Sobre.jsx existe (92 linhas) mas NÃO é importada em lugar nenhum; /sobre redireciona para /#sobre (App.jsx:19)"
+    },
+    "contexts": ["AuthContext (frontend/src/contexts/AuthContext.jsx) + hook useAuth (hooks/useAuth.js)"],
+    "rotas_protegidas": {
+      "componente": "frontend/src/components/ProtectedRoute.jsx",
+      "regras": "isLoading -> spinner; sem login -> Navigate /auth; requiredRole='ADMIN' e !isAdmin -> tela 'Acesso Restrito (403)'",
+      "uso": "App.jsx:25-39 — /catalog, /favorites, /favoritos, /list, /compare exigem login; /admin exige ADMIN"
+    },
+    "interceptors": {
+      "arquivo": "frontend/src/services/api.js",
+      "request": "Injeta `Authorization: Bearer <sm_token>` do localStorage (linhas 15-28)",
+      "response": "Apenas 401: limpa sm_token e sm_user e redireciona para /auth?mode=login&expired=true (linhas 32-52). NÃO trata 403 (o CLAUDE.md afirma 401/403).",
+      "timeout": "10000 ms; baseURL = VITE_API_URL ou http://localhost:8080/api"
+    },
+    "chaves_storage": {
+      "localStorage": ["sm_token", "sm_user", "sm_fav_products", "sm_fav_markets", "sm_price_alerts"],
+      "sessionStorage": ["sm_list"]
+    },
+    "services": ["adminService", "api", "authService", "favoritoService", "listaService", "mercadoService", "produtoService"],
+    "componentes_ui": ["Button", "Card", "CarrosselRedes", "Input", "Modal", "Navbar", "Product360HoverPreview", "ProductDetailModal", "ProductImage", "ProductViewer360", "SearchSuggest", "SmartMarketLogo"],
+    "testes": {
+      "total_casos_it": 38,
+      "arquivos": { "App.test.jsx": 1, "Product360HoverPreview.test.jsx": 7, "ProductDetailModal.test.jsx": 14, "ProductViewer360.test.jsx": 5, "relatedProducts.test.js": 11 },
+      "metodo_de_contagem": "grep de it()/test() — contagem estática, não executada.",
+      "observacao": "Nenhuma página (Home, Catalog, Admin, Auth...) nem serviço/contexto tem teste."
+    }
+  },
+
+  "metricas": {
+    "produtos_no_sql_de_carga": { "total": 530, "arquivo": "backend/database/carga_completa_530_produtos.sql", "evidencia": "530 linhas `INSERT INTO produto`; 530 `INSERT INTO preco`; 8 `INSERT INTO mercado`" },
+    "produtos_com_foto": {
+      "linhas_com_imagem_url_local": 528,
+      "arquivos_unicos_referenciados": 408,
+      "arquivos_existentes_em_frontend/public/images/produtos": 408,
+      "produtos_sem_foto": 2,
+      "dimensao_maior_lado_px": { "min": 400, "mediana": 500, "max": 1980, "com_pelo_menos_500px": 403, "com_pelo_menos_1000px": 160 },
+      "observacao": "Vários produtos compartilham o mesmo arquivo (528 linhas -> 408 arquivos). A afirmação 'HD' depende do critério: a mediana é 500 px."
+    },
+    "seed_dev": { "arquivo": "backend/src/main/resources/data.sql", "conteudo": "3 mercados, 30 produtos, 270 linhas de preço (cabeçalho do arquivo)", "observacao": "Carrefour e Big Bompreço no seed dev são cenário de teste, não coleta (cabeçalho, linhas 4-13)." },
+    "dados_coletados_versionados": "scraper/produtos_coletados.json tem apenas 40 registros; scraper/output/ é ignorado pelo git (scraper/.gitignore:3).",
+    "total_redes": 8,
+    "testes": { "scraper": 126, "backend": 171, "frontend": 38, "total": 335, "observacao": "scraper executado de fato; backend e frontend contados estaticamente" },
+    "meta_de_cobertura": {
+      "backend": "70% LINE e 70% BRANCH, regra JaCoCo `check` na fase test — build quebra abaixo disso (backend/pom.xml:24,129-172)",
+      "frontend": "NENHUMA configuração: sem threshold no vite.config.js e sem @vitest/coverage-* em package.json/node_modules (só mocker e spy) — `npm run test:coverage` não funcionaria",
+      "scraper": "fail_under = 70 em scraper/.coveragerc, sem execução em CI"
+    },
+    "ci_cd": {
+      "ci": { "arquivo": ".github/workflows/ci.yml", "gatilhos": "push em main/develop/feature/*; PR em main/develop", "jobs": ["backend: JDK 17 Temurin, `./mvnw clean test -B`", "frontend: Node 24, npm ci, npm test, npm run build"], "nao_inclui": "testes do scraper, lint, cobertura do frontend, deploy" },
+      "coleta_diaria": { "arquivo": ".github/workflows/coleta_diaria.yml", "gatilhos": "cron 0 7 * * * e workflow_dispatch", "passos": "Python 3.11, instala dependências, roda unittest, rotina_carga.py, download_imagens.py, gerar_catalogo_e_sql.py, upload de artifact (14 dias)" },
+      "deploy": null
+    },
+    "commits_no_repositorio": 155
+  },
+
+  "verificacao_de_afirmacoes": [
+    { "afirmacao": "530+ produtos com fotos HD", "status": "divergente", "valor_real": "Exatamente 530 produtos no SQL de carga (não 'mais de 530'); 528 com foto local, 408 arquivos distintos, 2 sem foto; mediana de 500 px no maior lado, 160 arquivos ≥ 1000 px.", "fonte": "backend/database/carga_completa_530_produtos.sql; frontend/public/images/produtos" },
+    { "afirmacao": "8 redes: Zaffari, Rissul, Asun, Stok, Atacadão, Master, Fort, Carrefour", "status": "confirmado", "valor_real": "8 coletores coleta_*.py e 8 INSERTs de mercado.", "fonte": "scraper/coleta_*.py; backend/database/carga_completa_530_produtos.sql:8-15" },
+    { "afirmacao": "122 testes automatizados nos scrapers", "status": "divergente", "valor_real": "126 testes coletados (99 rodam sem banco, 27 são pulados sem SMARTMARKET_TEST_DSN). README.md:30 e docs/EXPANSAO_RS_SCRAPERS.md:106 citam 122.", "fonte": "scraper/tests/*.py; execução do unittest" },
+    { "afirmacao": "meta de 70% de cobertura (Vitest/JUnit)", "status": "divergente", "valor_real": "Backend: confirmado (JaCoCo 70% LINE+BRANCH impõe no build). Frontend/Vitest: NÃO configurado (sem provider de cobertura nem threshold). Scraper: 70% configurado em .coveragerc mas não executado em CI.", "fonte": "backend/pom.xml:24,129-172; frontend/package.json; frontend/vite.config.js; scraper/.coveragerc" },
+    { "afirmacao": "Spring Boot 3.4", "status": "divergente", "valor_real": "4.0.8", "fonte": "backend/pom.xml:11" },
+    { "afirmacao": "Java 17", "status": "confirmado", "valor_real": "17", "fonte": "backend/pom.xml:22" },
+    { "afirmacao": "React 19", "status": "confirmado", "valor_real": "^19.2.8", "fonte": "frontend/package.json" },
+    { "afirmacao": "Tailwind v4", "status": "confirmado", "valor_real": "^4.3.3", "fonte": "frontend/package.json" },
+    { "afirmacao": "PostgreSQL 16", "status": "confirmado", "valor_real": "postgres:16-alpine nos dois compose", "fonte": "docker-compose.yml:6; backend/docker-compose.yml:3" },
+    { "afirmacao": "coleta agendada às 04:00 BRT", "status": "confirmado", "valor_real": "GitHub Actions: 07:00 UTC = 04:00 BRT. Ressalva: agendador_servico.py, systemd e cron usam o fuso do servidor, sem TZ definido.", "fonte": ".github/workflows/coleta_diaria.yml:5-6; scraper/agendador_servico.py:27,93; scraper/smartmarket-scraper.service" },
+    { "afirmacao": "tabela produto", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:38" },
+    { "afirmacao": "tabela mercado", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:56" },
+    { "afirmacao": "tabela preco", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:69" },
+    { "afirmacao": "tabela usuario", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:22" },
+    { "afirmacao": "tabela lista_compra", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:127" },
+    { "afirmacao": "tabela item_lista", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:144" },
+    { "afirmacao": "tabela favorito", "status": "confirmado", "valor_real": "Existe, mas favoritos de produto ficam em outra tabela, favorito_produto (só na entidade JPA, fora do DDL).", "fonte": "smartmarket_ddl_finalizado.sql:169; model/FavoritoProduto.java" },
+    { "afirmacao": "tabela alerta", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:193" },
+    { "afirmacao": "tabela promocao", "status": "confirmado", "fonte": "smartmarket_ddl_finalizado.sql:95" },
+    { "afirmacao": "página Home", "status": "confirmado", "fonte": "frontend/src/pages/Home.jsx; App.jsx:17" },
+    { "afirmacao": "página CatalogPage", "status": "confirmado", "fonte": "frontend/src/pages/CatalogPage.jsx; App.jsx:28" },
+    { "afirmacao": "página ShoppingListPage", "status": "confirmado", "fonte": "frontend/src/pages/ShoppingListPage.jsx; App.jsx:31-32" },
+    { "afirmacao": "página FavoritesPage", "status": "confirmado", "fonte": "frontend/src/pages/FavoritesPage.jsx; App.jsx:29-30" },
+    { "afirmacao": "página AdminPage", "status": "confirmado", "fonte": "frontend/src/pages/AdminPage.jsx; App.jsx:37" },
+    { "afirmacao": "página AuthPage", "status": "confirmado", "fonte": "frontend/src/pages/AuthPage.jsx; App.jsx:21-23" },
+    { "afirmacao": "página Sobre", "status": "divergente", "valor_real": "Arquivo existe, mas não é importado nem roteado; /sobre redireciona para a âncora #sobre da Home.", "fonte": "frontend/src/pages/Sobre.jsx; frontend/src/App.jsx:19" },
+    { "afirmacao": "open-in-view=false", "status": "confirmado", "fonte": "backend/src/main/resources/application.properties:8" },
+    { "afirmacao": "gravação atômica", "status": "confirmado", "fonte": "arquivo temporário + Path.replace nos 8 coletores (ver scrapers.gravacao_atomica)" },
+    { "afirmacao": "Decimal estrito", "status": "confirmado", "fonte": "parse_float=Decimal nos 8 coletores; scraper/coleta_fort_atacadista.py:124-132" },
+    { "afirmacao": "trava validar_dsn", "status": "confirmado", "valor_real": "Existe e restringe a host local e bancos smartmarket*. Ressalva: permitir_banco_app=True é o padrão das funções (rotina_carga.py:198,264).", "fonte": "scraper/pipeline.py:32" }
+  ],
+
+  "achados_de_auditoria": [
+    {
+      "id": "A-01",
+      "titulo": "Comparador e catálogo podem exibir preço antigo como se fosse atual quando o produto some da coleta",
+      "severidade": "alta",
+      "arquivo_linha": ["scraper/rotina_carga.py:174-185", "backend/src/main/java/com/smartmarket/service/ComparadorService.java:61-66", "backend/src/main/java/com/smartmarket/repository/PrecoRepository.java:15", "backend/src/main/java/com/smartmarket/service/PrecoService.java:78-90"],
+      "evidencia": "O scraper marca disponivel=FALSE apenas na linha de preço mais recente. As consultas do backend filtram `disponivel = true` e ordenam por coletado_em DESC; ao descartar a linha mais nova, a segunda mais nova (ainda TRUE) vira o 'preço atual'.",
+      "recomendacao": "Buscar o preço mais recente SEM filtrar disponivel e só então descartar se estiver indisponível (ou marcar todas as linhas do par produto×mercado como FALSE). Adicionar teste em ComparadorServiceTest cobrindo histórico com a última linha indisponível."
+    },
+    {
+      "id": "A-02",
+      "titulo": "Segredo JWT real versionado como valor padrão e no compose",
+      "severidade": "alta",
+      "arquivo_linha": ["backend/src/main/resources/application.properties:11", "docker-compose.yml:45"],
+      "evidencia": "O mesmo segredo `AuGDB2cO...` aparece como default de SMARTMARKET_JWT_SECRET e em texto puro no compose. Qualquer pessoa com acesso ao repositório consegue forjar tokens (inclusive papel ADMIN) em qualquer ambiente que não sobrescreva a variável. O perfil prod herda o default.",
+      "recomendacao": "Remover o default de application.properties (falhar na inicialização se não houver variável), gerar novo segredo, rotacionar o atual e ler o do compose de um .env fora do git. Considerar o segredo atual comprometido."
+    },
+    {
+      "id": "A-03",
+      "titulo": "Usuário ADMIN com senha fraca criada automaticamente no perfil dev",
+      "severidade": "alta",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/DataSeeder.java:44-61"],
+      "evidencia": "DataSeeder cria davi@smartmarket.com.br / admin123 (ADMIN) e maria@email.com / user123. Está restrito a @Profile(\"dev\"), mas `spring.profiles.active=dev` é o padrão (application.properties:4), então qualquer deploy que esqueça de definir o perfil nasce com admin conhecido.",
+      "recomendacao": "Trocar o perfil padrão (ou removê-lo) e ler a senha do seed de variável de ambiente; nunca imprimir credenciais em docs de entrega."
+    },
+    {
+      "id": "A-04",
+      "titulo": "Senha do Postgres hardcoded em vários lugares (inclusive default do perfil prod e do scraper)",
+      "severidade": "média",
+      "arquivo_linha": ["docker-compose.yml:12,42", "backend/docker-compose.yml:8", "backend/src/main/resources/application-dev.properties:8", "backend/src/main/resources/application-prod.properties:8", "scraper/rotina_carga.py:142"],
+      "evidencia": "`smartmarket123` repetido em 5 arquivos; application-prod.properties e rotina_carga.py usam como fallback. O compose da raiz publica a porta 5432 em todas as interfaces com essa senha.",
+      "recomendacao": "Usar .env (não versionado) com .env.example; remover fallback de senha no prod e no scraper; publicar a porta do banco só em 127.0.0.1 (`127.0.0.1:5432:5432`)."
+    },
+    {
+      "id": "A-05",
+      "titulo": "CORS padrão não inclui a porta do Vite (5174) — frontend em dev é bloqueado",
+      "severidade": "média",
+      "arquivo_linha": ["backend/src/main/resources/application.properties:15", "frontend/vite.config.js:10", "docker-compose.yml:44"],
+      "evidencia": "O Vite sobe em 5174, mas o padrão de cors.allowed-origins é http://localhost:5173,http://localhost:4173 e o perfil dev não sobrescreve. Sem definir SMARTMARKET_CORS_ORIGINS, as chamadas do navegador falham por CORS. (Compose lista 3000, 80 e 5173; também não inclui 5174.) Não executei o app para confirmar em runtime.",
+      "recomendacao": "Adicionar http://localhost:5174 aos padrões de dev e documentar. Em prod, restringir à origem real."
+    },
+    {
+      "id": "A-06",
+      "titulo": "Workflow de coleta diária provavelmente falha e não grava no banco",
+      "severidade": "alta",
+      "arquivo_linha": [".github/workflows/coleta_diaria.yml:33,40-48", "scraper/rotina_carga.py:134-143", "scraper/pipeline.py:39"],
+      "evidencia": "(1) `pip install -r requirements.txt` aponta para a raiz, mas o arquivo está em scraper/; o fallback instala psycopg2-binary, enquanto o código usa psycopg 3. (2) O workflow define DB_HOST/DB_USER/DB_PASS, mas rotina_carga.py só lê SMARTMARKET_DSN/SMARTMARKET_LOCAL_DSN e cai no default localhost:5436 com senha fixa. (3) validar_dsn só aceita host local, então um banco remoto nunca seria usado. Por inferência do código, a etapa de carga falha no runner (não há Postgres lá). Não há como verificar o histórico de execuções do Actions a partir daqui.",
+      "recomendacao": "Corrigir para `pip install -r scraper/requirements.txt`; ou rodar um serviço postgres no job, ou mover a coleta para um servidor com o banco (systemd) e deixar o Actions só como teste. Alinhar nomes das variáveis (DSN)."
+    },
+    {
+      "id": "A-07",
+      "titulo": "Rate limiting confia em X-Forwarded-For e X-Real-IP enviados pelo cliente",
+      "severidade": "média",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/security/RateLimitingFilter.java:84-95"],
+      "evidencia": "O IP usado para o limite vem do primeiro valor de X-Forwarded-For sem verificar se a requisição veio de proxy confiável. Um atacante troca o header a cada tentativa e contorna o limite de 15/min no login. Além disso o mapa de contadores nunca é limpo (cresce com cada IP).",
+      "recomendacao": "Usar `server.forward-headers-strategy=native` + RemoteIpFilter do Tomcat com proxies confiáveis (o Nginx) e usar request.getRemoteAddr(); expirar entradas antigas (ex.: Caffeine/Bucket4j)."
+    },
+    {
+      "id": "A-08",
+      "titulo": "Portas e compose divergentes (5432 × 5436) com o mesmo container_name",
+      "severidade": "baixa",
+      "arquivo_linha": ["docker-compose.yml:8,14", "backend/docker-compose.yml:4,10", "backend/src/main/resources/application-dev.properties:6", "scraper/rotina_carga.py:142"],
+      "evidencia": "Dois compose definem container `smartmarket-db`; o da raiz expõe 5432 e o do backend, 5436. Dev e scraper apontam para 5436, prod para 5432 (rede interna). Subir os dois ao mesmo tempo gera conflito de nome; o volume `pgdata` também é duplicado.",
+      "recomendacao": "Escolher uma porta de host única e documentá-la, ou renomear o container do compose de dev; manter o CLAUDE.md/README alinhados."
+    },
+    {
+      "id": "A-09",
+      "titulo": "Swagger/OpenAPI liberado sem autenticação, inclusive no perfil prod",
+      "severidade": "baixa",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/security/SecurityConfig.java:75"],
+      "evidencia": "/swagger-ui/** e /v3/api-docs/** são permitAll e não há propriedade springdoc para desligar em prod; expõe o mapa completo da API.",
+      "recomendacao": "Definir springdoc.api-docs.enabled=false e springdoc.swagger-ui.enabled=false em application-prod.properties."
+    },
+    {
+      "id": "A-10",
+      "titulo": "GET /api/precos/catalogo público devolve todos os produtos com preços, sem paginação nem cache",
+      "severidade": "média",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/controller/PrecoController.java:25-28", "backend/src/main/java/com/smartmarket/service/PrecoService.java:78-90", "backend/src/main/java/com/smartmarket/security/SecurityConfig.java:80"],
+      "evidencia": "O serviço faz produtoRepository.findAll() e carrega todos os preços disponíveis em memória a cada chamada, sem autenticação e fora do rate limit (que só cobre login/registro). Fácil de usar para sobrecarregar o serviço ou para extrair a base inteira.",
+      "recomendacao": "Paginar ou consultar com agrupamento no banco, adicionar cache com TTL curto e aplicar rate limit também nos endpoints públicos de leitura."
+    },
+    {
+      "id": "A-11",
+      "titulo": "Sem handler genérico de exceção: erros 500 vazam formato padrão do Spring",
+      "severidade": "baixa",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/exception/GlobalExceptionHandler.java:18-70"],
+      "evidencia": "Existem 9 handlers específicos, nenhum para Exception. Falhas inesperadas voltam no corpo padrão do Spring (formato diferente de {\"erro\": ...}), o que o frontend não trata de forma uniforme. Também ex.getMessage() é ecoado ao cliente em IllegalArgument e demais (linhas 22,28,34,53).",
+      "recomendacao": "Adicionar @ExceptionHandler(Exception.class) com mensagem genérica e log com identificador; revisar quais mensagens internas podem ser expostas."
+    },
+    {
+      "id": "A-12",
+      "titulo": "Token JWT em localStorage e interceptor sem tratamento de 403",
+      "severidade": "baixa",
+      "arquivo_linha": ["frontend/src/services/api.js:18,32-52", "frontend/src/contexts/AuthContext.jsx:85,124"],
+      "evidencia": "O token fica em localStorage (legível por qualquer XSS). O interceptor trata somente 401; o CLAUDE.md descreve 401/403. Não há uso de dangerouslySetInnerHTML nas fontes (grep sem resultados), o que reduz o risco de XSS.",
+      "recomendacao": "Se possível, mover para cookie HttpOnly + SameSite; no mínimo, tratar 403 no interceptor (mensagem/redirecionamento) e manter CSP no Nginx."
+    },
+    {
+      "id": "A-13",
+      "titulo": "Cobertura de 70% no frontend citada, mas inexistente",
+      "severidade": "média",
+      "arquivo_linha": ["frontend/package.json:13", "frontend/vite.config.js:14-18", ".github/workflows/ci.yml:52-54"],
+      "evidencia": "`test:coverage` chama `vitest run --coverage`, mas não há @vitest/coverage-v8/istanbul instalado, nem thresholds. Só 5 arquivos de teste (38 casos) para ~6.400 linhas de páginas; nenhuma página, serviço ou contexto testado. O CI também não roda os testes do scraper nem o lint.",
+      "recomendacao": "Instalar @vitest/coverage-v8, configurar `test.coverage.thresholds` e rodar no CI; incluir `npm run lint` e `unittest` do scraper no ci.yml. Se não der tempo, não anunciar a meta de 70% para o frontend."
+    },
+    {
+      "id": "A-14",
+      "titulo": "Modelo e DDL fora de sincronia (favorito_produto) e prod com ddl-auto=update",
+      "severidade": "média",
+      "arquivo_linha": ["backend/src/main/java/com/smartmarket/model/FavoritoProduto.java:8", "backend/database/smartmarket_ddl_finalizado.sql", "backend/src/main/resources/application-prod.properties:12", "docker-compose.yml:43"],
+      "evidencia": "A tabela favorito_produto existe só na entidade. O padrão global é `validate`, mas prod e compose usam `update`, que mascara o desvio e altera o schema em produção sem controle. Não há ferramenta de migração (Flyway/Liquibase) no pom.",
+      "recomendacao": "Adicionar a tabela ao DDL e adotar Flyway; em prod usar validate."
+    },
+    {
+      "id": "A-15",
+      "titulo": "Scripts e agendamento amarrados a um sistema operacional e fuso do servidor",
+      "severidade": "baixa",
+      "arquivo_linha": ["scraper/executar_pipeline.py:4,27", "scraper/cron_coleta_diaria.sh:1", "scraper/smartmarket-scraper.service:7-8", "scraper/agendador_servico.py:93"],
+      "evidencia": "executar_pipeline.py importa fcntl (só Unix) e o .sh/.service são Linux (User=ubuntu, /opt/smartmarket); o desenvolvimento ocorre em Windows (mvnw.cmd). O agendador usa datetime.now() sem fuso, então '04:00 BRT' só vale se o servidor estiver em America/Sao_Paulo.",
+      "recomendacao": "Usar zoneinfo('America/Sao_Paulo') no agendador ou definir Environment=TZ=America/Sao_Paulo no service; trocar fcntl por lock multiplataforma (como rotina_carga.py já faz)."
+    },
+    {
+      "id": "A-16",
+      "titulo": "Documentação e README com números desatualizados",
+      "severidade": "baixa",
+      "arquivo_linha": ["README.md:7,30", "docs/EXPANSAO_RS_SCRAPERS.md:106,110", "docs/STATUS-DO-PROJETO-ONDE-PARAMOS.md:13,44", "CLAUDE.md:10", "scraper/README.md:54-70", "backend/src/main/java/com/smartmarket/security/RateLimitingFilter.java:22"],
+      "evidencia": "Docs citam 122 testes (real: 126), Spring Boot 3.4/3.4.3 (real: 4.0.8), '530 com fotos HD' (528 com foto; mediana 500 px). O Javadoc do rate limit diz 10 req/min, o código usa 15. O contrato do scraper lista só Fort e Carrefour.",
+      "recomendacao": "Atualizar os números antes da apresentação (ou usar os valores reais deste levantamento) e conferir os slides contra docs/levantamento.json."
+    },
+    {
+      "id": "A-17",
+      "titulo": "Docker do frontend em Node 20 enquanto CI usa Node 24; Python 3.11 no CI x 3.14 local",
+      "severidade": "baixa",
+      "arquivo_linha": ["frontend/Dockerfile:6", ".github/workflows/ci.yml:41", ".github/workflows/coleta_diaria.yml:27"],
+      "evidencia": "Vite 8 / Vitest 5 podem exigir Node mais novo; a imagem compila com Node 20 e o CI testa com 24. O fallback `npm ci || npm install` esconde divergências de lockfile.",
+      "recomendacao": "Padronizar a versão de Node (ex.: node:24-alpine) e remover o `|| npm install`. Não testei o build da imagem."
+    }
+  ],
+
+  "pontos_fortes": [
+    { "titulo": "Autorização por camadas e isolamento por usuário", "evidencia": "Regras por rota + @EnableMethodSecurity + @PreAuthorize nos controllers admin; ComparadorService valida posse da lista (buscarListaPropria).", "arquivo": "backend/src/main/java/com/smartmarket/security/SecurityConfig.java:72-101; controller/AdminController.java:26; service/ComparadorService.java:43" },
+    { "titulo": "Cobertura mínima de 70% imposta no build do backend", "evidencia": "JaCoCo `check` em LINE e BRANCH vinculado à fase test.", "arquivo": "backend/pom.xml:129-172" },
+    { "titulo": "Trava de segurança no carregamento de dados", "evidencia": "validar_dsn só aceita host local e bancos smartmarket*, impedindo carga acidental em banco remoto.", "arquivo": "scraper/pipeline.py:32-47" },
+    { "titulo": "Idempotência e rastreabilidade da carga", "evidencia": "Hash SHA-256 do payload, schema smartmarket_ingest com run/event ligados a preco(id).", "arquivo": "scraper/pipeline.py:18,144-204; scraper/ingest_schema.sql" },
+    { "titulo": "Precisão monetária ponta a ponta", "evidencia": "Decimal nos coletores (parse_float=Decimal) e NUMERIC(10,2) no banco.", "arquivo": "scraper/coleta_*.py; backend/database/smartmarket_ddl_finalizado.sql:73" },
+    { "titulo": "Gravação atômica e contrato único entre as 8 redes", "evidencia": "Temp file + replace em todos os coletores; JSON/CSV com as mesmas colunas.", "arquivo": "scraper/coleta_*.py; scraper/README.md:54" },
+    { "titulo": "Suíte de scrapers 100% offline com fixtures", "evidencia": "126 testes, 99 executados sem banco e todos passando; fixtures em scraper/tests/fixtures.", "arquivo": "scraper/tests/" },
+    { "titulo": "Integridade no banco além da aplicação", "evidencia": "CHECKs (papel, quantidade, datas, valor promocional), UNIQUEs e FKs com índices.", "arquivo": "backend/database/smartmarket_ddl_finalizado.sql" },
+    { "titulo": "Sessões stateless com senha em BCrypt e limitação de tentativas de login", "evidencia": "SessionCreationPolicy.STATELESS, BCryptPasswordEncoder, RateLimitingFilter com resposta 429.", "arquivo": "backend/src/main/java/com/smartmarket/security/SecurityConfig.java:67-70,119; RateLimitingFilter.java" },
+    { "titulo": "Docker de produção com usuário não-root e multi-stage", "evidencia": "adduser smartmarket + USER smartmarket, JRE no estágio final, Nginx com proxy /api e fallback SPA.", "arquivo": "backend/Dockerfile:30-37; frontend/nginx.conf" },
+    { "titulo": "Open-in-view desligado e DTOs por domínio", "evidencia": "spring.jpa.open-in-view=false; dto/<domínio>; exceções centralizadas.", "arquivo": "backend/src/main/resources/application.properties:8; backend/src/main/java/com/smartmarket/dto" },
+    { "titulo": "Rotas protegidas com papel no frontend e limpeza de sessão expirada", "evidencia": "ProtectedRoute com requiredRole; isTokenValid no AuthContext; interceptor limpa token em 401.", "arquivo": "frontend/src/components/ProtectedRoute.jsx; contexts/AuthContext.jsx:33-50; services/api.js:32-52" }
+  ],
+
+  "observacoes": [
+    "Não executei backend (Maven) nem frontend (Vitest/build) nem Docker: contagens de teste de backend (171) e frontend (38) são estáticas; apenas o scraper foi executado.",
+    "Não foi possível consultar o histórico de execuções do GitHub Actions; o achado A-06 vem de leitura do código.",
+    "Quantidade de produtos 'ao vivo' no banco: null — depende do banco do ambiente; o único número verificável no repositório é o SQL de carga (530).",
+    "Cobertura real (percentual medido) do backend, frontend e scraper: null — nenhum relatório de cobertura está versionado e não foi gerado nesta fase.",
+    "Qualidade 'HD' das fotos é subjetiva; foram reportadas as dimensões reais (mediana 500 px).",
+    "Carrefour: tipo de API classificado como SSR/HTML com fluxo React Router, a partir do docstring e do parser em coleta_carrefour.py:4,72-84.",
+    "Nenhum segredo adicional encontrado em frontend/src (não há chaves de API); a pasta login/, output/ e frontend/templates/ foi desconsiderada conforme o CLAUDE.md."
+  ]
+}

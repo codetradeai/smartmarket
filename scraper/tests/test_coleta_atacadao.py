@@ -61,6 +61,28 @@ class TestColetaAtacadao(unittest.TestCase):
         with self.assertRaises(ValueError):
             preco_positivo("invalido")
 
+class TestCodigoBarrasAtacadao(unittest.TestCase):
+    def _produto(self, ean):
+        sku = {"ean": ean, "images": [], "sellers": [{"commertialOffer": {"Price": 5.0, "ListPrice": 5.0}}]}
+        return {"productId": "1", "productName": "Arroz Teste 1kg", "brand": "X", "linkText": "arroz", "items": [sku]}
+
+    def test_captura_ean_valido_de_items_ean(self):
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        res = transformar_produto(self._produto("7896011906881"), "Mercearia", instante)
+        self.assertEqual(res["codigo_barras"], "7896011906881")
+
+    def test_descarta_ean_invalido_ou_ausente(self):
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        for ruim in ("7896011906882", "49072", "", None):
+            with self.subTest(ruim=ruim):
+                res = transformar_produto(self._produto(ruim), "Mercearia", instante)
+                self.assertIsNone(res["codigo_barras"])
+
+    def test_codigo_barras_esta_no_contrato_csv(self):
+        from coleta_atacadao import CAMPOS
+        self.assertIn("codigo_barras", CAMPOS)
+
+
 
 if __name__ == "__main__":
     unittest.main()

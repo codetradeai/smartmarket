@@ -59,6 +59,9 @@ def buscar_pagina_html(url, *, headers, timeout):
         import requests
         resposta = requests.get(url, headers=headers, timeout=timeout)
         resposta.raise_for_status()
+        # O servidor não declara charset: sem isto o requests assume ISO-8859-1
+        # e os nomes saem corrompidos (ex.: "CafÃ©").
+        resposta.encoding = "utf-8"
         return resposta.text
     except Exception as exc:
         raise ErroColeta(type(exc).__name__) from exc

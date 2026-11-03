@@ -172,6 +172,25 @@ class ColetaCarrefourTest(unittest.TestCase):
             carrefour.buscar_pagina_html("https://example.invalid", headers={}, timeout=10)
         self.assertNotIn("conteudo_privado", str(exc.exception))
 
+    def test_cliente_http_decodifica_utf8_sem_charset_declarado(self):
+        class RespostaFalsa:
+            # Reproduz o requests: sem charset no cabeçalho, encoding vem ISO-8859-1
+            content = "Café em Pó Feijão".encode("utf-8")
+            encoding = "ISO-8859-1"
+
+            def raise_for_status(self):
+                pass
+
+            @property
+            def text(self):
+                return self.content.decode(self.encoding)
+
+        resposta = RespostaFalsa()
+        requests_mock = types.SimpleNamespace(RequestException=Exception, get=Mock(return_value=resposta))
+        with patch.dict(sys.modules, {"requests": requests_mock}):
+            html = carrefour.buscar_pagina_html("https://example.invalid", headers={}, timeout=10)
+        self.assertEqual(html, "Café em Pó Feijão")
+
 
 class ExecucaoOfflineCarrefourTest(unittest.TestCase):
     def test_fixture_valida_gera_json_csv_relatorio_sem_rede(self):

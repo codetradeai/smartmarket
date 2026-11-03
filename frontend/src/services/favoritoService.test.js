@@ -16,10 +16,19 @@ describe('favoritoService', () => {
   })
 
   describe('mercados', () => {
-    it('listarMercados devolve os favoritos do backend', async () => {
-      api.get.mockResolvedValue({ data: [1, 2] })
+    it('listarMercados devolve os ids dos MERCADOS favoritados (FavoritoResponse do backend)', async () => {
+      // GET /api/favoritos -> [{ id (do favorito), mercado: { id }, createdAt }]
+      api.get.mockResolvedValue({
+        data: [
+          { id: 90, mercado: { id: 1, nome: 'Fort' }, createdAt: '2026-11-03T10:00:00' },
+          { id: 91, mercado: { id: 2, nome: 'Carrefour' }, createdAt: '2026-11-03T10:05:00' },
+        ],
+      })
 
-      await expect(favoritoService.listarMercados()).resolves.toEqual([1, 2])
+      const ids = await favoritoService.listarMercados()
+
+      expect(ids).toEqual(['1', '2'])
+      expect(ids).not.toContain('90') // o id do favorito não é o id do mercado
       expect(api.get).toHaveBeenCalledWith('/favoritos')
     })
 
@@ -44,10 +53,27 @@ describe('favoritoService', () => {
     })
 
     it('favoritarMercado envia o id e devolve a resposta', async () => {
-      api.post.mockResolvedValue({ data: { mercadoId: 7 } })
+      const resposta = { id: 5, mercado: { id: 7, nome: 'Fort' }, createdAt: '2026-11-03T10:00:00' }
+      api.post.mockResolvedValue({ data: resposta })
 
-      await expect(favoritoService.favoritarMercado(7)).resolves.toEqual({ mercadoId: 7 })
+      await expect(favoritoService.favoritarMercado(7)).resolves.toEqual(resposta)
       expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 7 })
+    })
+
+    it('favoritarMercado aceita id numérico em texto e o envia como número (Long no backend)', async () => {
+      api.post.mockResolvedValue({ data: {} })
+
+      await favoritoService.favoritarMercado('7')
+
+      expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 7 })
+    })
+
+    it('favoritarMercado mantém como texto o id local não numérico', async () => {
+      api.post.mockResolvedValue({ data: {} })
+
+      await favoritoService.favoritarMercado('fort')
+
+      expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 'fort' })
     })
 
     it('favoritarMercado sem conexao salva localmente, sem duplicar', async () => {
@@ -56,8 +82,8 @@ describe('favoritoService', () => {
       await favoritoService.favoritarMercado(7)
       const resultado = await favoritoService.favoritarMercado(7)
 
-      expect(resultado).toEqual({ mercadoId: 7 })
-      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual([7])
+      expect(resultado).toEqual({ mercadoId: '7' })
+      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual(['7'])
     })
 
     it('favoritarMercado relanca erros do servidor', async () => {
@@ -81,7 +107,7 @@ describe('favoritoService', () => {
 
       await favoritoService.desfavoritarMercado(7)
 
-      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual([8])
+      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual(['8'])
     })
 
     it('desfavoritarMercado relanca erros do servidor', async () => {
@@ -94,9 +120,10 @@ describe('favoritoService', () => {
 
   describe('produtos', () => {
     it('listarProdutos devolve os favoritos do backend', async () => {
-      api.get.mockResolvedValue({ data: [10] })
+      // GET /api/favoritos/produtos -> ProdutoComPrecosResponse[] (id = id do produto)
+      api.get.mockResolvedValue({ data: [{ id: 10, nome: 'Arroz Camil 1kg' }] })
 
-      await expect(favoritoService.listarProdutos()).resolves.toEqual([10])
+      await expect(favoritoService.listarProdutos()).resolves.toEqual(['10'])
       expect(api.get).toHaveBeenCalledWith('/favoritos/produtos')
     })
 
@@ -128,7 +155,7 @@ describe('favoritoService', () => {
       await favoritoService.favoritarProduto(10)
       await favoritoService.favoritarProduto(10)
 
-      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual([10])
+      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['10'])
     })
 
     it('favoritarProduto relanca erros do servidor', async () => {
@@ -152,7 +179,7 @@ describe('favoritoService', () => {
 
       await favoritoService.desfavoritarProduto(10)
 
-      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual([12])
+      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['12'])
     })
 
     it('desfavoritarProduto relanca erros do servidor', async () => {

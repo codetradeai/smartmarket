@@ -4,6 +4,9 @@ import ShoppingListPage from './ShoppingListPage'
 import { produtoService, mercadoService } from '../services'
 import { PRODUCTS } from '../data'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
 jest.mock('../services', () => ({
   produtoService: { buscarCatalogoComPrecos: jest.fn() },
   mercadoService: { listar: jest.fn() },

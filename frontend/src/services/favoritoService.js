@@ -1,5 +1,13 @@
 import api from "./api"
 
+// O servidor respondeu com erro (4xx/5xx): quem chamou precisa saber. Só a falta de resposta
+// (rede fora do ar) cai no fallback local.
+const erroDoServidor = (erro) => Boolean(erro?.response)
+
+// O backend declara mercadoId como Long: ids numéricos vão como número; ids locais
+// (ex.: "fort") seguem como texto e o backend os rejeita com 400.
+const idParaApi = (id) => (/^\d+$/.test(String(id)) ? Number(id) : String(id))
+
 export const favoritoService = {
   /**
    * Lista os mercados favoritados pelo usuário
@@ -16,7 +24,9 @@ export const favoritoService = {
     try {
       const response = await api.get("/favoritos")
       if (Array.isArray(response.data) && response.data.length > 0) {
-        const apiIds = response.data.map((m) => String(m.mercadoId || m.id || m))
+        // GET /favoritos devolve FavoritoResponse { id, mercado: { id, ... }, createdAt }:
+        // o id do favorito NÃO é o id do mercado.
+        const apiIds = response.data.map((m) => String(m?.mercado?.id ?? m?.mercadoId ?? m?.id ?? m))
         const merged = Array.from(new Set([...localFavs.map(String), ...apiIds]))
         localStorage.setItem("sm_fav_markets", JSON.stringify(merged))
         return merged
@@ -44,9 +54,10 @@ export const favoritoService = {
     }
 
     try {
-      const response = await api.post("/favoritos", { mercadoId: idStr })
+      const response = await api.post("/favoritos", { mercadoId: idParaApi(idStr) })
       return response.data
-    } catch {
+    } catch (erro) {
+      if (erroDoServidor(erro)) throw erro
       return { mercadoId: idStr }
     }
   },
@@ -66,8 +77,8 @@ export const favoritoService = {
 
     try {
       await api.delete(`/favoritos/mercados/${idStr}`)
-    } catch {
-      // fallback
+    } catch (erro) {
+      if (erroDoServidor(erro)) throw erro
     }
   },
 
@@ -115,8 +126,8 @@ export const favoritoService = {
 
     try {
       await api.post(`/favoritos/produtos/${idStr}`)
-    } catch {
-      // Ignora erro 404/403 caso backend não possua rota de produto favorito
+    } catch (erro) {
+      if (erroDoServidor(erro)) throw erro
     }
   },
 
@@ -135,8 +146,8 @@ export const favoritoService = {
 
     try {
       await api.delete(`/favoritos/produtos/${idStr}`)
-    } catch {
-      // Ignora erro 404/403 caso backend não possua rota de produto favorito
+    } catch (erro) {
+      if (erroDoServidor(erro)) throw erro
     }
   },
 }

@@ -3,6 +3,9 @@ import { MemoryRouter } from 'react-router-dom'
 import FavoritesPage from './FavoritesPage'
 import { favoritoService } from '../services'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
 jest.mock('../services', () => ({
   favoritoService: {
     listarMercados: jest.fn(),

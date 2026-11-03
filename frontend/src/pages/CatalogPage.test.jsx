@@ -44,7 +44,9 @@ function configurarServicos({ produtos = PRODUTOS, mercados = MERCADOS, favMerca
 async function renderizar(opcoes) {
   configurarServicos(opcoes)
   render(<CatalogPage />)
-  await screen.findByText(/itens encontrados/)
+  // Fim do carregamento: o subtítulo troca "Sincronizando prateleiras..." por
+  // "8 Redes do RS integradas · N produtos disponíveis".
+  await screen.findByText(/produtos disponíveis/)
 }
 
 const cartaoDe = (nome) => screen.getByRole('heading', { name: nome }).closest('[style*="border-radius: 16px"]')
@@ -93,7 +95,7 @@ describe('CatalogPage', () => {
       favoritoService.listarProdutos.mockResolvedValue(null)
       render(<CatalogPage />)
 
-      expect(await screen.findByText(/itens encontrados/)).toBeInTheDocument()
+      expect(await screen.findByText(/produtos disponíveis/)).toBeInTheDocument()
       expect(screen.getByText('Clique em uma rede para destacar seus preços prioritários.')).toBeInTheDocument()
     })
   })

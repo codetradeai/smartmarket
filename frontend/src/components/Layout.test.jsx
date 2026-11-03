@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Layout from './Layout'
 import { useAuth } from '../hooks/useAuth'
@@ -45,14 +45,17 @@ describe('Layout', () => {
     expect(screen.getByRole('link', { name: 'Catálogo' })).toHaveAttribute('href', '/catalog')
     expect(screen.getByRole('link', { name: 'Favoritos' })).toHaveAttribute('href', '/favorites')
     expect(screen.getByRole('link', { name: 'Minha Lista' })).toHaveAttribute('href', '/list')
-    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument()
+    // Rótulo real do link (Layout.jsx): "Administração". Procurar "Admin" deixava a asserção vazia.
+    expect(screen.queryByRole('link', { name: 'Administração' })).not.toBeInTheDocument()
+    expect(within(screen.getByRole('navigation')).getAllByRole('link')).toHaveLength(3)
   })
 
   it('mostra o link Admin para administradores', () => {
     useAuth.mockReturnValue({ user: { nome: 'Chefe', papel: 'ADMIN' }, isAdmin: true, logout })
     renderizar('/admin')
 
-    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
+    expect(screen.getByRole('link', { name: 'Administração' })).toHaveAttribute('href', '/admin')
+    expect(within(screen.getByRole('navigation')).getAllByRole('link')).toHaveLength(4)
     expect(screen.getByText('ADMIN')).toBeInTheDocument()
   })
 

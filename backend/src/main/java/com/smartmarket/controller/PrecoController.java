@@ -3,7 +3,9 @@ package com.smartmarket.controller;
 import com.smartmarket.dto.preco.PrecoRequest;
 import com.smartmarket.dto.preco.PrecoResponse;
 import com.smartmarket.dto.produto.ProdutoComPrecosResponse;
+import com.smartmarket.dto.preco.PrecosVinculadosResponse;
 import com.smartmarket.service.PrecoService;
+import com.smartmarket.service.VinculoProdutoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.List;
 public class PrecoController {
 
     private final PrecoService precoService;
+    private final VinculoProdutoService vinculoProdutoService;
 
     /**
      * Retorna todos os produtos com seus preços por mercado.
@@ -35,6 +38,16 @@ public class PrecoController {
     public ResponseEntity<ProdutoComPrecosResponse> precosDeUmProduto(
             @PathVariable Long produtoId) {
         return ResponseEntity.ok(precoService.buscarPrecosPorProduto(produtoId));
+    }
+
+    /**
+     * Preços do produto e dos produtos equivalentes de outras redes (só vínculos confirmados).
+     * Vínculos em revisão (ex.: mesmo EAN com embalagem diferente) não são expostos.
+     * Endpoint público.
+     */
+    @GetMapping("/produto/{produtoId}/vinculados")
+    public ResponseEntity<PrecosVinculadosResponse> precosVinculados(@PathVariable Long produtoId) {
+        return ResponseEntity.ok(vinculoProdutoService.precosVinculados(produtoId));
     }
 
     /**

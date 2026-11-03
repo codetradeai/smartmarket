@@ -102,5 +102,81 @@ class TestVerificadorMercadoId(unittest.TestCase):
             self.assertIn(f", {dados['id']}, 1.00,", sql)
 
 
+class TestSincronizadorEducado(unittest.TestCase):
+    def test_user_agent_identificavel_e_sem_origin_forjado(self):
+        ua = sincronizador.HEADERS["User-Agent"]
+        self.assertIn("SmartMarketBot", ua)
+        self.assertIn("contato", ua)
+        self.assertNotIn("Origin", sincronizador.HEADERS)
+        self.assertNotIn("Referer", sincronizador.HEADERS)
+
+    def test_pausa_minima_de_2_segundos(self):
+        self.assertGreaterEqual(sincronizador.PAUSA_MINIMA_S, 2.0)
+        self.assertGreaterEqual(sincronizador.LIMITADOR.intervalo, 2.0)
+
+    def test_limitador_dorme_o_que_falta_para_o_intervalo(self):
+        agora = [100.0]
+        pausas = []
+
+        def dormir(s):
+            pausas.append(s)
+            agora[0] += s
+
+        lim = sincronizador.Limitador(2.0, relogio=lambda: agora[0], dormir=dormir)
+        lim.aguardar()            # primeira chamada não espera
+        agora[0] += 0.5
+        lim.aguardar()            # passaram 0,5 s: falta 1,5 s
+        agora[0] += 5.0
+        lim.aguardar()            # passaram 5 s: não espera
+        self.assertEqual(len(pausas), 1)
+        self.assertAlmostEqual(pausas[0], 1.5)
+
+    def test_coleta_e_sequencial_e_respeita_o_limitador(self):
+        ativas = []
+        maximo = [0]
+        chamadas_limitador = []
+
+        def falso_paginar(url, params, nome, rede):
+            ativas.append(1)
+            maximo[0] = max(maximo[0], len(ativas))
+            ativas.pop()
+            return []
+
+        with mock.patch.object(sincronizador, "paginar_endpoint_osuper", side_effect=falso_paginar) as pag:
+            sincronizador.coletar_produtos_3d_e_precos()
+        self.assertEqual(maximo[0], 1)
+        self.assertGreater(pag.call_count, 7)
+        self.assertFalse(hasattr(sincronizador, "ThreadPoolExecutor"))
+
+    def test_paginar_aguarda_limitador_antes_de_cada_requisicao(self):
+        eventos = []
+
+        class Resp:
+            status_code = 200
+
+            def __init__(self, n):
+                self.n = n
+
+            def json(self):
+                return {"total": 10, "hits": [], "hasNext": False} if self.n else {
+                    "total": 10, "hasNext": True,
+                    "hits": [{"id": 1, "name": "Arroz 1kg", "pricing": {"price": 5.0}}]}
+
+        class Sessao:
+            headers = {}
+            n = 0
+
+            def get(self, url, params=None, timeout=None):
+                eventos.append("get")
+                r = Resp(Sessao.n)
+                Sessao.n += 1
+                return r
+
+        with mock.patch.object(sincronizador.requests, "Session", return_value=Sessao()),              mock.patch.object(sincronizador.LIMITADOR, "aguardar", side_effect=lambda: eventos.append("espera")):
+            itens = sincronizador.paginar_endpoint_osuper("http://x", {}, "Asun", "asun")
+        self.assertEqual(len(itens), 1)
+        self.assertEqual(eventos, ["espera", "get", "espera", "get"])
+
+
 if __name__ == "__main__":
     unittest.main()

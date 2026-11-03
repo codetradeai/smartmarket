@@ -20,12 +20,17 @@ Idioma do projeto: código de domínio, comentários, commits e documentação e
 npm run dev            # Vite em http://localhost:5174
 npm run build
 npm run lint
-npm test               # vitest run
-npx vitest run src/utils/relatedProducts.test.js   # um único arquivo
-npx vitest run -t "nome do teste"                  # um único teste
-npm run test:coverage
+npm test               # jest (suíte inteira)
+npm test -- src/utils/relatedProducts.test.js   # um único arquivo
+npm test -- -t "nome do teste"                  # um único teste
+npm run test:watch
+npm run test:coverage  # falha se a cobertura global ficar abaixo de 70%
 ```
-A URL da API vem de `VITE_API_URL` (padrão `http://localhost:8080/api`). Há `jest.config.cjs`/`babel.config.cjs` legados, mas o runner real é o Vitest (`vite.config.js`, setup em `jest/setupTests.js`).
+A URL da API vem de `VITE_API_URL` (padrão `http://localhost:8080/api`).
+
+Testes: o runner único é **Jest + React Testing Library** (decisão do grupo, ver `docs/TESTES.md`). Configuração em `jest.config.cjs` (jsdom, setup em `jest/setupTests.cjs`) e `babel.config.cjs`. Use as globais do Jest (`describe`/`it`/`expect`) e `jest.fn`/`jest.mock`/`jest.useFakeTimers`; não importe de `vitest`. Testes que importam o `data.js` real (32 MB) devem usar a fixture: `jest.mock('../data', () => require('../test/dataFixture'))`. No Windows, se o caminho tiver `&`, rode `node node_modules/jest/bin/jest.js` em vez de `npm test`.
+
+Cobertura mínima de **70%** (branches, functions, lines e statements) no front (`coverageThreshold` do `jest.config.cjs`) e no back (JaCoCo). Não baixe o limiar sem acordo do grupo; escreva testes para o código novo.
 
 ### Backend (`cd backend`)
 ```bash

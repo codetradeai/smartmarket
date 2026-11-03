@@ -329,3 +329,35 @@ Um commit por item. A suíte do scraper passou de 144 para **212 testes**, todos
 - O vínculo com `origem` existe como saída do `casamento.py`, mas **não é gravado no banco**. `mapeamento` do `pipeline.py` continua sendo um dicionário `id externo → produto_id`, e criar uma tabela de vínculos exige alterar o schema da ingestão.
 - Master e Stok ainda usam, nos coletores antigos, o User-Agent com `Mozilla/5.0 … (SmartMarket RS Bot)`. O código novo usa o User-Agent identificável completo; a troca nos coletores antigos não foi pedida.
 - O `data.js` **não foi regenerado**.
+
+---
+
+## 16. Fase C2 — banco real, vínculos e `dataFim` opcional (2026-11-03)
+
+Um commit por item. Relatório atualizado: [casamento-produtos.md](casamento-produtos.md).
+
+| # | O que mudou | Commits |
+|---|---|---|
+| 1 | **Testes contra PostgreSQL real.** Subi o Postgres do `backend/docker-compose.yml` (porta 5436, imagem `postgres:16-alpine`) e rodei a suíte com `SMARTMARKET_TEST_DSN`. Dois defeitos escondidos pelo "ignorado": (a) os testes de integração e `preparar_banco_fixture.py` apontavam para `backend/smartmarket_ddl_updated.sql`, que não existe mais (agora é `backend/database/smartmarket_ddl_finalizado.sql`); (b) `executar_pipeline.py` importava `fcntl`, que só existe em Unix, o que derrubava 6 testes no Windows. O lock agora usa `fcntl` ou `msvcrt`. | `8f1500e`, `d0f138c` |
+| 2 | Master e Stok usam o User-Agent `SmartMarketBot/0.1 (… contato …)` em vez de simular navegador. Conferido ao vivo com `--limite 1`: login e busca continuam funcionando (12 produtos em cada). | `c003fd1` |
+| 3 | `casamento.py` agora gera `pares` com `status`. Mesmo EAN com medida ou número de unidades diferentes vira `revisar` (motivos `quantidade_diferente` e `embalagem_diferente`). Caso Bombril: lã de aço 45g (Atacadão) × esponja "Com 6 Unidade" (Master) e "45g Com 6 Unidades" (Stok) ficam em `revisar`; Master × Stok continua `confirmado`. Medida ausente num dos lados não gera `revisar`. | `3168c47` |
+| 4 | **Tabela de vínculos.** `vinculo_produto(produto_a_id, produto_b_id, origem, status, motivo)` no DDL e em `migration_add_vinculo_produto.sql`, com `produto_a_id < produto_b_id`, `UNIQUE` no par e `CHECK` em `origem` e `status`. `scraper/vinculos.py` grava os pares do `casamento.py` (idempotente; `ean` nunca é rebaixado para `nome`; par sem produto carregado vai para `nao_resolvidos`). **Endpoint** `GET /api/precos/produto/{id}/vinculados`: preço mais recente por mercado do produto e dos vizinhos com vínculo `confirmado`; `revisar` nunca aparece. | `df4d930`, `cfff1bb` |
+| 5 | **`Promocao.dataFim` opcional.** Coluna `data_fim` sem `NOT NULL` (DDL e `migration_promocao_data_fim_opcional.sql`), `@NotNull` removido do request, validação de período só quando há fim. Vigência passa a ser `data_inicio <= hoje AND (data_fim IS NULL OR data_fim >= hoje)`, ou seja, promoção sem fim vale até nova coleta. Listagem ordena por `dataFim` com nulos por último. | `2b15494` |
+| 6 | Relatório com pares em revisão, coluna de status de embalagem e seção de uso dos vínculos. | `38096be` e este |
+
+**Resultados dos testes**
+- **Scraper, contra o PostgreSQL real:** 229 testes, 0 falhas, **0 ignorados**. Sem o DSN, 32 desses ficam ignorados, portanto **32 testes rodaram contra o banco real** (27 que já existiam e 5 novos de `vinculo_produto`).
+- **Backend (Maven, H2):** 215 testes, 0 falhas. Novos: `VinculoProdutoServiceTest` (5), `PrecosVinculadosIntegrationTest` (4, inclui o caso Bombril), `PromocaoVigenciaIntegrationTest` (5), `PromocaoServiceTest` (+2) e `FavoritoAlertaAdminIntegrationTest` (+1, promoção sem `dataFim`). Neste computador o `mvnw test` só roda com `-Djacoco.skip=true`: o `&` no nome da pasta do usuário (`Davi_Preta&Bernardo`) quebra a linha de comando do agente do JaCoCo. Não é problema do código, e o CI não foi executado.
+- **Migrações:** aplicadas duas vezes, em ordem, sobre o DDL anterior (`f4313f3`) num banco descartável: idempotentes, `data_fim` passou a aceitar `NULL` e a promoção sem fim foi gravada. Não foram aplicadas em nenhum banco persistente.
+
+### O que ficou de fora
+
+1. **O frontend não usa o endpoint novo**, e o `data.js` não foi tocado. O comparador da tela continua igual.
+2. **Os vínculos só são gravados quando alguém roda `vinculos.py`.** Nenhuma rotina (`rotina_carga.py`, cron, workflow) o chama ainda. Ele supõe que `source` = chave da rede (`atacadao`, `master`…) e recusa o par se o id externo existir em mais de uma loja da mesma rede.
+3. **Só os pares da própria coleta são gravados.** Os EANs achados pela consulta cruzada (Atacadão, Master, Stok) entram no relatório, mas não geram vínculo.
+4. **Vizinhos diretos, sem transitividade.** Se A–B e B–C estão confirmados e A–C não existe, A não enxerga C. Dentro de um mesmo EAN todos os pares são gerados, então isso só aparece com vínculos por nome.
+5. **Não há tela nem endpoint para um humano confirmar ou rejeitar um vínculo `revisar`.** Hoje só dá para mudar no banco. Regravar o par com `vinculos.py` volta o status para o que o `casamento.py` calcula.
+6. **`data_fim` nulo = vigente para sempre.** Uma promoção sem validade só deixa de valer quando alguém a remove. Falta uma regra de expiração (por exemplo, encerrar quando a coleta seguinte não a traz).
+7. **A regra de embalagem é simples:** conta só medidas (g/ml) e números de unidades escritos no nome. Não pega variações como "pack" sem número ou "caixa com 12" sem a palavra. Se um dos lados não traz medida, o par fica `confirmado` mesmo que as quantidades possam diferir.
+8. **Master e Stok ainda esperam 1,0 s entre requisições** (o combinado era 2 s por host). Zaffari e Rissul continuam **listando produtos pela API**, que o robots.txt delas proíbe. As duas pendências seguem aguardando decisão.
+9. **Ambiente:** o Docker Desktop foi iniciado por mim e o container `smartmarket-db` continua rodando. O container tem 22 bancos `smartmarket_fixture_*` criados pelos testes (a suíte nunca os apaga). Eles não afetam o banco `smartmarket`.

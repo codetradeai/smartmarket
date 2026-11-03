@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   MARKETS as DEFAULT_MARKETS,
   PRODUCTS as DEFAULT_PRODUCTS,
@@ -54,7 +55,8 @@ const C = {
   error: "#D63B3B",
 };
 
-// Cesta sugerida inicial para que a página nunca abra vazia em testes de primeira viagem
+// Cesta de demonstração: só para visitante (sem sessão) que ainda não tem lista gravada.
+// Usuário logado nunca a recebe.
 const INITIAL_DEMO_LIST = {
   p1: 2, // 2x Arroz Branco Tio João 5kg
   p3: 2, // 2x Feijão Carioca Camil 1kg
@@ -63,14 +65,20 @@ const INITIAL_DEMO_LIST = {
   p17: 2, // 2x Café Pilão 500g
 };
 
-function getStoredList() {
+// Distingue "nunca gravou" (chave ausente) de "gravou vazio" ({} depois de limpar a lista):
+// a lista vazia gravada é respeitada. A demonstração só entra para visitante, e só quando
+// não há lista válida gravada.
+function getStoredList(usarDemonstracao) {
+  const semLista = usarDemonstracao ? { ...INITIAL_DEMO_LIST } : {};
+  const raw = sessionStorage.getItem("sm_list");
+  if (raw === null) return semLista;
   try {
-    const stored = JSON.parse(sessionStorage.getItem("sm_list") || "{}");
-    if (Object.keys(stored).length > 0) return stored;
-    return INITIAL_DEMO_LIST;
+    const stored = JSON.parse(raw);
+    if (stored && typeof stored === "object" && !Array.isArray(stored)) return stored;
   } catch {
-    return INITIAL_DEMO_LIST;
+    // conteúdo corrompido: trata como "sem lista"
   }
+  return semLista;
 }
 function saveStoredList(l) {
   sessionStorage.setItem("sm_list", JSON.stringify(l));
@@ -150,9 +158,12 @@ function compareMarkets(list, products, markets) {
 }
 
 export default function ShoppingListPage() {
+  // useContext direto (e não useAuth) para a página funcionar também fora de um AuthProvider.
+  const auth = useContext(AuthContext);
+  const usarDemonstracao = !auth?.isAuthenticated;
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [markets, setMarkets] = useState(DEFAULT_MARKETS);
-  const [list, setList] = useState(getStoredList);
+  const [list, setList] = useState(() => getStoredList(usarDemonstracao));
   const [compared, setCompared] = useState(true);
   const [chartMode, setChartMode] = useState("total"); // 'total' | 'diferenca'
   const [selectedMarketId, setSelectedMarketId] = useState(null);

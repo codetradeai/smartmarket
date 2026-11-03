@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import ShoppingListPage from './ShoppingListPage'
+import { AuthContext } from '../contexts/AuthContext'
 import { produtoService, mercadoService } from '../services'
 import { PRODUCTS } from '../data'
 
@@ -28,21 +29,27 @@ function guardarLista(lista) {
   sessionStorage.setItem('sm_list', JSON.stringify(lista))
 }
 
-async function montar() {
+// Sessão de um usuário logado. Sem `auth`, a página é renderizada como visitante (fora do provider).
+const USUARIO_LOGADO = { isAuthenticated: true, isAdmin: false, user: { nome: 'Ana', papel: 'USER' } }
+
+async function montar(auth = null) {
+  const pagina = (
+    <MemoryRouter>
+      <ShoppingListPage />
+    </MemoryRouter>
+  )
+  let resultado
   await act(async () => {
-    render(
-      <MemoryRouter>
-        <ShoppingListPage />
-      </MemoryRouter>
-    )
+    resultado = render(auth ? <AuthContext.Provider value={auth}>{pagina}</AuthContext.Provider> : pagina)
   })
+  return resultado
 }
 
-async function renderizar({ produtos = [ARROZ, FEIJAO], mercados = [MERCADO_A, MERCADO_B], lista } = {}) {
+async function renderizar({ produtos = [ARROZ, FEIJAO], mercados = [MERCADO_A, MERCADO_B], lista, auth } = {}) {
   if (lista) guardarLista(lista)
   produtoService.buscarCatalogoComPrecos.mockResolvedValue(produtos)
   mercadoService.listar.mockResolvedValue(mercados)
-  await montar()
+  return montar(auth)
 }
 
 const listaNaSessao = () => JSON.parse(sessionStorage.getItem('sm_list'))
@@ -63,12 +70,37 @@ describe('ShoppingListPage', () => {
     it.each([
       ['nao ha lista guardada', null],
       ['a lista guardada esta corrompida', '{nao-e-json'],
-    ])('abre com a cesta sugerida quando %s', async (_caso, conteudo) => {
+    ])('visitante abre com a cesta sugerida quando %s', async (_caso, conteudo) => {
       if (conteudo) sessionStorage.setItem('sm_list', conteudo)
       await renderizar()
 
       expect(screen.getByRole('heading', { name: 'Itens da Lista (5)' })).toBeInTheDocument()
       expect(listaNaSessao()).toEqual(CESTA_SUGERIDA)
+    })
+
+    it('a lista limpa continua vazia ao reabrir a pagina', async () => {
+      const { unmount } = await renderizar({ lista: { p1: 1, p3: 2 } })
+      fireEvent.click(screen.getByRole('button', { name: 'Limpar lista' }))
+      expect(listaNaSessao()).toEqual({})
+      unmount()
+
+      await renderizar()
+
+      expect(screen.getByRole('heading', { name: 'Sua lista está vazia' })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { name: /Itens da Lista/ })).not.toBeInTheDocument()
+      expect(listaNaSessao()).toEqual({})
+    })
+
+    it('usuario logado nao recebe a cesta de demonstracao (sem lista nem com lista corrompida)', async () => {
+      const { unmount } = await renderizar({ auth: USUARIO_LOGADO })
+      expect(screen.getByRole('heading', { name: 'Sua lista está vazia' })).toBeInTheDocument()
+      expect(listaNaSessao()).toEqual({})
+      unmount()
+
+      sessionStorage.setItem('sm_list', '{nao-e-json')
+      await renderizar({ auth: USUARIO_LOGADO })
+      expect(screen.getByRole('heading', { name: 'Sua lista está vazia' })).toBeInTheDocument()
+      expect(listaNaSessao()).toEqual({})
     })
 
     it('ignora itens da lista que nao existem mais no catalogo', async () => {

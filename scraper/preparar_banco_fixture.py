@@ -19,7 +19,7 @@ def preparar_banco(dsn, nome):
         conn.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(nome)))
     config['dbname'] = nome
     target = make_conninfo(**config)
-    ddl = (Path(__file__).resolve().parents[1] / 'backend/smartmarket_ddl_updated.sql').read_text()
+    ddl = (Path(__file__).resolve().parents[1] / 'backend/database/smartmarket_ddl_finalizado.sql').read_text()
     ddl = '\n'.join(line for line in ddl.splitlines() if not line.lstrip().upper().startswith('DROP '))
     with psycopg.connect(target) as conn:
         conn.execute(ddl)

@@ -21,6 +21,8 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+from ean_pagina import enriquecer_com_ean
+
 LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -31,6 +33,7 @@ CATEGORIAS = {
     "Leites": "https://mercado.carrefour.com.br/categoria/padaria-e-matinais/leites",
 }
 
+STOREFRONT_BASE_URL = "https://mercado.carrefour.com.br"
 LIMITE_POR_CATEGORIA = 20
 TAMANHO_PAGINA = 15
 PAUSA_ENTRE_REQUISICOES = 1.5
@@ -45,7 +48,7 @@ HEADERS = {
 CAMPOS = (
     "nome_bruto", "preco", "preco_normal", "em_promocao", "marca",
     "categoria", "slug", "id_produto_origem", "supermercado", "data_coleta",
-    "is_clube", "clube_nome",
+    "is_clube", "clube_nome", "codigo_barras",
 )
 
 
@@ -59,6 +62,9 @@ def buscar_pagina_html(url, *, headers, timeout):
         import requests
         resposta = requests.get(url, headers=headers, timeout=timeout)
         resposta.raise_for_status()
+        # O servidor não declara charset: sem isto o requests assume ISO-8859-1
+        # e os nomes saem corrompidos (ex.: "CafÃ©").
+        resposta.encoding = "utf-8"
         return resposta.text
     except Exception as exc:
         raise ErroColeta(type(exc).__name__) from exc
@@ -243,6 +249,7 @@ def transformar_item(item, nome_categoria, instante):
         "data_coleta": instante.astimezone(timezone.utc).isoformat(timespec="seconds"),
         "is_clube": is_clube,
         "clube_nome": clube_nome,
+        "codigo_barras": None,  # preenchido depois, pela página do produto
     }
 
 
@@ -321,6 +328,14 @@ def carregar_fixture(caminho):
     return buscar
 
 
+def url_pagina_produto(produto):
+    """URL pública da página do produto (o campo ``slug`` guarda o ``link`` relativo da listagem)."""
+    link = produto.get("slug")
+    if not isinstance(link, str) or not link:
+        return None
+    return link if link.startswith("http") else STOREFRONT_BASE_URL + (link if link.startswith("/") else "/" + link)
+
+
 def salvar_atomico(caminho, escrever):
     """Substitui cada arquivo apenas depois de sua escrita completa."""
     caminho = Path(caminho)
@@ -351,6 +366,7 @@ def salvar_produtos(produtos, diretorio):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", type=Path, help="Resposta local: não acessa a rede")
+    parser.add_argument("--sem-ean", action="store_true", help="Não consulta a página de cada produto para obter o EAN")
     parser.add_argument("--output-dir", type=Path, default=Path("."))
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -370,6 +386,11 @@ def main(argv=None):
                                           falhas=falhas, dormir=dormir))
         dormir(PAUSA_ENTRE_REQUISICOES)
 
+    resumo_ean = None
+    if produtos and not args.fixture and not args.sem_ean:
+        resumo_ean = enriquecer_com_ean(produtos, url_de=url_pagina_produto)
+        LOGGER.info("EAN pela página do produto: %s", resumo_ean)
+
     status = "falhou" if not produtos else ("parcial" if falhas else "concluido")
 
     if produtos:
@@ -382,6 +403,7 @@ def main(argv=None):
         "saida_atualizada": bool(produtos),
         "modo": "fixture" if args.fixture else "http",
         "supermercado": "Carrefour",
+        "ean": resumo_ean,
         "moeda_declarada": "BRL",
         "executado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }

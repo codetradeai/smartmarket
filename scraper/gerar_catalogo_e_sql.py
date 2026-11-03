@@ -113,6 +113,23 @@ def carregar_todos_produtos():
     return todos
 
 
+def sql_promocao(prod_id, mercado_id, preco_normal, preco, valida_ate=None) -> str:
+    """INSERT de promoção. Sem validade informada pela rede, data_fim é NULL (nunca estimada)."""
+    data_fim = escape_sql(valida_ate)
+    return (
+        f"INSERT INTO promocao (produto_id, mercado_id, valor_original, valor_promocional, data_inicio, data_fim, ativa) "
+        f"VALUES ({prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, {data_fim}, TRUE);"
+    )
+
+
+def montar_precos(mercado_key: str, preco: float) -> dict:
+    """Preços por rede de um item coletado: apenas a rede de origem.
+
+    Redes em que o produto não foi coletado ficam ausentes (nunca estimadas).
+    """
+    return {mercado_key: preco}
+
+
 def gerar_sql_e_data():
     itens = carregar_todos_produtos()
     print(f"Total de itens carregados para processamento: {len(itens)}")
@@ -202,27 +219,10 @@ def gerar_sql_e_data():
         )
 
         if em_promo and preco_normal > preco:
-            linhas_sql.append(
-                f"INSERT INTO promocao (produto_id, mercado_id, valor_original, valor_promocional, data_inicio, data_fim, ativa) "
-                f"VALUES ({prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '7 days', TRUE);"
-            )
+            linhas_sql.append(sql_promocao(prod_id, mercado_id, preco_normal, preco, item.get("promocao_valida_ate")))
 
-        # Adiciona ao objeto do frontend
-        prices_dict = {mercado_key: preco}
-        # Preços de comparação realistas nas outras redes baseados em variações de mercado
-        variacoes = {
-            "zaffari": 1.05,
-            "rissul": 1.02,
-            "asun": 0.99,
-            "stok": 0.94,
-            "atacadao": 0.95,
-            "master": 1.03,
-            "fort": 0.96,
-            "carrefour": 1.04,
-        }
-        for mk, mult in variacoes.items():
-            if mk not in prices_dict:
-                prices_dict[mk] = round(preco * mult, 2)
+        # Adiciona ao objeto do frontend: somente a rede onde o preço foi realmente coletado
+        prices_dict = montar_precos(mercado_key, preco)
 
         # Suporte a sequências 360° autenticadas
         frames_360 = item.get("three_dimensional_images_local") or item.get("three_dimensional_images")

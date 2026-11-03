@@ -12,7 +12,6 @@ import logging
 import re
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -32,12 +31,35 @@ OUTPUT_DIR = BASE_DIR / "scraper" / "output"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 LOGGER = logging.getLogger("sincronizador_3d")
 
+# User-Agent identificável (sem se passar por navegador) e sem Origin/Referer forjados.
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)",
     "Accept": "application/json, text/plain, */*",
-    "Origin": "https://www.deliveryfort.com.br",
-    "Referer": "https://www.deliveryfort.com.br/",
 }
+
+# No máximo 1 requisição por vez (execução sequencial) e intervalo mínimo entre requisições.
+PAUSA_MINIMA_S = 2.0
+
+
+class Limitador:
+    """Garante intervalo mínimo entre requisições consecutivas ao mesmo host."""
+
+    def __init__(self, intervalo=PAUSA_MINIMA_S, relogio=time.monotonic, dormir=time.sleep):
+        self.intervalo = intervalo
+        self._relogio = relogio
+        self._dormir = dormir
+        self._ultima = None
+
+    def aguardar(self):
+        if self._ultima is not None:
+            falta = self.intervalo - (self._relogio() - self._ultima)
+            if falta > 0:
+                self._dormir(falta)
+        self._ultima = self._relogio()
+
+
+LIMITADOR = Limitador()
+
 
 TERMOS_COMPLETOS = [
     "chocolate em po",
@@ -228,6 +250,7 @@ def paginar_endpoint_osuper(url_base: str, params_base: Dict[str, Any], supermer
         params["size"] = tamanho
         params["from"] = pagina * tamanho
         try:
+            LIMITADOR.aguardar()
             resp = sess.get(url_base, params=params, timeout=10)
             if resp.status_code != 200:
                 break
@@ -267,19 +290,14 @@ def coletar_produtos_3d_e_precos() -> List[Dict[str, Any]]:
         tarefas.append(("https://sense.osuper.com.br/334/1585/search", {"search": termo}, "Fort Atacadista", "fort", f"Fort '{termo}'"))
         tarefas.append(("https://sense.osuper.com.br/319/1560/search", {"search": termo}, "Asun Supermercados", "asun", f"Asun '{termo}'"))
 
-    with ThreadPoolExecutor(max_workers=8) as pool:
-        futuros = {
-            pool.submit(paginar_endpoint_osuper, url, params, nome_loja, rede): rotulo
-            for (url, params, nome_loja, rede, rotulo) in tarefas
-        }
-        for fut in as_completed(futuros):
-            rotulo = futuros[fut]
-            try:
-                lote = fut.result()
-                LOGGER.info("[✓] %s -> %d produtos coletados sem limites", rotulo, len(lote))
-                encontrados.extend(lote)
-            except Exception as exc:
-                LOGGER.warning("Falha em %s: %s", rotulo, exc)
+    # Sequencial: 1 requisição simultânea (todas as tarefas usam sense.osuper.com.br).
+    for (url, params, nome_loja, rede, rotulo) in tarefas:
+        try:
+            lote = paginar_endpoint_osuper(url, params, nome_loja, rede)
+            LOGGER.info("[✓] %s -> %d produtos coletados sem limites", rotulo, len(lote))
+            encontrados.extend(lote)
+        except Exception as exc:
+            LOGGER.warning("Falha em %s: %s", rotulo, exc)
 
     return encontrados
 
@@ -355,20 +373,8 @@ def sincronizar():
             marca = it.get("marca") or extrair_marca(nome)
             unidade = extrair_unidade(nome)
 
-            prices_novos = {
-                rede: preco,
-                "zaffari": round(preco * 1.05, 2),
-                "rissul": round(preco * 1.02, 2),
-                "stok": round(preco * 0.94, 2),
-                "atacadao": round(preco * 0.95, 2),
-                "master": round(preco * 1.03, 2),
-            }
-            if rede == "asun":
-                prices_novos["fort"] = round(preco * 0.96, 2)
-                prices_novos["carrefour"] = round(preco * 1.04, 2)
-            else:
-                prices_novos["asun"] = round(preco * 1.04, 2)
-                prices_novos["carrefour"] = round(preco * 1.02, 2)
+            # Somente o preço realmente coletado; as demais redes ficam ausentes.
+            prices_novos = {rede: preco}
 
             menor_m = min(prices_novos, key=prices_novos.get)
             url_loja = (

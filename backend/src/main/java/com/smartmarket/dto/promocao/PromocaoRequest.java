@@ -33,6 +33,6 @@ public class PromocaoRequest {
     @NotNull(message = "dataInicio e obrigatoria")
     private LocalDate dataInicio;
 
-    @NotNull(message = "dataFim e obrigatoria")
+    /** Opcional: sem data de fim, a promoção segue vigente até nova coleta. */
     private LocalDate dataFim;
 }

@@ -36,7 +36,8 @@ public class Promocao {
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;
 
-    @Column(name = "data_fim", nullable = false)
+    /** Opcional: nem toda rede informa a validade. Sem data_fim, a promoção vale até nova coleta. */
+    @Column(name = "data_fim")
     private LocalDate dataFim;
 
     @Column(name = "coletado_em", nullable = false)

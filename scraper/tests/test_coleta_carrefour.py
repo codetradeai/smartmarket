@@ -172,6 +172,25 @@ class ColetaCarrefourTest(unittest.TestCase):
             carrefour.buscar_pagina_html("https://example.invalid", headers={}, timeout=10)
         self.assertNotIn("conteudo_privado", str(exc.exception))
 
+    def test_cliente_http_decodifica_utf8_sem_charset_declarado(self):
+        class RespostaFalsa:
+            # Reproduz o requests: sem charset no cabeçalho, encoding vem ISO-8859-1
+            content = "Café em Pó Feijão".encode("utf-8")
+            encoding = "ISO-8859-1"
+
+            def raise_for_status(self):
+                pass
+
+            @property
+            def text(self):
+                return self.content.decode(self.encoding)
+
+        resposta = RespostaFalsa()
+        requests_mock = types.SimpleNamespace(RequestException=Exception, get=Mock(return_value=resposta))
+        with patch.dict(sys.modules, {"requests": requests_mock}):
+            html = carrefour.buscar_pagina_html("https://example.invalid", headers={}, timeout=10)
+        self.assertEqual(html, "Café em Pó Feijão")
+
 
 class ExecucaoOfflineCarrefourTest(unittest.TestCase):
     def test_fixture_valida_gera_json_csv_relatorio_sem_rede(self):
@@ -219,6 +238,31 @@ class ExecucaoOfflineCarrefourTest(unittest.TestCase):
             with self.assertRaises(OSError):
                 carrefour.salvar_atomico(path, falhar)
             self.assertEqual(path.read_text(encoding="utf-8"), "anterior")
+
+
+class CodigoBarrasCarrefourTest(unittest.TestCase):
+    def test_campo_no_contrato_e_inicia_vazio(self):
+        self.assertIn("codigo_barras", carrefour.CAMPOS)
+
+    def test_url_da_pagina_do_produto(self):
+        self.assertEqual(carrefour.url_pagina_produto({"slug": "/arroz-1-115657/p"}),
+                         "https://mercado.carrefour.com.br/arroz-1-115657/p")
+        self.assertEqual(carrefour.url_pagina_produto({"slug": "https://x.invalid/a/p"}), "https://x.invalid/a/p")
+        self.assertIsNone(carrefour.url_pagina_produto({"slug": None}))
+
+    def test_ean_vem_do_json_ld_da_pagina(self):
+        from ean_pagina import enriquecer_com_ean
+        prods = [{"slug": "/arroz-1-115657/p"}]
+        enriquecer_com_ean(prods, url_de=carrefour.url_pagina_produto,
+                           buscar=lambda u: '"gtin":"7893500020134","category":"/Mercearia"', dormir=lambda s: None)
+        self.assertEqual(prods[0]["codigo_barras"], "7893500020134")
+
+    def test_fixture_nao_consulta_paginas(self):
+        import ean_pagina
+        with tempfile.TemporaryDirectory() as directory,              patch.object(ean_pagina, "buscar_html", side_effect=AssertionError("rede proibida")):
+            fixture = Path(directory) / "f.json"
+            fixture.write_text(json.dumps({}), encoding="utf-8")
+            carrefour.main(["--fixture", str(fixture), "--output-dir", directory])
 
 
 if __name__ == "__main__":

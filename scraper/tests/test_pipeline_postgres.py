@@ -30,7 +30,7 @@ class PostgresTest(unittest.TestCase):
             conn.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(dbname)))
         config['dbname'] = dbname
         cls.dsn = make_conninfo(**config)
-        ddl = (Path(__file__).resolve().parents[2] / 'backend/smartmarket_ddl_updated.sql').read_text()
+        ddl = (Path(__file__).resolve().parents[2] / 'backend/database/smartmarket_ddl_finalizado.sql').read_text()
         # O script da equipe contém DROP. Aplicar SOMENTE CREATE na base nova.
         ddl = '\n'.join(line for line in ddl.splitlines() if not line.lstrip().upper().startswith('DROP '))
         with psycopg.connect(cls.dsn) as conn:

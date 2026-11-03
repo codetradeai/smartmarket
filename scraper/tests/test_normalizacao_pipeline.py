@@ -66,3 +66,74 @@ class ContratoCargaTest(unittest.TestCase):
 
     def test_lote_invalido_nao_chega_a_carga(self):
         with self.assertRaises(ErroIngestao): preparar([registro(),registro(preco=-1)])
+
+
+class CodigoBarrasTest(unittest.TestCase):
+    def test_ean_valido_e_persistido_no_produto_normalizado(self):
+        p = normalizar_produto(registro(codigo_barras='7896011906881'))
+        self.assertEqual(p['codigo_barras'], '7896011906881')
+        self.assertNotIn('ean_invalido_descartado', p['pendencias'])
+
+    def test_ean_invalido_ou_interno_e_descartado_com_pendencia(self):
+        for ruim in ('364670001', '7896011906882', 'abc'):
+            with self.subTest(ruim=ruim):
+                p = normalizar_produto(registro(codigo_barras=ruim))
+                self.assertIsNone(p['codigo_barras'])
+                self.assertIn('ean_invalido_descartado', p['pendencias'])
+
+    def test_sem_ean_continua_sem_inventar(self):
+        for vazio in (None, ''):
+            p = normalizar_produto(registro(codigo_barras=vazio))
+            self.assertIsNone(p['codigo_barras'])
+            self.assertNotIn('ean_invalido_descartado', p['pendencias'])
+
+    def test_hash_de_carga_sem_ean_nao_muda(self):
+        sem = preparar([registro()])[0]['hash']
+        self.assertEqual(preparar([registro(codigo_barras=None)])[0]['hash'], sem)
+        self.assertEqual(preparar([registro(codigo_barras='lixo')])[0]['hash'], sem)
+
+    def test_hash_idempotente_e_sensivel_ao_ean_validado(self):
+        a = preparar([registro(codigo_barras='7896011906881')])[0]['hash']
+        b = preparar([registro(codigo_barras=' 7896011906881 ')])[0]['hash']
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, preparar([registro()])[0]['hash'])
+
+
+class FakeCursor:
+    def __init__(self, atual):
+        self.atual, self.sql = atual, []
+
+    def execute(self, sql, params=()):
+        self.sql.append((sql.split()[0], params))
+
+    def fetchone(self):
+        return (self.atual,)
+
+
+class SincronizarCodigoBarrasTest(unittest.TestCase):
+    def test_grava_quando_vazio(self):
+        from pipeline import sincronizar_codigo_barras
+        cur = FakeCursor(None)
+        self.assertTrue(sincronizar_codigo_barras(cur, 7, '7896011906881'))
+        self.assertEqual(cur.sql[-1], ('UPDATE', ('7896011906881', 7)))
+
+    def test_idempotente_quando_igual(self):
+        from pipeline import sincronizar_codigo_barras
+        cur = FakeCursor('7896011906881')
+        self.assertFalse(sincronizar_codigo_barras(cur, 7, '7896011906881'))
+        self.assertTrue(all(s[0] != 'UPDATE' for s in cur.sql))
+
+    def test_divergente_exige_revisao_e_nao_sobrescreve(self):
+        from pipeline import sincronizar_codigo_barras
+        cur = FakeCursor('7893500020158')
+        with self.assertRaises(ErroIngestao):
+            sincronizar_codigo_barras(cur, 7, '7896011906881')
+        self.assertTrue(all(s[0] != 'UPDATE' for s in cur.sql))
+
+    def test_sem_codigo_nao_consulta(self):
+        from pipeline import sincronizar_codigo_barras
+        cur = FakeCursor(None)
+        self.assertFalse(sincronizar_codigo_barras(cur, 7, None))
+        self.assertEqual(cur.sql, [])
+
+

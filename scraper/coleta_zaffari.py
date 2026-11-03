@@ -27,6 +27,8 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from ean_pagina import enriquecer_com_ean
+
 LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -72,6 +74,7 @@ CAMPOS = (
     "imagem_url",
     "descricao",
     "url_produto",
+    "codigo_barras",
 )
 
 
@@ -230,6 +233,7 @@ def transformar_produto(
         "imagem_url": imagem_url,
         "descricao": descricao_limpa if descricao_limpa else None,
         "url_produto": link,
+        "codigo_barras": None,  # preenchido depois, pela página do produto (não pela API)
         "is_clube": is_clube,
         "clube_nome": clube_nome,
     }
@@ -354,6 +358,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Coletor de dados Zaffari / Bourbon (SmartMarket RS)")
     parser.add_argument("--fixture", type=Path, help="Caminho para fixture JSON de teste offline")
     parser.add_argument("--limite", type=int, default=LIMITE_POR_CATEGORIA, help="Limite por categoria")
+    parser.add_argument("--sem-ean", action="store_true", help="Não consulta a página de cada produto para obter o EAN")
     parser.add_argument("--output-dir", type=Path, default=Path("output"), help="Diretório de saída")
     args = parser.parse_args(argv)
 
@@ -371,6 +376,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         pausa = PAUSA_ENTRE_REQUISICOES
 
     produtos, falhas = executar_coleta(limite_por_categoria=args.limite, buscar_fn=buscar_fn, pausa=pausa)
+    if not args.fixture and not args.sem_ean:
+        resumo_ean = enriquecer_com_ean(produtos, url_de=lambda p: p.get("url_produto"))
+        LOGGER.info("EAN pela página do produto: %s", resumo_ean)
     salvar_arquivos(produtos, args.output_dir)
     print(f"Sucesso! {len(produtos)} produtos do Zaffari salvos em {args.output_dir}")
     return 0 if produtos else 1

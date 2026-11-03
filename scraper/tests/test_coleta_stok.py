@@ -77,5 +77,59 @@ class TestColetaStok(unittest.TestCase):
         self.assertEqual(produtos[0]["nome_bruto"], "Arroz Branco Tipo 1 Emoções 5kg")
 
 
+
+
+class TestCsvComClube(unittest.TestCase):
+    """Regressão: o CSV falhava com exit 1 por is_clube/clube_nome fora de CAMPOS."""
+
+    def test_salvar_arquivos_gera_csv_com_campos_de_clube(self):
+        import csv
+        import tempfile
+        from coleta_stok import salvar_arquivos
+
+        prod = {"nome_bruto": "Arroz Teste 1kg", "preco": 4.5, "preco_normal": 6.0, "em_promocao": True,
+                "marca": None, "categoria": "Arroz", "slug": "x", "id_produto_origem": "1",
+                "supermercado": "Stok Center", "data_coleta": "2026-11-02T00:00:00Z",
+                "imagem_url": None, "descricao": None, "url_produto": None,
+                "is_clube": True, "clube_nome": "Clube Stok"}
+        with tempfile.TemporaryDirectory() as tmp:
+            salvar_arquivos([prod], Path(tmp))
+            with open(Path(tmp) / "produtos_coletados.csv", encoding="utf-8", newline="") as f:
+                linhas = list(csv.DictReader(f))
+        self.assertEqual(linhas[0]["is_clube"], "True")
+        self.assertEqual(linhas[0]["clube_nome"], "Clube Stok")
+
+
+class TestCodigoBarras(unittest.TestCase):
+    def _item(self, codigo):
+        return {"produto_id": 9, "descricao": "Arroz Teste 1kg", "preco": "5.00", "imagem": "a.jpg",
+                "em_oferta": False, "oferta": None, "codigo_barras": codigo}
+
+    def test_captura_ean_valido(self):
+        from coleta_stok import processar_item
+        res = processar_item(self._item("7896011906881"), "Arroz", "2026-11-03T00:00:00Z")
+        self.assertEqual(res["codigo_barras"], "7896011906881")
+
+    def test_descarta_codigos_internos(self):
+        from coleta_stok import processar_item
+        for interno in ("364670001", "49072", "39870001", "", None):
+            with self.subTest(interno=interno):
+                res = processar_item(self._item(interno), "Arroz", "2026-11-03T00:00:00Z")
+                self.assertIsNone(res["codigo_barras"])
+
+    def test_campo_no_contrato_csv(self):
+        from coleta_stok import CAMPOS
+        self.assertIn("codigo_barras", CAMPOS)
+
+
+class TestUserAgentIdentificavel(unittest.TestCase):
+    def test_user_agent_e_identificavel_e_nao_finge_ser_navegador(self):
+        from coleta_stok import HEADERS_BASE
+        ua = HEADERS_BASE["User-Agent"]
+        self.assertIn("SmartMarketBot", ua)
+        self.assertIn("contato", ua)
+        self.assertNotIn("Mozilla", ua)
+
+
 if __name__ == "__main__":
     unittest.main()

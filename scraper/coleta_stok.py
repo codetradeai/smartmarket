@@ -29,6 +29,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import urllib.parse
 
+from ean import validar_ean
+
 LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -64,7 +66,7 @@ PAUSA_ENTRE_REQUISICOES = 1.0
 MAX_PAGINAS_POR_CATEGORIA = 5
 
 HEADERS_BASE = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (SmartMarket RS Bot)",
+    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)",
     "Accept": "application/json, text/plain, */*",
     "Origin": STOREFRONT_BASE_URL,
     "Referer": f"{STOREFRONT_BASE_URL}/",
@@ -86,6 +88,9 @@ CAMPOS = (
     "imagem_url",
     "descricao",
     "url_produto",
+    "codigo_barras",
+    "is_clube",
+    "clube_nome",
 )
 
 
@@ -309,6 +314,8 @@ def processar_item(
         "imagem_url": imagem_url,
         "descricao": nome,
         "url_produto": url_produto,
+        # Códigos internos (5 a 9 dígitos) não são EAN: EAN-8 também é recusado aqui.
+        "codigo_barras": validar_ean(item.get("codigo_barras"), aceitar_ean8=False),
         "is_clube": is_clube,
         "clube_nome": clube_nome,
     }

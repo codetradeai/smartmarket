@@ -7,8 +7,13 @@ Regras (conservadoras, sem chave tolerante):
    ambíguo e não é feito. Itens com EAN nunca são fundidos por nome com outro EAN.
 
 Cada vínculo registra a origem do casamento ("ean" ou "nome").
+
+Mesmo EAN não basta para comparar preço: se a quantidade ou o número de unidades da
+embalagem diferem (ex.: 45g vs 6 unidades), o par é marcado status="revisar" e não
+deve aparecer no comparador. Pares sem divergência ficam status="confirmado".
 """
 import argparse
+import itertools
 import json
 import re
 from collections import defaultdict
@@ -20,6 +25,13 @@ from normalizacao import MEDIDA, normalizar_produto, texto_normalizado
 
 ORIGEM_EAN = "ean"
 ORIGEM_NOME = "nome"
+STATUS_CONFIRMADO = "confirmado"
+STATUS_REVISAR = "revisar"
+
+# "6 unidades", "12 latas", "6x350ml": número de itens dentro da embalagem
+_PACOTE = re.compile(
+    r"(?<![\w.,])(\d+)\s*(?:unidades?|unids?|un|latas?|garrafas?|saches?|frascos?|caixas?|pacotes?|pcs?)\b"
+    r"|(?<![\w.,])(\d+)\s*[x×]\s*(?=\d)")
 
 _FATOR = {"kg": Decimal(1000), "g": Decimal(1), "mg": Decimal("0.001"),
           "l": Decimal(1000), "ml": Decimal(1), "un": Decimal(1)}
@@ -39,6 +51,31 @@ def chave_nome_identica(registro):
     unidade = p["unidade"].lower()
     quantidade = p["quantidade"] * _FATOR[unidade]
     return (texto_normalizado(p["marca"]), tokens, str(quantidade.normalize()), _BASE[unidade])
+
+
+def assinatura_embalagem(nome):
+    """(conjunto de medidas em g/ml, número de unidades da embalagem). Sem número => 1 unidade."""
+    n = texto_normalizado(nome or "")
+    medidas = set()
+    for valor, unidade in MEDIDA.findall(n):
+        u = unidade.lower()
+        if u == "un":
+            continue
+        medidas.add((str((Decimal(valor.replace(",", ".")) * _FATOR[u]).normalize()), _BASE[u]))
+    pack = 1
+    for m in _PACOTE.finditer(n):
+        pack = max(pack, int(m.group(1) or m.group(2)))
+    return frozenset(medidas), pack
+
+
+def embalagens_compativeis(nome_a, nome_b):
+    """(True, None) ou (False, motivo). Medida ausente num dos lados não prova divergência."""
+    (ma, pa), (mb, pb) = assinatura_embalagem(nome_a), assinatura_embalagem(nome_b)
+    if ma and mb and ma != mb:
+        return False, "quantidade_diferente"
+    if pa != pb:
+        return False, "embalagem_diferente"
+    return True, None
 
 
 def _item(registro, rede):
@@ -105,10 +142,28 @@ def casar(registros_por_rede):
                           "nome": m["nome"], "origem": m["origem"]} for m in membros],
         })
 
+    pares = []
+    for membros in produtos.values():
+        for x, y in itertools.combinations(membros, 2):
+            if x["rede"] == y["rede"]:
+                continue
+            ok, motivo = embalagens_compativeis(x["nome"], y["nome"])
+            pares.append({
+                "a": {"rede": x["rede"], "id_origem": x["id_origem"], "nome": x["nome"]},
+                "b": {"rede": y["rede"], "id_origem": y["id_origem"], "nome": y["nome"]},
+                "origem": ORIGEM_EAN if x["origem"] == y["origem"] == ORIGEM_EAN else ORIGEM_NOME,
+                "status": STATUS_CONFIRMADO if ok else STATUS_REVISAR,
+                "motivo": motivo,
+            })
+    for p in saida:
+        ids = {(v["rede"], v["id_origem"]) for v in p["vinculos"]}
+        p["revisar"] = any(q["status"] == STATUS_REVISAR and (q["a"]["rede"], q["a"]["id_origem"]) in ids
+                           and (q["b"]["rede"], q["b"]["id_origem"]) in ids for q in pares)
+
     def resumir(lista):
         return [{"rede": i["rede"], "id_origem": i["id_origem"], "nome": i["nome"]} for i in lista]
 
-    return {"produtos": saida, "sem_vinculo": resumir(sem_vinculo), "ambiguos": resumir(ambiguos)}
+    return {"produtos": saida, "pares": pares, "sem_vinculo": resumir(sem_vinculo), "ambiguos": resumir(ambiguos)}
 
 
 def main(argv=None):

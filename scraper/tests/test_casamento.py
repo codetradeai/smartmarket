@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from casamento import casar, chave_nome_identica
+from casamento import casar, chave_nome_identica, embalagens_compativeis
 
 
 def reg(id_, nome, marca="Camil", ean=None, **kw):
@@ -96,6 +96,66 @@ class CasamentoPorNomeTest(unittest.TestCase):
         for p in res["produtos"]:
             for v in p["vinculos"]:
                 self.assertIn(v["origem"], ("ean", "nome"))
+
+
+BOMBRIL = "7891022868036"
+
+
+class EmbalagemDivergenteTest(unittest.TestCase):
+    """Mesmo EAN com embalagem diferente (caso Bombril) => 'revisar', fora do comparador."""
+
+    def _bombril(self):
+        return casar({
+            "atacadao": [reg("A", "Lã de Aço Bombril 45g", marca="Bombril", ean=BOMBRIL)],
+            "master": [reg("M", "Esponja Aço Bombril Eco Com 6 Unidade", marca="Bombril", ean=BOMBRIL)],
+            "stok": [reg("S", "Esponja Bombril Aço Eco 45g Com 6 Unidades", marca="Bombril", ean=BOMBRIL)],
+        })
+
+    def _status(self, res):
+        return {frozenset((p["a"]["rede"], p["b"]["rede"])): p for p in res["pares"]}
+
+    def test_45g_contra_6_unidades_vai_para_revisao(self):
+        s = self._status(self._bombril())
+        for outro in ("master", "stok"):
+            par = s[frozenset(("atacadao", outro))]
+            self.assertEqual(par["status"], "revisar")
+            self.assertEqual(par["motivo"], "embalagem_diferente")
+            self.assertEqual(par["origem"], "ean")
+
+    def test_pares_sem_divergencia_continuam_confirmados(self):
+        par = self._status(self._bombril())[frozenset(("master", "stok"))]
+        self.assertEqual(par["status"], "confirmado")
+        self.assertIsNone(par["motivo"])
+
+    def test_produto_com_par_em_revisao_e_sinalizado(self):
+        res = self._bombril()
+        self.assertTrue(res["produtos"][0]["revisar"])
+
+    def test_wording_diferente_com_mesma_embalagem_e_confirmado(self):
+        res = casar({"a": [reg("1", "Arroz Bco Blue Ville Tp1 1kg", marca="Blue Ville", ean="7896011906881")],
+                     "b": [reg("2", "Arroz Blue Ville Branco Tipo 1 1kg", marca="Blue Ville", ean="7896011906881")]})
+        self.assertEqual(res["pares"][0]["status"], "confirmado")
+        self.assertFalse(res["produtos"][0]["revisar"])
+
+    def test_quantidade_diferente_com_mesmo_ean_vai_para_revisao(self):
+        res = casar({"a": [reg("1", "Arroz Camil 1kg", ean="7896011906881")],
+                     "b": [reg("2", "Arroz Camil 5kg", ean="7896011906881")]})
+        self.assertEqual((res["pares"][0]["status"], res["pares"][0]["motivo"]), ("revisar", "quantidade_diferente"))
+
+    def test_compatibilidade_casos_gerais(self):
+        self.assertTrue(embalagens_compativeis("Arroz 1kg", "Arroz 1000g")[0])
+        self.assertTrue(embalagens_compativeis("Leite 1L", "Leite Longa Vida 1 Litro")[0])
+        self.assertFalse(embalagens_compativeis("Cerveja 12 Latas 350ml", "Cerveja Lata 350ml")[0])
+        self.assertFalse(embalagens_compativeis("Cerveja 6x350ml", "Cerveja 350ml")[0])
+
+    def test_mesma_rede_nao_gera_par(self):
+        res = casar({"a": [reg("1", "Arroz Camil 1kg", ean="7896011906881"), reg("2", "Arroz Camil 1kg", ean="7896011906881")]})
+        self.assertEqual(res["pares"], [])
+
+    def test_par_com_item_de_nome_tem_origem_nome(self):
+        res = casar({"a": [reg("1", "Arroz Branco Camil 1kg", ean="7896011906881")],
+                     "b": [reg("2", "Arroz Branco Camil 1kg")]})
+        self.assertEqual(res["pares"][0]["origem"], "nome")
 
 
 if __name__ == "__main__":

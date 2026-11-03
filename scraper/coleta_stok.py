@@ -29,6 +29,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import urllib.parse
 
+from ean import validar_ean
+
 LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -86,6 +88,7 @@ CAMPOS = (
     "imagem_url",
     "descricao",
     "url_produto",
+    "codigo_barras",
     "is_clube",
     "clube_nome",
 )
@@ -311,6 +314,8 @@ def processar_item(
         "imagem_url": imagem_url,
         "descricao": nome,
         "url_produto": url_produto,
+        # Códigos internos (5 a 9 dígitos) não são EAN: EAN-8 também é recusado aqui.
+        "codigo_barras": validar_ean(item.get("codigo_barras"), aceitar_ean8=False),
         "is_clube": is_clube,
         "clube_nome": clube_nome,
     }

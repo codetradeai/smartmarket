@@ -166,5 +166,27 @@ class TestCsvComClube(unittest.TestCase):
         self.assertEqual(linhas[0]["clube_nome"], "Clube Master")
 
 
+class TestCodigoBarras(unittest.TestCase):
+    def _item(self, codigo):
+        return {"produto_id": 9, "descricao": "Arroz Teste 1kg", "preco": "5.00", "imagem": "a.jpg",
+                "em_oferta": False, "oferta": None, "codigo_barras": codigo}
+
+    def test_captura_ean_valido(self):
+        from coleta_master import processar_item
+        res = processar_item(self._item("7896011906881"), "Arroz", "2026-11-03T00:00:00Z")
+        self.assertEqual(res["codigo_barras"], "7896011906881")
+
+    def test_descarta_codigos_internos(self):
+        from coleta_master import processar_item
+        for interno in ("364670001", "49072", "39870001", "", None):
+            with self.subTest(interno=interno):
+                res = processar_item(self._item(interno), "Arroz", "2026-11-03T00:00:00Z")
+                self.assertIsNone(res["codigo_barras"])
+
+    def test_campo_no_contrato_csv(self):
+        from coleta_master import CAMPOS
+        self.assertIn("codigo_barras", CAMPOS)
+
+
 if __name__ == "__main__":
     unittest.main()

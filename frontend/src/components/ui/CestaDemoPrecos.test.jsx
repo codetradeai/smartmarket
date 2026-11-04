@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
-import { CestaDemoPrecos, formatarDataColeta } from './CestaDemoPrecos'
+import { CestaDemoPrecos } from './CestaDemoPrecos'
+import { formatarDataColeta } from '../../utils/cestaDemo'
 import { ProductDetailModal } from './ProductDetailModal'
 
 jest.mock('../../data/cesta-demo.json', () => ({

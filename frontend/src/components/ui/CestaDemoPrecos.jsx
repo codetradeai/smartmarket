@@ -1,4 +1,4 @@
-import cestaDemo from "../../data/cesta-demo.json"
+import { formatarDataColeta, produtoDaCesta } from "../../utils/cestaDemo"
 
 /**
  * Preços reais por rede da "Cesta de demonstração" (scraper/gerar_cesta_demo.py).
@@ -6,19 +6,6 @@ import cestaDemo from "../../data/cesta-demo.json"
  * Mostra só o que foi coletado: preço, data e hora da coleta (horário de Brasília) e, nas redes sem
  * preço na cesta, "sem preço nesta rede". Não calcula preço, diferença nem economia.
  */
-
-const PRODUTOS_DA_CESTA = new Map((cestaDemo?.produtos || []).map((p) => [String(p.id), p]))
-
-// "2026-11-03T22:37:24-03:00" -> "03/11/2026 22:37". Lê o texto direto, sem conversão de fuso,
-// para mostrar exatamente o horário de Brasília gravado pelo gerador.
-export function formatarDataColeta(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso || "")
-  return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : null
-}
-
-export function produtoDaCesta(produtoId, cesta = PRODUTOS_DA_CESTA) {
-  return cesta.get(String(produtoId)) || null
-}
 
 function formatarPreco(valor) {
   return `R$ ${Number(valor).toFixed(2).replace(".", ",")}`

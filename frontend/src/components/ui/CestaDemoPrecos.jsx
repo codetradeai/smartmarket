@@ -1,4 +1,4 @@
-import { formatarDataColeta, produtoDaCesta } from "../../utils/cestaDemo"
+import { diaDaColeta, formatarDataColeta, produtoDaCesta } from "../../utils/cestaDemo"
 
 /**
  * Preços reais por rede da "Cesta de demonstração" (scraper/gerar_cesta_demo.py).
@@ -36,6 +36,9 @@ export function CestaDemoPrecos({ produtoId, markets = [] }) {
       <p className="text-xs text-slate-500">
         Preços reais coletados nas redes, com a data e a hora de cada coleta (horário de Brasília).
         Não são preços do dia.
+      </p>
+      <p role="note" className="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+        Preços das lojas online de Master e Stok; filial não identificada. Foto da coleta de {diaDaColeta()}.
       </p>
       <ul className="space-y-2">
         {comPreco.map(({ market, preco, coletado_em: coletadoEm }) => (

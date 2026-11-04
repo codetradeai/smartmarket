@@ -1,10 +1,11 @@
 import { render, screen, within } from '@testing-library/react'
 import { CestaDemoPrecos } from './CestaDemoPrecos'
-import { formatarDataColeta } from '../../utils/cestaDemo'
+import { diaDaColeta, formatarDataColeta } from '../../utils/cestaDemo'
 import { ProductDetailModal } from './ProductDetailModal'
 
 jest.mock('../../data/cesta-demo.json', () => ({
-  meta: { rotulo: 'Cesta de demonstração' },
+  // Data diferente da coleta real (03/11) de propósito: prova que o aviso lê a data do JSON.
+  meta: { rotulo: 'Cesta de demonstração', coleta_inicio: '2026-11-05T09:10:00-03:00' },
   produtos: [
     {
       id: 'p12',
@@ -26,6 +27,22 @@ const MARKETS = [
 
 const secao = () => screen.getByRole('region', { name: 'Cesta de demonstração' })
 const linhas = () => within(secao()).getAllByRole('listitem')
+
+describe('CestaDemoPrecos: aviso de origem dos preços', () => {
+  it('mostra o aviso fixo com a data da foto lida do JSON', () => {
+    render(<CestaDemoPrecos produtoId="p12" markets={MARKETS} />)
+
+    expect(within(secao()).getByRole('note')).toHaveTextContent(
+      /^Preços das lojas online de Master e Stok; filial não identificada\. Foto da coleta de 05\/11\/2026\.$/
+    )
+  })
+
+  it('a data da foto não está fixa no código: vem de meta.coleta_inicio', () => {
+    expect(diaDaColeta({ coleta_inicio: '2026-11-03T22:37:17-03:00' })).toBe('03/11/2026')
+    expect(diaDaColeta({ coleta_inicio: '2027-01-02T08:00:00-03:00' })).toBe('02/01/2027')
+    expect(diaDaColeta({})).toBeNull()
+  })
+})
 
 describe('CestaDemoPrecos', () => {
   it('mostra o rótulo, o preço de cada rede e a data da coleta em horário de Brasília', () => {

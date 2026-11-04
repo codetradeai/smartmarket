@@ -674,7 +674,8 @@ function buildMetricas(){
 function buildRoadmap(){
   var A=L.achados_de_auditoria;
   var resolvidos=A.filter(function(a){return a.status==="resolvido"});
-  var abertos=A.filter(function(a){return a.status!=="resolvido"});
+  var emPr=A.filter(function(a){return a.status==="resolvido_em_pr"});
+  var abertos=A.filter(function(a){return a.status!=="resolvido"&&a.status!=="resolvido_em_pr"});
   var grp=[{k:"a",t:"Antes de ir para produção",s:"alta",d:"Itens que afetam segurança ou a confiança nos preços exibidos."},
            {k:"m",t:"Próximo ciclo",s:"média",d:"Robustez, desempenho e processo."},
            {k:"b",t:"Refinamentos",s:"baixa",d:"Ajustes de conforto, consistência e documentação."}];
@@ -683,6 +684,9 @@ function buildRoadmap(){
   var feito='<h2>Resolvido</h2>'+
     L.correcoes_resolvidas.map(function(c){return okItem(c.titulo,c.arquivo+"  ·  commit "+c.commit,c.nota)}).join("")+
     resolvidos.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),a.situacao_em_2026_11_03,a.id)}).join("");
+  var naFila='<h2 class="sec-gap">Corrigido em PR, aguardando merge</h2>'+
+    L.correcoes_em_pr.map(function(c){return okItem(c.titulo,"PR "+c.pr+"  ·  commit "+c.commit,"Vale para a main depois do merge do "+c.pr+".","em PR")}).join("")+
+    emPr.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),a.situacao_em_2026_11_03,a.id+" · "+a.pr)}).join("");
   var fortes='<h2 class="sec-gap">O que já está sólido</h2>'+L.pontos_fortes.map(function(p){return okItem(p.titulo,p.arquivo,p.evidencia)}).join("");
   var prox='<h2>Pendente</h2>'+grp.map(function(g,gi){
     var its=abertos.filter(function(a){return a.severidade===g.s});
@@ -692,8 +696,8 @@ function buildRoadmap(){
        '<p class="rec"><span>Como avançar: </span>'+esc(a.recomendacao)+'</p>'+
        '<details><summary>Ver evidência</summary><p>'+esc(a.evidencia)+'</p></details></div></div></div>'}).join("")+'</div>';
   }).join("");
-  $("#p3").innerHTML='<div class="eyebrow">Evolução</div><h1>Roadmap de evolução</h1><p class="lead">'+esc(POSICIONAMENTO)+' Situação conferida na main em '+esc(L.meta.gerado_em)+': '+(L.correcoes_resolvidas.length+resolvidos.length)+' itens resolvidos e '+abertos.length+' pendentes ('+abertos.filter(function(a){return a.status==="parcial"}).length+' parciais). Valores de segredos não são exibidos; cada item aponta onde corrigir.</p>'+
-   '<div class="cols"><div>'+feito+fortes+'</div><div>'+prox+'</div></div>';
+  $("#p3").innerHTML='<div class="eyebrow">Evolução</div><h1>Roadmap de evolução</h1><p class="lead">'+esc(POSICIONAMENTO)+' Situação conferida na main em '+esc(L.meta.gerado_em)+': '+(L.correcoes_resolvidas.length+resolvidos.length)+' itens resolvidos, '+(L.correcoes_em_pr.length+emPr.length)+' corrigidos em PR aguardando merge e '+abertos.length+' pendentes ('+abertos.filter(function(a){return a.status==="parcial"}).length+' parciais). Valores de segredos não são exibidos; cada item aponta onde corrigir.</p>'+
+   '<div class="cols"><div>'+feito+naFila+fortes+'</div><div>'+prox+'</div></div>';
 }
 
 /* ---------- apresentação ---------- */

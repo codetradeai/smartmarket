@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from ean import validar_ean
+from identificacao import com_user_agent
 
 LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +53,8 @@ PAUSA_ENTRE_REQUISICOES = 1.5
 MAX_PAGINAS_POR_CATEGORIA = 10
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (SmartMarket RS Bot)",
+    # Sem se passar por navegador: o User-Agent (SmartMarketBot + contato de SMARTMARKET_CONTATO)
+    # entra em buscar_pagina, na hora da requisição.
     "Accept": "application/json, text/plain, */*",
     "Referer": f"{STOREFRONT_BASE_URL}/",
     "Origin": STOREFRONT_BASE_URL,
@@ -84,6 +86,8 @@ def buscar_pagina(url: str, *, headers: dict, params: dict, timeout: int = 10) -
     """Realiza requisição HTTP à API VTEX e decodifica lista JSON com precisão Decimal."""
     import requests
 
+    if "User-Agent" not in headers:
+        headers = com_user_agent(headers)
     try:
         resposta = requests.get(url, headers=headers, params=params, timeout=timeout)
         resposta.raise_for_status()

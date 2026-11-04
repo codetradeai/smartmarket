@@ -20,6 +20,8 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+from identificacao import com_user_agent
+
 LOGGER = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -81,8 +83,8 @@ PAUSA_ENTRE_REQUISICOES = 1.5  # segundos - educado com o servidor
 
 HEADERS = {
     # Identifica o script de forma honesta (projeto acadêmico), sem se
-    # disfarçar de navegador comum
-    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)"
+    # disfarçar de navegador comum. O User-Agent (SmartMarketBot + contato de
+    # SMARTMARKET_CONTATO) entra em buscar_pagina, na hora da requisição.
 }
 
 
@@ -105,6 +107,8 @@ def buscar_pagina(url, *, headers, params, timeout):
     # e sem instalar o cliente HTTP.
     import requests
 
+    if "User-Agent" not in headers:
+        headers = com_user_agent(headers)  # falta de SMARTMARKET_CONTATO não vira ErroColeta
     try:
         resposta = requests.get(url, headers=headers, params=params, timeout=timeout)
         resposta.raise_for_status()

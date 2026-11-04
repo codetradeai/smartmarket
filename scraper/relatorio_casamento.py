@@ -11,7 +11,6 @@ mínima de 2 s por host e User-Agent identificável.
 import argparse
 import itertools
 import json
-import os
 import re
 import threading
 import time
@@ -21,25 +20,10 @@ from urllib.parse import urlsplit
 
 from casamento import casar, embalagens_compativeis
 from ean import ean_canonico
+from identificacao import VAR_CONTATO, ErroConfiguracao, user_agent  # noqa: F401 (reexportados)
 from normalizacao import MEDIDA, texto_normalizado
 
 PAUSA_S = 2.0  # mínimo combinado entre requisições ao mesmo host
-VAR_CONTATO = "SMARTMARKET_CONTATO"
-
-
-class ErroConfiguracao(RuntimeError):
-    pass
-
-
-def user_agent(ambiente=None):
-    """User-Agent identificável. O contato vem de SMARTMARKET_CONTATO, nunca do código."""
-    contato = ((ambiente if ambiente is not None else os.environ).get(VAR_CONTATO) or "").strip()
-    if not contato:
-        raise ErroConfiguracao(
-            f"Defina a variável de ambiente {VAR_CONTATO} com um contato do projeto "
-            f"(ex.: URL do repositório) antes de consultar as redes."
-        )
-    return f"SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: {contato})"
 REDES = ["zaffari", "rissul", "asun", "stok", "atacadao", "master", "fort", "carrefour"]
 REDES_CONSULTAVEIS = ["master", "stok", "atacadao"]
 ROTULOS = {"zaffari": "Zaffari", "rissul": "Rissul", "asun": "Asun", "stok": "Stok", "atacadao": "Atacadão",

@@ -12,6 +12,7 @@ jest.mock('../data', () => ({
   PRODUCTS: [
     { id: 'p1', name: 'Arroz Só Fort 5kg', brand: 'A', category: 'graos', unit: '5kg', image: '🌾', prices: { fort: 20 } },
     { id: 'p2', name: 'Feijão Duas Redes 1kg', brand: 'B', category: 'graos', unit: '1kg', image: '🫘', prices: { fort: 8, asun: 9 } },
+    { id: 'p3', name: 'Sal Sem Preço 1kg', brand: 'C', category: 'mercearia', unit: '1kg', image: '🧂', prices: {} },
   ],
 }))
 
@@ -29,6 +30,33 @@ function renderizar() {
 }
 
 const cartaoDe = (nome) => screen.getByText(nome).closest('.group')
+
+describe('Home: contador do catálogo', () => {
+  const contador = () => screen.getByText('Produtos com preço coletado').closest('div')
+
+  it('conta só produtos com preço e diz em quantas redes, em vez de "Produtos com preço: total do catálogo"', () => {
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    )
+
+    expect(screen.queryByText('Produtos com preço')).not.toBeInTheDocument()
+    expect(contador().querySelector('dd')).toHaveTextContent(/^2$/)
+    expect(contador()).toHaveTextContent('1 com preço em 2+ redes')
+  })
+
+  it('não convida a "comparar todos os produtos nas 8 redes"', () => {
+    render(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>
+    )
+
+    expect(screen.queryByText(/nas 8 redes do RS\?/)).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Quer ver todos os 3 produtos do catálogo?' })).toBeInTheDocument()
+  })
+})
 
 describe('Home com preço em uma rede só', () => {
   it('não diz "Comparado em 1 mercados" nem "Melhor Preço" quando só uma rede tem preço', () => {

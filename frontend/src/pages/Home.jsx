@@ -43,6 +43,11 @@ const SECTOR_BANNERS = [
   { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
 ]
 
+// Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
+const redesComPreco = (p) => Object.values(p.prices || {}).filter((v) => typeof v === "number" && v > 0).length
+const PRODUTOS_COM_PRECO = PRODUCTS.filter((p) => redesComPreco(p) > 0).length
+const PRODUTOS_EM_2_REDES = PRODUCTS.filter((p) => redesComPreco(p) >= 2).length
+
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
 }
@@ -328,8 +333,13 @@ export function Home() {
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{MARKETS.length}</dd>
               </div>
               <div>
-                <dt className="text-[11px] uppercase tracking-wider text-white/45">Produtos com preço</dt>
-                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{PRODUCTS.length}</dd>
+                <dt className="text-[11px] uppercase tracking-wider text-white/45">Produtos com preço coletado</dt>
+                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{PRODUTOS_COM_PRECO.toLocaleString("pt-BR")}</dd>
+                <p className="mt-0.5 text-[11px] text-white/55">
+                  {PRODUTOS_EM_2_REDES > 0
+                    ? `${PRODUTOS_EM_2_REDES.toLocaleString("pt-BR")} com preço em 2+ redes`
+                    : "cada um com o preço da rede onde foi coletado"}
+                </p>
               </div>
             </dl>
           </div>
@@ -531,7 +541,7 @@ export function Home() {
                 👆 Escolha um setor acima para espiar
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
-                Quer comparar todos os {PRODUCTS.length} produtos nas 8 redes do RS?
+                Quer ver todos os {PRODUCTS.length.toLocaleString("pt-BR")} produtos do catálogo?
               </h3>
               <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
                 Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.

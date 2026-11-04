@@ -169,44 +169,59 @@ def status_par(nome_a, nome_b):
 
 
 def coletar(candidatos, sessao, consultas=None, progresso=None):
-    """Percorre os candidatos; para no primeiro bloqueio. Devolve a lista de resultados (parcial se parou)."""
+    """Percorre os candidatos; para no primeiro bloqueio ou falha de rede. Devolve os resultados (parciais se parou).
+
+    Falha de rede (timeout, conexão) não é tentada de novo: a coleta para, o item fica como
+    "erro_rede" e sessao.erro_rede guarda a mensagem.
+    """
     consultas = consultas or Consultas(sessao)
     resultados = []
     for i, cand in enumerate(candidatos, 1):
         item = {"id": cand["id"], "rede_origem": cand["rede"], "id_origem": cand["idOrigem"],
                 "nome_catalogo": cand["nome"], "ean": None, "precos": {}, "pares": [], "situacao": None}
-        origem = consultas.na_origem(cand)
-        if origem is None:
-            item["situacao"] = "interrompido"
-            resultados.append(item)
-            break
-        if origem is False:
-            item["situacao"] = "nao_encontrado_na_origem"
-        elif not origem["ean"]:
-            item["situacao"] = "sem_ean_valido"
-            item["precos"][cand["rede"]] = origem
-        else:
-            item["ean"] = origem["ean"]
-            item["precos"][cand["rede"]] = origem
-            for rede in REDES:
-                if rede == cand["rede"]:
-                    continue
-                achado = consultas.por_ean(rede, origem["ean"])
-                if achado is None:
-                    break
-                if achado:
-                    item["precos"][rede] = achado
-            for rede, reg in item["precos"].items():
-                if rede != cand["rede"]:
-                    st, motivo = status_par(origem["nome"], reg["nome"])
-                    item["pares"].append({"rede_a": cand["rede"], "rede_b": rede, "status": st, "motivo": motivo})
-            item["situacao"] = "ok" if not sessao.parar.is_set() else "interrompido"
+        try:
+            parar = _processar(cand, item, sessao, consultas)
+        except OSError as exc:  # requests.RequestException herda de OSError (IOError)
+            sessao.erro_rede = f"{type(exc).__name__}: {exc}"
+            sessao.parar.set()
+            item["situacao"] = "erro_rede"
+            parar = True
         resultados.append(item)
         if progresso:
             progresso(i, item)
-        if sessao.parar.is_set():
+        if parar or sessao.parar.is_set():
             break
     return resultados
+
+
+def _processar(cand, item, sessao, consultas):
+    """Preenche o item; devolve True se a coleta deve parar."""
+    origem = consultas.na_origem(cand)
+    if origem is None:
+        item["situacao"] = "interrompido"
+        return True
+    if origem is False:
+        item["situacao"] = "nao_encontrado_na_origem"
+        return False
+    item["precos"][cand["rede"]] = origem
+    if not origem["ean"]:
+        item["situacao"] = "sem_ean_valido"
+        return False
+    item["ean"] = origem["ean"]
+    for rede in REDES:
+        if rede == cand["rede"]:
+            continue
+        achado = consultas.por_ean(rede, origem["ean"])
+        if achado is None:
+            break
+        if achado:
+            item["precos"][rede] = achado
+    for rede, reg in item["precos"].items():
+        if rede != cand["rede"]:
+            st, motivo = status_par(origem["nome"], reg["nome"])
+            item["pares"].append({"rede_a": cand["rede"], "rede_b": rede, "status": st, "motivo": motivo})
+    item["situacao"] = "interrompido" if sessao.parar.is_set() else "ok"
+    return sessao.parar.is_set()
 
 
 def resumo(resultados):
@@ -253,30 +268,51 @@ def main(argv=None):
 
     candidatos = json.loads(args.candidatos.read_text(encoding="utf-8"))[: args.limite]
     inicio, t0 = agora_utc(), time.monotonic()
-    resultados = coletar(candidatos, sessao, progresso=lambda i, it: print(
-        f"[{i}/{len(candidatos)}] {it['id']} {it['situacao']} ean={it['ean']} redes={sorted(it['precos'])}", flush=True))
-    fim = agora_utc()
-    saida = {
+    args.saida.mkdir(parents=True, exist_ok=True)
+    destino = args.saida / f"cesta_{inicio.replace(':', '').replace('-', '').replace('+0000', 'Z')}.json"
+    parciais = []
+
+    def gravar(final):
+        saida = montar_saida(sessao, robots, candidatos, parciais, inicio, time.monotonic() - t0, final)
+        temp = destino.with_suffix(".tmp")
+        temp.write_text(json.dumps(saida, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temp.replace(destino)
+        return saida
+
+    def progresso(i, it):
+        parciais.append(it)
+        gravar(final=False)  # gravação incremental: uma queda não perde o que já foi coletado
+        print(f"[{i}/{len(candidatos)}] {it['id']} {it['situacao']} ean={it['ean']} redes={sorted(it['precos'])}",
+              flush=True)
+
+    coletar(candidatos, sessao, progresso=progresso)
+    saida = gravar(final=True)
+    meta = saida["meta"]
+    print(json.dumps({"saida": str(destino), **saida["resumo"], "requisicoes": meta["requisicoes_por_host"],
+                      "requisicoes_total": meta["requisicoes_total"], "duracao_s": meta["duracao_s"],
+                      "bloqueio": meta["bloqueio"], "erro_rede": meta["erro_rede"]}, ensure_ascii=False, indent=2))
+    if sessao.bloqueio:
+        return 4
+    return 5 if meta["erro_rede"] else 0
+
+
+def montar_saida(sessao, robots, candidatos, resultados, inicio, duracao_s, final):
+    bloqueio = sessao.bloqueio
+    return {
         "meta": {
-            "inicio": inicio, "fim": fim, "duracao_s": round(time.monotonic() - t0, 1),
+            "inicio": inicio, "fim": agora_utc() if final else None, "concluida": final,
+            "duracao_s": round(duracao_s, 1),
             "user_agent": sessao.user_agent, "intervalo_minimo_s": sessao.limitador.intervalo,
             "requisicoes_por_host": dict(sessao.limitador.contagem),
             "requisicoes_total": sum(sessao.limitador.contagem.values()),
             "robots": robots,
-            "bloqueio": None if not sessao.bloqueio else {"host": sessao.bloqueio.host, "status": sessao.bloqueio.status,
-                                                         "url": sessao.bloqueio.url},
+            "bloqueio": None if not bloqueio else {"host": bloqueio.host, "status": bloqueio.status, "url": bloqueio.url},
+            "erro_rede": getattr(sessao, "erro_rede", None),
             "candidatos": len(candidatos),
         },
         "resumo": resumo(resultados),
         "resultados": resultados,
     }
-    args.saida.mkdir(parents=True, exist_ok=True)
-    destino = args.saida / f"cesta_{inicio.replace(':', '').replace('-', '').replace('+0000', 'Z')}.json"
-    destino.write_text(json.dumps(saida, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"saida": str(destino), **saida["resumo"], "requisicoes": saida["meta"]["requisicoes_por_host"],
-                      "duracao_s": saida["meta"]["duracao_s"], "bloqueio": saida["meta"]["bloqueio"]},
-                     ensure_ascii=False, indent=2))
-    return 4 if sessao.bloqueio else 0
 
 
 if __name__ == "__main__":

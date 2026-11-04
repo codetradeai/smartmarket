@@ -106,6 +106,28 @@ class ColetaTest(unittest.TestCase):
         self.assertEqual(rs[-1]["situacao"], "interrompido")
         self.assertEqual(self.sessao.bloqueio.status, 429)
 
+    def test_timeout_para_a_coleta_sem_nova_tentativa_e_guarda_o_que_ja_veio(self):
+        import requests
+        origem = {"p1": reg("stok", "Café 500g", self.EAN, 18.0), "p2": reg("stok", "Sal 1kg", "07896006744115", 2.0)}
+        consultas = ConsultasFalsas(self.sessao, origem, {})
+        original = consultas.por_ean
+        chamadas = []
+
+        def por_ean(rede, ean):
+            chamadas.append((rede, ean))
+            if ean == "07896006744115":
+                raise requests.exceptions.ReadTimeout("Read timed out. (read timeout=25)")
+            return original(rede, ean)
+
+        consultas.por_ean = por_ean
+        vistos = []
+        rs = cc.coletar([cand("p1"), cand("p2"), cand("p3")], self.sessao, consultas,
+                        progresso=lambda i, it: vistos.append(it["id"]))
+        self.assertEqual([r["situacao"] for r in rs], ["ok", "erro_rede"])
+        self.assertEqual(vistos, ["p1", "p2"])  # o progresso (que grava o arquivo) viu os dois
+        self.assertIn("ReadTimeout", self.sessao.erro_rede)
+        self.assertEqual(sum(1 for _, e in chamadas if e == "07896006744115"), 1)  # sem nova tentativa
+
     def test_resumo(self):
         origem = {"p1": reg("stok", "Arroz 5kg", self.EAN, 25.9), "p2": reg("stok", "Feijão 1kg", "07896006744115", 8.0)}
         ean = {("atacadao", self.EAN): reg("atacadao", "Arroz 5kg", self.EAN, 24.5)}
@@ -116,6 +138,30 @@ class ColetaTest(unittest.TestCase):
 
 
 class MainTest(unittest.TestCase):
+    def test_grava_a_saida_a_cada_candidato_e_marca_conclusao(self):
+        import json
+        import tempfile
+        gravacoes = []
+
+        def coletar_falso(candidatos, sessao, progresso=None):
+            for i, c in enumerate(candidatos, 1):
+                progresso(i, {"id": c["id"], "situacao": "ok", "ean": None, "precos": {}, "pares": []})
+                gravacoes.append(json.loads(next(Path(tmp).glob("cesta_*.json")).read_text(encoding="utf-8")))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            cands = Path(tmp) / "c.json"
+            cands.write_text(json.dumps([cand("p1"), cand("p2")]), encoding="utf-8")
+            with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "teste"}), \
+                 mock.patch.object(cc, "verificar_robots", return_value=[{"permitido": True, "rede": "x", "metodo": "GET",
+                                                                           "endpoint": "e", "motivo": "m", "robots": "r"}]), \
+                 mock.patch.object(cc, "coletar", side_effect=coletar_falso), mock.patch("builtins.print"):
+                self.assertEqual(cc.main(["--candidatos", str(cands), "--saida", tmp]), 0)
+            final = json.loads(next(Path(tmp).glob("cesta_*.json")).read_text(encoding="utf-8"))
+        self.assertEqual([len(g["resultados"]) for g in gravacoes], [1, 2])
+        self.assertFalse(gravacoes[0]["meta"]["concluida"])
+        self.assertTrue(final["meta"]["concluida"])
+
+
     def test_sem_contato_nao_faz_requisicao(self):
         with mock.patch.dict(os.environ, {}, clear=True), \
              mock.patch("requests.get") as g, mock.patch("requests.post") as p, \

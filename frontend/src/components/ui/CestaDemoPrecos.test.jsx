@@ -109,3 +109,33 @@ describe('ProductDetailModal com a cesta de demonstração', () => {
     expect(screen.queryByRole('region', { name: 'Cesta de demonstração' })).not.toBeInTheDocument()
   })
 })
+
+describe('ProductDetailModal com produto fora da cesta', () => {
+  let erros
+
+  beforeEach(() => {
+    erros = jest.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    erros.mockRestore()
+  })
+
+  const abrir = (produto) =>
+    render(<ProductDetailModal product={produto} allProducts={[produto]} markets={MARKETS} isOpen onClose={() => {}} />)
+
+  it.each([
+    ['com preço numa rede', { id: 'p999', name: 'Feijão Fora da Cesta 1kg', brand: 'X', category: 'graos', unit: '1kg', image: '🫘', prices: { fort: 7.5 } }],
+    ['sem nenhum preço', { id: 'p998', name: 'Sal Sem Preço 1kg', brand: 'Y', category: 'mercearia', unit: '1kg', image: '🧂', prices: {} }],
+    ['sem id', { name: 'Produto Sem Id', brand: 'Z', category: 'mercearia', unit: '1un', image: '🛒', prices: { stok: 3 } }],
+  ])('%s: abre o modal normalmente, sem o bloco nem o aviso e sem erro', (_, produto) => {
+    abrir(produto)
+
+    expect(screen.getAllByText(produto.name).length).toBeGreaterThan(0)
+    expect(screen.queryByRole('region', { name: 'Cesta de demonstração' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/filial não identificada/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/coletado em/)).not.toBeInTheDocument()
+    expect(screen.getAllByText('Fort Atacadista').length).toBeGreaterThan(0) // a lista normal de redes continua
+    expect(erros).not.toHaveBeenCalled()
+  })
+})

@@ -1,5 +1,6 @@
 """Garante que nenhum preço é simulado por fator fixo (Fase B do diagnóstico)."""
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -104,11 +105,16 @@ class TestVerificadorMercadoId(unittest.TestCase):
 
 class TestSincronizadorEducado(unittest.TestCase):
     def test_user_agent_identificavel_e_sem_origin_forjado(self):
-        ua = sincronizador.HEADERS["User-Agent"]
+        sessao = mock.Mock()
+        sessao.headers = {}
+        sessao.get.return_value = mock.Mock(status_code=200, json=lambda: {"total": 0, "hits": [], "hasNext": False})
+        with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"}),              mock.patch.object(sincronizador.requests, "Session", return_value=sessao),              mock.patch.object(sincronizador.LIMITADOR, "aguardar"):
+            sincronizador.paginar_endpoint_osuper("http://x", {}, "Asun", "asun")
+        ua = sessao.headers["User-Agent"]
         self.assertIn("SmartMarketBot", ua)
         self.assertIn("contato", ua)
-        self.assertNotIn("Origin", sincronizador.HEADERS)
-        self.assertNotIn("Referer", sincronizador.HEADERS)
+        self.assertNotIn("Origin", sessao.headers)
+        self.assertNotIn("Referer", sessao.headers)
 
     def test_pausa_minima_de_2_segundos(self):
         self.assertGreaterEqual(sincronizador.PAUSA_MINIMA_S, 2.0)
@@ -148,6 +154,7 @@ class TestSincronizadorEducado(unittest.TestCase):
         self.assertGreater(pag.call_count, 7)
         self.assertFalse(hasattr(sincronizador, "ThreadPoolExecutor"))
 
+    @mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"})
     def test_paginar_aguarda_limitador_antes_de_cada_requisicao(self):
         eventos = []
 

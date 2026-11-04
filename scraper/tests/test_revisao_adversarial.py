@@ -1,5 +1,7 @@
 """Regressões identificadas na revisão; sem rede e com PostgreSQL descartável."""
 from datetime import datetime, timezone
+import os
+from unittest import mock as _mock_env
 from decimal import Decimal
 import json
 from pathlib import Path
@@ -37,6 +39,7 @@ class RevisaoOfflineTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'perde_precisao'):
                 fort.transformar_item(item, 'Graos', INSTANTE)
 
+    @_mock_env.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"})
     def test_http_simulado_preserva_token_decimal(self):
         class RequestError(Exception): pass
         response = Mock()

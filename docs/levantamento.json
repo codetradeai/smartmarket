@@ -1354,5 +1354,55 @@
     "Cobertura medida em porcentagem: só o backend tem verificação no CI (JaCoCo, atendida). Nenhum relatório de cobertura está versionado.",
     "Qualidade das fotos: reportadas as dimensões reais (mediana de 500 px no maior lado).",
     "Nenhum segredo adicional encontrado em frontend/src; as pastas login/, output/ e frontend/templates/ foram desconsideradas conforme o CLAUDE.md."
+  ],
+  "correcoes_resolvidas": [
+    {
+      "titulo": "Preço simulado removido do gerador e da carga SQL",
+      "commit": "6dc390d",
+      "arquivo": "scraper/gerar_catalogo_e_sql.py; scraper/tests/test_precos_sem_simulacao.py",
+      "nota": "O data.js versionado ainda não foi regenerado (ver A-18)."
+    },
+    {
+      "titulo": "Validade fixa de 7 dias removida das promoções",
+      "commit": "d48ce2d",
+      "arquivo": "scraper/gerar_catalogo_e_sql.py",
+      "nota": "Sem validade informada pela rede, data_fim fica NULL."
+    },
+    {
+      "titulo": "Promocao.data_fim opcional, com migração e vigência que aceita data_fim nula",
+      "commit": "57a0e68",
+      "arquivo": "backend/database/migration_promocao_data_fim_opcional.sql; backend/src/main/java/com/smartmarket/repository/PromocaoRepository.java",
+      "nota": "Falta expirar promoções sem fim que a rede deixou de anunciar (ver A-21)."
+    },
+    {
+      "titulo": "Validação de EAN e captura pela página do produto",
+      "commit": "221bb6c, dbbfa50",
+      "arquivo": "scraper/ean.py; scraper/ean_pagina.py",
+      "nota": "EAN em 6 das 8 redes; a captura pela página usa 2 s por host e para em 403/429."
+    },
+    {
+      "titulo": "Vínculos entre redes por EAN e por nome, com status confirmado/revisar",
+      "commit": "f00b782, 1f3574c",
+      "arquivo": "scraper/casamento.py; scraper/vinculos.py; backend/database/migration_add_vinculo_produto.sql",
+      "nota": "Sem rotina agendada."
+    },
+    {
+      "titulo": "Endpoint GET /api/precos/produto/{id}/vinculados",
+      "commit": "e6a532f",
+      "arquivo": "backend/src/main/java/com/smartmarket/controller/PrecoController.java:48",
+      "nota": "Só vínculos confirmados. O frontend ainda não consome (ver A-20)."
+    },
+    {
+      "titulo": "Sincronizador do catálogo com pausa de 2 s e User-Agent identificável",
+      "commit": "a690f89",
+      "arquivo": "scraper/sincronizar_catalogo_completo.py",
+      "nota": "Os coletores ainda usam 1,0 a 1,5 s (ver A-25)."
+    },
+    {
+      "titulo": "Testes do scraper no CI",
+      "commit": "0447603",
+      "arquivo": ".github/workflows/ci.yml",
+      "nota": "Job Scraper Tests verde na main."
+    }
   ]
 }

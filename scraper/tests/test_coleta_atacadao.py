@@ -108,6 +108,9 @@ class UserAgentAtacadaoTest(unittest.TestCase):
         for navegador in ("Mozilla", "Chrome", "Safari", "AppleWebKit"):
             self.assertNotIn(navegador, ua)
         self.assertNotIn("User-Agent", coleta_atacadao.HEADERS)
+        enviados = get.call_args.kwargs["headers"]
+        self.assertNotIn("Origin", enviados)
+        self.assertNotIn("Referer", enviados)
 
 
 if __name__ == "__main__":

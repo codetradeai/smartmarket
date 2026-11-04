@@ -53,11 +53,9 @@ PAUSA_ENTRE_REQUISICOES = 1.5
 MAX_PAGINAS_POR_CATEGORIA = 10
 
 HEADERS = {
-    # Sem se passar por navegador: o User-Agent (SmartMarketBot + contato de SMARTMARKET_CONTATO)
-    # entra em buscar_pagina, na hora da requisição.
+    # Sem se passar por navegador nem pela loja: sem Origin/Referer da vitrine. O User-Agent
+    # (SmartMarketBot + contato de SMARTMARKET_CONTATO) entra em buscar_pagina, na hora da requisição.
     "Accept": "application/json, text/plain, */*",
-    "Referer": f"{STOREFRONT_BASE_URL}/",
-    "Origin": STOREFRONT_BASE_URL,
 }
 
 CAMPOS = (

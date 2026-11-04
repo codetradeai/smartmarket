@@ -97,5 +97,18 @@ class ModulosUsamOUserAgentTest(unittest.TestCase):
         self.assertNotIn("User-Agent", sinc.HEADERS)
 
 
+
+
+class FortSemLimitesTest(unittest.TestCase):
+    def test_busca_sem_limites_usa_user_agent_identificavel(self):
+        r = resposta(corpo={"hits": []})
+        with mock.patch.dict(os.environ, CONTATO), mock.patch("requests.get", return_value=r) as get:
+            fort.coletar_termo_busca("Mercearia", "arroz", dormir=lambda s: None, max_paginas=1)
+        ua = get.call_args.kwargs["headers"]["User-Agent"]
+        self.assertEqual(ua, UA)
+        for navegador in ("Mozilla", "Chrome", "Safari", "AppleWebKit"):
+            self.assertNotIn(navegador, ua)
+
+
 if __name__ == "__main__":
     unittest.main()

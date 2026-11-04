@@ -283,8 +283,8 @@ def coletar_termo_busca(nome_categoria: str, termo: str, *,
     falhas = falhas if falhas is not None else []
     agora = agora or (lambda: datetime.now(timezone.utc))
     produtos = []
+    # User-Agent identificável (SmartMarketBot + contato), preenchido em buscar_pagina.
     headers_busca = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Origin": STOREFRONT_BASE_URL,
         "Referer": f"{STOREFRONT_BASE_URL}/",

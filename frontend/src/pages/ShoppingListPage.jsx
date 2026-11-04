@@ -146,7 +146,10 @@ function compareMarkets(list, products, markets) {
       };
     })
     .filter((r) => r.available > 0)
-    .sort((a, b) => a.total - b.total);
+    // Redes com mais itens da lista vêm primeiro; o total só desempata cestas iguais.
+    // Ordenar só pelo total elegeria a rede que tem menos itens (cada produto tem
+    // preço apenas na rede onde foi coletado). Mesma regra do ComparadorService.
+    .sort((a, b) => a.missing.length - b.missing.length || a.total - b.total);
 }
 
 export default function ShoppingListPage() {
@@ -239,9 +242,12 @@ export default function ShoppingListPage() {
   const winnerMarket = winner
     ? markets.find((m) => m.id === winner.marketId)
     : null;
+  // Economia só faz sentido entre redes com a lista inteira (mesma cesta).
+  const completos = results.filter((r) => r.missing.length === 0);
+  const winnerCompleto = Boolean(winner) && winner.missing.length === 0;
   const savings =
-    results.length >= 2
-      ? results[results.length - 1].total - results[0].total
+    winnerCompleto && completos.length >= 2
+      ? completos[completos.length - 1].total - completos[0].total
       : 0;
 
   return (
@@ -514,7 +520,9 @@ export default function ShoppingListPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-extrabold text-emerald-300 uppercase tracking-wider">
-                        🏆 Onde sua compra sai mais barata
+                        {winnerCompleto
+                          ? "🏆 Onde sua compra sai mais barata"
+                          : "🏆 Rede com mais itens da sua lista"}
                       </span>
                       <h3 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-white">
                         {winnerMarket.name}
@@ -522,6 +530,11 @@ export default function ShoppingListPage() {
                       <p className="text-xs text-white/70 mt-0.5">
                         {winner.available} de {items.length} produtos disponíveis
                       </p>
+                      {!winnerCompleto && (
+                        <p className="text-xs font-semibold text-amber-300 mt-1">
+                          {winner.missing.length} produto(s) sem preço nesta rede
+                        </p>
+                      )}
                     </div>
 
                     {MARKET_LOGOS[winnerMarket.id] && (
@@ -631,6 +644,9 @@ export default function ShoppingListPage() {
                       const diffPct = minTotal > 0 ? (diff / minTotal) * 100 : 0;
                       const isWinner = i === 0;
                       const isWorst = i === results.length - 1 && results.length > 2;
+                      // "+R$ mais caro" só entre redes com a lista inteira (mesma cesta).
+                      const comparavel = winnerCompleto && r.missing.length === 0;
+                      const rotuloCobertura = `${r.available} de ${r.available + r.missing.length} itens com preço nesta rede`;
                       const isSelected = selectedMarketId === r.marketId;
 
                       // Largura da barra animada (escala visual clara)
@@ -700,9 +716,13 @@ export default function ShoppingListPage() {
                                 <span className="text-xs sm:text-sm font-extrabold text-brand-navy block truncate">
                                   {m.name}
                                 </span>
-                                {isWinner ? (
+                                {isWinner && winnerCompleto ? (
                                   <span className="text-[10px] font-extrabold text-emerald-700">
                                     ★ Melhor escolha para o seu bolso
+                                  </span>
+                                ) : !comparavel ? (
+                                  <span className="text-[10px] font-semibold text-amber-700">
+                                    {rotuloCobertura}
                                   </span>
                                 ) : (
                                   <span className="text-[10px] font-semibold text-rose-600">
@@ -742,7 +762,9 @@ export default function ShoppingListPage() {
                             >
                               {chartMode === "total"
                                 ? `R$ ${r.total.toFixed(2)}`
-                                : isWinner
+                                : !comparavel
+                                  ? `${r.available} de ${r.available + r.missing.length} itens`
+                                  : isWinner
                                   ? "R$ 0,00 a mais (Mais barato!)"
                                   : `+R$ ${diff.toFixed(2)}`}
                             </div>

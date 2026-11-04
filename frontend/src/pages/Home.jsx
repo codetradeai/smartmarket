@@ -658,7 +658,9 @@ export function Home() {
                           <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-green-light/60 border border-brand-green/20 text-xs">
                             <div>
                               <span className="block text-[10px] font-semibold text-emerald-800">
-                                Melhor Preço ({insights.bestMarketName})
+                                {insights.totalMarkets > 1
+                                  ? `Melhor Preço (${insights.bestMarketName})`
+                                  : `Preço no ${insights.bestMarketName}`}
                                 {insights.isClube && (
                                   <span className="ml-1 text-[9px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1 py-0.2 rounded">
                                     🏷️ {insights.clubeNome}
@@ -677,7 +679,11 @@ export function Home() {
                           </div>
 
                           <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
-                            <span>Comparado em {insights.totalMarkets} mercados</span>
+                            <span>
+                              {insights.totalMarkets > 1
+                                ? `Comparado em ${insights.totalMarkets} mercados`
+                                : "Preço só nesta rede"}
+                            </span>
                             <span className="text-brand-navy font-bold hover:underline">
                               {isAuthenticated ? "Ver comparativo →" : "Cadastre-se p/ comparar →"}
                             </span>

@@ -65,7 +65,8 @@ class TestRotinaCarga(unittest.TestCase):
             self.assertTrue(novo_lock.adquirido)
 
     def test_03_obter_dsn_prioridades(self):
-        """Valida fallback de DSN (argumento > SMARTMARKET_DSN > SMARTMARKET_LOCAL_DSN > default)."""
+        """Valida prioridades de DSN: argumento > SMARTMARKET_DSN > SMARTMARKET_LOCAL_DSN.
+        Sem nenhuma das tres opcoes a funcao deve falhar com SystemExit (sem fallback hardcoded)."""
         # 1. Argumento explícito tem prioridade máxima
         self.assertEqual(obter_dsn("host=meubanco"), "host=meubanco")
 
@@ -73,11 +74,16 @@ class TestRotinaCarga(unittest.TestCase):
         with patch.dict(os.environ, {"SMARTMARKET_DSN": "host=env_dsn"}, clear=False):
             self.assertEqual(obter_dsn(), "host=env_dsn")
 
-        # 3. Fallback default
+        # 3. Variável de ambiente SMARTMARKET_LOCAL_DSN
+        with patch.dict(os.environ, {"SMARTMARKET_LOCAL_DSN": "host=local_dsn"}, clear=True):
+            self.assertEqual(obter_dsn(), "host=local_dsn")
+
+        # 4. Sem nenhuma variável: deve falhar com mensagem clara (mutacao: restaurar
+        #    o default hardcoded e este teste falha)
         with patch.dict(os.environ, {}, clear=True):
-            dsn_default = obter_dsn()
-            self.assertIn("smartmarket", dsn_default)
-            self.assertIn("5436", dsn_default)
+            with self.assertRaises(SystemExit) as ctx:
+                obter_dsn()
+            self.assertIn("SMARTMARKET_DSN", str(ctx.exception))
 
     def test_04_garantir_mercados_existentes(self):
         """Valida que mercados configurados são verificados e inseridos quando ausentes."""
@@ -222,6 +228,7 @@ class TestRotinaCarga(unittest.TestCase):
             "--output-base", str(lock_dir),
             "--fixture",
             "--intervalo-minutos", "0",
+            "--dsn", "host=localhost port=5436 dbname=smartmarket_fixture_test",
         ])
 
         self.assertEqual(codigo, 0)

@@ -1027,7 +1027,7 @@
         "backend/src/main/resources/application.properties:11",
         "docker-compose.yml:45"
       ],
-      "evidencia": "O mesmo segredo `AuGDB2cO...` aparece como default de SMARTMARKET_JWT_SECRET e em texto puro no compose. Qualquer pessoa com acesso ao repositório consegue forjar tokens (inclusive papel ADMIN) em qualquer ambiente que não sobrescreva a variável. O perfil prod herda o default.",
+      "evidencia": "Existia um valor padrão de segredo JWT versionado em application.properties e repetido em texto puro no docker-compose.yml (valor omitido; localizar com 'git log -p -- backend/src/main/resources/application.properties'). Qualquer pessoa com acesso ao repositório podia forjar tokens, inclusive de ADMIN, em ambientes que não sobrescrevessem a variável.",
       "recomendacao": "Remover o default de application.properties (falhar na inicialização se não houver variável), gerar novo segredo, rotacionar o atual e ler o do compose de um .env fora do git. Considerar o segredo atual comprometido.",
       "status": "resolvido",
       "situacao_em_2026_11_03": "application.properties lê jwt.secret só de SMARTMARKET_JWT_SECRET, sem valor padrão, e o compose exige a variável vinda de .env. Ressalva: o segredo antigo continua no histórico do git e deve ser considerado comprometido.",
@@ -1040,10 +1040,10 @@
       "arquivo_linha": [
         "backend/src/main/java/com/smartmarket/DataSeeder.java:44-61"
       ],
-      "evidencia": "DataSeeder cria davi@smartmarket.com.br / admin123 (ADMIN) e maria@email.com / user123. Está restrito a @Profile(\"dev\"), mas `spring.profiles.active=dev` é o padrão (application.properties:4), então qualquer deploy que esqueça de definir o perfil nasce com admin conhecido.",
+      "evidencia": "DataSeeder cria contas de teste com credenciais fixas (valores omitidos; ver DataSeeder.java:44-61). Está restrito a @Profile(\"dev\"), mas spring.profiles.active=dev era o padrão em application.properties, então qualquer deploy sem perfil explícito subia com admin de senha conhecida.",
       "recomendacao": "Trocar o perfil padrão (ou removê-lo) e ler a senha do seed de variável de ambiente; nunca imprimir credenciais em docs de entrega.",
-      "status": "pendente",
-      "situacao_em_2026_11_03": "DataSeeder continua criando contas com senha fixa, e dev segue como perfil padrão.",
+      "status": "resolvido",
+      "situacao_em_2026_11_03": "DataSeeder continua criando contas com credenciais fixas (valores omitidos), mas spring.profiles.active=dev foi removido do application.properties principal; o perfil dev só sobe via maven plugin (spring-boot:run) ou variável explícita. DataSeederPerfilTest valida que o bean não existe no perfil test.",
       "evidencia_publica": "O seed do perfil de desenvolvimento cria contas de teste com credenciais fixas (omitidas aqui), e dev é o perfil padrão da aplicação."
     },
     {
@@ -1057,10 +1057,10 @@
         "backend/src/main/resources/application-prod.properties:8",
         "scraper/rotina_carga.py:142"
       ],
-      "evidencia": "`smartmarket123` repetido em 5 arquivos; application-prod.properties e rotina_carga.py usam como fallback. O compose da raiz publica a porta 5432 em todas as interfaces com essa senha.",
+      "evidencia": "Senha do banco repetida em 5 arquivos (valor omitido; localizar com 'grep -r POSTGRES_PASSWORD -- docker-compose.yml backend/docker-compose.yml'); application-prod.properties e rotina_carga.py a usavam como fallback. O compose da raiz publicava a porta 5432 em todas as interfaces.",
       "recomendacao": "Usar .env (não versionado) com .env.example; remover fallback de senha no prod e no scraper; publicar a porta do banco só em 127.0.0.1 (`127.0.0.1:5432:5432`).",
-      "status": "parcial",
-      "situacao_em_2026_11_03": "Saiu do compose da raiz e do perfil prod; continua em backend/docker-compose.yml, application-dev.properties e no fallback de scraper/rotina_carga.py.",
+      "status": "resolvido",
+      "situacao_em_2026_11_03": "Resolvido em fix/segredos-config: backend/docker-compose.yml lê senha de .env (exige variável); porta publicada em 127.0.0.1; scraper/rotina_carga.py falha com mensagem clara se DSN não for fornecido. Valor de desenvolvimento permanece em application-dev.properties (perfil isolado, não sobe em prod).",
       "evidencia_publica": "A senha do banco de desenvolvimento aparece em texto puro em vários arquivos (valor omitido aqui); um deles a usa como valor de reserva no scraper."
     },
     {
@@ -1086,7 +1086,7 @@
         "scraper/rotina_carga.py:134-143",
         "scraper/pipeline.py:39"
       ],
-      "evidencia": "(1) `pip install -r requirements.txt` aponta para a raiz, mas o arquivo está em scraper/; o fallback instala psycopg2-binary, enquanto o código usa psycopg 3. (2) O workflow define DB_HOST/DB_USER/DB_PASS, mas rotina_carga.py só lê SMARTMARKET_DSN/SMARTMARKET_LOCAL_DSN e cai no default localhost:5436 com senha fixa. (3) validar_dsn só aceita host local, então um banco remoto nunca seria usado. Por inferência do código, a etapa de carga falha no runner (não há Postgres lá). Não há como verificar o histórico de execuções do Actions a partir daqui.",
+      "evidencia": "(1) `pip install -r requirements.txt` aponta para a raiz, mas o arquivo está em scraper/; o fallback instala psycopg2-binary, enquanto o código usa psycopg 3. (2) O workflow define DB_HOST/DB_USER/DB_PASS, mas rotina_carga.py só lê SMARTMARKET_DSN/SMARTMARKET_LOCAL_DSN e não havia fallback de DSN seguro (resolvido em fix/segredos-config). (3) validar_dsn só aceita host local, então um banco remoto nunca seria usado. Por inferência do código, a etapa de carga falha no runner (não há Postgres lá). Não há como verificar o histórico de execuções do Actions a partir daqui.",
       "recomendacao": "Corrigir para `pip install -r scraper/requirements.txt`; ou rodar um serviço postgres no job, ou mover a coleta para um servidor com o banco (systemd) e deixar o Actions só como teste. Alinhar nomes das variáveis (DSN).",
       "status": "pendente",
       "situacao_em_2026_11_03": "coleta_diaria.yml ainda instala requirements.txt da raiz; as 4 últimas execuções (31/10 a 03/11/2026) terminaram em failure."

@@ -166,8 +166,10 @@ testes órfãos e confirmadas por sondagem:
   tem campo equivalente ao antigo `economiaMaxima`. Se ele volta é decisão de
   produto.
 - **Deixei o par de banco local** (`application-dev.properties` e
-  `backend/docker-compose.yml`, senha `smartmarket123`, porta 5436) como estava,
+  `backend/docker-compose.yml`, porta 5436) como estava,
   para não obrigar o time a criar `.env` só para subir um Postgres descartável.
+  A senha de dev é lida de `${POSTGRES_PASSWORD}` com um default local
+  (ver `.env.example` para o valor esperado).
 
 ### Pendências e próximos passos
 

@@ -421,7 +421,7 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
       <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap flex-1 min-w-0">
         {markets.map((m) => {
           const isSelected = selectedMkt === m.id;
-          const isFav = favs.includes(m.id);
+          const isFav = favs.includes(String(m.id));
           const logoSrc = MARKET_LOGOS[m.id];
           const opticalClass = MARKET_LOGO_OPTICAL_CLASS[m.id] || "max-h-9 sm:max-h-10";
           return (
@@ -1003,7 +1003,7 @@ function CategoryShelf({
             product={prod}
             markets={markets}
             favMarkets={favMarkets}
-            isFavProduct={favProducts.includes(prod.id)}
+            isFavProduct={favProducts.includes(String(prod.id))}
             onToggleFavProduct={onToggleFavProduct}
             onAdd={onAdd}
             onUpdateQty={onUpdateQty}
@@ -1076,10 +1076,14 @@ export default function CatalogPage() {
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
         if (Array.isArray(favMktsData)) {
-          setFavMarkets(favMktsData.map((f) => f.mercadoId || f.id || f));
+          // Favoritos de mercado sempre como texto: o favoritoService devolve "1" e a API de
+          // mercados devolve id numérico (1).
+          setFavMarkets(favMktsData.map((f) => String(f.mercadoId || f.id || f)));
         }
         if (Array.isArray(favProdsData)) {
-          setFavProducts(favProdsData.map((f) => f.produtoId || f.id || f));
+          // Favoritos de produto sempre como texto (igual ao localStorage e a toggleFavProduct):
+          // ids da API são numéricos e "10" !== 10.
+          setFavProducts(favProdsData.map((f) => String(f.produtoId || f.id || f)));
         }
       } catch {
         // Fallback mantém DEFAULT_PRODUCTS e DEFAULT_MARKETS
@@ -1110,8 +1114,9 @@ export default function CatalogPage() {
   }
 
   async function toggleFavMarket(id) {
-    const isFav = favMarkets.includes(id);
-    const next = isFav ? favMarkets.filter((f) => f !== id) : [...favMarkets, id];
+    const idStr = String(id);
+    const isFav = favMarkets.includes(idStr);
+    const next = isFav ? favMarkets.filter((f) => f !== idStr) : [...favMarkets, idStr];
     setFavMarkets(next);
     try {
       if (isFav) await favoritoService.desfavoritarMercado(id);
@@ -1500,7 +1505,7 @@ export default function CatalogPage() {
                       product={prod}
                       markets={markets}
                       favMarkets={favMarkets}
-                      isFavProduct={favProducts.includes(prod.id)}
+                      isFavProduct={favProducts.includes(String(prod.id))}
                       onToggleFavProduct={toggleFavProduct}
                       onAdd={handleAddToList}
                       onUpdateQty={handleUpdateQty}
@@ -1560,7 +1565,7 @@ export default function CatalogPage() {
         isOpen={Boolean(selectedProductDetail)}
         onClose={() => setSelectedProductDetail(null)}
         onAddToList={handleAddToList}
-        isFavorite={selectedProductDetail ? favProducts.includes(selectedProductDetail.id) : false}
+        isFavorite={selectedProductDetail ? favProducts.includes(String(selectedProductDetail.id)) : false}
         onToggleFavorite={toggleFavProduct}
       />
     </div>

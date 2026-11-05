@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useContext } from "react"
 import { Link } from "react-router-dom"
+import { AuthContext } from "../contexts/AuthContext"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
 import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui"
 import { favoritoService } from "../services"
@@ -52,26 +53,40 @@ const SECTOR_BANNERS = [
   { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
 ]
 
+// Favoritos de demonstração: só para visitante (sem sessão) que ainda não tem favoritos
+// gravados. Usuário logado nunca os recebe.
+const DEMO_FAV_PRODUCTS = ["p1", "p3", "p9", "p17"]
+const DEMO_FAV_MARKETS = ["fort", "carrefour"]
+
+// Lê uma lista de ids do localStorage distinguindo "nunca gravou" (chave ausente ou conteúdo
+// corrompido → null) de "gravou vazio" ([] depois de remover tudo → []).
+function readStoredIds(key) {
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored === null) return null
+    const parsed = JSON.parse(stored)
+    return Array.isArray(parsed) ? parsed.map(String) : null
+  } catch {
+    return null
+  }
+}
+
+// Sem lista gravada: visitante recebe (e grava) a demonstração; usuário logado recebe [].
+function idsOrDemo(key, demo, usarDemonstracao) {
+  const stored = readStoredIds(key)
+  if (stored !== null) return stored
+  if (!usarDemonstracao) return []
+  try {
+    localStorage.setItem(key, JSON.stringify(demo))
+  } catch {
+    // fallback
+  }
+  return [...demo]
+}
+
 // Helpers de persistência de produtos favoritos
-function getFavProducts() {
-  try {
-    const stored = localStorage.getItem("sm_fav_products")
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map(String)
-      }
-    }
-  } catch {
-    // fallback
-  }
-  const initial = ["p1", "p3", "p9", "p17"]
-  try {
-    localStorage.setItem("sm_fav_products", JSON.stringify(initial))
-  } catch {
-    // fallback
-  }
-  return initial
+function getFavProducts(usarDemonstracao) {
+  return idsOrDemo("sm_fav_products", DEMO_FAV_PRODUCTS, usarDemonstracao)
 }
 
 function saveFavProducts(ids) {
@@ -82,20 +97,8 @@ function saveFavProducts(ids) {
   }
 }
 
-function getFavMarkets() {
-  try {
-    const stored = localStorage.getItem("sm_fav_markets")
-    if (stored) return JSON.parse(stored)
-  } catch {
-    // fallback
-  }
-  const initial = ["fort", "carrefour"]
-  try {
-    localStorage.setItem("sm_fav_markets", JSON.stringify(initial))
-  } catch {
-    // fallback
-  }
-  return initial
+function getFavMarkets(usarDemonstracao) {
+  return idsOrDemo("sm_fav_markets", DEMO_FAV_MARKETS, usarDemonstracao)
 }
 
 function saveFavMarkets(ids) {
@@ -223,8 +226,11 @@ function evaluateAlertForProduct(product, alertEntry, favMarketIds = []) {
 }
 
 export default function FavoritesPage() {
-  const [favProductIds, setFavProductIds] = useState(getFavProducts)
-  const [favMarketIds, setFavMarketIds] = useState(getFavMarkets)
+  // useContext direto (e não useAuth) para a página funcionar também fora de um AuthProvider.
+  const auth = useContext(AuthContext)
+  const usarDemonstracao = !auth?.isAuthenticated
+  const [favProductIds, setFavProductIds] = useState(() => getFavProducts(usarDemonstracao))
+  const [favMarketIds, setFavMarketIds] = useState(() => getFavMarkets(usarDemonstracao))
   const [selectedMarketFilter, setSelectedMarketFilter] = useState("todos")
   const [priceAlerts, setPriceAlerts] = useState(getPriceAlerts)
   const [search, setSearch] = useState("")
@@ -237,12 +243,12 @@ export default function FavoritesPage() {
   // Estados do Configurador Inline de Alertas de Preço (na aba Alertas)
   const [alertSearchQuery, setAlertSearchQuery] = useState("")
   const [inlineProductForAlert, setInlineProductForAlert] = useState(() => {
-    const initialFavs = getFavProducts()
+    const initialFavs = getFavProducts(usarDemonstracao)
     return PRODUCTS.find((p) => initialFavs.includes(String(p.id))) || PRODUCTS[0] || null
   })
   const [inlineMarketScope, setInlineMarketScope] = useState("todos")
   const [inlineTargetPrice, setInlineTargetPrice] = useState(() => {
-    const initialFavs = getFavProducts()
+    const initialFavs = getFavProducts(usarDemonstracao)
     const firstProd = PRODUCTS.find((p) => initialFavs.includes(String(p.id))) || PRODUCTS[0]
     if (!firstProd) return ""
     const existing = normalizeAlertEntry(getPriceAlerts()[firstProd.id])

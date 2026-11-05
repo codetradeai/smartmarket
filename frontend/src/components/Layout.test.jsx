@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import Layout from './Layout'
 import { useAuth } from '../hooks/useAuth'
@@ -36,7 +36,8 @@ describe('Layout', () => {
     renderizar()
 
     expect(screen.getByText('Conteudo do catalogo')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'SmartMarket' })).toBeInTheDocument()
+    // Duas logos: a do topo compacto (celular/tablet) e a da barra lateral.
+    expect(screen.getAllByRole('img', { name: 'SmartMarket' })).toHaveLength(2)
   })
 
   it('mostra os links de usuario comum, sem o Admin', () => {
@@ -45,23 +46,27 @@ describe('Layout', () => {
     expect(screen.getByRole('link', { name: 'Catálogo' })).toHaveAttribute('href', '/catalog')
     expect(screen.getByRole('link', { name: 'Favoritos' })).toHaveAttribute('href', '/favorites')
     expect(screen.getByRole('link', { name: 'Minha Lista' })).toHaveAttribute('href', '/list')
-    expect(screen.queryByRole('link', { name: 'Admin' })).not.toBeInTheDocument()
+    // Rótulo real do link (Layout.jsx): "Administração". Procurar "Admin" deixava a asserção vazia.
+    expect(screen.queryByRole('link', { name: 'Administração' })).not.toBeInTheDocument()
+    expect(within(screen.getByRole('navigation')).getAllByRole('link')).toHaveLength(3)
   })
 
   it('mostra o link Admin para administradores', () => {
     useAuth.mockReturnValue({ user: { nome: 'Chefe', papel: 'ADMIN' }, isAdmin: true, logout })
     renderizar('/admin')
 
-    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', '/admin')
-    expect(screen.getByText('ADMIN')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Administração' })).toHaveAttribute('href', '/admin')
+    expect(within(screen.getByRole('navigation')).getAllByRole('link')).toHaveLength(4)
+    expect(screen.getByText('ADMINISTRADOR')).toBeInTheDocument()
   })
 
   it('mostra nome, papel e inicial do usuario', () => {
     renderizar()
 
     expect(screen.getByText('ana')).toBeInTheDocument()
-    expect(screen.getByText('USER')).toBeInTheDocument()
-    expect(screen.getByText('A')).toBeInTheDocument()
+    expect(screen.getByText('USUÁRIO')).toBeInTheDocument()
+    // A inicial aparece no avatar do topo compacto e no cartão do usuário na barra lateral.
+    expect(screen.getAllByText('A')).toHaveLength(2)
   })
 
   it('usa valores padrao quando nao ha usuario', () => {
@@ -69,8 +74,8 @@ describe('Layout', () => {
     renderizar()
 
     expect(screen.getByText('Usuário')).toBeInTheDocument()
-    expect(screen.getByText('USER')).toBeInTheDocument()
-    expect(screen.getByText('U')).toBeInTheDocument()
+    expect(screen.getByText('USUÁRIO')).toBeInTheDocument()
+    expect(screen.getAllByText('U')).toHaveLength(2)
   })
 
   it('destaca o link da rota atual', () => {

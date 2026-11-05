@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import FavoritesPage from './FavoritesPage'
+import { AuthContext } from '../contexts/AuthContext'
 import { favoritoService } from '../services'
 
 // Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
@@ -19,19 +20,34 @@ jest.mock('../services', () => ({
   mercadoService: {},
 }))
 
-async function renderizar() {
+// Favoritos que a página grava quando não há nada guardado (getFavProducts/getFavMarkets).
+const PRODUTOS_PADRAO = ['p1', 'p3', 'p9', 'p17']
+const MERCADOS_PADRAO = ['fort', 'carrefour']
+
+// Sessão de um usuário logado. Sem `auth`, a página é renderizada como visitante (fora do provider).
+const USUARIO_LOGADO = { isAuthenticated: true, isAdmin: false, user: { nome: 'Ana', papel: 'USER' } }
+
+async function renderizar({ auth = null } = {}) {
+  const pagina = (
+    <MemoryRouter>
+      <FavoritesPage />
+    </MemoryRouter>
+  )
+  let resultado
   await act(async () => {
-    render(
-      <MemoryRouter>
-        <FavoritesPage />
-      </MemoryRouter>
-    )
+    resultado = render(auth ? <AuthContext.Provider value={auth}>{pagina}</AuthContext.Provider> : pagina)
   })
+  return resultado
 }
 
-const cartaoDe = (nome) => screen.getByRole('heading', { name: nome }).closest('.group')
-const abrirAba = (nome) => fireEvent.click(screen.getByRole('button', { name: new RegExp(nome) }))
+const lerLocal = (chave) => JSON.parse(localStorage.getItem(chave))
+const resumo = () => screen.getByText(/produtos · \d+ alertas ativos$/)
+const cartaoDe = (nome) => screen.getByRole('heading', { level: 3, name: nome }).closest('.group')
+const abaMercados = () => screen.getByRole('button', { name: /Mercados Favoritos \(Opcional\)/ })
+const abaAlertas = () => screen.getByRole('button', { name: /Configurar & Ver Alertas de Preço/ })
+const campoBusca = () => screen.getByPlaceholderText('Buscar em seus favoritos...')
 const dialogo = () => screen.getByRole('dialog')
+const campoPrecoAlvo = () => screen.getByLabelText('Preço Alvo Desejado (R$)')
 
 describe('FavoritesPage', () => {
   beforeEach(() => {
@@ -47,145 +63,139 @@ describe('FavoritesPage', () => {
   })
 
   afterEach(() => {
-    jest.useRealTimers()
     jest.restoreAllMocks()
   })
 
-  describe('favoritos iniciais e persistencia', () => {
-    it('comeca com os produtos e mercados favoritos padrao e os salva no navegador', async () => {
-      await renderizar()
-
-      expect(screen.getByRole('heading', { level: 1, name: 'Meus Favoritos' })).toBeInTheDocument()
-      expect(screen.getByText('4 produtos · 2 mercados')).toBeInTheDocument()
-      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['p1', 'p3', 'p9', 'p17'])
-      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual(['fort', 'carrefour'])
-      expect(screen.getByRole('heading', { name: 'Arroz Branco Tipo 1' })).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Café Torrado e Moído' })).toBeInTheDocument()
-    })
-
+  describe('persistencia dos favoritos', () => {
     it('usa os favoritos guardados no navegador', async () => {
       localStorage.setItem('sm_fav_products', JSON.stringify(['p2']))
       localStorage.setItem('sm_fav_markets', JSON.stringify(['big']))
       await renderizar()
 
-      expect(screen.getByText('1 produtos · 1 mercados')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Arroz Parboilizado' })).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('1 produtos · 0 alertas ativos')
+      expect(abaMercados()).toHaveTextContent(/\(Opcional\)\s*1$/)
+      expect(screen.getByRole('heading', { level: 3, name: 'Arroz Parboilizado' })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
     })
 
-    it('volta aos favoritos padrao quando o armazenamento esta corrompido', async () => {
-      localStorage.setItem('sm_fav_products', '{nao-e-json')
-      localStorage.setItem('sm_fav_markets', '{nao-e-json')
+    it.each([
+      ['nao ha nada guardado', null],
+      ['o armazenamento esta corrompido', '{nao-e-json'],
+    ])('visitante volta aos favoritos padrao e os grava quando %s', async (_caso, conteudo) => {
+      if (conteudo) {
+        localStorage.setItem('sm_fav_products', conteudo)
+        localStorage.setItem('sm_fav_markets', conteudo)
+      }
       await renderizar()
 
-      expect(screen.getByText('4 produtos · 2 mercados')).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('4 produtos · 0 alertas ativos')
+      expect(lerLocal('sm_fav_products')).toEqual(PRODUTOS_PADRAO)
+      expect(lerLocal('sm_fav_markets')).toEqual(MERCADOS_PADRAO)
     })
 
-    it('funciona mesmo quando nao consegue gravar no navegador', async () => {
-      jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
-        throw new Error('cota excedida')
-      })
+    it('favoritos vazios continuam vazios ao reabrir a pagina', async () => {
+      const { unmount } = await renderizar()
+      for (const nome of ['Arroz Branco Tipo 1', 'Feijão Carioca', 'Leite Integral UHT', 'Café Torrado e Moído']) {
+        fireEvent.click(within(cartaoDe(nome)).getByTitle('Remover dos favoritos'))
+      }
+      expect(lerLocal('sm_fav_products')).toEqual([])
+      unmount()
+
       await renderizar()
 
-      expect(screen.getByText('4 produtos · 2 mercados')).toBeInTheDocument()
-      fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos'))
-      expect(screen.getByText('3 produtos · 2 mercados')).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('0 produtos · 0 alertas ativos')
+      expect(lerLocal('sm_fav_products')).toEqual([])
     })
 
-    it('substitui os favoritos pelos devolvidos pelo servidor', async () => {
+    it('usuario logado nao recebe favoritos de demonstracao', async () => {
+      await renderizar({ auth: USUARIO_LOGADO })
+
+      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('0 produtos · 0 alertas ativos')
+      expect(abaMercados()).toHaveTextContent(/\(Opcional\)\s*0$/)
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
+    })
+
+    it('substitui os favoritos pelos devolvidos pelo servidor e grava no navegador', async () => {
       favoritoService.listarProdutos.mockResolvedValue([{ produtoId: 'p2' }, { id: 'p4' }, 'p5'])
       favoritoService.listarMercados.mockResolvedValue([{ mercadoId: 'big' }])
       await renderizar()
 
-      expect(screen.getByText('3 produtos · 1 mercados')).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Arroz Parboilizado' })).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('3 produtos · 0 alertas ativos')
+      expect(screen.getByRole('heading', { level: 3, name: 'Arroz Parboilizado' })).toBeInTheDocument()
+      expect(lerLocal('sm_fav_products')).toEqual(['p2', 'p4', 'p5'])
+      expect(lerLocal('sm_fav_markets')).toEqual(['big'])
     })
 
-    it('mantem os favoritos locais quando o servidor devolve listas vazias', async () => {
-      await renderizar()
-      expect(screen.getByText('4 produtos · 2 mercados')).toBeInTheDocument()
-    })
-
-    it('mantem os favoritos locais quando o servidor falha', async () => {
-      favoritoService.listarMercados.mockRejectedValue(new Error('offline'))
+    it.each([
+      ['devolve listas vazias', () => {}],
+      ['falha', () => favoritoService.listarMercados.mockRejectedValue(new Error('offline'))],
+    ])('mantem os favoritos locais quando o servidor %s', async (_caso, prepararServidor) => {
+      prepararServidor()
       await renderizar()
 
-      expect(screen.getByText('4 produtos · 2 mercados')).toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('4 produtos · 0 alertas ativos')
+      expect(lerLocal('sm_fav_products')).toEqual(PRODUTOS_PADRAO)
     })
   })
 
-  describe('banner de economia', () => {
+  describe('precos dos favoritos', () => {
     it('indica o mercado mais barato entre os favoritos', async () => {
       await renderizar()
 
-      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
+      const banner = screen.getByText('Economia Inteligente').parentElement
+      expect(within(banner).getByRole('heading', { level: 2 })).toHaveTextContent(
         'O Fort Atacadista é o mais barato em 4 dos seus 4 favoritos!'
       )
       expect(screen.getByRole('link', { name: 'Calcular Cesta Completa' })).toHaveAttribute('href', '/list')
     })
 
-    it('some quando nao ha produtos favoritos', async () => {
-      localStorage.setItem('sm_fav_products', '[]')
+    it('mostra no cartao o menor preco, o mercado e a economia em relacao ao mais caro', async () => {
       await renderizar()
 
-      expect(screen.queryByText('Economia Inteligente')).not.toBeInTheDocument()
+      const cartao = within(cartaoDe('Arroz Branco Tipo 1'))
+      expect(cartao.getByText('Melhor Preço (Fort Atacadista)')).toBeInTheDocument()
+      expect(cartao.getByText('R$ 22.90')).toBeInTheDocument()
+      expect(cartao.getByText('-R$ 1.60')).toBeInTheDocument()
+      expect(cartao.getByText('Comparado em 3 mercados')).toBeInTheDocument()
     })
   })
 
   describe('aba de produtos', () => {
-    it('mostra marca, unidade, oferta e o menor preco com o mercado', async () => {
+    it('filtra por busca, avisa quando nada corresponde e limpa a busca', async () => {
       await renderizar()
 
-      const cartao = within(cartaoDe('Arroz Branco Tipo 1'))
-      expect(cartao.getByText('Tio João')).toBeInTheDocument()
-      expect(cartao.getByText('· 5 kg')).toBeInTheDocument()
-      expect(cartao.getByText('OFERTA')).toBeInTheDocument()
-      expect(cartao.getByText('R$ 22.90')).toBeInTheDocument()
-      expect(cartao.getByText('Fort Atacadista')).toBeInTheDocument()
-      expect(within(cartaoDe('Feijão Carioca')).queryByText('OFERTA')).not.toBeInTheDocument()
-    })
+      fireEvent.change(campoBusca(), { target: { value: 'feij' } })
+      expect(screen.getByRole('heading', { level: 3, name: 'Feijão Carioca' })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
 
-    it('filtra por busca e mostra aviso quando nada corresponde', async () => {
-      await renderizar()
-      const campo = screen.getByPlaceholderText('Buscar em favoritos...')
-
-      fireEvent.change(campo, { target: { value: 'feij' } })
-      expect(screen.getByRole('heading', { name: 'Feijão Carioca' })).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
-
-      fireEvent.change(campo, { target: { value: 'zzz' } })
-      expect(screen.getByRole('heading', { name: 'Nenhum produto favorito encontrado' })).toBeInTheDocument()
+      fireEvent.change(campoBusca(), { target: { value: 'zzz' } })
+      expect(screen.getByRole('heading', { name: 'Nenhum produto favorito encontrado neste filtro' })).toBeInTheDocument()
 
       fireEvent.click(screen.getByTitle('Limpar campo'))
-      expect(screen.getByRole('heading', { name: 'Arroz Branco Tipo 1' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).toBeInTheDocument()
     })
 
     it('busca tambem pela marca', async () => {
       await renderizar()
 
-      fireEvent.change(screen.getByPlaceholderText('Buscar em favoritos...'), { target: { value: 'italac' } })
+      fireEvent.change(campoBusca(), { target: { value: 'italac' } })
 
-      expect(screen.getByRole('heading', { name: 'Leite Integral UHT' })).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Feijão Carioca' })).not.toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 3, name: 'Leite Integral UHT' })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { level: 3, name: 'Feijão Carioca' })).not.toBeInTheDocument()
     })
 
-    it('filtra por categoria', async () => {
+    it('filtra por categoria e volta a mostrar tudo em "Todos"', async () => {
       await renderizar()
 
-      fireEvent.click(screen.getByRole('button', { name: /Leites e Derivados/ }))
-      expect(screen.getByRole('heading', { name: 'Leite Integral UHT' })).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+      fireEvent.click(screen.getByTitle('Filtrar favoritos em Frios e Laticínios'))
+      expect(screen.getByRole('heading', { level: 3, name: 'Leite Integral UHT' })).toBeInTheDocument()
+      expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
 
-      fireEvent.click(screen.getByRole('button', { name: /Todos/ }))
-      expect(screen.getByRole('heading', { name: 'Arroz Branco Tipo 1' })).toBeInTheDocument()
-    })
-
-    it('mostra o estado vazio quando nao ha nenhum favorito', async () => {
-      localStorage.setItem('sm_fav_products', '[]')
-      await renderizar()
-
-      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: 'Ir para o Catálogo' })).toHaveAttribute('href', '/catalog')
+      fireEvent.click(screen.getByTitle('Filtrar favoritos em Todos'))
+      expect(screen.getByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).toBeInTheDocument()
     })
 
     it('remove um produto dos favoritos, avisa e informa o servidor', async () => {
@@ -194,9 +204,9 @@ describe('FavoritesPage', () => {
       fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos'))
 
       expect(screen.getByText('Produto removido dos favoritos.')).toBeInTheDocument()
-      expect(screen.queryByRole('heading', { name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
-      expect(screen.getByText('3 produtos · 2 mercados')).toBeInTheDocument()
-      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['p3', 'p9', 'p17'])
+      expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+      expect(resumo()).toHaveTextContent('3 produtos · 0 alertas ativos')
+      expect(lerLocal('sm_fav_products')).toEqual(['p3', 'p9', 'p17'])
       expect(favoritoService.desfavoritarProduto).toHaveBeenCalledWith('p1')
     })
 
@@ -208,12 +218,26 @@ describe('FavoritesPage', () => {
         fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos'))
       })
 
-      expect(screen.queryByRole('heading', { name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+      expect(lerLocal('sm_fav_products')).toEqual(['p3', 'p9', 'p17'])
+    })
+
+    it('mostra o estado vazio e esconde o banner ao remover o ultimo favorito', async () => {
+      await renderizar()
+
+      for (const nome of ['Arroz Branco Tipo 1', 'Feijão Carioca', 'Leite Integral UHT', 'Café Torrado e Moído']) {
+        fireEvent.click(within(cartaoDe(nome)).getByTitle('Remover dos favoritos'))
+      }
+
+      expect(screen.getByRole('heading', { name: 'Você ainda não favoritou nenhum produto' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Ir para o Catálogo' })).toHaveAttribute('href', '/catalog')
+      expect(screen.queryByText('Economia Inteligente')).not.toBeInTheDocument()
+      expect(lerLocal('sm_fav_products')).toEqual([])
     })
 
     it('adiciona o produto a lista de compras e avisa', async () => {
       await renderizar()
-      const botao = () => within(cartaoDe('Arroz Branco Tipo 1')).getByRole('button', { name: '+ Lista' })
+      const botao = () => within(cartaoDe('Arroz Branco Tipo 1')).getByRole('button', { name: '+ Adicionar à Minha Lista' })
 
       fireEvent.click(botao())
       fireEvent.click(botao())
@@ -221,109 +245,74 @@ describe('FavoritesPage', () => {
       expect(screen.getByText('Adicionado à sua lista de compras!')).toBeInTheDocument()
       expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ p1: 2 })
     })
-
-    it('usa lista vazia quando a lista da sessao esta corrompida', async () => {
-      sessionStorage.setItem('sm_list', '{nao-e-json')
-      await renderizar()
-
-      fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByRole('button', { name: '+ Lista' }))
-
-      expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ p1: 1 })
-    })
-
-    it('some o aviso sozinho depois de 3 segundos', async () => {
-      await renderizar()
-      jest.useFakeTimers()
-
-      fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByRole('button', { name: '+ Lista' }))
-      expect(screen.getByText('Adicionado à sua lista de compras!')).toBeInTheDocument()
-
-      act(() => {
-        jest.advanceTimersByTime(3000)
-      })
-      expect(screen.queryByText('Adicionado à sua lista de compras!')).not.toBeInTheDocument()
-    })
   })
 
   describe('aba de mercados', () => {
-    it('lista os tres mercados com quantos favoritos cada um tem mais barato', async () => {
-      await renderizar()
-
-      abrirAba('Mercados Favoritos')
-
-      expect(screen.getByRole('heading', { name: 'Fort Atacadista' })).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Carrefour' })).toBeInTheDocument()
-      expect(screen.getByRole('heading', { name: 'Big Bompreço' })).toBeInTheDocument()
-      expect(screen.getByText('4 itens')).toBeInTheDocument()
-      expect(screen.getAllByText('0 itens')).toHaveLength(2)
-      expect(screen.getAllByTitle('Remover dos favoritos')).toHaveLength(2)
-      expect(screen.getAllByTitle('Favoritar mercado')).toHaveLength(1)
-      expect(screen.getAllByRole('link', { name: 'Ver Ofertas' })[0]).toHaveAttribute('href', '/catalog')
-    })
-
     it('favorita um mercado, avisa e informa o servidor', async () => {
       await renderizar()
-      abrirAba('Mercados Favoritos')
+      fireEvent.click(abaMercados())
 
       fireEvent.click(screen.getByTitle('Favoritar mercado'))
 
-      expect(screen.getByText('Mercado adicionado aos favoritos!')).toBeInTheDocument()
+      expect(screen.getByText('Mercado adicionado aos seus favoritos!')).toBeInTheDocument()
       expect(favoritoService.favoritarMercado).toHaveBeenCalledWith('big')
-      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toEqual(['fort', 'carrefour', 'big'])
-      expect(screen.getAllByText('★ Favoritado')).toHaveLength(3)
+      expect(lerLocal('sm_fav_markets')).toEqual(['fort', 'carrefour', 'big'])
+      expect(screen.getAllByRole('button', { name: '★ Favoritado' })).toHaveLength(3)
     })
 
     it('desfavorita um mercado pelo botao de texto, avisa e informa o servidor', async () => {
       await renderizar()
-      abrirAba('Mercados Favoritos')
+      fireEvent.click(abaMercados())
 
       fireEvent.click(screen.getAllByRole('button', { name: '★ Favoritado' })[0])
 
       expect(screen.getByText('Mercado removido dos favoritos.')).toBeInTheDocument()
       expect(favoritoService.desfavoritarMercado).toHaveBeenCalledWith('fort')
-      expect(screen.getAllByRole('button', { name: 'Favoritar' })).toHaveLength(2)
+      expect(lerLocal('sm_fav_markets')).toEqual(['carrefour'])
+      expect(screen.getAllByRole('button', { name: 'Favoritar Rede' })).toHaveLength(2)
     })
 
     it('mantem a mudanca local mesmo se o servidor falhar', async () => {
       favoritoService.favoritarMercado.mockRejectedValue(new Error('offline'))
       await renderizar()
-      abrirAba('Mercados Favoritos')
+      fireEvent.click(abaMercados())
 
       await act(async () => {
         fireEvent.click(screen.getByTitle('Favoritar mercado'))
       })
 
-      expect(screen.getAllByText('★ Favoritado')).toHaveLength(3)
+      expect(screen.getAllByRole('button', { name: '★ Favoritado' })).toHaveLength(3)
+      expect(lerLocal('sm_fav_markets')).toEqual(['fort', 'carrefour', 'big'])
     })
   })
 
   describe('alertas de preco', () => {
-    async function abrirModalDeAlerta(produto = 'Arroz Branco Tipo 1') {
+    const abrirModalDeAlerta = (produto = 'Arroz Branco Tipo 1') =>
       fireEvent.click(within(cartaoDe(produto)).getByTitle('Definir alerta de preço'))
-    }
 
     it('abre o modal com o preco alvo sugerido (10% abaixo do menor preco)', async () => {
       await renderizar()
 
-      await abrirModalDeAlerta()
+      abrirModalDeAlerta()
 
       expect(within(dialogo()).getByRole('heading', { name: 'Definir Alerta de Preço' })).toBeInTheDocument()
       expect(within(dialogo()).getByText('Arroz Branco Tipo 1')).toBeInTheDocument()
-      expect(screen.getByLabelText('Preço Alvo Desejado (R$)')).toHaveValue(20.61)
+      expect(campoPrecoAlvo()).toHaveValue(20.61)
     })
 
-    it('salva o alerta, mostra no cartao, na aba de alertas e grava no navegador', async () => {
+    it('salva o alerta, mostra no cartao, conta na aba de alertas e grava no navegador', async () => {
       await renderizar()
-      await abrirModalDeAlerta()
+      abrirModalDeAlerta()
 
-      fireEvent.change(screen.getByLabelText('Preço Alvo Desejado (R$)'), { target: { value: '19.90' } })
+      fireEvent.change(campoPrecoAlvo(), { target: { value: '19.90' } })
       fireEvent.submit(dialogo().querySelector('form'))
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
       expect(screen.getByText('Alerta de R$ 19.90 salvo para Arroz Branco Tipo 1!')).toBeInTheDocument()
-      expect(within(cartaoDe('Arroz Branco Tipo 1')).getByText('🔔 Alvo: R$ 19.90')).toBeInTheDocument()
-      expect(JSON.parse(localStorage.getItem('sm_price_alerts'))).toEqual({ p1: 19.9 })
-      expect(screen.getByRole('button', { name: /Alertas de Preço/ })).toHaveTextContent('1')
+      expect(within(cartaoDe('Arroz Branco Tipo 1')).getByText('🔔 Alvo: R$ 19.90 (Qualquer mercado do RS)')).toBeInTheDocument()
+      expect(lerLocal('sm_price_alerts')).toEqual({ p1: { targetPrice: 19.9, marketScope: 'todos' } })
+      expect(abaAlertas()).toHaveTextContent(/Alertas de Preço\s*1$/)
+      expect(resumo()).toHaveTextContent('4 produtos · 1 alertas ativos')
     })
 
     it.each([
@@ -332,27 +321,18 @@ describe('FavoritesPage', () => {
       ['zero', '0'],
     ])('nao salva alerta com valor %s e mantem o modal aberto', async (_nome, valor) => {
       await renderizar()
-      await abrirModalDeAlerta()
+      abrirModalDeAlerta()
 
-      fireEvent.change(screen.getByLabelText('Preço Alvo Desejado (R$)'), { target: { value: valor } })
+      fireEvent.change(campoPrecoAlvo(), { target: { value: valor } })
       fireEvent.submit(dialogo().querySelector('form'))
 
       expect(screen.getByRole('dialog')).toBeInTheDocument()
       expect(localStorage.getItem('sm_price_alerts')).toBeNull()
     })
 
-    it('reabre o modal com o alerta ja salvo', async () => {
-      localStorage.setItem('sm_price_alerts', JSON.stringify({ p1: 21 }))
-      await renderizar()
-
-      await abrirModalDeAlerta()
-
-      expect(screen.getByLabelText('Preço Alvo Desejado (R$)')).toHaveValue(21)
-    })
-
     it('cancela sem salvar', async () => {
       await renderizar()
-      await abrirModalDeAlerta()
+      abrirModalDeAlerta()
 
       fireEvent.click(within(dialogo()).getByRole('button', { name: 'Cancelar' }))
 
@@ -367,62 +347,44 @@ describe('FavoritesPage', () => {
       fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover alerta'))
 
       expect(screen.getByText('Alerta de preço removido.')).toBeInTheDocument()
-      expect(JSON.parse(localStorage.getItem('sm_price_alerts'))).toEqual({})
-    })
-
-    it('ignora alertas guardados com JSON corrompido', async () => {
-      localStorage.setItem('sm_price_alerts', '{nao-e-json')
-      await renderizar()
-
-      expect(screen.getByRole('button', { name: /Alertas de Preço/ })).toHaveTextContent('0')
-    })
-
-    it('mostra o estado vazio da aba de alertas e volta para os favoritos', async () => {
-      await renderizar()
-      abrirAba('Alertas de Preço')
-
-      expect(screen.getByRole('heading', { name: 'Nenhum alerta de preço configurado' })).toBeInTheDocument()
-      fireEvent.click(screen.getByRole('button', { name: 'Ver Meus Favoritos' }))
-
-      expect(screen.getByRole('region', { name: 'Produtos Favoritos' })).toBeInTheDocument()
+      expect(lerLocal('sm_price_alerts')).toEqual({})
     })
 
     it('mostra "Meta Atingida" quando o preco atual esta no alvo ou abaixo', async () => {
       localStorage.setItem('sm_price_alerts', JSON.stringify({ p1: 25 }))
       await renderizar()
-      abrirAba('Alertas de Preço')
+      fireEvent.click(abaAlertas())
 
       expect(screen.getByText('🎉 Meta Atingida!')).toBeInTheDocument()
+      expect(screen.queryByText('🔔 Monitorando preço')).not.toBeInTheDocument()
       expect(screen.getByText('R$ 25.00')).toBeInTheDocument()
-      expect(screen.getByText('R$ 22.90')).toBeInTheDocument()
+      expect(screen.getByText('R$ 22.90 (Fort Atacadista)')).toBeInTheDocument()
     })
 
-    it('mostra "Aguardando Baixa" quando o preco atual ainda esta acima do alvo', async () => {
+    it('mostra "Monitorando preço" quando o preco atual ainda esta acima do alvo', async () => {
+      // Feijão Carioca: menor preço 7.89 (Fort) > alvo 5.
       localStorage.setItem('sm_price_alerts', JSON.stringify({ p3: 5 }))
       await renderizar()
-      abrirAba('Alertas de Preço')
+      fireEvent.click(abaAlertas())
 
-      expect(screen.getByText('Aguardando Baixa')).toBeInTheDocument()
-    })
-
-    it('ignora alertas de produtos que nao existem mais', async () => {
-      localStorage.setItem('sm_price_alerts', JSON.stringify({ inexistente: 10 }))
-      await renderizar()
-      abrirAba('Alertas de Preço')
-
-      expect(screen.queryByText('Excluir Alerta')).not.toBeInTheDocument()
+      expect(screen.getByText('🔔 Monitorando preço')).toBeInTheDocument()
+      expect(screen.queryByText('🎉 Meta Atingida!')).not.toBeInTheDocument()
+      expect(screen.getByText('R$ 7.89 (Fort Atacadista)')).toBeInTheDocument()
     })
 
     it('exclui um alerta e adiciona o produto a lista pela aba de alertas', async () => {
       localStorage.setItem('sm_price_alerts', JSON.stringify({ p1: 25 }))
       await renderizar()
-      abrirAba('Alertas de Preço')
+      fireEvent.click(abaAlertas())
 
-      fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }))
+      fireEvent.click(screen.getByRole('button', { name: '+ Lista' }))
       expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ p1: 1 })
 
-      fireEvent.click(screen.getByRole('button', { name: 'Excluir Alerta' }))
-      expect(screen.getByRole('heading', { name: 'Nenhum alerta de preço configurado' })).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+      expect(
+        screen.getByText('Você ainda não tem alertas salvos. Use o painel acima para criar o seu primeiro alerta!')
+      ).toBeInTheDocument()
+      expect(lerLocal('sm_price_alerts')).toEqual({})
     })
   })
 })

@@ -1,6 +1,18 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ProductViewer360 } from './ProductViewer360'
+
+// O jsdom usado pelo Jest não implementa PointerEvent. Sem ele, fireEvent.pointerDown/Move
+// cria um Event genérico e descarta clientX e pointerId, e o arraste nunca sai do frame 0.
+// Este polyfill mínimo herda de MouseEvent (que já carrega clientX) e acrescenta pointerId.
+if (typeof window.PointerEvent !== 'function') {
+  class PointerEventPolyfill extends MouseEvent {
+    constructor(type, init = {}) {
+      super(type, init)
+      this.pointerId = init.pointerId ?? 0
+    }
+  }
+  window.PointerEvent = PointerEventPolyfill
+}
 
 describe('ProductViewer360 (Fase 3B)', () => {
   const mockFrames = [
@@ -13,7 +25,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
   let originalImage
 
   beforeEach(() => {
-    vi.useFakeTimers()
+    jest.useFakeTimers()
     originalImage = global.Image
     // Simula carregamento síncrono das imagens no teste jsdom
     global.Image = class {
@@ -35,7 +47,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    jest.useRealTimers()
     global.Image = originalImage
   })
 
@@ -55,7 +67,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
 
     // Avança timers para disparar o onload simulado das imagens
     act(() => {
-      vi.advanceTimersByTime(50)
+      jest.advanceTimersByTime(50)
     })
 
     // Loading sumiu e visualizador está pronto
@@ -71,7 +83,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
     render(<ProductViewer360 frames={mockFrames} alt="Café Melitta 360" />)
 
     act(() => {
-      vi.advanceTimersByTime(50)
+      jest.advanceTimersByTime(50)
     })
 
     const region = screen.getByRole('region')
@@ -103,7 +115,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
     const { container } = render(<ProductViewer360 frames={mockFrames} alt="Café Melitta 360" sensitivity={10} />)
 
     act(() => {
-      vi.advanceTimersByTime(50)
+      jest.advanceTimersByTime(50)
     })
 
     const dragArea = container.querySelector('.cursor-grab')
@@ -129,7 +141,7 @@ describe('ProductViewer360 (Fase 3B)', () => {
     )
 
     act(() => {
-      vi.advanceTimersByTime(50)
+      jest.advanceTimersByTime(50)
     })
 
     expect(() => unmount()).not.toThrow()

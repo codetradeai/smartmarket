@@ -194,6 +194,58 @@ describe('AuthProvider', () => {
 
       expect(resultado.error).toBe('Falha ao realizar login. Verifique seu e-mail e senha.')
     })
+
+    it('grava sm_owner com o email do usuario apos login bem-sucedido', async () => {
+      authService.login.mockResolvedValue({
+        token: jwtValido, id: 2, nome: 'Chefe', email: 'chefe@email.com', papel: 'USER',
+      })
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.login('chefe@email.com', 'senha')
+      })
+
+      expect(localStorage.getItem('sm_owner')).toBe('chefe@email.com')
+    })
+
+    it('login de B depois de A sem logout nao leva dados de A', async () => {
+      localStorage.setItem('sm_owner', 'a@email.com')
+      localStorage.setItem('sm_fav_products', '["10","11"]')
+      localStorage.setItem('sm_fav_markets', '["3"]')
+      localStorage.setItem('sm_price_alerts', '{"10":5}')
+      sessionStorage.setItem('sm_list', '{"itens":[]}')
+
+      authService.login.mockResolvedValue({
+        token: jwtValido, id: 99, nome: 'B', email: 'b@email.com', papel: 'USER',
+      })
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.login('b@email.com', 'senha')
+      })
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
+      expect(localStorage.getItem('sm_price_alerts')).toBeNull()
+      expect(sessionStorage.getItem('sm_list')).toBeNull()
+      expect(localStorage.getItem('sm_owner')).toBe('b@email.com')
+    })
+
+    it('login do mesmo usuario nao limpa os dados locais', async () => {
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      localStorage.setItem('sm_fav_products', '["10","11"]')
+
+      authService.login.mockResolvedValue({
+        token: jwtValido, id: 1, nome: 'Ana', email: 'ana@email.com', papel: 'USER',
+      })
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.login('ana@email.com', 'senha')
+      })
+
+      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['10', '11'])
+    })
   })
 
   describe('register', () => {
@@ -269,6 +321,27 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('autenticado')).toHaveTextContent('false')
       expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
       expect(localStorage.getItem(USER_KEY)).toBeNull()
+    })
+
+    it('logout limpa as 4 chaves privadas e sm_owner', () => {
+      localStorage.setItem(TOKEN_KEY, jwtValido)
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      localStorage.setItem('sm_fav_products', '["1","2"]')
+      localStorage.setItem('sm_fav_markets', '["3"]')
+      localStorage.setItem('sm_price_alerts', '{"1":10}')
+      sessionStorage.setItem('sm_list', '{"itens":[]}')
+      renderizar()
+
+      act(() => {
+        capturado.atual.logout()
+      })
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
+      expect(localStorage.getItem('sm_price_alerts')).toBeNull()
+      expect(sessionStorage.getItem('sm_list')).toBeNull()
+      expect(localStorage.getItem('sm_owner')).toBeNull()
     })
 
     it('encerra a sessao mesmo se o localStorage lancar erro', () => {

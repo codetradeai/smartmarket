@@ -188,5 +188,31 @@ describe('favoritoService', () => {
 
       await expect(favoritoService.desfavoritarProduto(10)).rejects.toBe(erro)
     })
+
+    it('favoritarProduto com id estatico nao chama a API', async () => {
+      await favoritoService.favoritarProduto('p235')
+
+      expect(api.post).not.toHaveBeenCalled()
+    })
+
+    it('favoritarProduto com id estatico ainda salva no localStorage', async () => {
+      await favoritoService.favoritarProduto('p235')
+
+      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toContain('p235')
+    })
+
+    it('desfavoritarProduto com id estatico nao chama a API', async () => {
+      await favoritoService.desfavoritarProduto('p554')
+
+      expect(api.delete).not.toHaveBeenCalled()
+    })
+
+    it('favoritarProduto com id numerico como string chama a API normalmente', async () => {
+      api.post.mockResolvedValue({})
+
+      await favoritoService.favoritarProduto('42')
+
+      expect(api.post).toHaveBeenCalledWith('/favoritos/produtos/42')
+    })
   })
 })

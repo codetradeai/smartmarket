@@ -66,6 +66,22 @@ describe('api (axios)', () => {
       expect(localStorage.getItem('sm_user')).toBeNull()
     })
 
+    it('em erro 401 limpa os dados privados do usuario', async () => {
+      localStorage.setItem('sm_fav_products', '["1","2"]')
+      localStorage.setItem('sm_fav_markets', '["3"]')
+      localStorage.setItem('sm_price_alerts', '{"1":10}')
+      sessionStorage.setItem('sm_list', '{"itens":[]}')
+      window.history.pushState({}, '', '/auth')
+      const erro = { response: { status: 401 } }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
+      expect(localStorage.getItem('sm_price_alerts')).toBeNull()
+      expect(sessionStorage.getItem('sm_list')).toBeNull()
+    })
+
     it('em erro 401 fora da tela de login tenta redirecionar para o login', async () => {
       window.history.pushState({}, '', '/catalog')
       const consoleErro = jest.spyOn(console, 'error').mockImplementation(() => {})

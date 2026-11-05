@@ -28,6 +28,8 @@ jobs:
 
       - name: Run Backend Compilation and Tests
         working-directory: ./backend
+        env:
+          SMARTMARKET_JWT_SECRET: test-secret-somente-para-ci-nao-usar-em-producao-xx
         run: ./mvnw clean test -B
 
   frontend-test:

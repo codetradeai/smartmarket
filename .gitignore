@@ -153,3 +153,4 @@ output/
 
 frontend/templates/**/*.zip
 docs/auditoria-interna.md
+.claude/settings.local.json

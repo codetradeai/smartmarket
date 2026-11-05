@@ -86,7 +86,7 @@ Por padrão, a rotina busca a conexão na seguinte ordem:
 1. Argumento CLI `--dsn "host=... dbname=... user=... password=..."`
 2. Variável de ambiente `SMARTMARKET_DSN`
 3. Variável de ambiente `SMARTMARKET_LOCAL_DSN`
-4. Padrão local: `host=localhost port=5436 dbname=smartmarket user=smartmarket password=smartmarket123`
+4. Sem nenhuma das anteriores: encerra com mensagem de erro pedindo que `SMARTMARKET_DSN` seja definido (sem fallback de senha desde fix/segredos-config).
 
 ---
 

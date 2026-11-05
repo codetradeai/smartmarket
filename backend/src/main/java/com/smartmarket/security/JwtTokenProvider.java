@@ -24,6 +24,11 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration:86400000}") long expirationMs) {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                "SMARTMARKET_JWT_SECRET nao definido. " +
+                "Defina a variavel de ambiente antes de iniciar a aplicacao.");
+        }
         this.expirationMs = expirationMs;
         SecretKey key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
         this.jwtEncoder = NimbusJwtEncoder.withSecretKey(key)

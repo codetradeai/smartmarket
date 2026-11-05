@@ -1029,9 +1029,10 @@
       ],
       "evidencia": "Existia um valor padrão de segredo JWT versionado em application.properties e repetido em texto puro no docker-compose.yml (valor omitido; localizar com 'git log -p -- backend/src/main/resources/application.properties'). Qualquer pessoa com acesso ao repositório podia forjar tokens, inclusive de ADMIN, em ambientes que não sobrescrevessem a variável.",
       "recomendacao": "Remover o default de application.properties (falhar na inicialização se não houver variável), gerar novo segredo, rotacionar o atual e ler o do compose de um .env fora do git. Considerar o segredo atual comprometido.",
-      "status": "resolvido",
+      "status": "pendente",
       "situacao_em_2026_11_03": "application.properties lê jwt.secret só de SMARTMARKET_JWT_SECRET, sem valor padrão, e o compose exige a variável vinda de .env. Ressalva: o segredo antigo continua no histórico do git e deve ser considerado comprometido.",
-      "evidencia_publica": "Existe um valor padrão de segredo de assinatura versionado no repositório e repetido em arquivo de orquestração (valor omitido aqui). Quem tem acesso ao código pode forjar tokens, inclusive de ADMIN, em qualquer ambiente que não troque a variável."
+      "evidencia_publica": "Existe um valor padrão de segredo de assinatura versionado no repositório e repetido em arquivo de orquestração (valor omitido aqui). Quem tem acesso ao código pode forjar tokens, inclusive de ADMIN, em qualquer ambiente que não troque a variável.",
+      "situacao_em_2026_11_05": "Segredo removido do codigo-fonte e do compose (fix/segredos-config). Pendente: rotacionar o segredo nos ambientes reais (producao, staging) e confirmar que nenhum servico ainda usa o valor comprometido do historico. So marcar como resolvido apos a rotacao ser verificada."
     },
     {
       "id": "A-03",
@@ -1059,9 +1060,10 @@
       ],
       "evidencia": "Senha do banco repetida em 5 arquivos (valor omitido; localizar com 'grep -r POSTGRES_PASSWORD -- docker-compose.yml backend/docker-compose.yml'); application-prod.properties e rotina_carga.py a usavam como fallback. O compose da raiz publicava a porta 5432 em todas as interfaces.",
       "recomendacao": "Usar .env (não versionado) com .env.example; remover fallback de senha no prod e no scraper; publicar a porta do banco só em 127.0.0.1 (`127.0.0.1:5432:5432`).",
-      "status": "resolvido",
+      "status": "parcial",
       "situacao_em_2026_11_03": "Resolvido em fix/segredos-config: backend/docker-compose.yml lê senha de .env (exige variável); porta publicada em 127.0.0.1; scraper/rotina_carga.py falha com mensagem clara se DSN não for fornecido. Valor de desenvolvimento permanece em application-dev.properties (perfil isolado, não sobe em prod).",
-      "evidencia_publica": "A senha do banco de desenvolvimento aparece em texto puro em vários arquivos (valor omitido aqui); um deles a usa como valor de reserva no scraper."
+      "evidencia_publica": "A senha do banco de desenvolvimento aparece em texto puro em vários arquivos (valor omitido aqui); um deles a usa como valor de reserva no scraper.",
+      "situacao_em_2026_11_05": "Compose e application-prod.properties sem fallback (fix/segredos-config). git grep ainda encontra a senha de dev em application-dev.properties (default , perfil isolado) e em .ai/HANDOFF.md e scraper/ROTINA-DE-CARGA.md (sendo sanitizados nesta branch). A-04 sera resolvido quando o grep zerar em todos os arquivos rastreados."
     },
     {
       "id": "A-05",

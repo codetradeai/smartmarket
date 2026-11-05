@@ -14,6 +14,7 @@ import com.smartmarket.repository.MercadoRepository;
 import com.smartmarket.repository.PrecoRepository;
 import com.smartmarket.repository.ProdutoRepository;
 import com.smartmarket.repository.PromocaoRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,16 @@ class ListaCompraControllerIntegrationTest {
     private Long idLista;
     private Long idArroz;
     private Long idFeijao;
+
+    @AfterEach
+    void tearDown() {
+        promocaoRepository.deleteAll();
+        precoRepository.deleteAll();
+        itemListaRepository.deleteAll();
+        listaCompraRepository.deleteAll();
+        produtoRepository.deleteAll();
+        mercadoRepository.deleteAll();
+    }
 
     @BeforeEach
     void setUp() throws Exception {

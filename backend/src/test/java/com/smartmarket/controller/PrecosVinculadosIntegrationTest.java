@@ -7,6 +7,7 @@ import com.smartmarket.model.VinculoProduto;
 import com.smartmarket.repository.MercadoRepository;
 import com.smartmarket.repository.PrecoRepository;
 import com.smartmarket.repository.ProdutoRepository;
+import com.smartmarket.repository.PromocaoRepository;
 import com.smartmarket.repository.VinculoProdutoRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ class PrecosVinculadosIntegrationTest {
     @Autowired ProdutoRepository produtoRepository;
     @Autowired MercadoRepository mercadoRepository;
     @Autowired PrecoRepository precoRepository;
+    @Autowired PromocaoRepository promocaoRepository;
     @Autowired VinculoProdutoRepository vinculoRepository;
 
     private Produto lascaAtacadao, esponjaMaster, esponjaStok, arrozA, arrozB;
@@ -39,6 +41,7 @@ class PrecosVinculadosIntegrationTest {
     @BeforeEach
     void setUp() {
         vinculoRepository.deleteAll();
+        promocaoRepository.deleteAll();
         precoRepository.deleteAll();
         produtoRepository.deleteAll();
         mercadoRepository.deleteAll();
@@ -69,6 +72,7 @@ class PrecosVinculadosIntegrationTest {
     @AfterEach
     void limpar() {
         vinculoRepository.deleteAll();
+        promocaoRepository.deleteAll();
         precoRepository.deleteAll();
         produtoRepository.deleteAll();
         mercadoRepository.deleteAll();

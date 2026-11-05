@@ -1,11 +1,12 @@
 import { createContext, useState, useMemo, useCallback } from "react"
 import authService from "../services/authService"
+import { CHAVES, limparDadosPrivados } from "../services/storageKeys"
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null)
 
-const TOKEN_KEY = "sm_token"
-const USER_KEY = "sm_user"
+const TOKEN_KEY = CHAVES.token
+const USER_KEY = CHAVES.user
 
 /**
  * Decodifica o payload de um token JWT sem bibliotecas externas
@@ -150,9 +151,11 @@ export function AuthProvider({ children }) {
     try {
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem(USER_KEY)
+      localStorage.removeItem(CHAVES.owner)
     } catch {
       // fallback
     }
+    limparDadosPrivados()
     setToken(null)
     setUser(null)
   }, [])

@@ -68,12 +68,23 @@ describe('favoritoService', () => {
       expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 7 })
     })
 
-    it('favoritarMercado mantém como texto o id local não numérico', async () => {
-      api.post.mockResolvedValue({ data: {} })
+    it('favoritarMercado com id local nao numerico nao chama a API', async () => {
+      const resultado = await favoritoService.favoritarMercado('fort')
 
+      expect(api.post).not.toHaveBeenCalled()
+      expect(resultado).toEqual({ mercadoId: 'fort' })
+    })
+
+    it('favoritarMercado com id local nao numerico ainda salva no localStorage', async () => {
       await favoritoService.favoritarMercado('fort')
 
-      expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 'fort' })
+      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toContain('fort')
+    })
+
+    it('desfavoritarMercado com id local nao numerico nao chama a API', async () => {
+      await favoritoService.desfavoritarMercado('fort')
+
+      expect(api.delete).not.toHaveBeenCalled()
     })
 
     it('favoritarMercado sem conexao salva localmente, sem duplicar', async () => {

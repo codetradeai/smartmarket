@@ -1,4 +1,5 @@
 import axios from "axios"
+import { limparDadosPrivados } from "./storageKeys"
 
 // Base URL da API:
 // 1. VITE_API_URL, quando definida no build (backend em outro dominio).
@@ -47,6 +48,7 @@ api.interceptors.response.use(
       } catch {
         // fallback
       }
+      limparDadosPrivados()
 
       // Redireciona para o login apenas se não estiver já na página de autenticação
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {

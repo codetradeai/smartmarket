@@ -124,10 +124,13 @@ export const favoritoService = {
       localStorage.setItem("sm_fav_products", JSON.stringify([idStr]))
     }
 
-    try {
-      await api.post(`/favoritos/produtos/${idStr}`)
-    } catch (erro) {
-      if (erroDoServidor(erro)) throw erro
+    // IDs do catalogo estatico ("p123") nao sao aceitos pelo backend (Long)
+    if (/^\d+$/.test(idStr)) {
+      try {
+        await api.post(`/favoritos/produtos/${idStr}`)
+      } catch (erro) {
+        if (erroDoServidor(erro)) throw erro
+      }
     }
   },
 
@@ -144,10 +147,13 @@ export const favoritoService = {
       // fallback
     }
 
-    try {
-      await api.delete(`/favoritos/produtos/${idStr}`)
-    } catch (erro) {
-      if (erroDoServidor(erro)) throw erro
+    // IDs do catalogo estatico ("p123") nao sao aceitos pelo backend (Long)
+    if (/^\d+$/.test(idStr)) {
+      try {
+        await api.delete(`/favoritos/produtos/${idStr}`)
+      } catch (erro) {
+        if (erroDoServidor(erro)) throw erro
+      }
     }
   },
 }

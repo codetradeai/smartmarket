@@ -1,0 +1,1922 @@
+[
+ {
+  "id": "p11",
+  "rede": "master",
+  "idOrigem": "154",
+  "nome": "Arroz Parbolizado Tio João Tp1 5kg",
+  "categoria": "graos",
+  "preco": 28.99
+ },
+ {
+  "id": "p12",
+  "rede": "master",
+  "idOrigem": "323",
+  "nome": "Arroz Bco Blue Ville Tp1 1kg",
+  "categoria": "graos",
+  "preco": 4.89
+ },
+ {
+  "id": "p13",
+  "rede": "master",
+  "idOrigem": "624",
+  "nome": "Arroz Camil Tipo 1 2kg",
+  "categoria": "graos",
+  "preco": 9.59
+ },
+ {
+  "id": "p14",
+  "rede": "master",
+  "idOrigem": "1025",
+  "nome": "Arroz Blue Ville Culinária Gaúcha 1kg",
+  "categoria": "graos",
+  "preco": 13.29
+ },
+ {
+  "id": "p15",
+  "rede": "master",
+  "idOrigem": "1647",
+  "nome": "Arroz Carreteiro Tio João 175g",
+  "categoria": "graos",
+  "preco": 11.59
+ },
+ {
+  "id": "p16",
+  "rede": "master",
+  "idOrigem": "1890",
+  "nome": "Arroz Parboilizado Bella Dica 2kg",
+  "categoria": "graos",
+  "preco": 10.49
+ },
+ {
+  "id": "p17",
+  "rede": "master",
+  "idOrigem": "1911",
+  "nome": "Arroz Tio João Cozinha Tailandesa 1kg",
+  "categoria": "graos",
+  "preco": 19.39
+ },
+ {
+  "id": "p18",
+  "rede": "master",
+  "idOrigem": "2189",
+  "nome": "Arroz Branco Bella Dica 2kg",
+  "categoria": "graos",
+  "preco": 10.39
+ },
+ {
+  "id": "p19",
+  "rede": "master",
+  "idOrigem": "2261",
+  "nome": "Arroz Blue Ville Espinafre 250g",
+  "categoria": "graos",
+  "preco": 5.49
+ },
+ {
+  "id": "p20",
+  "rede": "master",
+  "idOrigem": "2582",
+  "nome": "Arroz Tio João Galinha 175g",
+  "categoria": "graos",
+  "preco": 15.69
+ },
+ {
+  "id": "p21",
+  "rede": "master",
+  "idOrigem": "522",
+  "nome": "Feijao Preto Caldo De Ouro 1kg",
+  "categoria": "graos",
+  "preco": 9.69
+ },
+ {
+  "id": "p22",
+  "rede": "master",
+  "idOrigem": "31466",
+  "nome": "Feijão Vermelho Arbaza Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 6.49
+ },
+ {
+  "id": "p23",
+  "rede": "master",
+  "idOrigem": "31457",
+  "nome": "Feijão Branco Arbaza Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 6.49
+ },
+ {
+  "id": "p24",
+  "rede": "master",
+  "idOrigem": "29438",
+  "nome": "Feijão Preto Gasparin Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 6.69
+ },
+ {
+  "id": "p25",
+  "rede": "master",
+  "idOrigem": "26865",
+  "nome": "Feijão Preto Gasparin Ypiranga 1kg",
+  "categoria": "graos",
+  "preco": 6.99
+ },
+ {
+  "id": "p26",
+  "rede": "master",
+  "idOrigem": "24145",
+  "nome": "Feijão Preto Ondão Tp1 1kg",
+  "categoria": "graos",
+  "preco": 7.99
+ },
+ {
+  "id": "p27",
+  "rede": "master",
+  "idOrigem": "14986",
+  "nome": "Feijao Preto Grãos Do Sul 1kg",
+  "categoria": "graos",
+  "preco": 5.19
+ },
+ {
+  "id": "p28",
+  "rede": "master",
+  "idOrigem": "12136",
+  "nome": "Feijao Carioca Caldo De Ouro 1kg",
+  "categoria": "graos",
+  "preco": 12.59
+ },
+ {
+  "id": "p29",
+  "rede": "master",
+  "idOrigem": "11334",
+  "nome": "Feijao Azuki Blue Ville 500g",
+  "categoria": "graos",
+  "preco": 13.39
+ },
+ {
+  "id": "p30",
+  "rede": "master",
+  "idOrigem": "10384",
+  "nome": "Feijão Preto Biju Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 8.89
+ },
+ {
+  "id": "p71",
+  "rede": "master",
+  "idOrigem": "32",
+  "nome": "Farinha Aveia Quaker 165g",
+  "categoria": "graos",
+  "preco": 6.69
+ },
+ {
+  "id": "p211",
+  "rede": "stok",
+  "idOrigem": "2414",
+  "nome": "Arroz Blue Ville Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 20.99
+ },
+ {
+  "id": "p212",
+  "rede": "stok",
+  "idOrigem": "6741",
+  "nome": "Arroz Blue Ville Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.35
+ },
+ {
+  "id": "p213",
+  "rede": "stok",
+  "idOrigem": "17629",
+  "nome": "Arroz Rozcato Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p214",
+  "rede": "stok",
+  "idOrigem": "10566",
+  "nome": "Arroz Tordilho Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 21.49
+ },
+ {
+  "id": "p215",
+  "rede": "stok",
+  "idOrigem": "7067",
+  "nome": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+  "categoria": "graos",
+  "preco": 20.99
+ },
+ {
+  "id": "p216",
+  "rede": "stok",
+  "idOrigem": "8430",
+  "nome": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 4.35
+ },
+ {
+  "id": "p217",
+  "rede": "stok",
+  "idOrigem": "22571",
+  "nome": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 12.05
+ },
+ {
+  "id": "p218",
+  "rede": "stok",
+  "idOrigem": "29141",
+  "nome": "Arroz Áurea Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 20.49
+ },
+ {
+  "id": "p219",
+  "rede": "stok",
+  "idOrigem": "10861",
+  "nome": "Arroz Tordilho Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.25
+ },
+ {
+  "id": "p220",
+  "rede": "stok",
+  "idOrigem": "17601",
+  "nome": "Arroz Rozcato Parboilizado Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p221",
+  "rede": "stok",
+  "idOrigem": "14800",
+  "nome": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 8.79
+ },
+ {
+  "id": "p222",
+  "rede": "stok",
+  "idOrigem": "10970",
+  "nome": "Feijão Tordilho Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 7.35
+ },
+ {
+  "id": "p223",
+  "rede": "stok",
+  "idOrigem": "8934",
+  "nome": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 9.35
+ },
+ {
+  "id": "p224",
+  "rede": "stok",
+  "idOrigem": "5332",
+  "nome": "Feijão Arbaza Carioca Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 11.39
+ },
+ {
+  "id": "p225",
+  "rede": "stok",
+  "idOrigem": "31320",
+  "nome": "Feijão Big Bom Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 6.09
+ },
+ {
+  "id": "p226",
+  "rede": "stok",
+  "idOrigem": "25190",
+  "nome": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 11.39
+ },
+ {
+  "id": "p227",
+  "rede": "stok",
+  "idOrigem": "7149",
+  "nome": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 7.25
+ },
+ {
+  "id": "p228",
+  "rede": "stok",
+  "idOrigem": "14070",
+  "nome": "Feijão Caldão Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 7.25
+ },
+ {
+  "id": "p229",
+  "rede": "stok",
+  "idOrigem": "5213",
+  "nome": "Feijão Fritz & Frida Preto Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 4.65
+ },
+ {
+  "id": "p230",
+  "rede": "stok",
+  "idOrigem": "4735",
+  "nome": "Feijão Arbaza Branco Tipo1 500g",
+  "categoria": "graos",
+  "preco": 6.39
+ },
+ {
+  "id": "p271",
+  "rede": "stok",
+  "idOrigem": "6841",
+  "nome": "Farinha De Trigo Nordeste Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 4.05
+ },
+ {
+  "id": "p272",
+  "rede": "stok",
+  "idOrigem": "9174",
+  "nome": "Farinha De Trigo Gardênia Tipo 2 1kg",
+  "categoria": "graos",
+  "preco": 2.69
+ },
+ {
+  "id": "p273",
+  "rede": "stok",
+  "idOrigem": "6849",
+  "nome": "Farinha De Trigo Panfácil Tradicional 5kg",
+  "categoria": "graos",
+  "preco": 19.99
+ },
+ {
+  "id": "p274",
+  "rede": "stok",
+  "idOrigem": "9129",
+  "nome": "Farinha De Trigo Gardênia Tipo 2 5kg",
+  "categoria": "graos",
+  "preco": 13.79
+ },
+ {
+  "id": "p275",
+  "rede": "stok",
+  "idOrigem": "10755",
+  "nome": "Farinha De Trigo Tordilho 1kg",
+  "categoria": "graos",
+  "preco": 4.89
+ },
+ {
+  "id": "p276",
+  "rede": "stok",
+  "idOrigem": "357",
+  "nome": "Farinha De Trigo Biondina Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p277",
+  "rede": "stok",
+  "idOrigem": "10738",
+  "nome": "Farinha De Milho Tordilho Média 1kg",
+  "categoria": "graos",
+  "preco": 4.25
+ },
+ {
+  "id": "p278",
+  "rede": "stok",
+  "idOrigem": "7796",
+  "nome": "Farinha De Trigo Panfácil Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.15
+ },
+ {
+  "id": "p279",
+  "rede": "stok",
+  "idOrigem": "5973",
+  "nome": "Farinha De Milho Beatriz Média 1kg",
+  "categoria": "graos",
+  "preco": 4.65
+ },
+ {
+  "id": "p411",
+  "rede": "stok",
+  "idOrigem": "2414",
+  "nome": "Arroz Blue Ville Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 20.99
+ },
+ {
+  "id": "p412",
+  "rede": "stok",
+  "idOrigem": "6741",
+  "nome": "Arroz Blue Ville Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.35
+ },
+ {
+  "id": "p413",
+  "rede": "stok",
+  "idOrigem": "17629",
+  "nome": "Arroz Rozcato Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p414",
+  "rede": "stok",
+  "idOrigem": "10566",
+  "nome": "Arroz Tordilho Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 21.49
+ },
+ {
+  "id": "p415",
+  "rede": "stok",
+  "idOrigem": "7067",
+  "nome": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+  "categoria": "graos",
+  "preco": 20.99
+ },
+ {
+  "id": "p416",
+  "rede": "stok",
+  "idOrigem": "8430",
+  "nome": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 4.35
+ },
+ {
+  "id": "p417",
+  "rede": "stok",
+  "idOrigem": "22571",
+  "nome": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 12.05
+ },
+ {
+  "id": "p418",
+  "rede": "stok",
+  "idOrigem": "29141",
+  "nome": "Arroz Áurea Branco Tipo 1 5kg",
+  "categoria": "graos",
+  "preco": 20.49
+ },
+ {
+  "id": "p419",
+  "rede": "stok",
+  "idOrigem": "10861",
+  "nome": "Arroz Tordilho Branco Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.25
+ },
+ {
+  "id": "p420",
+  "rede": "stok",
+  "idOrigem": "17601",
+  "nome": "Arroz Rozcato Parboilizado Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p421",
+  "rede": "stok",
+  "idOrigem": "14800",
+  "nome": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 8.79
+ },
+ {
+  "id": "p422",
+  "rede": "stok",
+  "idOrigem": "10970",
+  "nome": "Feijão Tordilho Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 7.35
+ },
+ {
+  "id": "p423",
+  "rede": "stok",
+  "idOrigem": "8934",
+  "nome": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 9.35
+ },
+ {
+  "id": "p424",
+  "rede": "stok",
+  "idOrigem": "5332",
+  "nome": "Feijão Arbaza Carioca Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 11.39
+ },
+ {
+  "id": "p425",
+  "rede": "stok",
+  "idOrigem": "31320",
+  "nome": "Feijão Big Bom Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 6.09
+ },
+ {
+  "id": "p426",
+  "rede": "stok",
+  "idOrigem": "25190",
+  "nome": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 11.39
+ },
+ {
+  "id": "p427",
+  "rede": "stok",
+  "idOrigem": "7149",
+  "nome": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 7.25
+ },
+ {
+  "id": "p428",
+  "rede": "stok",
+  "idOrigem": "14070",
+  "nome": "Feijão Caldão Preto Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 7.25
+ },
+ {
+  "id": "p429",
+  "rede": "stok",
+  "idOrigem": "5213",
+  "nome": "Feijão Fritz & Frida Preto Tipo 1 500g",
+  "categoria": "graos",
+  "preco": 4.65
+ },
+ {
+  "id": "p430",
+  "rede": "stok",
+  "idOrigem": "4735",
+  "nome": "Feijão Arbaza Branco Tipo1 500g",
+  "categoria": "graos",
+  "preco": 6.39
+ },
+ {
+  "id": "p471",
+  "rede": "stok",
+  "idOrigem": "6841",
+  "nome": "Farinha De Trigo Nordeste Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 4.05
+ },
+ {
+  "id": "p472",
+  "rede": "stok",
+  "idOrigem": "9174",
+  "nome": "Farinha De Trigo Gardênia Tipo 2 1kg",
+  "categoria": "graos",
+  "preco": 2.69
+ },
+ {
+  "id": "p473",
+  "rede": "stok",
+  "idOrigem": "6849",
+  "nome": "Farinha De Trigo Panfácil Tradicional 5kg",
+  "categoria": "graos",
+  "preco": 19.99
+ },
+ {
+  "id": "p474",
+  "rede": "stok",
+  "idOrigem": "9129",
+  "nome": "Farinha De Trigo Gardênia Tipo 2 5kg",
+  "categoria": "graos",
+  "preco": 13.79
+ },
+ {
+  "id": "p475",
+  "rede": "stok",
+  "idOrigem": "10755",
+  "nome": "Farinha De Trigo Tordilho 1kg",
+  "categoria": "graos",
+  "preco": 4.89
+ },
+ {
+  "id": "p476",
+  "rede": "stok",
+  "idOrigem": "357",
+  "nome": "Farinha De Trigo Biondina Tipo1 1kg",
+  "categoria": "graos",
+  "preco": 3.59
+ },
+ {
+  "id": "p477",
+  "rede": "stok",
+  "idOrigem": "10738",
+  "nome": "Farinha De Milho Tordilho Média 1kg",
+  "categoria": "graos",
+  "preco": 4.25
+ },
+ {
+  "id": "p478",
+  "rede": "stok",
+  "idOrigem": "7796",
+  "nome": "Farinha De Trigo Panfácil Tipo 1 1kg",
+  "categoria": "graos",
+  "preco": 4.15
+ },
+ {
+  "id": "p479",
+  "rede": "stok",
+  "idOrigem": "5973",
+  "nome": "Farinha De Milho Beatriz Média 1kg",
+  "categoria": "graos",
+  "preco": 4.65
+ },
+ {
+  "id": "p8",
+  "rede": "atacadao",
+  "idOrigem": "59317",
+  "nome": "Leite Condensado Moça Integral 15% Grátis 395g",
+  "categoria": "leites",
+  "preco": 8.48
+ },
+ {
+  "id": "p32",
+  "rede": "master",
+  "idOrigem": "86",
+  "nome": "Leite Fermentado Polpa Activia 510g Mamao/cer.",
+  "categoria": "leites",
+  "preco": 17.99
+ },
+ {
+  "id": "p33",
+  "rede": "master",
+  "idOrigem": "321",
+  "nome": "Leite Em Pó Nan Comfort N2 800g",
+  "categoria": "leites",
+  "preco": 89.9
+ },
+ {
+  "id": "p34",
+  "rede": "master",
+  "idOrigem": "428",
+  "nome": "Leite Fermentado Polpa Activia 510g Mor.",
+  "categoria": "leites",
+  "preco": 17.99
+ },
+ {
+  "id": "p35",
+  "rede": "master",
+  "idOrigem": "661",
+  "nome": "Leite Condensado Nestlé Moça Lata 395g Integral",
+  "categoria": "leites",
+  "preco": 12.29
+ },
+ {
+  "id": "p36",
+  "rede": "master",
+  "idOrigem": "1005",
+  "nome": "Leite De Côco Light Sococo 200ml",
+  "categoria": "leites",
+  "preco": 9.99
+ },
+ {
+  "id": "p37",
+  "rede": "master",
+  "idOrigem": "1088",
+  "nome": "Leite Santa Clara Integral 1l",
+  "categoria": "leites",
+  "preco": 5.59
+ },
+ {
+  "id": "p38",
+  "rede": "master",
+  "idOrigem": "1141",
+  "nome": "Leite Leitissimo 1l Uht Zero Lactose Integral",
+  "categoria": "leites",
+  "preco": 12.49
+ },
+ {
+  "id": "p39",
+  "rede": "master",
+  "idOrigem": "1508",
+  "nome": "Leite Molico Desnatado 1l",
+  "categoria": "leites",
+  "preco": 4.99
+ },
+ {
+  "id": "p40",
+  "rede": "master",
+  "idOrigem": "1625",
+  "nome": "Leite Fermentado Nestlé Chamyto 720g",
+  "categoria": "leites",
+  "preco": 14.39
+ },
+ {
+  "id": "p231",
+  "rede": "stok",
+  "idOrigem": "1956",
+  "nome": "Leite Elegê Uht Integral 1l",
+  "categoria": "leites",
+  "preco": 4.65
+ },
+ {
+  "id": "p234",
+  "rede": "stok",
+  "idOrigem": "9474",
+  "nome": "Leite Italac Uht Zero Lactose 1l",
+  "categoria": "leites",
+  "preco": 5.49
+ },
+ {
+  "id": "p235",
+  "rede": "stok",
+  "idOrigem": "6977",
+  "nome": "Leite Condensado Elegê Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 3.99
+ },
+ {
+  "id": "p236",
+  "rede": "stok",
+  "idOrigem": "4546",
+  "nome": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+  "categoria": "leites",
+  "preco": 5.79
+ },
+ {
+  "id": "p237",
+  "rede": "stok",
+  "idOrigem": "4822",
+  "nome": "Leite Elegê Uht Desnatado 1l",
+  "categoria": "leites",
+  "preco": 4.55
+ },
+ {
+  "id": "p238",
+  "rede": "stok",
+  "idOrigem": "634",
+  "nome": "Leite Italac Uht Semidesnatado 1l",
+  "categoria": "leites",
+  "preco": 4.65
+ },
+ {
+  "id": "p239",
+  "rede": "stok",
+  "idOrigem": "142",
+  "nome": "Leite Condensado Italac Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 6.09
+ },
+ {
+  "id": "p240",
+  "rede": "stok",
+  "idOrigem": "25931",
+  "nome": "Leite Condensado Bão De Minas Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 4.55
+ },
+ {
+  "id": "p431",
+  "rede": "stok",
+  "idOrigem": "1956",
+  "nome": "Leite Elegê Uht Integral 1l",
+  "categoria": "leites",
+  "preco": 4.65
+ },
+ {
+  "id": "p434",
+  "rede": "stok",
+  "idOrigem": "9474",
+  "nome": "Leite Italac Uht Zero Lactose 1l",
+  "categoria": "leites",
+  "preco": 5.49
+ },
+ {
+  "id": "p435",
+  "rede": "stok",
+  "idOrigem": "6977",
+  "nome": "Leite Condensado Elegê Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 3.99
+ },
+ {
+  "id": "p436",
+  "rede": "stok",
+  "idOrigem": "4546",
+  "nome": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+  "categoria": "leites",
+  "preco": 5.79
+ },
+ {
+  "id": "p437",
+  "rede": "stok",
+  "idOrigem": "4822",
+  "nome": "Leite Elegê Uht Desnatado 1l",
+  "categoria": "leites",
+  "preco": 4.55
+ },
+ {
+  "id": "p438",
+  "rede": "stok",
+  "idOrigem": "634",
+  "nome": "Leite Italac Uht Semidesnatado 1l",
+  "categoria": "leites",
+  "preco": 4.65
+ },
+ {
+  "id": "p439",
+  "rede": "stok",
+  "idOrigem": "142",
+  "nome": "Leite Condensado Italac Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 6.09
+ },
+ {
+  "id": "p440",
+  "rede": "stok",
+  "idOrigem": "25931",
+  "nome": "Leite Condensado Bão De Minas Semidesnatado 395g",
+  "categoria": "leites",
+  "preco": 4.55
+ },
+ {
+  "id": "p41",
+  "rede": "master",
+  "idOrigem": "6752",
+  "nome": "Café Torrado E Moído 3 Corações Peneirando Café 250g",
+  "categoria": "cafe",
+  "preco": 32.9
+ },
+ {
+  "id": "p42",
+  "rede": "master",
+  "idOrigem": "6073",
+  "nome": "Café 3 Corações Café/leite Cápsulas 90g",
+  "categoria": "cafe",
+  "preco": 24.49
+ },
+ {
+  "id": "p45",
+  "rede": "master",
+  "idOrigem": "12416",
+  "nome": "Café Moido Orgânico Native 250g",
+  "categoria": "cafe",
+  "preco": 31.98
+ },
+ {
+  "id": "p46",
+  "rede": "master",
+  "idOrigem": "12380",
+  "nome": "Café Torrado E Moído Melitta Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 28.99
+ },
+ {
+  "id": "p47",
+  "rede": "master",
+  "idOrigem": "12214",
+  "nome": "Café Melitta Regiões Brasileiras Mogiana 250g",
+  "categoria": "cafe",
+  "preco": 24.99
+ },
+ {
+  "id": "p48",
+  "rede": "master",
+  "idOrigem": "12037",
+  "nome": "Café Liofilizado Orgânico Native 50g",
+  "categoria": "cafe",
+  "preco": 24.98
+ },
+ {
+  "id": "p49",
+  "rede": "master",
+  "idOrigem": "11964",
+  "nome": "Café Extra Forte Melitta 250g",
+  "categoria": "cafe",
+  "preco": 16.99
+ },
+ {
+  "id": "p241",
+  "rede": "stok",
+  "idOrigem": "8628",
+  "nome": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 26.99
+ },
+ {
+  "id": "p242",
+  "rede": "stok",
+  "idOrigem": "3169",
+  "nome": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p243",
+  "rede": "stok",
+  "idOrigem": "4595",
+  "nome": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 21.99
+ },
+ {
+  "id": "p244",
+  "rede": "stok",
+  "idOrigem": "8608",
+  "nome": "Café Melitta Regiões Sul De Minas 250g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p245",
+  "rede": "stok",
+  "idOrigem": "4496",
+  "nome": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+  "categoria": "cafe",
+  "preco": 26.99
+ },
+ {
+  "id": "p246",
+  "rede": "stok",
+  "idOrigem": "12224",
+  "nome": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 29.49
+ },
+ {
+  "id": "p247",
+  "rede": "stok",
+  "idOrigem": "22402",
+  "nome": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+  "categoria": "cafe",
+  "preco": 21.9
+ },
+ {
+  "id": "p248",
+  "rede": "stok",
+  "idOrigem": "24134",
+  "nome": "Café Bom Jesus Solúvel Sachê 40g",
+  "categoria": "cafe",
+  "preco": 5.99
+ },
+ {
+  "id": "p249",
+  "rede": "stok",
+  "idOrigem": "17460",
+  "nome": "Café Melitta Solúvel Tradicional 40g",
+  "categoria": "cafe",
+  "preco": 6.65
+ },
+ {
+  "id": "p250",
+  "rede": "stok",
+  "idOrigem": "7499",
+  "nome": "Café Melitta Regiões Cerrado 250g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p441",
+  "rede": "stok",
+  "idOrigem": "8628",
+  "nome": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 26.99
+ },
+ {
+  "id": "p442",
+  "rede": "stok",
+  "idOrigem": "3169",
+  "nome": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p443",
+  "rede": "stok",
+  "idOrigem": "4595",
+  "nome": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 21.99
+ },
+ {
+  "id": "p444",
+  "rede": "stok",
+  "idOrigem": "8608",
+  "nome": "Café Melitta Regiões Sul De Minas 250g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p445",
+  "rede": "stok",
+  "idOrigem": "4496",
+  "nome": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+  "categoria": "cafe",
+  "preco": 26.99
+ },
+ {
+  "id": "p446",
+  "rede": "stok",
+  "idOrigem": "12224",
+  "nome": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+  "categoria": "cafe",
+  "preco": 29.49
+ },
+ {
+  "id": "p447",
+  "rede": "stok",
+  "idOrigem": "22402",
+  "nome": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+  "categoria": "cafe",
+  "preco": 21.9
+ },
+ {
+  "id": "p448",
+  "rede": "stok",
+  "idOrigem": "24134",
+  "nome": "Café Bom Jesus Solúvel Sachê 40g",
+  "categoria": "cafe",
+  "preco": 5.99
+ },
+ {
+  "id": "p449",
+  "rede": "stok",
+  "idOrigem": "17460",
+  "nome": "Café Melitta Solúvel Tradicional 40g",
+  "categoria": "cafe",
+  "preco": 6.65
+ },
+ {
+  "id": "p450",
+  "rede": "stok",
+  "idOrigem": "7499",
+  "nome": "Café Melitta Regiões Cerrado 250g",
+  "categoria": "cafe",
+  "preco": 23.49
+ },
+ {
+  "id": "p62",
+  "rede": "master",
+  "idOrigem": "11210",
+  "nome": "Óleo Coco Qualicoco S/sabor 200ml",
+  "categoria": "oleos",
+  "preco": 24.49
+ },
+ {
+  "id": "p63",
+  "rede": "master",
+  "idOrigem": "11052",
+  "nome": "Óleo Côco Copra Spray 100ml Ext.virg.",
+  "categoria": "oleos",
+  "preco": 51.9
+ },
+ {
+  "id": "p65",
+  "rede": "master",
+  "idOrigem": "10555",
+  "nome": "Óleo Coco Copra S/sabor 200ml",
+  "categoria": "oleos",
+  "preco": 27.98
+ },
+ {
+  "id": "p67",
+  "rede": "master",
+  "idOrigem": "10233",
+  "nome": "Óleo Coco Coco Show Extra Virgem 500ml",
+  "categoria": "oleos",
+  "preco": 49.9
+ },
+ {
+  "id": "p70",
+  "rede": "master",
+  "idOrigem": "7905",
+  "nome": "Óleo Côco Sococo Ext.virg.200ml",
+  "categoria": "oleos",
+  "preco": 19.99
+ },
+ {
+  "id": "p261",
+  "rede": "stok",
+  "idOrigem": "204",
+  "nome": "Óleo De Soja Coamo Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 8.09
+ },
+ {
+  "id": "p265",
+  "rede": "stok",
+  "idOrigem": "31450",
+  "nome": "Óleo De Girassol Legítimo Tipo1 900ml",
+  "categoria": "oleos",
+  "preco": 9.99
+ },
+ {
+  "id": "p266",
+  "rede": "stok",
+  "idOrigem": "17521",
+  "nome": "Óleo De Girassol Soya Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 13.49
+ },
+ {
+  "id": "p268",
+  "rede": "stok",
+  "idOrigem": "11174",
+  "nome": "Óleo De Soja Soya Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 8.29
+ },
+ {
+  "id": "p461",
+  "rede": "stok",
+  "idOrigem": "204",
+  "nome": "Óleo De Soja Coamo Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 8.09
+ },
+ {
+  "id": "p465",
+  "rede": "stok",
+  "idOrigem": "31450",
+  "nome": "Óleo De Girassol Legítimo Tipo1 900ml",
+  "categoria": "oleos",
+  "preco": 9.99
+ },
+ {
+  "id": "p466",
+  "rede": "stok",
+  "idOrigem": "17521",
+  "nome": "Óleo De Girassol Soya Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 13.49
+ },
+ {
+  "id": "p468",
+  "rede": "stok",
+  "idOrigem": "11174",
+  "nome": "Óleo De Soja Soya Tipo 1 900ml",
+  "categoria": "oleos",
+  "preco": 8.29
+ },
+ {
+  "id": "p9",
+  "rede": "atacadao",
+  "idOrigem": "55718",
+  "nome": "Molho de Tomate Quero Tradicional 240g",
+  "categoria": "mercearia",
+  "preco": 1.89
+ },
+ {
+  "id": "p10",
+  "rede": "atacadao",
+  "idOrigem": "171471",
+  "nome": "Açúcar Refinado Bulnez 1kg",
+  "categoria": "mercearia",
+  "preco": 3.15
+ },
+ {
+  "id": "p51",
+  "rede": "master",
+  "idOrigem": "1291",
+  "nome": "Açúcar Cristal Montare 5kg",
+  "categoria": "mercearia",
+  "preco": 14.99
+ },
+ {
+  "id": "p52",
+  "rede": "master",
+  "idOrigem": "1302",
+  "nome": "Açúcar Baunilha Monopol 500g",
+  "categoria": "mercearia",
+  "preco": 16.29
+ },
+ {
+  "id": "p53",
+  "rede": "master",
+  "idOrigem": "1364",
+  "nome": "Açúcar Demerara Caravelas 1kg",
+  "categoria": "mercearia",
+  "preco": 5.89
+ },
+ {
+  "id": "p54",
+  "rede": "master",
+  "idOrigem": "1782",
+  "nome": "Açúcar Refinado Caravelas 5kg",
+  "categoria": "mercearia",
+  "preco": 19.9
+ },
+ {
+  "id": "p55",
+  "rede": "master",
+  "idOrigem": "3370",
+  "nome": "Açúcar Mascavo Guimarães 500g",
+  "categoria": "mercearia",
+  "preco": 7.99
+ },
+ {
+  "id": "p56",
+  "rede": "master",
+  "idOrigem": "3566",
+  "nome": "Açúcar Cristal Colombo 1kg",
+  "categoria": "mercearia",
+  "preco": 3.59
+ },
+ {
+  "id": "p57",
+  "rede": "master",
+  "idOrigem": "3939",
+  "nome": "Açúcar Cristal Colombo 2kg",
+  "categoria": "mercearia",
+  "preco": 8.29
+ },
+ {
+  "id": "p58",
+  "rede": "master",
+  "idOrigem": "4399",
+  "nome": "Açúcar Orgânico Native Demerara 1kg",
+  "categoria": "mercearia",
+  "preco": 10.99
+ },
+ {
+  "id": "p59",
+  "rede": "master",
+  "idOrigem": "5249",
+  "nome": "Açúcar Baunilha Apti 100g",
+  "categoria": "mercearia",
+  "preco": 3.49
+ },
+ {
+  "id": "p60",
+  "rede": "master",
+  "idOrigem": "6822",
+  "nome": "Açúcar Refinado União 1kg",
+  "categoria": "mercearia",
+  "preco": 4.69
+ },
+ {
+  "id": "p64",
+  "rede": "master",
+  "idOrigem": "10835",
+  "nome": "Óleo Milho Soya 900ml",
+  "categoria": "mercearia",
+  "preco": 15.99
+ },
+ {
+  "id": "p72",
+  "rede": "master",
+  "idOrigem": "319",
+  "nome": "Farinha Amendoim Geração Saude 500g",
+  "categoria": "mercearia",
+  "preco": 21.49
+ },
+ {
+  "id": "p73",
+  "rede": "master",
+  "idOrigem": "362",
+  "nome": "Farinha Milho Yoki Kimilho 500g",
+  "categoria": "mercearia",
+  "preco": 6.99
+ },
+ {
+  "id": "p74",
+  "rede": "master",
+  "idOrigem": "601",
+  "nome": "Farinha Berinjela Geração Saude 150g",
+  "categoria": "mercearia",
+  "preco": 18.69
+ },
+ {
+  "id": "p75",
+  "rede": "master",
+  "idOrigem": "703",
+  "nome": "Farinha Kimilho Yoki Flocao 500g",
+  "categoria": "mercearia",
+  "preco": 5.99
+ },
+ {
+  "id": "p76",
+  "rede": "master",
+  "idOrigem": "2941",
+  "nome": "Farinha Yoki Kipolenta 500g",
+  "categoria": "mercearia",
+  "preco": 7.39
+ },
+ {
+  "id": "p77",
+  "rede": "master",
+  "idOrigem": "3327",
+  "nome": "Farinha Milho Beatriz Fina 1kg",
+  "categoria": "mercearia",
+  "preco": 5.99
+ },
+ {
+  "id": "p78",
+  "rede": "master",
+  "idOrigem": "3938",
+  "nome": "Farinha Neston Vitam.ban./pera/mor/400g",
+  "categoria": "mercearia",
+  "preco": 18.99
+ },
+ {
+  "id": "p79",
+  "rede": "master",
+  "idOrigem": "4528",
+  "nome": "Farinha Láctea Nestlé Sachê 210g",
+  "categoria": "mercearia",
+  "preco": 12.99
+ },
+ {
+  "id": "p80",
+  "rede": "master",
+  "idOrigem": "4835",
+  "nome": "Farinha Milho Yoki Amarela 500g",
+  "categoria": "mercearia",
+  "preco": 8.99
+ },
+ {
+  "id": "p81",
+  "rede": "master",
+  "idOrigem": "330",
+  "nome": "Massa Fresca Romena Espaguete 500g",
+  "categoria": "mercearia",
+  "preco": 7.99
+ },
+ {
+  "id": "p82",
+  "rede": "master",
+  "idOrigem": "414",
+  "nome": "Massa Ovos Sêmola Barilla 500g Linguine",
+  "categoria": "mercearia",
+  "preco": 6.39
+ },
+ {
+  "id": "p83",
+  "rede": "master",
+  "idOrigem": "898",
+  "nome": "Massa Fresca Romena Penne 500g",
+  "categoria": "mercearia",
+  "preco": 7.99
+ },
+ {
+  "id": "p84",
+  "rede": "master",
+  "idOrigem": "986",
+  "nome": "Massa P/pizza João Das Massas 200g",
+  "categoria": "mercearia",
+  "preco": 6.29
+ },
+ {
+  "id": "p85",
+  "rede": "master",
+  "idOrigem": "1028",
+  "nome": "Massa P/pastel Italiany 200g",
+  "categoria": "mercearia",
+  "preco": 4.99
+ },
+ {
+  "id": "p86",
+  "rede": "master",
+  "idOrigem": "1063",
+  "nome": "Massa P/pastel Italiany 1kg",
+  "categoria": "mercearia",
+  "preco": 15.49
+ },
+ {
+  "id": "p87",
+  "rede": "master",
+  "idOrigem": "1173",
+  "nome": "Massa Caseiro Germani Talharim Largo 500g",
+  "categoria": "mercearia",
+  "preco": 8.19
+ },
+ {
+  "id": "p88",
+  "rede": "master",
+  "idOrigem": "1308",
+  "nome": "Massa Paganini Rigatoni 500g",
+  "categoria": "mercearia",
+  "preco": 12.89
+ },
+ {
+  "id": "p89",
+  "rede": "master",
+  "idOrigem": "1350",
+  "nome": "Massa P/pastel Romena 500g",
+  "categoria": "mercearia",
+  "preco": 5.99
+ },
+ {
+  "id": "p90",
+  "rede": "master",
+  "idOrigem": "1416",
+  "nome": "Massa Caseiro P/pastel Italiany 650g",
+  "categoria": "mercearia",
+  "preco": 10.79
+ },
+ {
+  "id": "p251",
+  "rede": "stok",
+  "idOrigem": "2071",
+  "nome": "Açúcar Alto Alegre Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.05
+ },
+ {
+  "id": "p252",
+  "rede": "stok",
+  "idOrigem": "3386",
+  "nome": "Açúcar Gasparin Cristal 2kg",
+  "categoria": "mercearia",
+  "preco": 6.65
+ },
+ {
+  "id": "p253",
+  "rede": "stok",
+  "idOrigem": "2258",
+  "nome": "Açúcar Gasparin Cristal 1kg",
+  "categoria": "mercearia",
+  "preco": 3.49
+ },
+ {
+  "id": "p254",
+  "rede": "stok",
+  "idOrigem": "9651",
+  "nome": "Açúcar Caravelas Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.15
+ },
+ {
+  "id": "p255",
+  "rede": "stok",
+  "idOrigem": "4056",
+  "nome": "Açúcar União Naturale Demerara 1kg",
+  "categoria": "mercearia",
+  "preco": 6.09
+ },
+ {
+  "id": "p256",
+  "rede": "stok",
+  "idOrigem": "6620",
+  "nome": "Açúcar Gasparin Mascavo 500g",
+  "categoria": "mercearia",
+  "preco": 5.89
+ },
+ {
+  "id": "p257",
+  "rede": "stok",
+  "idOrigem": "19234",
+  "nome": "Açúcar Gasparin Mascavo 1kg",
+  "categoria": "mercearia",
+  "preco": 12.05
+ },
+ {
+  "id": "p258",
+  "rede": "stok",
+  "idOrigem": "9359",
+  "nome": "Açúcar Caravelas Refinado 5kg",
+  "categoria": "mercearia",
+  "preco": 19.29
+ },
+ {
+  "id": "p259",
+  "rede": "stok",
+  "idOrigem": "7657",
+  "nome": "Açúcar União Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.55
+ },
+ {
+  "id": "p260",
+  "rede": "stok",
+  "idOrigem": "8353",
+  "nome": "Açúcar Gasparin Demerara 1kg",
+  "categoria": "mercearia",
+  "preco": 4.25
+ },
+ {
+  "id": "p262",
+  "rede": "stok",
+  "idOrigem": "14761",
+  "nome": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+  "categoria": "mercearia",
+  "preco": 207.99
+ },
+ {
+  "id": "p263",
+  "rede": "stok",
+  "idOrigem": "31879",
+  "nome": "Oleo Nivea Banho Relaxante 200ml",
+  "categoria": "mercearia",
+  "preco": 47.99
+ },
+ {
+  "id": "p264",
+  "rede": "stok",
+  "idOrigem": "1043",
+  "nome": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+  "categoria": "mercearia",
+  "preco": 19.99
+ },
+ {
+  "id": "p267",
+  "rede": "stok",
+  "idOrigem": "215",
+  "nome": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+  "categoria": "mercearia",
+  "preco": 18.99
+ },
+ {
+  "id": "p269",
+  "rede": "stok",
+  "idOrigem": "34403",
+  "nome": "Óleo De Algodão Saúde Tipo1 900ml",
+  "categoria": "mercearia",
+  "preco": 11.39
+ },
+ {
+  "id": "p270",
+  "rede": "stok",
+  "idOrigem": "31440",
+  "nome": "Óleo Canola Soya Tipo1 900ml",
+  "categoria": "mercearia",
+  "preco": 13.09
+ },
+ {
+  "id": "p280",
+  "rede": "stok",
+  "idOrigem": "4487",
+  "nome": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+  "categoria": "mercearia",
+  "preco": 4.09
+ },
+ {
+  "id": "p281",
+  "rede": "stok",
+  "idOrigem": "20039",
+  "nome": "Massa Monte Viso Com Ovos Parafuso 500g",
+  "categoria": "mercearia",
+  "preco": 3.09
+ },
+ {
+  "id": "p282",
+  "rede": "stok",
+  "idOrigem": "754",
+  "nome": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+  "categoria": "mercearia",
+  "preco": 3.39
+ },
+ {
+  "id": "p283",
+  "rede": "stok",
+  "idOrigem": "2276",
+  "nome": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+  "categoria": "mercearia",
+  "preco": 3.39
+ },
+ {
+  "id": "p284",
+  "rede": "stok",
+  "idOrigem": "20038",
+  "nome": "Massa Monte Viso Com Ovos Espaguete 500g",
+  "categoria": "mercearia",
+  "preco": 3.09
+ },
+ {
+  "id": "p285",
+  "rede": "stok",
+  "idOrigem": "19023",
+  "nome": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p286",
+  "rede": "stok",
+  "idOrigem": "19075",
+  "nome": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p287",
+  "rede": "stok",
+  "idOrigem": "19025",
+  "nome": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p288",
+  "rede": "stok",
+  "idOrigem": "21230",
+  "nome": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p289",
+  "rede": "stok",
+  "idOrigem": "31121",
+  "nome": "Massa Orquídea Mais Molho Rigatone Riscado Com Ovo 400g",
+  "categoria": "mercearia",
+  "preco": 4.35
+ },
+ {
+  "id": "p290",
+  "rede": "stok",
+  "idOrigem": "25529",
+  "nome": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+  "categoria": "mercearia",
+  "preco": 2.39
+ },
+ {
+  "id": "p451",
+  "rede": "stok",
+  "idOrigem": "2071",
+  "nome": "Açúcar Alto Alegre Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.05
+ },
+ {
+  "id": "p452",
+  "rede": "stok",
+  "idOrigem": "3386",
+  "nome": "Açúcar Gasparin Cristal 2kg",
+  "categoria": "mercearia",
+  "preco": 6.65
+ },
+ {
+  "id": "p453",
+  "rede": "stok",
+  "idOrigem": "2258",
+  "nome": "Açúcar Gasparin Cristal 1kg",
+  "categoria": "mercearia",
+  "preco": 3.49
+ },
+ {
+  "id": "p454",
+  "rede": "stok",
+  "idOrigem": "9651",
+  "nome": "Açúcar Caravelas Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.15
+ },
+ {
+  "id": "p455",
+  "rede": "stok",
+  "idOrigem": "4056",
+  "nome": "Açúcar União Naturale Demerara 1kg",
+  "categoria": "mercearia",
+  "preco": 6.09
+ },
+ {
+  "id": "p456",
+  "rede": "stok",
+  "idOrigem": "6620",
+  "nome": "Açúcar Gasparin Mascavo 500g",
+  "categoria": "mercearia",
+  "preco": 5.89
+ },
+ {
+  "id": "p457",
+  "rede": "stok",
+  "idOrigem": "19234",
+  "nome": "Açúcar Gasparin Mascavo 1kg",
+  "categoria": "mercearia",
+  "preco": 12.05
+ },
+ {
+  "id": "p458",
+  "rede": "stok",
+  "idOrigem": "9359",
+  "nome": "Açúcar Caravelas Refinado 5kg",
+  "categoria": "mercearia",
+  "preco": 19.29
+ },
+ {
+  "id": "p459",
+  "rede": "stok",
+  "idOrigem": "7657",
+  "nome": "Açúcar União Refinado 1kg",
+  "categoria": "mercearia",
+  "preco": 4.55
+ },
+ {
+  "id": "p460",
+  "rede": "stok",
+  "idOrigem": "8353",
+  "nome": "Açúcar Gasparin Demerara 1kg",
+  "categoria": "mercearia",
+  "preco": 4.25
+ },
+ {
+  "id": "p462",
+  "rede": "stok",
+  "idOrigem": "14761",
+  "nome": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+  "categoria": "mercearia",
+  "preco": 207.99
+ },
+ {
+  "id": "p463",
+  "rede": "stok",
+  "idOrigem": "31879",
+  "nome": "Oleo Nivea Banho Relaxante 200ml",
+  "categoria": "mercearia",
+  "preco": 47.99
+ },
+ {
+  "id": "p464",
+  "rede": "stok",
+  "idOrigem": "1043",
+  "nome": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+  "categoria": "mercearia",
+  "preco": 19.99
+ },
+ {
+  "id": "p467",
+  "rede": "stok",
+  "idOrigem": "215",
+  "nome": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+  "categoria": "mercearia",
+  "preco": 18.99
+ },
+ {
+  "id": "p469",
+  "rede": "stok",
+  "idOrigem": "34403",
+  "nome": "Óleo De Algodão Saúde Tipo1 900ml",
+  "categoria": "mercearia",
+  "preco": 11.39
+ },
+ {
+  "id": "p470",
+  "rede": "stok",
+  "idOrigem": "31440",
+  "nome": "Óleo Canola Soya Tipo1 900ml",
+  "categoria": "mercearia",
+  "preco": 13.09
+ },
+ {
+  "id": "p480",
+  "rede": "stok",
+  "idOrigem": "4487",
+  "nome": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+  "categoria": "mercearia",
+  "preco": 4.09
+ },
+ {
+  "id": "p481",
+  "rede": "stok",
+  "idOrigem": "20039",
+  "nome": "Massa Monte Viso Com Ovos Parafuso 500g",
+  "categoria": "mercearia",
+  "preco": 3.09
+ },
+ {
+  "id": "p482",
+  "rede": "stok",
+  "idOrigem": "754",
+  "nome": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+  "categoria": "mercearia",
+  "preco": 3.39
+ },
+ {
+  "id": "p483",
+  "rede": "stok",
+  "idOrigem": "2276",
+  "nome": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+  "categoria": "mercearia",
+  "preco": 3.39
+ },
+ {
+  "id": "p484",
+  "rede": "stok",
+  "idOrigem": "20038",
+  "nome": "Massa Monte Viso Com Ovos Espaguete 500g",
+  "categoria": "mercearia",
+  "preco": 3.09
+ },
+ {
+  "id": "p485",
+  "rede": "stok",
+  "idOrigem": "19023",
+  "nome": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p486",
+  "rede": "stok",
+  "idOrigem": "19075",
+  "nome": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p487",
+  "rede": "stok",
+  "idOrigem": "19025",
+  "nome": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p488",
+  "rede": "stok",
+  "idOrigem": "21230",
+  "nome": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+  "categoria": "mercearia",
+  "preco": 3.79
+ },
+ {
+  "id": "p489",
+  "rede": "stok",
+  "idOrigem": "31121",
+  "nome": "Massa Orquídea Mais Molho Rigatone Riscado Com Ovo 400g",
+  "categoria": "mercearia",
+  "preco": 4.35
+ },
+ {
+  "id": "p490",
+  "rede": "stok",
+  "idOrigem": "25529",
+  "nome": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+  "categoria": "mercearia",
+  "preco": 2.39
+ },
+ {
+  "id": "p61",
+  "rede": "master",
+  "idOrigem": "12278",
+  "nome": "Óleo Kalipto Eucalipto 120ml",
+  "categoria": "limpeza",
+  "preco": 18.79
+ },
+ {
+  "id": "p66",
+  "rede": "master",
+  "idOrigem": "10528",
+  "nome": "Óleo De Peroba King Restaurador Madeira Avermelhada 200ml",
+  "categoria": "limpeza",
+  "preco": 26.49
+ },
+ {
+  "id": "p69",
+  "rede": "master",
+  "idOrigem": "9828",
+  "nome": "Óleo Lubrificante King Multiuso 100ml",
+  "categoria": "limpeza",
+  "preco": 7.99
+ },
+ {
+  "id": "p111",
+  "rede": "master",
+  "idOrigem": "563",
+  "nome": "Sabão Barra Font Glicerinado Jeans 200g",
+  "categoria": "limpeza",
+  "preco": 3.49
+ },
+ {
+  "id": "p112",
+  "rede": "master",
+  "idOrigem": "1056",
+  "nome": "Sabão Barra Ypê Neutro 180g",
+  "categoria": "limpeza",
+  "preco": 4.99
+ },
+ {
+  "id": "p113",
+  "rede": "master",
+  "idOrigem": "2142",
+  "nome": "Sabão Barra Girando Sol Glicerinado Glicerina 400g",
+  "categoria": "limpeza",
+  "preco": 5.99
+ },
+ {
+  "id": "p114",
+  "rede": "master",
+  "idOrigem": "4427",
+  "nome": "Sabão Barra Vanish Super 75g",
+  "categoria": "limpeza",
+  "preco": 7.99
+ },
+ {
+  "id": "p115",
+  "rede": "master",
+  "idOrigem": "5015",
+  "nome": "Sabão Barra Ypê Aloe Vera 5x180g",
+  "categoria": "limpeza",
+  "preco": 18.99
+ },
+ {
+  "id": "p116",
+  "rede": "master",
+  "idOrigem": "9085",
+  "nome": "Sabão Barra Ypê Neutro 5x180g",
+  "categoria": "limpeza",
+  "preco": 18.99
+ }
+]

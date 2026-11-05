@@ -18,6 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
+from identificacao import com_user_agent
+
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -33,7 +35,7 @@ LOGGER = logging.getLogger("sincronizador_3d")
 
 # User-Agent identificável (sem se passar por navegador) e sem Origin/Referer forjados.
 HEADERS = {
-    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)",
+    # User-Agent (SmartMarketBot + contato de SMARTMARKET_CONTATO) entra na sessão, na hora da coleta.
     "Accept": "application/json, text/plain, */*",
 }
 
@@ -244,7 +246,7 @@ def paginar_endpoint_osuper(url_base: str, params_base: Dict[str, Any], supermer
     pagina = 0
     tamanho = 20
     sess = requests.Session()
-    sess.headers.update(HEADERS)
+    sess.headers.update(com_user_agent(HEADERS))
     while True:
         params = dict(params_base)
         params["size"] = tamanho

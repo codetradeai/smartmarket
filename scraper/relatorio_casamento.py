@@ -16,13 +16,14 @@ import threading
 import time
 from collections import Counter, defaultdict
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from casamento import casar, embalagens_compativeis
 from ean import ean_canonico
+from identificacao import VAR_CONTATO, ErroConfiguracao, user_agent  # noqa: F401 (reexportados)
 from normalizacao import MEDIDA, texto_normalizado
 
-USER_AGENT = "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)"
-PAUSA_S = 2.0
+PAUSA_S = 2.0  # mínimo combinado entre requisições ao mesmo host
 REDES = ["zaffari", "rissul", "asun", "stok", "atacadao", "master", "fort", "carrefour"]
 REDES_CONSULTAVEIS = ["master", "stok", "atacadao"]
 ROTULOS = {"zaffari": "Zaffari", "rissul": "Rissul", "asun": "Asun", "stok": "Stok", "atacadao": "Atacadão",
@@ -107,16 +108,69 @@ def pares_nomes_divergentes(pres, limite=20, corte=0.5):
 
 
 # ---------------------------------------------------------------- consulta por EAN
-class _Pausa:
-    def __init__(self, intervalo=PAUSA_S, relogio=time.monotonic, dormir=time.sleep):
-        self.intervalo, self._relogio, self._dormir, self._ultima = intervalo, relogio, dormir, None
+class LimitadorPorHost:
+    """Um único limitador por host, compartilhado entre threads: no mínimo PAUSA_S entre requisições.
 
-    def aguardar(self):
-        if self._ultima is not None:
-            falta = self.intervalo - (self._relogio() - self._ultima)
-            if falta > 0:
-                self._dormir(falta)
-        self._ultima = self._relogio()
+    Master e Stok usam o mesmo host (services.vipcommerce.com.br); com limitadores separados o
+    host recebia o dobro de requisições. O lock do host fica preso durante a espera, então duas
+    threads no mesmo host andam em fila. Também conta as requisições por host.
+    """
+
+    def __init__(self, intervalo=PAUSA_S, relogio=time.monotonic, dormir=time.sleep):
+        self.intervalo = max(PAUSA_S, float(intervalo))
+        self._relogio, self._dormir = relogio, dormir
+        self._geral = threading.Lock()
+        self._locks, self._ultima = {}, {}
+        self.contagem = Counter()
+
+    @staticmethod
+    def host(url):
+        return urlsplit(url).hostname or url
+
+    def aguardar(self, url):
+        h = self.host(url)
+        with self._geral:
+            lock = self._locks.setdefault(h, threading.Lock())
+        with lock:
+            ultima = self._ultima.get(h)
+            if ultima is not None:
+                falta = self.intervalo - (self._relogio() - ultima)
+                if falta > 0:
+                    self._dormir(falta)
+            self._ultima[h] = self._relogio()
+            self.contagem[h] += 1
+
+
+class Bloqueio(RuntimeError):
+    """A rede respondeu 403 ou 429: a coleta para inteira, sem nova tentativa."""
+
+    def __init__(self, host, status, url):
+        super().__init__(f"{host} respondeu {status} em {url}; coleta interrompida")
+        self.host, self.status, self.url = host, status, url
+
+
+class Sessao:
+    """Estado compartilhado entre as threads: limitador, User-Agent e parada no primeiro bloqueio."""
+
+    def __init__(self, limitador=None, ua=None):
+        self.limitador = limitador or LimitadorPorHost()
+        self.user_agent = ua or user_agent()
+        self.parar = threading.Event()
+        self.bloqueio = None
+
+    def antes(self, url):
+        if self.parar.is_set():
+            return False
+        self.limitador.aguardar(url)
+        return not self.parar.is_set()
+
+    def depois(self, url, status):
+        if status in (403, 429):
+            if self.bloqueio is None:
+                self.bloqueio = Bloqueio(self.limitador.host(url), status, url)
+            self.parar.set()
+            return False
+        return True
 
 
 def termo_de_consulta(canonico):
@@ -125,17 +179,20 @@ def termo_de_consulta(canonico):
     return s.zfill(13) if len(s) <= 13 else canonico[-14:]
 
 
-def _consultar_atacadao(eans, ja_tem, pausa):
+URL_ATACADAO_BUSCA = "https://www.atacadao.com.br/api/catalog_system/pub/products/search"
+
+
+def _consultar_atacadao(eans, ja_tem, sessao):
     import requests
     achados = {}
     for e in eans:
         if "atacadao" in ja_tem.get(e, {}):
             continue
-        pausa.aguardar()
-        r = requests.get("https://www.atacadao.com.br/api/catalog_system/pub/products/search",
-                         params={"fq": f"alternateIds_Ean:{termo_de_consulta(e)}"},
-                         headers={"User-Agent": USER_AGENT, "Accept": "application/json"}, timeout=25)
-        if r.status_code in (403, 429):
+        if not sessao.antes(URL_ATACADAO_BUSCA):
+            break
+        r = requests.get(URL_ATACADAO_BUSCA, params={"fq": f"alternateIds_Ean:{termo_de_consulta(e)}"},
+                         headers={"User-Agent": sessao.user_agent, "Accept": "application/json"}, timeout=25)
+        if not sessao.depois(URL_ATACADAO_BUSCA, r.status_code):
             break
         lista = r.json() if r.status_code in (200, 206) else []
         achados[e] = next((p["productName"] for p in lista
@@ -143,39 +200,61 @@ def _consultar_atacadao(eans, ja_tem, pausa):
     return achados
 
 
-def _consultar_vip(mod, rede, eans, ja_tem, pausa):
+def login_vip(mod, sessao):
+    """Token da loja VipCommerce, ou None se a sessão foi interrompida."""
+    import requests
+    url = f"{mod.BASE_URL}/org/{mod.ORG_ID}/auth/loja/login"
+    if not sessao.antes(url):
+        return None
+    r = requests.post(url, json={"domain": mod.DOMAIN, "username": "loja", "key": mod.AUTH_KEY},
+                      headers={**mod.HEADERS_BASE, "User-Agent": sessao.user_agent,
+                               "Content-Type": "application/json"}, timeout=20)
+    if not sessao.depois(url, r.status_code):
+        return None
+    return r.json().get("data")
+
+
+def buscar_vip(mod, token, termo, sessao):
+    """Lista de produtos da busca por termo (nome ou EAN) numa loja VipCommerce; None se interrompida."""
     import urllib.parse
     import requests
-    base = {**mod.HEADERS_BASE, "User-Agent": USER_AGENT}
-    pausa.aguardar()
-    login = requests.post(f"{mod.BASE_URL}/org/{mod.ORG_ID}/auth/loja/login",
-                          json={"domain": mod.DOMAIN, "username": "loja", "key": mod.AUTH_KEY},
-                          headers={**base, "Content-Type": "application/json"}, timeout=20)
-    if login.status_code in (403, 429):
+    url = (f"{mod.BASE_URL}/org/{mod.ORG_ID}/filial/{mod.FILIAL_ID}/centro_distribuicao/"
+           f"{mod.CENTRO_DISTRIBUICAO_ID}/loja/buscas/produtos/termo/{urllib.parse.quote(termo)}")
+    if not sessao.antes(url):
+        return None
+    r = requests.get(url, headers={**mod.HEADERS_BASE, "User-Agent": sessao.user_agent,
+                                   "Authorization": f"Bearer {token}"}, params={"page": 1}, timeout=25)
+    if not sessao.depois(url, r.status_code):
+        return None
+    dados = (r.json().get("data") or {}) if r.status_code == 200 else {}
+    return dados.get("produtos", []) if isinstance(dados, dict) else []
+
+
+def _consultar_vip(mod, rede, eans, ja_tem, sessao):
+    token = login_vip(mod, sessao)
+    if token is None:
         return {}
-    token = login.json().get("data")
     achados = {}
     for e in eans:
         if rede in ja_tem.get(e, {}):
             continue
-        pausa.aguardar()
-        url = (f"{mod.BASE_URL}/org/{mod.ORG_ID}/filial/{mod.FILIAL_ID}/centro_distribuicao/"
-               f"{mod.CENTRO_DISTRIBUICAO_ID}/loja/buscas/produtos/termo/{urllib.parse.quote(termo_de_consulta(e))}")
-        r = requests.get(url, headers={**base, "Authorization": f"Bearer {token}"},
-                         params={"page": 1}, timeout=25)
-        if r.status_code in (403, 429):
+        lista = buscar_vip(mod, token, termo_de_consulta(e), sessao)
+        if lista is None:
             break
-        dados = (r.json().get("data") or {}) if r.status_code == 200 else {}
-        lista = dados.get("produtos", []) if isinstance(dados, dict) else []
         achados[e] = next((p.get("descricao") for p in lista
                            if ean_canonico(p.get("codigo_barras")) == e), False)
     return achados
 
 
-def consultar_eans(eans, ja_tem):
-    """Procura cada EAN em Atacadão, Master e Stok (um thread por host, 1 requisição por vez em cada)."""
+def consultar_eans(eans, ja_tem, sessao=None):
+    """Procura cada EAN em Atacadão, Master e Stok.
+
+    Uma thread por rede, mas um único limitador por host (Master e Stok dividem o mesmo).
+    Para tudo no primeiro 403/429 e levanta Bloqueio com o host e o status.
+    """
     import coleta_master
     import coleta_stok
+    sessao = sessao or Sessao()
     resultado = {}
 
     def tarefa(rede, fn):
@@ -183,14 +262,16 @@ def consultar_eans(eans, ja_tem):
 
     fila = sorted(eans)
     ts = [
-        threading.Thread(target=tarefa, args=("atacadao", lambda: _consultar_atacadao(fila, ja_tem, _Pausa()))),
-        threading.Thread(target=tarefa, args=("master", lambda: _consultar_vip(coleta_master, "master", fila, ja_tem, _Pausa()))),
-        threading.Thread(target=tarefa, args=("stok", lambda: _consultar_vip(coleta_stok, "stok", fila, ja_tem, _Pausa()))),
+        threading.Thread(target=tarefa, args=("atacadao", lambda: _consultar_atacadao(fila, ja_tem, sessao))),
+        threading.Thread(target=tarefa, args=("master", lambda: _consultar_vip(coleta_master, "master", fila, ja_tem, sessao))),
+        threading.Thread(target=tarefa, args=("stok", lambda: _consultar_vip(coleta_stok, "stok", fila, ja_tem, sessao))),
     ]
     for t in ts:
         t.start()
     for t in ts:
         t.join()
+    if sessao.bloqueio:
+        raise sessao.bloqueio
     return resultado
 
 
@@ -296,7 +377,11 @@ def main(argv=None):
     direta = presencas(por_rede)
     cruzada = None
     if args.consultar_ean:
-        consulta = consultar_eans(set(direta), direta)
+        try:
+            consulta = consultar_eans(set(direta), direta)
+        except (ErroConfiguracao, Bloqueio) as exc:
+            print(f"ERRO: {exc}")
+            return 1
         cruzada = presencas(por_rede, consulta)
     base = cruzada if cruzada is not None else direta
     texto = renderizar(por_rede, resultado, direta, cruzada, pares_nomes_divergentes(base), data=date.today().isoformat())

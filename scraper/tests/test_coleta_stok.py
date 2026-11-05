@@ -124,8 +124,14 @@ class TestCodigoBarras(unittest.TestCase):
 
 class TestUserAgentIdentificavel(unittest.TestCase):
     def test_user_agent_e_identificavel_e_nao_finge_ser_navegador(self):
-        from coleta_stok import HEADERS_BASE
-        ua = HEADERS_BASE["User-Agent"]
+        import os
+        from unittest import mock
+        import coleta_stok
+        resp = mock.Mock(status_code=200)
+        resp.json.return_value = {"data": "tk"}
+        with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"}), mock.patch("requests.post", return_value=resp) as post:
+            coleta_stok.obter_token_autenticacao(timeout=1, forcar_renovacao=True)
+        ua = post.call_args.kwargs["headers"]["User-Agent"]
         self.assertIn("SmartMarketBot", ua)
         self.assertIn("contato", ua)
         self.assertNotIn("Mozilla", ua)

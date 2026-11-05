@@ -90,5 +90,28 @@ class TestCodigoBarrasAtacadao(unittest.TestCase):
 
 
 
+
+
+class UserAgentAtacadaoTest(unittest.TestCase):
+    def test_user_agent_identificavel_e_nao_finge_ser_navegador(self):
+        import os
+        from unittest import mock
+        import coleta_atacadao
+        resp = mock.Mock(status_code=200)
+        resp.json.return_value = []
+        with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"}), \
+             mock.patch("requests.get", return_value=resp) as get:
+            coleta_atacadao.buscar_pagina(coleta_atacadao.BASE_URL, headers=coleta_atacadao.HEADERS, params={})
+        ua = get.call_args.kwargs["headers"]["User-Agent"]
+        self.assertTrue(ua.startswith("SmartMarketBot/0.1"))
+        self.assertIn("contato: github.com/codetradeai/smartmarket", ua)
+        for navegador in ("Mozilla", "Chrome", "Safari", "AppleWebKit"):
+            self.assertNotIn(navegador, ua)
+        self.assertNotIn("User-Agent", coleta_atacadao.HEADERS)
+        enviados = get.call_args.kwargs["headers"]
+        self.assertNotIn("Origin", enviados)
+        self.assertNotIn("Referer", enviados)
+
+
 if __name__ == "__main__":
     unittest.main()

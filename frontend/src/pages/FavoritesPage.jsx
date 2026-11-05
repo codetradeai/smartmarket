@@ -854,7 +854,9 @@ export default function FavoritesPage() {
                             <div className="flex items-center justify-between p-3 rounded-2xl bg-brand-green-light/60 border border-brand-green/20 text-xs">
                               <div className="min-w-0">
                                 <span className="block text-[10px] font-semibold text-emerald-800 truncate">
-                                  Melhor Preço ({pricing.bestMarketName})
+                                  {pricing.totalMarkets > 1
+                                    ? `Melhor Preço (${pricing.bestMarketName})`
+                                    : `Preço no ${pricing.bestMarketName}`}
                                 </span>
                                 <span className="text-lg font-black text-brand-green">
                                   R$ {pricing.bestPrice.toFixed(2)}
@@ -868,7 +870,11 @@ export default function FavoritesPage() {
                             </div>
 
                             <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
-                              <span>Comparado em {pricing.totalMarkets} mercados</span>
+                              <span>
+                                {pricing.totalMarkets > 1
+                                  ? `Comparado em ${pricing.totalMarkets} mercados`
+                                  : "Preço só nesta rede"}
+                              </span>
                               <span className="text-brand-navy font-bold group-hover:underline">
                                 Ver comparativo &rarr;
                               </span>
@@ -1101,7 +1107,7 @@ export default function FavoritesPage() {
                                   const mPrice = inlineProductForAlert.prices?.[m.id]
                                   return (
                                     <option key={m.id} value={m.id}>
-                                      Somente no {m.name} {mPrice ? `(Hoje: R$ ${Number(mPrice).toFixed(2)})` : ""}
+                                      Somente no {m.name} {mPrice ? `(Hoje: R$ ${Number(mPrice).toFixed(2)})` : "(sem preço nesta rede)"}
                                     </option>
                                   )
                                 })}
@@ -1436,7 +1442,7 @@ export default function FavoritesPage() {
                         const mPrice = selectedProductForAlert.prices?.[m.id]
                         return (
                           <option key={m.id} value={m.id}>
-                            Somente no {m.name} {mPrice ? `(Hoje: R$ ${Number(mPrice).toFixed(2)})` : ""}
+                            Somente no {m.name} {mPrice ? `(Hoje: R$ ${Number(mPrice).toFixed(2)})` : "(sem preço nesta rede)"}
                           </option>
                         )
                       })}

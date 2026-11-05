@@ -30,6 +30,7 @@ from typing import Any, Dict, List, Optional
 import urllib.parse
 
 from ean import validar_ean
+from identificacao import com_user_agent
 
 LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ PAUSA_ENTRE_REQUISICOES = 1.0
 MAX_PAGINAS_POR_CATEGORIA = 5
 
 HEADERS_BASE = {
-    "User-Agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)",
+    # User-Agent entra na hora da requisição (identificacao.user_agent, contato de SMARTMARKET_CONTATO).
     "Accept": "application/json, text/plain, */*",
     "Origin": STOREFRONT_BASE_URL,
     "Referer": f"{STOREFRONT_BASE_URL}/",
@@ -124,7 +125,7 @@ def obter_token_autenticacao(
         "key": key,
     }
     headers = {
-        **HEADERS_BASE,
+        **com_user_agent(HEADERS_BASE),
         "Content-Type": "application/json",
     }
 
@@ -155,7 +156,7 @@ def buscar_pagina_termo(
         token = obter_token_autenticacao(timeout=timeout)
 
     headers = {
-        **HEADERS_BASE,
+        **com_user_agent(HEADERS_BASE),
         "Authorization": f"Bearer {token}",
     }
     session_id = str(uuid.uuid4())

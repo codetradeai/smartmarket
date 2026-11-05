@@ -78,8 +78,14 @@ class EnriquecerTest(unittest.TestCase):
         self.assertEqual(prods[1]["codigo_barras"], "7896279600538")
 
     def test_user_agent_identificavel(self):
-        self.assertIn("SmartMarketBot", ean_pagina.USER_AGENT)
-        self.assertIn("contato", ean_pagina.USER_AGENT)
+        import os
+        from unittest import mock
+        with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"}),              mock.patch("requests.get", return_value=mock.Mock(status_code=200, text="")) as get:
+            ean_pagina.buscar_html("https://exemplo/p")
+        ua = get.call_args.kwargs["headers"]["User-Agent"]
+        self.assertIn("SmartMarketBot", ua)
+        self.assertIn("contato", ua)
+        self.assertNotIn("Mozilla", ua)
 
 
 if __name__ == "__main__":

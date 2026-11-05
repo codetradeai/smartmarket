@@ -130,6 +130,85 @@ def montar_precos(mercado_key: str, preco: float) -> dict:
     return {mercado_key: preco}
 
 
+def chave_mercado(supermercado) -> str:
+    """Chave da rede (zaffari, rissul, ...) a partir do nome do supermercado de origem."""
+    s = (supermercado or "fort").lower()
+    if "zaffari" in s or "bourbon" in s:
+        return "zaffari"
+    if "rissul" in s:
+        return "rissul"
+    if "asun" in s:
+        return "asun"
+    if "stok" in s:
+        return "stok"
+    if "atacadao" in s or "atacadão" in s:
+        return "atacadao"
+    if "master" in s:
+        return "master"
+    if "carrefour" in s:
+        return "carrefour"
+    return "fort"
+
+
+CABECALHO_DATA_JS = (
+    "// Catálogo estático SmartMarket: {total} produtos, cada um com o preço real da rede onde foi coletado "
+    "(sem preço simulado). Gerado por scraper/gerar_catalogo_e_sql.py"
+)
+MARCADOR_PRODUCTS = "export const PRODUCTS = "
+
+
+def limpar_precos_catalogo(produtos):
+    """Deixa em cada produto só o preço da rede de origem (supermercadoOrigem), via montar_precos.
+
+    Mantém id, ordem e demais campos. Recalcula menorPreco/mercadoMenorPreco quando existem e
+    descarta clubPrices de outras redes. Devolve (produtos, resumo).
+    """
+    resumo = {"produtos": 0, "precos_removidos": 0, "sem_preco_na_origem": 0, "por_rede": {}}
+    for p in produtos:
+        resumo["produtos"] += 1
+        chave = chave_mercado(p.get("supermercadoOrigem"))
+        antigos = p.get("prices") or {}
+        valor = antigos.get(chave)
+        if isinstance(valor, (int, float)) and valor > 0:
+            novos = montar_precos(chave, valor)
+            resumo["por_rede"][chave] = resumo["por_rede"].get(chave, 0) + 1
+        else:
+            novos = {}
+            resumo["sem_preco_na_origem"] += 1
+        resumo["precos_removidos"] += len([k for k in antigos if k not in novos])
+        p["prices"] = novos
+        if "menorPreco" in p or "mercadoMenorPreco" in p:
+            p["menorPreco"] = novos.get(chave)
+            p["mercadoMenorPreco"] = chave if novos else None
+        if isinstance(p.get("clubPrices"), dict):
+            p["clubPrices"] = {k: v for k, v in p["clubPrices"].items() if k in novos}
+    return produtos, resumo
+
+
+def regenerar_data_js(caminho=None):
+    """Regrava o data.js existente sem preço simulado, sem nova coleta.
+
+    Os dados de entrada são os produtos já coletados no próprio data.js. O bloco de CATEGORIES e
+    MARKETS fica intacto; mudam só a linha de comentário do topo e os preços de PRODUCTS.
+    """
+    caminho = Path(caminho or DATA_JS_DESTINO)
+    texto = caminho.read_text(encoding="utf-8").replace("\r\n", "\n")
+    inicio = texto.index(MARCADOR_PRODUCTS)
+    cabecalho = texto[:inicio]
+    corpo = texto[inicio + len(MARCADOR_PRODUCTS):]
+    fim = corpo.rindex("]") + 1
+    produtos, resumo = limpar_precos_catalogo(json.loads(corpo[:fim]))
+
+    linhas = cabecalho.split("\n")
+    if linhas and linhas[0].startswith("//"):
+        linhas = linhas[1:]
+    novo_cabecalho = CABECALHO_DATA_JS.format(total=len(produtos)) + "\n" + "\n".join(linhas)
+    conteudo = novo_cabecalho + MARCADOR_PRODUCTS + json.dumps(produtos, ensure_ascii=False, indent=2) + corpo[fim:]
+    with open(caminho, "w", encoding="utf-8", newline="\n") as arq:
+        arq.write(conteudo)
+    return resumo
+
+
 def gerar_sql_e_data():
     itens = carregar_todos_produtos()
     print(f"Total de itens carregados para processamento: {len(itens)}")
@@ -184,24 +263,7 @@ def gerar_sql_e_data():
             img_url = item.get("imagem_url") or ""
             img_local = img_url
 
-        supermercado_slug = (item.get("supermercado") or "fort").lower()
-        # Normaliza mercado slug
-        if "zaffari" in supermercado_slug or "bourbon" in supermercado_slug:
-            mercado_key = "zaffari"
-        elif "rissul" in supermercado_slug:
-            mercado_key = "rissul"
-        elif "asun" in supermercado_slug:
-            mercado_key = "asun"
-        elif "stok" in supermercado_slug:
-            mercado_key = "stok"
-        elif "atacadao" in supermercado_slug or "atacadão" in supermercado_slug:
-            mercado_key = "atacadao"
-        elif "master" in supermercado_slug:
-            mercado_key = "master"
-        elif "carrefour" in supermercado_slug:
-            mercado_key = "carrefour"
-        else:
-            mercado_key = "fort"
+        mercado_key = chave_mercado(item.get("supermercado"))
 
         mercado_id = MERCADOS_MAP[mercado_key]["id"]
 
@@ -293,11 +355,19 @@ export const MARKETS = [
 ]
 """
     produtos_json = json.dumps(produtos_frontend, ensure_ascii=False, indent=2)
-    conteudo_data_js = f"// Catálogo oficial SmartMarket consolidado com todos os {len(produtos_frontend)} produtos coletados das 8 redes do RS\n\n{categorias_js}\nexport const PRODUCTS = {produtos_json};\n"
+    conteudo_data_js = f"{CABECALHO_DATA_JS.format(total=len(produtos_frontend))}\n\n{categorias_js}\nexport const PRODUCTS = {produtos_json};\n"
 
     DATA_JS_DESTINO.write_text(conteudo_data_js, encoding="utf-8")
     print(f"Catálogo do frontend atualizado com {len(produtos_frontend)} produtos em '{DATA_JS_DESTINO}'!")
 
 
 if __name__ == "__main__":
-    gerar_sql_e_data()
+    import sys
+
+    if "--limpar-data-js" in sys.argv:
+        r = regenerar_data_js()
+        print(f"data.js regenerado sem preço simulado: {r['produtos']} produtos, "
+              f"{r['precos_removidos']} preços fora da rede de origem removidos, "
+              f"{r['sem_preco_na_origem']} sem preço na rede de origem. Por rede: {r['por_rede']}")
+    else:
+        gerar_sql_e_data()

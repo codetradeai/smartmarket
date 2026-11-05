@@ -11,10 +11,10 @@ import time
 from typing import Callable, Iterable, Optional
 
 from ean import validar_ean
+from identificacao import com_user_agent
 
 LOGGER = logging.getLogger(__name__)
 
-USER_AGENT = "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: dev.davicardozo@gmail.com)"
 PAUSA_MINIMA_S = 2.0
 
 # Zaffari/Rissul (VTEX IO): "ean":"789..." no estado da página.
@@ -40,7 +40,7 @@ def extrair_ean_html(html: Optional[str]) -> Optional[str]:
 def buscar_html(url: str, *, timeout: int = 20) -> str:
     import requests
 
-    resposta = requests.get(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html"}, timeout=timeout)
+    resposta = requests.get(url, headers=com_user_agent({"Accept": "text/html"}), timeout=timeout)
     if resposta.status_code in (403, 429):
         raise BloqueioDetectado(str(resposta.status_code))
     resposta.raise_for_status()

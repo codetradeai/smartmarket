@@ -80,11 +80,19 @@ export function AuthProvider({ children }) {
         papel: data.papel || "USER",
       }
 
+      const donoDono = (() => {
+        try { return localStorage.getItem(CHAVES.owner) } catch { return null }
+      })()
+      if (donoDono !== data.email) {
+        limparDadosPrivados()
+      }
+
       setToken(data.token)
       setUser(userObj)
 
       localStorage.setItem(TOKEN_KEY, data.token)
       localStorage.setItem(USER_KEY, JSON.stringify(userObj))
+      try { localStorage.setItem(CHAVES.owner, data.email) } catch { /* fallback */ }
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
@@ -119,11 +127,19 @@ export function AuthProvider({ children }) {
         papel: data.papel || "USER",
       }
 
+      const donoDono = (() => {
+        try { return localStorage.getItem(CHAVES.owner) } catch { return null }
+      })()
+      if (donoDono !== data.email) {
+        limparDadosPrivados()
+      }
+
       setToken(data.token)
       setUser(userObj)
 
       localStorage.setItem(TOKEN_KEY, data.token)
       localStorage.setItem(USER_KEY, JSON.stringify(userObj))
+      try { localStorage.setItem(CHAVES.owner, data.email) } catch { /* fallback */ }
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {

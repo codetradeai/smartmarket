@@ -5,9 +5,9 @@ services:
     environment:
       POSTGRES_DB: smartmarket
       POSTGRES_USER: smartmarket
-      POSTGRES_PASSWORD: smartmarket123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina em .env — veja .env.example}
     ports:
-      - "5436:5432"
+      - "127.0.0.1:5436:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

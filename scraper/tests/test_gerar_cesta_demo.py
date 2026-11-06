@@ -64,12 +64,12 @@ class MontarTest(unittest.TestCase):
 
 
 class ArquivoVersionadoTest(unittest.TestCase):
-    """O cesta-demo.json do frontend é a geração da saída mais recente, com 77 produtos e todas as datas."""
+    """O cesta-demo.json do frontend é a geração da saída mais recente, com 77 ids de catálogo (44 produtos distintos) e todas as datas."""
 
     def setUp(self):
         self.arquivo = json.loads(g.DESTINO.read_text(encoding="utf-8"))
 
-    def test_tem_77_produtos(self):
+    def test_tem_77_ids_de_catalogo(self):
         # 83 com par confirmado na coleta de 04/11/2026, menos 6 cujo único par confirmado era com o Atacadão.
         self.assertEqual(len(self.arquivo["produtos"]), 77)
         self.assertEqual(self.arquivo["meta"]["total_produtos"], 77)

@@ -683,16 +683,16 @@ function buildRoadmap(){
     return '<div class="item"><div class="top"><span class="ok">'+ic("check")+'</span><div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+(tag?'<span class="id">'+esc(tag)+'</span>':'')+'<b>'+esc(t)+'</b></div><div class="ev">'+esc(ev)+'</div><p style="margin:8px 0 0;color:var(--mut);font-size:.88rem">'+esc(txt)+'</p></div></div></div>'};
   var feito='<h2>Resolvido</h2>'+
     L.correcoes_resolvidas.map(function(c){return okItem(c.titulo,c.arquivo+"  ·  commit "+c.commit,c.nota)}).join("")+
-    resolvidos.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),a.situacao_em_2026_11_03,a.id)}).join("");
+    resolvidos.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),(a.situacao_em_2026_11_05||a.situacao_em_2026_11_03||""),a.id)}).join("");
   var naFila='<h2 class="sec-gap">Corrigido em PR, aguardando merge</h2>'+
     L.correcoes_em_pr.map(function(c){return okItem(c.titulo,"PR "+c.pr+"  ·  commit "+c.commit,"Vale para a main depois do merge do "+c.pr+".","em PR")}).join("")+
-    emPr.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),a.situacao_em_2026_11_03,a.id+" · "+a.pr)}).join("");
+    emPr.map(function(a){return okItem(a.titulo,a.arquivo_linha.join("  ·  "),(a.situacao_em_2026_11_05||a.situacao_em_2026_11_03||""),a.id+" · "+a.pr)}).join("");
   var fortes='<h2 class="sec-gap">O que já está sólido</h2>'+L.pontos_fortes.map(function(p){return okItem(p.titulo,p.arquivo,p.evidencia)}).join("");
   var prox='<h2>Pendente</h2>'+grp.map(function(g,gi){
     var its=abertos.filter(function(a){return a.severidade===g.s});
     return '<div class="'+(gi?'sec-gap':'')+'"><div class="prio '+g.k+'"><span class="sw"></span><h2>'+g.t+'</h2><span>'+its.length+' itens · '+g.d+'</span></div>'+its.map(function(a){
       return '<div class="item '+g.k+'"><div class="top"><div style="flex:1"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="id">'+esc(a.id)+'</span>'+(a.status==="parcial"?'<span class="id">parcial</span>':'')+'<b>'+esc(a.titulo)+'</b></div><div class="ev">'+esc(a.arquivo_linha.join("  ·  "))+'</div>'+
-       '<p class="rec"><span>Situação: </span>'+esc(a.situacao_em_2026_11_03)+'</p>'+
+       '<p class="rec"><span>Situação: </span>'+esc(a.situacao_em_2026_11_05||a.situacao_em_2026_11_03||"")+'</p>'+
        '<p class="rec"><span>Como avançar: </span>'+esc(a.recomendacao)+'</p>'+
        '<details><summary>Ver evidência</summary><p>'+esc(a.evidencia)+'</p></details></div></div></div>'}).join("")+'</div>';
   }).join("");

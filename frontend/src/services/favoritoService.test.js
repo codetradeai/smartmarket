@@ -32,6 +32,17 @@ describe('favoritoService', () => {
       expect(api.get).toHaveBeenCalledWith('/favoritos')
     })
 
+    it('listarMercados so faz GET, nunca POST ao backend', async () => {
+      api.get.mockResolvedValue({
+        data: [{ id: 90, mercado: { id: 1 }, createdAt: '2026-11-05T10:00:00' }],
+      })
+
+      await favoritoService.listarMercados()
+
+      expect(api.post).not.toHaveBeenCalled()
+      expect(api.delete).not.toHaveBeenCalled()
+    })
+
     it('listarMercados usa o localStorage quando o backend falha', async () => {
       api.get.mockRejectedValue(semConexao())
       localStorage.setItem('sm_fav_markets', '[3,4]')
@@ -68,12 +79,23 @@ describe('favoritoService', () => {
       expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 7 })
     })
 
-    it('favoritarMercado mantém como texto o id local não numérico', async () => {
-      api.post.mockResolvedValue({ data: {} })
+    it('favoritarMercado com id local nao numerico nao chama a API', async () => {
+      const resultado = await favoritoService.favoritarMercado('fort')
 
+      expect(api.post).not.toHaveBeenCalled()
+      expect(resultado).toEqual({ mercadoId: 'fort' })
+    })
+
+    it('favoritarMercado com id local nao numerico ainda salva no localStorage', async () => {
       await favoritoService.favoritarMercado('fort')
 
-      expect(api.post).toHaveBeenCalledWith('/favoritos', { mercadoId: 'fort' })
+      expect(JSON.parse(localStorage.getItem('sm_fav_markets'))).toContain('fort')
+    })
+
+    it('desfavoritarMercado com id local nao numerico nao chama a API', async () => {
+      await favoritoService.desfavoritarMercado('fort')
+
+      expect(api.delete).not.toHaveBeenCalled()
     })
 
     it('favoritarMercado sem conexao salva localmente, sem duplicar', async () => {
@@ -125,6 +147,15 @@ describe('favoritoService', () => {
 
       await expect(favoritoService.listarProdutos()).resolves.toEqual(['10'])
       expect(api.get).toHaveBeenCalledWith('/favoritos/produtos')
+    })
+
+    it('listarProdutos so faz GET, nunca POST ao backend', async () => {
+      api.get.mockResolvedValue({ data: [{ id: 10, nome: 'Arroz Camil 1kg' }] })
+
+      await favoritoService.listarProdutos()
+
+      expect(api.post).not.toHaveBeenCalled()
+      expect(api.delete).not.toHaveBeenCalled()
     })
 
     it('listarProdutos usa o localStorage quando o backend falha', async () => {

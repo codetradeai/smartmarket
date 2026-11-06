@@ -53,13 +53,16 @@ export const favoritoService = {
       localStorage.setItem("sm_fav_markets", JSON.stringify([idStr]))
     }
 
-    try {
-      const response = await api.post("/favoritos", { mercadoId: idParaApi(idStr) })
-      return response.data
-    } catch (erro) {
-      if (erroDoServidor(erro)) throw erro
-      return { mercadoId: idStr }
+    // IDs locais (ex.: "fort") nao sao aceitos pelo backend (FavoritoRequest.mercadoId: Long)
+    if (/^\d+$/.test(idStr)) {
+      try {
+        const response = await api.post("/favoritos", { mercadoId: idParaApi(idStr) })
+        return response.data
+      } catch (erro) {
+        if (erroDoServidor(erro)) throw erro
+      }
     }
+    return { mercadoId: idStr }
   },
 
   /**
@@ -75,10 +78,13 @@ export const favoritoService = {
       // fallback
     }
 
-    try {
-      await api.delete(`/favoritos/mercados/${idStr}`)
-    } catch (erro) {
-      if (erroDoServidor(erro)) throw erro
+    // IDs locais nao sao aceitos pelo backend (@PathVariable Long)
+    if (/^\d+$/.test(idStr)) {
+      try {
+        await api.delete(`/favoritos/mercados/${idStr}`)
+      } catch (erro) {
+        if (erroDoServidor(erro)) throw erro
+      }
     }
   },
 

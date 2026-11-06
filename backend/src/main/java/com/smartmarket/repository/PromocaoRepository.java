@@ -2,9 +2,11 @@ package com.smartmarket.repository;
 
 import com.smartmarket.model.Promocao;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,4 +29,18 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long> {
     List<Promocao> findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
         @Param("produtoIds") Collection<Long> produtoIds,
         @Param("dataInicio") LocalDate dataInicio, @Param("dataFim") LocalDate dataFim);
+
+    /**
+     * Marca como inativas as promoções sem data_fim do mercado informado
+     * que não foram encontradas na coleta iniciada em {@code inicioColeta}.
+     * Chamado após cada coleta bem-sucedida de uma rede.
+     */
+    @Modifying
+    @Query("update Promocao p set p.ativa = false "
+         + "where p.mercado.id = :mercadoId "
+         + "and p.dataFim is null "
+         + "and p.coletadoEm < :inicioColeta")
+    int inativarNaoRecoletadas(
+        @Param("mercadoId") Long mercadoId,
+        @Param("inicioColeta") LocalDateTime inicioColeta);
 }

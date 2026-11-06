@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -59,5 +60,16 @@ public class PromocaoService {
             .build();
 
         return PromocaoResponse.from(promocaoRepository.save(promocao));
+    }
+
+    /**
+     * Marca como inativas as promoções sem data_fim do mercado que não foram
+     * encontradas na coleta que iniciou em {@code inicioColeta}.
+     *
+     * @return número de promoções inativadas
+     */
+    @Transactional
+    public int inativarNaoRecoletadas(Long mercadoId, LocalDateTime inicioColeta) {
+        return promocaoRepository.inativarNaoRecoletadas(mercadoId, inicioColeta);
     }
 }

@@ -205,8 +205,9 @@ class RelatorioCasamentoTest(unittest.TestCase):
         pres = rc.presencas(por_rede)
         md = rc.renderizar(por_rede, casar(por_rede), pres, None, rc.pares_nomes_divergentes(pres), data="2026-11-03")
         self.assertIn("### 4.1 Pares em revisão", md)
-        self.assertIn("embalagem_diferente", md)
-        self.assertIn("revisar (embalagem_diferente)", md)
+        # Atacadão(45g) vs Master(sem medida em g/ml) → medida_ausente
+        self.assertIn("medida_ausente", md)
+        self.assertIn("revisar (medida_ausente)", md)
 
 
 if __name__ == "__main__":

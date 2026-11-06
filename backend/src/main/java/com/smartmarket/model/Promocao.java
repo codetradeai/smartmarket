@@ -40,6 +40,11 @@ public class Promocao {
     @Column(name = "data_fim")
     private LocalDate dataFim;
 
+    /** false quando a coleta mais recente da rede não encontrou esta promoção (somente para data_fim nulo). */
+    @Column(name = "ativa", nullable = false)
+    @Builder.Default
+    private boolean ativa = true;
+
     @Column(name = "coletado_em", nullable = false)
     private LocalDateTime coletadoEm;
 

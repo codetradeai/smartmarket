@@ -27,14 +27,24 @@
 
    > `03_carga.sql` é idempotente: pode ser re-executado sem duplicar dados
    > (sentinel: `DELETE FROM preco WHERE origem LIKE 'seed_%'`; não depende de data).
-   > O campo `coletado_em` reflete a data real de coleta por rede, lida do campo
-   > `data_coleta` dos arquivos `scraper/output/coleta_<rede>.json` (outubro/2026);
-   > **não** é a data de execução deste script.
+   >
+   > **Datas de coleta**: o campo `coletado_em` foi confirmado nos arquivos
+   > `scraper/output/coleta_<rede>.json` (campo `data_coleta`):
+   > asun, atacadao, master, zaffari, rissul → **2026-10-27**; stok → **2026-10-30**.
+   > Essas são datas reais de coleta, não a data de execução do script.
+   >
+   > **Ordem dos mercados**: `02_mercados.sql` usa IDs explícitos idênticos
+   > ao `carga_completa_530_produtos.sql` (1=Fort, 2=Carrefour, 3=Asun, 4=Atacadão,
+   > 5=Master, 6=Zaffari, 7=Rissul, 8=Stok); `03_carga.sql` resolve o mercado por
+   > nome (subselect), nunca por id numérico fixo. Sem essa combinação, em banco vazio
+   > todos os 530 preços ligam à rede errada (IDs atribuídos pela sequência são
+   > não-determinísticos sem ORDER BY).
+   >
    > Pule este passo se preferir que os dados venham apenas do scraper.
 
 5. Confirme as contagens após os scripts:
    ```sql
-   SELECT COUNT(*) AS mercados  FROM mercado;   -- esperado: 9
+   SELECT COUNT(*) AS mercados  FROM mercado;   -- esperado: 8
    SELECT COUNT(*) AS produtos  FROM produto;   -- esperado: 530 (se rodou o 03)
    SELECT COUNT(*) AS precos    FROM preco;     -- esperado: 530 (se rodou o 03)
 

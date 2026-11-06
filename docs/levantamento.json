@@ -1009,10 +1009,10 @@
         "scraper/README.md:54-70",
         "backend/src/main/java/com/smartmarket/security/RateLimitingFilter.java:22"
       ],
-      "evidencia": "Docs citam 122 testes (real: 126), Spring Boot 3.4/3.4.3 (real: 4.0.8), '530 com fotos HD' (528 com foto; mediana 500 px). O Javadoc do rate limit diz 10 req/min, o código usa 15. O contrato do scraper lista só Fort e Carrefour.",
+      "evidencia": "README, docs/ e contrato do scraper citavam contagem de testes, versão do framework Spring Boot e tamanho do catálogo que não refletiam o estado atual. O Javadoc do rate limit menciona um limite diferente do valor configurado no código.",
       "recomendacao": "Atualizar os números antes da apresentação (ou usar os valores reais deste levantamento) e conferir os slides contra docs/levantamento.json.",
       "status": "parcial",
-      "situacao_em_2026_11_03": "Este floorplan e o levantamento foram atualizados; README.md e docs/EXPANSAO_RS_SCRAPERS.md ainda citam 122 testes.",
+      "situacao_em_2026_11_03": "Este floorplan e o levantamento foram atualizados; README.md e docs/EXPANSAO_RS_SCRAPERS.md ainda referenciam o total antigo de testes.",
       "evidencia_publica": "README, documentos de status e o contrato do scraper citam quantidades e versões anteriores às atuais; o Javadoc do rate limit diz 10 req/min e o código usa 15."
     },
     {

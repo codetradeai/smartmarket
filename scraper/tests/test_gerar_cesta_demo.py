@@ -57,6 +57,11 @@ class MontarTest(unittest.TestCase):
         self.assertEqual(self.cesta["meta"]["total_produtos"], 2)
         self.assertEqual(self.cesta["meta"]["rotulo"], "Cesta de demonstração")
 
+    def test_total_distinto_conta_o_ean_uma_vez_e_mantem_os_dois_ids(self):
+        # p12 e p100 têm o mesmo EAN: duas entradas (dois ids de catálogo), um produto.
+        self.assertEqual(sorted(self.por_id), ["p100", "p12"])
+        self.assertEqual(self.cesta["meta"]["total_produtos_distintos"], 1)
+
 
 class ArquivoVersionadoTest(unittest.TestCase):
     """O cesta-demo.json do frontend é a geração da saída mais recente, com 77 produtos e todas as datas."""
@@ -68,6 +73,21 @@ class ArquivoVersionadoTest(unittest.TestCase):
         # 83 com par confirmado na coleta de 04/11/2026, menos 6 cujo único par confirmado era com o Atacadão.
         self.assertEqual(len(self.arquivo["produtos"]), 77)
         self.assertEqual(self.arquivo["meta"]["total_produtos"], 77)
+
+    def test_total_de_produtos_distintos_por_ean_e_44(self):
+        # 77 ids de catálogo, mas 44 EANs: os candidatos do Stok vieram duplicados no catálogo.
+        eans = {p["ean"] for p in self.arquivo["produtos"]}
+        self.assertEqual(self.arquivo["meta"]["total_produtos_distintos"], 44)
+        self.assertEqual(self.arquivo["meta"]["total_produtos_distintos"], len(eans))
+        self.assertNotIn(None, eans)
+
+    def test_ids_duplicados_do_catalogo_continuam_com_a_mesma_entrada_de_precos(self):
+        por_id = {p["id"]: p for p in self.arquivo["produtos"]}
+        # Qualicoco 200 ml: mesmo preço e mesmo nome por rede (só o horário da consulta difere).
+        def preco_e_nome(prod):
+            return {r: (v["preco"], v["nome_na_rede"]) for r, v in prod["precos"].items()}
+        self.assertEqual(preco_e_nome(por_id["p267"]), preco_e_nome(por_id["p467"]))
+        self.assertEqual(por_id["p267"]["ean"], por_id["p467"]["ean"])
 
     def test_nenhum_preco_sem_data_e_todas_em_brasilia(self):
         precos = [p for prod in self.arquivo["produtos"] for p in prod["precos"].values()]

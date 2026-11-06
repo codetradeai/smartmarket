@@ -5,7 +5,8 @@
     "coleta_inicio": "2026-11-03T22:37:17-03:00",
     "coleta_fim": "2026-11-03T22:52:23-03:00",
     "regras": "só pares confirmado (mesmo EAN e embalagem); sem pares com o Atacadão; sem revisar",
-    "total_produtos": 77
+    "total_produtos": 77,
+    "total_produtos_distintos": 44
   },
   "produtos": [
     {

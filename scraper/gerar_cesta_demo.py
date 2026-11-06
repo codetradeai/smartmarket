@@ -68,7 +68,10 @@ def montar(bruto, nome_arquivo=""):
             "coleta_inicio": para_brasilia(meta["inicio"]) if meta.get("inicio") else None,
             "coleta_fim": para_brasilia(meta["fim"]) if meta.get("fim") else None,
             "regras": "só pares confirmado (mesmo EAN e embalagem); sem pares com o Atacadão; sem revisar",
+            # Entradas por id de catálogo: o mesmo produto pode ter dois ids (ex.: p267 e p467) e
+            # ambos precisam abrir o detalhe. Para contar produtos de verdade, use o total distinto por EAN.
             "total_produtos": len(produtos),
+            "total_produtos_distintos": len({p["ean"] for p in produtos}),
         },
         "produtos": produtos,
     }

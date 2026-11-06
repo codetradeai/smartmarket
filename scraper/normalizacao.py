@@ -5,7 +5,11 @@ from decimal import Decimal
 
 from ean import validar_ean
 
-MEDIDA = re.compile(r'(?<![\w.,+\-])(\d+(?:[.,]\d+)?)\s*(kg|ml|mg|g|l|un)(?![a-z])', re.I)
+# A medida não pode colar em outro número/palavra ("1.5L" nunca vira "5L"), exceto:
+#  - depois de ponto que abrevia uma palavra ("Ext.virg.200ml": letra + ponto);
+#  - depois de "NxMEDIDA" ("5x180g": dígito + x), onde N é o número de unidades.
+MEDIDA = re.compile(
+    r'(?:(?<![\w.,+\-])|(?<=[a-z]\.)|(?<=\d[x×]))(\d+(?:[.,]\d+)?)\s*(kg|ml|mg|g|l|un)(?![a-z])', re.I)
 MULTIPACK = re.compile(
     r'\d\s*[x×]|(?:kit|pack|pacote\s+com|leve\s+\d)|'
     r'\d+\s*(?:unidades?|latas?|garrafas?|saches?|frascos?|caixas?)\b', re.I)

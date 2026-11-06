@@ -43,9 +43,12 @@
    >
    > **Datas de coleta**: o campo `coletado_em` foi confirmado nos arquivos
    > `scraper/output/coleta_<rede>.json` (campo `data_coleta`):
-   > asun, atacadao, master, zaffari, rissul → **2026-10-27** (datas reais de coleta).
-   > Para o stok, o campo recebe `CURRENT_DATE` (data de execução da carga) —
-   > os preços do JSON divergem da coleta original armazenada no SQL.
+   > asun, atacadao, master, zaffari, rissul → **2026-10-27** (datas reais de coleta,
+   > 100% dos preços batem com os JSONs).
+   > Para o stok → **2026-10-27** (data em que a carga foi versionada no git,
+   > commit `87340ff`); os preços do stok no SQL foram coletados nessa data mas
+   > divergem do `coleta_stok.json` atual (54 diferenças, 30 ausentes) — essa
+   > data não pode ser afirmada como data de coleta real.
    >
    > **Ordem dos mercados**: `02_mercados.sql` usa IDs explícitos idênticos
    > ao `carga_completa_530_produtos.sql` (1=Fort, 2=Carrefour, 3=Asun, 4=Atacadão,

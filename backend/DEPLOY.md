@@ -12,12 +12,25 @@
    ```
    postgresql://usuario:senha@host.neon.tech/smartmarket?sslmode=require
    ```
-4. No painel do projeto, abra o **SQL Editor** e execute os scripts na ordem:
+
+4. **Obrigatório antes de carregar o Neon**: rode o teste de integridade contra
+   o Postgres local para garantir que os scripts estão corretos:
+   ```bash
+   DOCKER_CONTAINER=smartmarket-db bash backend/deploy/test_seed_integridade.sh
+   ```
+   Todos os 5 testes devem passar. O checksum MD5 esperado dos 530 pares
+   (produto_id | rede | valor) é:
+   ```
+   9290cf98a94537edaf4cfed732f20420
+   ```
+   Não prossiga se qualquer teste falhar ou o checksum divergir.
+
+5. No painel do projeto, abra o **SQL Editor** e execute os scripts na ordem:
    ```sql
    -- Passo 1: estrutura completa
    \i backend/deploy/01_schema.sql
 
-   -- Passo 2: mercados iniciais (9 redes)
+   -- Passo 2: mercados iniciais (8 redes)
    \i backend/deploy/02_mercados.sql
 
    -- Passo 3 (opcional): catálogo seed com 530 produtos e preços
@@ -30,8 +43,9 @@
    >
    > **Datas de coleta**: o campo `coletado_em` foi confirmado nos arquivos
    > `scraper/output/coleta_<rede>.json` (campo `data_coleta`):
-   > asun, atacadao, master, zaffari, rissul → **2026-10-27**; stok → **2026-10-30**.
-   > Essas são datas reais de coleta, não a data de execução do script.
+   > asun, atacadao, master, zaffari, rissul → **2026-10-27** (datas reais de coleta).
+   > Para o stok, o campo recebe `CURRENT_DATE` (data de execução da carga) —
+   > os preços do JSON divergem da coleta original armazenada no SQL.
    >
    > **Ordem dos mercados**: `02_mercados.sql` usa IDs explícitos idênticos
    > ao `carga_completa_530_produtos.sql` (1=Fort, 2=Carrefour, 3=Asun, 4=Atacadão,
@@ -39,6 +53,9 @@
    > nome (subselect), nunca por id numérico fixo. Sem essa combinação, em banco vazio
    > todos os 530 preços ligam à rede errada (IDs atribuídos pela sequência são
    > não-determinísticos sem ORDER BY).
+   >
+   > **Segurança contra typo**: `preco.mercado_id` é `NOT NULL`; um nome de mercado
+   > digitado errado no subselect causa falha do INSERT em vez de gravar `NULL`.
    >
    > Pule este passo se preferir que os dados venham apenas do scraper.
 

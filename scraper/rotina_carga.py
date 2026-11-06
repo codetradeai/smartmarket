@@ -255,6 +255,7 @@ def executar_ciclo_rede(chave_rede, config_rede, *, dsn, diretorio_base,
     resumo_carga["store"] = store
     resumo_carga["status"] = "concluido" if status_coleta == 0 else "parcial"
     resumo_carga["total_coletados"] = len(registros)
+    resumo_carga["dir_saida"] = str(dir_saida)
     LOGGER.info(
         "Ciclo concluído para %s: %d produtos criados, %d preços inseridos",
         config_rede["nome"],
@@ -289,6 +290,35 @@ def executar_rodada_completa(*, dsn, diretorio_base, modo_fixture=False,
         except Exception as exc:
             LOGGER.error("Falha ao processar rede %s: %s", chave, exc)
             resultados[chave] = {"status": "erro", "motivo": str(exc)}
+
+    # Casamento e gravação de vínculos (idempotente via ON CONFLICT no banco)
+    registros_por_rede = {}
+    for chave, resultado in resultados.items():
+        if resultado.get("status") in ("concluido", "parcial") and resultado.get("dir_saida"):
+            arquivo = Path(resultado["dir_saida"]) / "produtos_coletados.json"
+            if arquivo.exists():
+                try:
+                    registros_por_rede[chave] = json.loads(
+                        arquivo.read_text(encoding="utf-8"), parse_float=Decimal
+                    )
+                except (OSError, ValueError) as exc:
+                    LOGGER.warning("Falha ao ler produtos de %s para casamento: %s", chave, exc)
+
+    if len(registros_por_rede) >= 2:
+        try:
+            import casamento as _casamento
+            import vinculos as _vinculos
+            resultado_casamento = _casamento.casar(registros_por_rede)
+            pares = resultado_casamento.get("pares", [])
+            if pares:
+                resumo_vinculos = _vinculos.gravar_vinculos(
+                    pares, dsn=dsn, permitir_banco_app=permitir_banco_app
+                )
+                LOGGER.info("Vínculos gravados: %s", resumo_vinculos)
+            else:
+                LOGGER.info("Nenhum par de vínculos encontrado nesta rodada")
+        except Exception as exc:
+            LOGGER.warning("Falha ao gravar vínculos (não crítico): %s", exc)
 
     duracao = round(time.time() - inicio, 2)
     relatorio_geral = {

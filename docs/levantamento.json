@@ -801,7 +801,7 @@
     {
       "afirmacao": "122 testes automatizados nos scrapers",
       "status": "divergente",
-      "valor_real": "229 testes coletados (197 rodam sem banco, 32 são pulados sem SMARTMARKET_TEST_DSN). README.md:30 e docs/EXPANSAO_RS_SCRAPERS.md:106 ainda citam 122.",
+      "valor_real": "279 testes coletados (247 rodam sem banco, 32 são pulados sem SMARTMARKET_TEST_DSN). README.md:30 e docs/EXPANSAO_RS_SCRAPERS.md:106 ainda citam 122.",
       "fonte": "scraper/tests/*.py; execução do unittest"
     },
     {

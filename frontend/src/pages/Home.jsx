@@ -24,6 +24,7 @@ import {
   CarrosselRedes,
 } from "../components/ui"
 import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
+import { contarDistintos } from "../utils/contagemCatalogo"
 
 const SECTOR_BANNERS = [
   { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
@@ -45,8 +46,10 @@ const SECTOR_BANNERS = [
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
 const redesComPreco = (p) => Object.values(p.prices || {}).filter((v) => typeof v === "number" && v > 0).length
-const PRODUTOS_COM_PRECO = PRODUCTS.filter((p) => redesComPreco(p) > 0).length
-const PRODUTOS_EM_2_REDES = PRODUCTS.filter((p) => redesComPreco(p) >= 2).length
+// Totais por produto distinto (rede + id de origem), não por id de catálogo: o mesmo item pode ter 2+ ids.
+const TOTAL_PRODUTOS = contarDistintos(PRODUCTS)
+const PRODUTOS_COM_PRECO = contarDistintos(PRODUCTS, (p) => redesComPreco(p) > 0)
+const PRODUTOS_EM_2_REDES = contarDistintos(PRODUCTS, (p) => redesComPreco(p) >= 2)
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -457,7 +460,7 @@ export function Home() {
                   Explore por Setor do Supermercado
                 </h2>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green">
-                  {PRODUCTS.length} produtos monitorados
+                  {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos monitorados
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
@@ -541,7 +544,7 @@ export function Home() {
                 👆 Escolha um setor acima para espiar
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
-                Quer ver todos os {PRODUCTS.length.toLocaleString("pt-BR")} produtos do catálogo?
+                Quer ver todos os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo?
               </h3>
               <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
                 Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.
@@ -739,7 +742,7 @@ export function Home() {
                   Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens deste setor!
                 </h3>
                 <p className="text-xs sm:text-sm text-white/75 max-w-2xl">
-                  Com a sua conta gratuita, você libera os {PRODUCTS.length} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
+                  Com a sua conta gratuita, você libera os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
                 </p>
               </div>
 

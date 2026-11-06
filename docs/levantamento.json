@@ -785,195 +785,6 @@
     },
     "produtos_carga_vs_catalogo": "530 e 9.406 medem coisas diferentes: 530 é a carga SQL do banco (1 preço por produto); 9.406 é o catálogo estático do frontend (1 preço por produto, na rede de coleta, desde o PR #54)."
   },
-  "verificacao_de_afirmacoes": [
-    {
-      "afirmacao": "530+ produtos com fotos HD",
-      "status": "divergente",
-      "valor_real": "Exatamente 530 produtos no SQL de carga (não 'mais de 530'); 528 com foto local, 408 arquivos distintos, 2 sem foto; mediana de 500 px no maior lado, 160 arquivos ≥ 1000 px.",
-      "fonte": "backend/database/carga_completa_530_produtos.sql; frontend/public/images/produtos"
-    },
-    {
-      "afirmacao": "8 redes: Zaffari, Rissul, Asun, Stok, Atacadão, Master, Fort, Carrefour",
-      "status": "confirmado",
-      "valor_real": "8 coletores coleta_*.py e 8 INSERTs de mercado.",
-      "fonte": "scraper/coleta_*.py; backend/database/carga_completa_530_produtos.sql:8-15"
-    },
-    {
-      "afirmacao": "122 testes automatizados nos scrapers",
-      "status": "divergente",
-      "valor_real": "279 testes coletados (247 rodam sem banco, 32 são pulados sem SMARTMARKET_TEST_DSN). README.md:30 e docs/EXPANSAO_RS_SCRAPERS.md:106 ainda citam 122.",
-      "fonte": "scraper/tests/*.py; execução do unittest"
-    },
-    {
-      "afirmacao": "meta de 70% de cobertura (Vitest/JUnit)",
-      "status": "divergente",
-      "valor_real": "Backend: confirmado (JaCoCo 70% LINE+BRANCH, atendido no CI). Frontend: threshold de 70% configurado no Jest, mas não executado no CI. Scraper: 70% em .coveragerc, sem medição no CI.",
-      "fonte": "backend/pom.xml; frontend/jest.config.cjs; scraper/.coveragerc; .github/workflows/ci.yml"
-    },
-    {
-      "afirmacao": "Spring Boot 3.4",
-      "status": "divergente",
-      "valor_real": "4.0.8",
-      "fonte": "backend/pom.xml:11"
-    },
-    {
-      "afirmacao": "Java 17",
-      "status": "confirmado",
-      "valor_real": "17",
-      "fonte": "backend/pom.xml:22"
-    },
-    {
-      "afirmacao": "React 19",
-      "status": "confirmado",
-      "valor_real": "^19.2.8",
-      "fonte": "frontend/package.json"
-    },
-    {
-      "afirmacao": "Tailwind v4",
-      "status": "confirmado",
-      "valor_real": "^4.3.3",
-      "fonte": "frontend/package.json"
-    },
-    {
-      "afirmacao": "PostgreSQL 16",
-      "status": "confirmado",
-      "valor_real": "postgres:16-alpine nos dois compose",
-      "fonte": "docker-compose.yml:6; backend/docker-compose.yml:3"
-    },
-    {
-      "afirmacao": "coleta agendada às 04:00 BRT",
-      "status": "confirmado",
-      "valor_real": "GitHub Actions: 07:00 UTC = 04:00 BRT. Ressalva: agendador_servico.py, systemd e cron usam o fuso do servidor, sem TZ definido.",
-      "fonte": ".github/workflows/coleta_diaria.yml:5-6; scraper/agendador_servico.py:27,93; scraper/smartmarket-scraper.service"
-    },
-    {
-      "afirmacao": "tabela produto",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:38"
-    },
-    {
-      "afirmacao": "tabela mercado",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:56"
-    },
-    {
-      "afirmacao": "tabela preco",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:69"
-    },
-    {
-      "afirmacao": "tabela usuario",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:22"
-    },
-    {
-      "afirmacao": "tabela lista_compra",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:127"
-    },
-    {
-      "afirmacao": "tabela item_lista",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:144"
-    },
-    {
-      "afirmacao": "tabela favorito",
-      "status": "confirmado",
-      "valor_real": "Existe, mas favoritos de produto ficam em outra tabela, favorito_produto (só na entidade JPA, fora do DDL).",
-      "fonte": "smartmarket_ddl_finalizado.sql:169; model/FavoritoProduto.java"
-    },
-    {
-      "afirmacao": "tabela alerta",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:193"
-    },
-    {
-      "afirmacao": "tabela promocao",
-      "status": "confirmado",
-      "fonte": "smartmarket_ddl_finalizado.sql:95"
-    },
-    {
-      "afirmacao": "página Home",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/Home.jsx; App.jsx:17"
-    },
-    {
-      "afirmacao": "página CatalogPage",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/CatalogPage.jsx; App.jsx:28"
-    },
-    {
-      "afirmacao": "página ShoppingListPage",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/ShoppingListPage.jsx; App.jsx:31-32"
-    },
-    {
-      "afirmacao": "página FavoritesPage",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/FavoritesPage.jsx; App.jsx:29-30"
-    },
-    {
-      "afirmacao": "página AdminPage",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/AdminPage.jsx; App.jsx:37"
-    },
-    {
-      "afirmacao": "página AuthPage",
-      "status": "confirmado",
-      "fonte": "frontend/src/pages/AuthPage.jsx; App.jsx:21-23"
-    },
-    {
-      "afirmacao": "página Sobre",
-      "status": "divergente",
-      "valor_real": "Arquivo existe, mas não é importado nem roteado; /sobre redireciona para a âncora #sobre da Home.",
-      "fonte": "frontend/src/pages/Sobre.jsx; frontend/src/App.jsx:19"
-    },
-    {
-      "afirmacao": "open-in-view=false",
-      "status": "confirmado",
-      "fonte": "backend/src/main/resources/application.properties:8"
-    },
-    {
-      "afirmacao": "gravação atômica",
-      "status": "confirmado",
-      "fonte": "arquivo temporário + Path.replace nos 8 coletores (ver scrapers.gravacao_atomica)"
-    },
-    {
-      "afirmacao": "Decimal estrito",
-      "status": "confirmado",
-      "fonte": "parse_float=Decimal nos 8 coletores; scraper/coleta_fort_atacadista.py:124-132"
-    },
-    {
-      "afirmacao": "trava validar_dsn",
-      "status": "confirmado",
-      "valor_real": "Existe e restringe a host local e bancos smartmarket*. Ressalva: permitir_banco_app=True é o padrão das funções (rotina_carga.py:198,264).",
-      "fonte": "scraper/pipeline.py:32"
-    },
-    {
-      "afirmacao": "preço simulado removido",
-      "status": "confirmado",
-      "valor_real": "Removido do gerador, da carga SQL e do data.js na main (PR #54). 9.406 produtos com 1 preço cada (rede de coleta). Cabeçalho do data.js confirma.",
-      "fonte": "scraper/tests/test_precos_sem_simulacao.py; backend/database/carga_completa_530_produtos.sql; frontend/src/data.js (git show)"
-    },
-    {
-      "afirmacao": "comparação de preços entre as 8 redes",
-      "status": "divergente",
-      "valor_real": "Cada produto tem preço real só na rede de coleta. A comparação entre redes depende de vínculo confirmado (EAN ou nome); EAN existe em 6 das 8 redes.",
-      "fonte": "scraper/vinculos.py; backend/database/migration_add_vinculo_produto.sql"
-    },
-    {
-      "afirmacao": "Jest como runner único do frontend",
-      "status": "confirmado",
-      "valor_real": "PR #52 mergeado. Vitest removido das devDependencies. CI verde: 36 suítes, 406 passando, 4 pulados (run 42133813283).",
-      "fonte": "frontend/package.json; CI run 42133813283"
-    },
-    {
-      "afirmacao": "cesta de demonstração",
-      "status": "confirmado",
-      "valor_real": "77 produtos com par confirmado em Master e Stok, foto da coleta de 03/11/2026; filial não identificada. Na main (PR #54 mergeado).",
-      "fonte": "frontend/src/data/cesta-demo.json; scraper/saida/cesta_20261104T013717Z.json"
-    }
-  ],
   "achados_de_auditoria": [
     {
       "id": "A-01",
@@ -1308,7 +1119,8 @@
       ],
       "evidencia": "sm_fav_products, sm_fav_markets, sm_price_alerts (localStorage) e sm_list (sessionStorage) não eram limpos no logout nem em 401; troca de conta sem logout levava os dados do usuário anterior.",
       "situacao_em_2026_11_05": "Resolvido no PR #62: limparDadosPrivados() criada em storageKeys.js; chamada no logout, no interceptor 401 e ao detectar email de dono diferente em login/register (sm_owner). 12 testes com mutações verificadas.",
-      "pr": "#62"
+      "pr": "#62",
+      "situacao_em_2026_11_03": "Resolvido no PR #62: limparDadosPrivados() criada em storageKeys.js; chamada no logout, no interceptor 401 e ao detectar email de dono diferente em login/register (sm_owner). 12 testes com mutações verificadas."
     },
     {
       "id": "A-28",
@@ -1321,7 +1133,8 @@
       ],
       "evidencia": "favoritarMercado e desfavoritarMercado enviavam ids não numéricos ao backend (FavoritoRequest.mercadoId: Long e @PathVariable Long); o backend retornava 400.",
       "situacao_em_2026_11_05": "Resolvido no PR #63: guard /^\\d+$/ antes de qualquer chamada à API em favoritarMercado e desfavoritarMercado. IDs locais são preservados no localStorage sem chamar o backend. 3 testes confirmam o guard; 2 confirmam que listarMercados/listarProdutos são GET-only.",
-      "pr": "#63"
+      "pr": "#63",
+      "situacao_em_2026_11_03": "Resolvido no PR #63: guard /^\\d+$/ antes de qualquer chamada à API em favoritarMercado e desfavoritarMercado. IDs locais são preservados no localStorage sem chamar o backend. 3 testes confirmam o guard; 2 confirmam que listarMercados/listarProdutos são GET-only."
     },
     {
       "id": "A-24",

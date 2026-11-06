@@ -10,7 +10,7 @@ WORKDIR /workspace
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
-# Corrige line endings (CRLF -> LF) e concede permissao de execucao
+# .gitattributes garante LF no index; sed -i cobre Windows (core.autocrlf=true)
 RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
 
 # Baixa dependencias em cache

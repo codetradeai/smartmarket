@@ -1,23 +1,17 @@
 {
   "meta": {
-    "gerado_em": "2026-11-04",
-    "branch": "main (origin/main @ 8304760) + PRs abertos #52 e #54",
-    "metodo": "Leitura do código em origin/main (8304760). Scraper executado localmente na main. Frontend da main executado localmente com Jest (mesmo resultado do CI). Backend e PRs: logs dos jobs do GitHub Actions (gh run view). data.js e cesta lidos das branches com git show e contados com Python. Proteção, issues e coleta diária via gh.",
-    "fase": "final (substitui o PR #53; nenhum código da aplicação alterado)",
-    "atualizado_de": "levantamento de 2026-11-03 (PR #53, docs/atualiza-floorplan)",
-    "prs_abertos": {
-      "#52": {
-        "branch": "feature/testes-frontend-jest",
-        "commit": "42ed80d",
-        "conteudo": "Jest como runner único e testes alinhados às telas",
-        "ci": "verde (run 41745664133)"
-      },
-      "#54": {
-        "branch": "fix/catalogo-sem-preco-simulado",
-        "commit": "99bd499",
-        "conteudo": "data.js sem preço simulado, telas com preço em uma rede só, cesta de demonstração, User-Agent sem e-mail",
-        "ci": "backend e scraper verdes; frontend com as mesmas 103 falhas da main (run 41761039354)"
-      }
+    "gerado_em": "2026-11-05",
+    "branch": "main (origin/main @ 4c8595c)",
+    "metodo": "Leitura do código em origin/main (4c8595c). Suíte do frontend executada localmente (node node_modules/jest/bin/jest.js --no-coverage). Backend e scraper: logs dos jobs do CI mais recente (gh run view 42133813283). data.js lido com git show. Commits contados com git rev-list --count. Proteção e issues via gh.",
+    "fase": "atualização dia 12 (branch docs/floorplan-dia-12; nenhum código da aplicação alterado)",
+    "atualizado_de": "levantamento de 2026-11-04 (PR #55, docs/floorplan-final)",
+    "prs_mergeados_desde_ultimo_levantamento": {
+      "#52": "feature/testes-frontend-jest — Jest como runner único e testes alinhados às telas",
+      "#54": "fix/catalogo-sem-preco-simulado — data.js sem preço simulado, cesta de demonstração, User-Agent sem e-mail",
+      "#57": "fix/segredos-config — JWT e Postgres sem fallback hardcoded",
+      "#61": "fix/testes-isolamento-promocao — testes de integração isolados",
+      "#62": "fix/dados-privados-por-conta — isolamento de localStorage por conta (issue #56)",
+      "#63": "fix/mercados-ids-locais — ids locais de mercado não enviados ao backend"
     }
   },
   "scrapers": {
@@ -145,8 +139,8 @@
       }
     },
     "testes": {
-      "total_coletados_pelo_unittest": 229,
-      "executados_sem_banco": 197,
+      "total_coletados_pelo_unittest": 279,
+      "executados_sem_banco": 247,
       "pulados": 32,
       "motivo_dos_pulos": "Exigem SMARTMARKET_TEST_DSN (PostgreSQL local): 18 em test_pipeline_postgres.py + 9 em test_revisao_adversarial.py + 5 em test_vinculos_postgres.py",
       "por_arquivo": {
@@ -170,7 +164,7 @@
         "test_rotina_carga.py": 8,
         "test_vinculos_postgres.py": 5
       },
-      "comando_executado": "python -m unittest discover -s scraper/tests -> 'Ran 229 tests ... OK (skipped=32)'",
+      "comando_executado": "CI (gh run view 42133813283): 'Ran 279 tests in 0.086s / OK (skipped=32)'",
       "cobertura_configurada": "scraper/.coveragerc: fail_under = 70, branch = True. O CI roda a suíte (job Scraper Tests), mas sem medir cobertura."
     },
     "formas_de_execucao_por_SO": {
@@ -193,9 +187,8 @@
         "scraper/tests/test_precos_sem_simulacao.py (15 testes)"
       ],
       "carga_sql": "530 produtos e 530 linhas de preco: 1 preço por produto, na rede de coleta.",
-      "catalogo_estatico_frontend": "frontend/src/data.js foi gerado em 30/10/2026 (commit 652e5f5), antes da correção, e não foi regenerado: os 9.406 produtos ainda trazem preço nas 8 redes (1 coletado e 7 simulados). Home, Catálogo, Lista, Favoritos e Admin importam esse arquivo.",
-      "status": "parcial na main: corrigido no gerador e na carga SQL; o data.js da main ainda tem 8 preços por produto. Corrigido no PR #54 (aguardando merge).",
-      "pr_54": "No PR #54 o data.js tem 9.406 produtos com 1 preço cada (o da rede de coleta); o cabeçalho deixa de dizer \"530 produtos\"."
+      "catalogo_estatico_frontend": "frontend/src/data.js na main tem 9.406 produtos com 1 preço cada (o da rede de coleta, sem simulação). Cabeçalho do arquivo confirma: '9406 produtos, cada um com o preço real da rede onde foi coletado (sem preço simulado)'. Regenerado no PR #54.",
+      "status": "resolvido: 1 preço por produto no gerador, na carga SQL e no data.js (PR #54 mergeado em 05/11/2026)."
     },
     "ean": {
       "redes_com_ean": 6,
@@ -251,12 +244,11 @@
       "observacao": "Nenhum coletor atinge 2 s (PAUSA_ENTRE_REQUISICOES em scraper/coleta_*.py). O sincronizador do catálogo já usa 2 s (commit a690f89)."
     },
     "identificacao": {
-      "main": "User-Agent com o e-mail pessoal no código de 6 arquivos do scraper; coleta_atacadao.py e a busca --sem-limites do Fort se apresentam como navegador (Chrome).",
-      "pr_54": "Contato do User-Agent lido de SMARTMARKET_CONTATO (sem e-mail no código), Atacadão sem Origin/Referer da loja e Fort --sem-limites com o SmartMarketBot.",
-      "historico_git": "O e-mail continua no histórico: 7 commits o adicionam ou removem (o primeiro é 9a99697, de 07/09/2026). O histórico não foi reescrito."
+      "main": "Contato do User-Agent lido de SMARTMARKET_CONTATO (sem e-mail no código), Atacadão sem Origin/Referer da loja e Fort --sem-limites com o SmartMarketBot (PR #54 mergeado). Os 6 arquivos do scraper não têm mais e-mail hardcoded.",
+      "historico_git": "O e-mail continua no histórico: 7 commits o adicionam ou removem (o primeiro é 9a99697, de 07/09/2026). O histórico não foi reescrito (ver A-26)."
     },
     "cesta_demonstracao": {
-      "status": "no PR #54 (aguardando merge)",
+      "status": "na main (PR #54 mergeado em 05/11/2026)",
       "arquivo": "frontend/src/data/cesta-demo.json (gerado por scraper/gerar_cesta_demo.py)",
       "produtos": 77,
       "redes": [
@@ -615,12 +607,12 @@
     },
     "open_in_view": "false (application.properties:8)",
     "testes": {
-      "total_executados": 228,
+      "total_executados": 233,
       "falhas": 0,
       "erros": 0,
       "pulados": 0,
       "arquivos": 24,
-      "fonte": "Job 'Backend Tests & Build' do CI na main (run 41706924325, commit 8304760): 'Tests run: 228, Failures: 0, Errors: 0, Skipped: 0' e 'All coverage checks have been met'.",
+      "fonte": "Job 'Backend Tests & Build' do CI na main (run 42133813283, commit 4c8595c): 'Tests run: 233, Failures: 0, Errors: 0, Skipped: 0' e 'All coverage checks have been met'.",
       "observacao": "Os testes de integração rodam em H2, não em PostgreSQL. Novos desde o levantamento anterior: PrecosVinculadosIntegrationTest, PromocaoVigenciaIntegrationTest e VinculoProdutoServiceTest."
     },
     "queries_otimizadas": "backend/database/smartmarket_queries_otimizadas.sql e cópia idêntica em backend/smartmarket_queries_otimizadas.sql (diff sem diferenças)."
@@ -631,7 +623,7 @@
     "tailwind": "^4.3.3 via @tailwindcss/vite",
     "react_router_dom": "^7.18.2",
     "axios": "^1.20.0",
-    "vitest": "^5.0.5 ainda nas devDependencies (o PR #52 remove)",
+    "vitest": "removido das devDependencies (PR #52 mergeado)",
     "node": "CI usa Node 24 (ci.yml:41); Dockerfile usa node:20-alpine (frontend/Dockerfile:6)",
     "porta_dev": "5174 (frontend/vite.config.js:10)",
     "paginas_reais": {
@@ -654,20 +646,22 @@
     "interceptors": {
       "arquivo": "frontend/src/services/api.js",
       "request": "Injeta `Authorization: Bearer <sm_token>` do localStorage (linhas 15-28)",
-      "response": "Apenas 401: limpa sm_token e sm_user e redireciona para /auth?mode=login&expired=true (linhas 32-52). NÃO trata 403 (o CLAUDE.md afirma 401/403).",
+      "response": "Apenas 401: limpa sm_token e sm_user, chama limparDadosPrivados() (remove as 4 chaves privadas) e redireciona para /auth?mode=login&expired=true. NÃO trata 403.",
       "timeout": "10000 ms; baseURL = VITE_API_URL ou http://localhost:8080/api"
     },
     "chaves_storage": {
       "localStorage": [
         "sm_token",
         "sm_user",
+        "sm_owner",
         "sm_fav_products",
         "sm_fav_markets",
         "sm_price_alerts"
       ],
       "sessionStorage": [
         "sm_list"
-      ]
+      ],
+      "observacao": "sm_owner guarda o email do último usuário autenticado. Troca de conta sem logout dispara limparDadosPrivados() antes de sincronizar; logout e 401 também limpam as 4 chaves privadas (issue #56, PR #62)."
     },
     "services": [
       "adminService",
@@ -676,7 +670,8 @@
       "favoritoService",
       "listaService",
       "mercadoService",
-      "produtoService"
+      "produtoService",
+      "storageKeys"
     ],
     "componentes_ui": [
       "Button",
@@ -694,19 +689,18 @@
     ],
     "testes": {
       "runner": "Jest 30 + React Testing Library (npm test = jest)",
-      "suites": 31,
-      "suites_passando": 20,
-      "suites_falhando": 11,
-      "total": 360,
-      "passando": 257,
-      "falhando": 103,
-      "comando_executado": "npm ci && jest --ci -> 'Test Suites: 11 failed, 20 passed, 31 total' / 'Tests: 103 failed, 257 passed, 360 total' (o CI da main mostra os mesmos números)",
-      "causa": "4 suítes importam 'vitest' e quebram no Jest (Product360HoverPreview, ProductDetailModal, ProductViewer360, relatedProducts); as outras 7 suítes com falha têm asserções anteriores às telas atuais.",
-      "pr_pendente": "PR #52: Jest como runner único; 31 suítes, 366 passando, 4 pulados, CI verde (run 41745664133). PR #54 sobre a main: 35 suítes, 384 testes, 281 passando e as mesmas 103 falhas da main.",
+      "suites": 36,
+      "suites_passando": 36,
+      "suites_falhando": 0,
+      "total": 410,
+      "passando": 406,
+      "pulados": 4,
+      "falhando": 0,
+      "comando_executado": "node node_modules/jest/bin/jest.js --no-coverage -> 'Test Suites: 36 passed, 36 total' / 'Tests: 4 skipped, 406 passed, 410 total' (CI run 42133813283 confirma os mesmos números)",
       "cobertura": "coverageThreshold global de 70% (branches, functions, lines, statements) em frontend/jest.config.cjs; o CI roda npm test sem --coverage."
     },
     "jest": "^30.5.1 (package.json: \"test\": \"jest\")",
-    "runner": "Na main: npm test = jest, mas 4 suítes ainda importam vitest e o vitest segue nas devDependencies. Runner único só com o PR #52."
+    "runner": "Jest como runner único (A-23 resolvido com PR #52). Vitest removido das devDependencies."
   },
   "metricas": {
     "produtos_no_sql_de_carga": {
@@ -737,11 +731,11 @@
     "dados_coletados_versionados": "scraper/produtos_coletados.json tem apenas 40 registros; scraper/output/ é ignorado pelo git (scraper/.gitignore:3).",
     "total_redes": 8,
     "testes": {
-      "scraper": 229,
-      "backend": 228,
-      "frontend": 360,
-      "total": 817,
-      "observacao": "Scraper e frontend executados na main; backend pelo CI da main. Frontend da main: 103 falhando. Nos PRs: #52 com 366 passando e 4 pulados; #54 com scraper 279, backend 228 e frontend 384 (as mesmas 103 falhas)."
+      "scraper": 279,
+      "backend": 233,
+      "frontend": 410,
+      "total": 922,
+      "observacao": "Todos os três jobs do CI na main (run 42133813283, commit 4c8595c) com sucesso. Frontend: 406 passando, 4 pulados, 0 falhando. Backend: 233 testes, 0 falhas. Scraper: 279 coletados, 32 pulados (exigem banco), 0 falhas."
     },
     "meta_de_cobertura": {
       "backend": "70% LINE e 70% BRANCH, regra JaCoCo `check` na fase test; o build quebra abaixo disso (backend/pom.xml). Atendida no CI da main.",
@@ -760,17 +754,17 @@
         "nao_inclui": "lint, cobertura do frontend e do scraper, deploy"
       },
       "estado_main": {
-        "commit": "8304760",
+        "commit": "4c8595c",
         "workflow": "SmartMarket CI Pipeline",
-        "run": 41706924325,
-        "conclusao": "failure",
+        "run": 42133813283,
+        "conclusao": "success",
         "jobs": {
           "Backend Tests & Build": "success",
-          "Frontend Tests & Production Build": "failure",
+          "Frontend Tests & Production Build": "success",
           "Scraper Tests": "success"
         },
-        "outros_workflows": "Deploy Jekyll (GitHub Pages): success. Coleta diária (coleta_diaria.yml): failure nas 4 últimas execuções (31/10, 01/11, 02/11 e 03/11/2026).",
-        "lido_em": "2026-11-04, com gh run list --branch main"
+        "outros_workflows": "Coleta diária (coleta_diaria.yml): failure (requirements.txt da raiz, sem banco no runner — ver A-06).",
+        "lido_em": "2026-11-05, com gh run list --branch main"
       },
       "protecao_main": "Sem branch protection (a API responde 404) e o ruleset 'main' está com enforcement disabled.",
       "coleta_diaria": {
@@ -780,39 +774,16 @@
       },
       "deploy": null
     },
-    "commits_no_repositorio": 242,
+    "commits_no_repositorio": 313,
     "catalogo_estatico_frontend": {
       "total": 9406,
       "arquivo": "frontend/src/data.js",
       "mede": "Produtos do catálogo estático que as páginas do frontend importam.",
-      "precos_por_produto": 8,
-      "evidencia": "PRODUCTS.length = 9406 e MARKETS.length = 8, lidos importando o módulo com Node",
-      "gerado_em": "2026-10-30 (commit 652e5f5)",
-      "pr_54": "1 preço por produto (9.406 produtos)"
+      "precos_por_produto": 1,
+      "evidencia": "Cabeçalho do data.js na main: '9406 produtos, cada um com o preço real da rede onde foi coletado (sem preço simulado)' (PR #54 regenerou o arquivo)",
+      "gerado_em": "PR #54 (mergeado em 05/11/2026)"
     },
-    "produtos_carga_vs_catalogo": "530 e 9.406 medem coisas diferentes: 530 é a carga SQL do banco (1 preço por produto); 9.406 é o catálogo estático do frontend, gerado antes da remoção do preço simulado.",
-    "testes_prs": {
-      "#52": {
-        "frontend": {
-          "suites": 31,
-          "passando": 366,
-          "pulados": 4,
-          "falhando": 0
-        },
-        "ci": "run 41745664133"
-      },
-      "#54": {
-        "scraper": 279,
-        "backend": 228,
-        "frontend": {
-          "suites": 35,
-          "total": 384,
-          "passando": 281,
-          "falhando": 103
-        },
-        "ci": "run 41761039354"
-      }
-    }
+    "produtos_carga_vs_catalogo": "530 e 9.406 medem coisas diferentes: 530 é a carga SQL do banco (1 preço por produto); 9.406 é o catálogo estático do frontend (1 preço por produto, na rede de coleta, desde o PR #54)."
   },
   "verificacao_de_afirmacoes": [
     {
@@ -980,9 +951,9 @@
     },
     {
       "afirmacao": "preço simulado removido",
-      "status": "parcial",
-      "valor_real": "Removido do gerador e da carga SQL na main. O data.js da main ainda tem 7 preços simulados por produto; o PR #54 o regenera com 1 preço por produto.",
-      "fonte": "scraper/tests/test_precos_sem_simulacao.py; backend/database/carga_completa_530_produtos.sql; frontend/src/data.js"
+      "status": "confirmado",
+      "valor_real": "Removido do gerador, da carga SQL e do data.js na main (PR #54). 9.406 produtos com 1 preço cada (rede de coleta). Cabeçalho do data.js confirma.",
+      "fonte": "scraper/tests/test_precos_sem_simulacao.py; backend/database/carga_completa_530_produtos.sql; frontend/src/data.js (git show)"
     },
     {
       "afirmacao": "comparação de preços entre as 8 redes",
@@ -992,15 +963,15 @@
     },
     {
       "afirmacao": "Jest como runner único do frontend",
-      "status": "pendente",
-      "valor_real": "Na main, 4 suítes ainda importam vitest. O PR #52 faz a troca (CI verde), ainda não mergeado.",
-      "fonte": "frontend/package.json; PR #52"
+      "status": "confirmado",
+      "valor_real": "PR #52 mergeado. Vitest removido das devDependencies. CI verde: 36 suítes, 406 passando, 4 pulados (run 42133813283).",
+      "fonte": "frontend/package.json; CI run 42133813283"
     },
     {
       "afirmacao": "cesta de demonstração",
-      "status": "em PR",
-      "valor_real": "77 produtos com par confirmado em Master e Stok, foto da coleta de 03/11/2026; filial não identificada.",
-      "fonte": "PR #54: frontend/src/data/cesta-demo.json; scraper/saida/cesta_20261104T013717Z.json"
+      "status": "confirmado",
+      "valor_real": "77 produtos com par confirmado em Master e Stok, foto da coleta de 03/11/2026; filial não identificada. Na main (PR #54 mergeado).",
+      "fonte": "frontend/src/data/cesta-demo.json; scraper/saida/cesta_20261104T013717Z.json"
     }
   ],
   "achados_de_auditoria": [
@@ -1251,14 +1222,13 @@
       "id": "A-18",
       "titulo": "Catálogo estático do frontend ainda exibe preços simulados",
       "severidade": "alta",
-      "status": "resolvido_em_pr",
+      "status": "resolvido",
       "arquivo_linha": [
         "frontend/src/data.js",
         "scraper/gerar_catalogo_e_sql.py"
       ],
-      "evidencia": "data.js (9.406 produtos, gerado em 30/10/2026) tem preço nas 8 redes para cada produto: 1 coletado e 7 simulados. O gerador já foi corrigido (6dc390d), mas o arquivo não foi regenerado. As páginas importam esse arquivo.",
-      "situacao_em_2026_11_03": "Corrigido no PR #54 (data.js com 1 preço por produto; telas tratam preço em uma rede só), aguardando merge. Na main continua aberto.",
-      "recomendacao": "Regenerar o catálogo com o gerador corrigido ou passar as páginas a ler os preços da API; até lá, não apresentar a comparação do catálogo estático como preço real.",
+      "evidencia": "data.js (9.406 produtos, gerado em 30/10/2026) tinha preço nas 8 redes para cada produto: 1 coletado e 7 simulados. O gerador foi corrigido (6dc390d) e o data.js regenerado no PR #54.",
+      "situacao_em_2026_11_05": "Resolvido: PR #54 mergeado. data.js na main tem 9.406 produtos com 1 preço cada (rede de coleta). Cabeçalho confirmado com git show.",
       "pr": "#54"
     },
     {
@@ -1317,15 +1287,41 @@
       "id": "A-23",
       "titulo": "CI vermelho na main: 4 suítes do frontend ainda importam vitest",
       "severidade": "média",
-      "status": "resolvido_em_pr",
+      "status": "resolvido",
       "arquivo_linha": [
         ".github/workflows/ci.yml",
         "frontend/package.json"
       ],
       "evidencia": "Run 41706924325 (8304760): backend e scraper success, frontend failure (11 de 31 suítes, 103 de 360 testes).",
-      "situacao_em_2026_11_03": "Corrigido no PR #52 (CI verde), aguardando merge.",
-      "recomendacao": "Revisar e mergear o PR #52.",
+      "situacao_em_2026_11_05": "Resolvido: PR #52 mergeado. CI verde (run 42133813283): 36 suítes, 406 passando, 4 pulados, 0 falhando. Vitest removido das devDependencies.",
       "pr": "#52"
+    },
+    {
+      "id": "A-27",
+      "titulo": "Dados privados de um usuário vazavam para o próximo sem logout (issue #56)",
+      "severidade": "alta",
+      "status": "resolvido",
+      "arquivo_linha": [
+        "frontend/src/services/storageKeys.js",
+        "frontend/src/contexts/AuthContext.jsx",
+        "frontend/src/services/api.js"
+      ],
+      "evidencia": "sm_fav_products, sm_fav_markets, sm_price_alerts (localStorage) e sm_list (sessionStorage) não eram limpos no logout nem em 401; troca de conta sem logout levava os dados do usuário anterior.",
+      "situacao_em_2026_11_05": "Resolvido no PR #62: limparDadosPrivados() criada em storageKeys.js; chamada no logout, no interceptor 401 e ao detectar email de dono diferente em login/register (sm_owner). 12 testes com mutações verificadas.",
+      "pr": "#62"
+    },
+    {
+      "id": "A-28",
+      "titulo": "IDs locais de mercado (ex.: 'fort', 'stok') enviados ao backend como @PathVariable Long — HTTP 400",
+      "severidade": "média",
+      "status": "resolvido",
+      "arquivo_linha": [
+        "frontend/src/services/favoritoService.js",
+        "backend/src/main/java/com/smartmarket/controller/FavoritoController.java"
+      ],
+      "evidencia": "favoritarMercado e desfavoritarMercado enviavam ids não numéricos ao backend (FavoritoRequest.mercadoId: Long e @PathVariable Long); o backend retornava 400.",
+      "situacao_em_2026_11_05": "Resolvido no PR #63: guard /^\\d+$/ antes de qualquer chamada à API em favoritarMercado e desfavoritarMercado. IDs locais são preservados no localStorage sem chamar o backend. 3 testes confirmam o guard; 2 confirmam que listarMercados/listarProdutos são GET-only.",
+      "pr": "#63"
     },
     {
       "id": "A-24",
@@ -1447,12 +1443,12 @@
     }
   ],
   "observacoes": [
-    "A main não mudou desde 8304760; os números da main foram conferidos de novo em 04/11/2026.",
-    "Backend: o Maven local não abre o processo do Surefire com '&' no caminho do usuário; as contagens (228) vêm dos jobs do CI.",
-    "Os itens 'em PR' só valem para a main depois do merge dos PRs #52 e #54.",
+    "Levantamento do estado da main @ 4c8595c (merge PR #63), conferido em 05/11/2026.",
+    "Backend: o Maven local não abre o processo do Surefire com '&' no caminho do usuário; as contagens (233) vêm dos jobs do CI (gh run view 42133813283).",
     "Cobertura medida em porcentagem: só o backend tem verificação no CI (JaCoCo, atendida).",
     "Qualidade das fotos: dimensões reais (mediana de 500 px no maior lado).",
-    "As pastas login/, output/ e frontend/templates/ foram desconsideradas, conforme o CLAUDE.md."
+    "As pastas login/, output/ e frontend/templates/ foram desconsideradas, conforme o CLAUDE.md.",
+    "PRs #52, #54, #57, #61, #62 e #63 todos mergeados na main desde o levantamento anterior."
   ],
   "correcoes_resolvidas": [
     {
@@ -1502,38 +1498,52 @@
       "commit": "0447603",
       "arquivo": ".github/workflows/ci.yml",
       "nota": "Job Scraper Tests verde na main."
-    }
-  ],
-  "correcoes_em_pr": [
+    },
     {
       "titulo": "data.js sem preço simulado (9.406 produtos, 1 preço cada)",
       "pr": "#54",
-      "commit": "12a9edc"
+      "commit": "12a9edc",
+      "arquivo": "frontend/src/data.js; scraper/gerar_catalogo_e_sql.py"
     },
     {
       "titulo": "Lista, Home e Favoritos tratam produto com preço em uma rede só",
       "pr": "#54",
-      "commit": "70f5db4"
+      "commit": "70f5db4",
+      "arquivo": "frontend/src/pages/"
     },
     {
       "titulo": "Cesta de demonstração no detalhe do produto (77 produtos, Master e Stok, foto de 03/11/2026)",
       "pr": "#54",
-      "commit": "7230016"
+      "commit": "7230016",
+      "arquivo": "frontend/src/data/cesta-demo.json"
     },
     {
       "titulo": "User-Agent sem e-mail (SMARTMARKET_CONTATO) e sem se passar por navegador",
       "pr": "#54",
-      "commit": "9d7a6b0"
-    },
-    {
-      "titulo": "Um limitador por host (2 s) e parada no primeiro 403/429 nas consultas por EAN",
-      "pr": "#54",
-      "commit": "52601bb"
+      "commit": "9d7a6b0",
+      "arquivo": "scraper/coleta_*.py"
     },
     {
       "titulo": "Jest como runner único; testes alinhados às telas atuais",
       "pr": "#52",
-      "commit": "42ed80d"
+      "commit": "42ed80d",
+      "arquivo": "frontend/src/; frontend/package.json"
+    },
+    {
+      "titulo": "JWT e Postgres sem fallback hardcoded; porta do banco em 127.0.0.1",
+      "pr": "#57",
+      "arquivo": "backend/src/main/resources/application*.properties; docker-compose.yml; scraper/rotina_carga.py"
+    },
+    {
+      "titulo": "Isolamento de dados privados por conta (issue #56): limparDadosPrivados, sm_owner",
+      "pr": "#62",
+      "arquivo": "frontend/src/services/storageKeys.js; frontend/src/contexts/AuthContext.jsx; frontend/src/services/api.js"
+    },
+    {
+      "titulo": "IDs locais de mercado não enviados ao backend como Long (issue #63)",
+      "pr": "#63",
+      "arquivo": "frontend/src/services/favoritoService.js"
     }
-  ]
+  ],
+  "correcoes_em_pr": []
 }

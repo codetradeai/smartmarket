@@ -69,9 +69,11 @@ def assinatura_embalagem(nome):
 
 
 def embalagens_compativeis(nome_a, nome_b):
-    """(True, None) ou (False, motivo). Medida ausente num dos lados não prova divergência."""
+    """(True, None) ou (False, motivo). Medida ausente em qualquer lado → revisar."""
     (ma, pa), (mb, pb) = assinatura_embalagem(nome_a), assinatura_embalagem(nome_b)
-    if ma and mb and ma != mb:
+    if not ma or not mb:
+        return False, "medida_ausente"
+    if ma != mb:
         return False, "quantidade_diferente"
     if pa != pb:
         return False, "embalagem_diferente"

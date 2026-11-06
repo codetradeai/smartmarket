@@ -116,16 +116,23 @@ class EmbalagemDivergenteTest(unittest.TestCase):
 
     def test_45g_contra_6_unidades_vai_para_revisao(self):
         s = self._status(self._bombril())
-        for outro in ("master", "stok"):
-            par = s[frozenset(("atacadao", outro))]
-            self.assertEqual(par["status"], "revisar")
-            self.assertEqual(par["motivo"], "embalagem_diferente")
-            self.assertEqual(par["origem"], "ean")
+        # stok tem "45g" → embalagem_diferente (mesmo EAN, pack diferente)
+        par_stok = s[frozenset(("atacadao", "stok"))]
+        self.assertEqual(par_stok["status"], "revisar")
+        self.assertEqual(par_stok["motivo"], "embalagem_diferente")
+        self.assertEqual(par_stok["origem"], "ean")
+        # master não tem medida em g/ml → medida_ausente
+        par_master = s[frozenset(("atacadao", "master"))]
+        self.assertEqual(par_master["status"], "revisar")
+        self.assertEqual(par_master["motivo"], "medida_ausente")
+        self.assertEqual(par_master["origem"], "ean")
 
-    def test_pares_sem_divergencia_continuam_confirmados(self):
+    def test_par_sem_medida_vai_para_revisao(self):
+        # "Esponja Aço Bombril Eco Com 6 Unidade" (master) não tem medida em g/ml →
+        # par master/stok deve ser "revisar", não "confirmado"
         par = self._status(self._bombril())[frozenset(("master", "stok"))]
-        self.assertEqual(par["status"], "confirmado")
-        self.assertIsNone(par["motivo"])
+        self.assertEqual(par["status"], "revisar")
+        self.assertEqual(par["motivo"], "medida_ausente")
 
     def test_produto_com_par_em_revisao_e_sinalizado(self):
         res = self._bombril()
@@ -144,9 +151,22 @@ class EmbalagemDivergenteTest(unittest.TestCase):
 
     def test_compatibilidade_casos_gerais(self):
         self.assertTrue(embalagens_compativeis("Arroz 1kg", "Arroz 1000g")[0])
-        self.assertTrue(embalagens_compativeis("Leite 1L", "Leite Longa Vida 1 Litro")[0])
+        # "Litro" não é reconhecido pela regex de medida → medida_ausente (revisar)
+        ok, motivo = embalagens_compativeis("Leite 1L", "Leite Longa Vida 1 Litro")
+        self.assertFalse(ok)
+        self.assertEqual(motivo, "medida_ausente")
         self.assertFalse(embalagens_compativeis("Cerveja 12 Latas 350ml", "Cerveja Lata 350ml")[0])
         self.assertFalse(embalagens_compativeis("Cerveja 6x350ml", "Cerveja 350ml")[0])
+
+    def test_nome_sem_medida_resulta_em_medida_ausente(self):
+        ok, motivo = embalagens_compativeis("Esponja Aço Bombril Eco Com 6 Unidade", "Esponja Bombril Aço 45g")
+        self.assertFalse(ok)
+        self.assertEqual(motivo, "medida_ausente")
+
+    def test_ambos_sem_medida_resulta_em_medida_ausente(self):
+        ok, motivo = embalagens_compativeis("Esponja Aço Bombril", "Esponja Bombril Eco")
+        self.assertFalse(ok)
+        self.assertEqual(motivo, "medida_ausente")
 
     def test_mesma_rede_nao_gera_par(self):
         res = casar({"a": [reg("1", "Arroz Camil 1kg", ean="7896011906881"), reg("2", "Arroz Camil 1kg", ean="7896011906881")]})

@@ -35,8 +35,26 @@
 
    -- Passo 3 (opcional): catálogo seed com 530 produtos e preços
    \i backend/deploy/03_carga.sql
+
+   -- Passo 4: adiciona coluna ativa na tabela promocao
+   \i backend/deploy/04_adiciona_ativa_promocao.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
+
+   > ⚠️ **Atenção — PR `feat/c3-coleta-segura`**: aplique o script `04_adiciona_ativa_promocao.sql`
+   > **antes** de qualquer deploy que inclua esse PR. O Hibernate sobe com `ddl-auto=validate` e
+   > exige que a coluna `ativa BOOLEAN NOT NULL DEFAULT TRUE` já exista em `promocao`; sem ela,
+   > o backend recusa inicializar. O script é idempotente (`ADD COLUMN IF NOT EXISTS`).
+   >
+   > **Quem chama `inativarNaoRecoletadas`**: o método `PromocaoService.inativarNaoRecoletadas`
+   > existe e está testado, mas ainda não possui chamador em produção. O ponto previsto é o
+   > `rotina_carga.py` após cada ciclo bem-sucedido de uma rede (via chamada REST ao backend ou
+   > chamada direta ao banco), passando o `mercado_id` e o `inicio_coleta` do ciclo. Enquanto não
+   > for plugado, promoções sem `data_fim` só serão inativadas manualmente pelo SQL abaixo:
+   > ```sql
+   > UPDATE promocao SET ativa = FALSE
+   > WHERE mercado_id = <id> AND data_fim IS NULL AND coletado_em < '<inicio_coleta>';
+   > ```
 
    > `03_carga.sql` é idempotente: pode ser re-executado sem duplicar dados
    > (sentinel: `DELETE FROM preco WHERE origem LIKE 'seed_%'`; não depende de data).

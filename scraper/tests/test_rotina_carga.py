@@ -235,5 +235,79 @@ class TestRotinaCarga(unittest.TestCase):
         self.assertTrue(mock_rodada.called)
 
 
+    @patch("rotina_carga.executar_ciclo_rede")
+    @patch("rotina_carga.garantir_mercados_existentes")
+    @patch("rotina_carga.conectar_banco")
+    @patch("rotina_carga.validar_dsn")
+    def test_09_vinculos_idempotente_em_rodadas_consecutivas(
+        self, mock_validar_dsn, mock_conectar, mock_garantir, mock_ciclo
+    ):
+        """Idempotência: duas rodadas com os mesmos produtos passam pares idênticos
+        a gravar_vinculos. A não-duplicação no banco é garantida pelo ON CONFLICT em
+        vinculo_produto; a rotina não filtra por conta própria."""
+        import sys
+
+        mock_validar_dsn.return_value = {"dbname": "smartmarket"}
+        mock_conn = MagicMock()
+        mock_conectar.return_value.__enter__.return_value = mock_conn
+
+        # Produtos de duas redes em arquivos temporários
+        dir_fort = self.temp_dir / "fort"
+        dir_carrefour = self.temp_dir / "carrefour"
+        dir_fort.mkdir(parents=True, exist_ok=True)
+        dir_carrefour.mkdir(parents=True, exist_ok=True)
+        (dir_fort / "produtos_coletados.json").write_text(
+            json.dumps([{"id_produto_origem": "F1", "nome": "Arroz 1kg", "preco": "5.99"}])
+        )
+        (dir_carrefour / "produtos_coletados.json").write_text(
+            json.dumps([{"id_produto_origem": "C1", "nome": "Arroz 1kg", "preco": "6.10"}])
+        )
+
+        def _ciclo(chave, *a, **kw):
+            mapa = {
+                "fort":      {"source": "fort",      "status": "concluido", "dir_saida": str(dir_fort)},
+                "carrefour": {"source": "carrefour",  "status": "concluido", "dir_saida": str(dir_carrefour)},
+            }
+            return mapa.get(chave, {"status": "erro", "motivo": "sem fixture"})
+
+        mock_ciclo.side_effect = _ciclo
+
+        par = {"rede_a": "fort", "rede_b": "carrefour", "produto_a_id": "F1", "produto_b_id": "C1"}
+        mock_casamento = MagicMock()
+        mock_casamento.casar.return_value = {"pares": [par]}
+        mock_vinculos = MagicMock()
+        mock_vinculos.gravar_vinculos.return_value = {"gravados": 1, "conflitos": 0}
+
+        with patch.dict(sys.modules, {"casamento": mock_casamento, "vinculos": mock_vinculos}):
+            # Rodada 1
+            executar_rodada_completa(
+                dsn="host=localhost dbname=smartmarket",
+                diretorio_base=self.temp_dir / "r1",
+                modo_fixture=True,
+                permitir_banco_app=True,
+            )
+            # Rodada 2 — mesmos dados, simulando re-execução
+            executar_rodada_completa(
+                dsn="host=localhost dbname=smartmarket",
+                diretorio_base=self.temp_dir / "r2",
+                modo_fixture=True,
+                permitir_banco_app=True,
+            )
+
+        # gravar_vinculos deve ser chamado uma vez por rodada
+        self.assertEqual(
+            mock_vinculos.gravar_vinculos.call_count, 2,
+            "gravar_vinculos deve ser chamado uma vez por rodada, independentemente de repetição",
+        )
+        # Ambas as chamadas passam exatamente os mesmos pares
+        pares_1 = mock_vinculos.gravar_vinculos.call_args_list[0][0][0]
+        pares_2 = mock_vinculos.gravar_vinculos.call_args_list[1][0][0]
+        self.assertEqual(
+            pares_1, pares_2,
+            "pares enviados nas duas rodadas devem ser idênticos — "
+            "a idempotência (sem duplicação) é garantida pelo ON CONFLICT no banco",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

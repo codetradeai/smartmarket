@@ -10,8 +10,8 @@ WORKDIR /workspace
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
-# Concede permissao de execucao ao wrapper Maven
-RUN chmod +x mvnw
+# Corrige line endings (CRLF -> LF) e concede permissao de execucao
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
 
 # Baixa dependencias em cache
 RUN ./mvnw dependency:go-offline -B

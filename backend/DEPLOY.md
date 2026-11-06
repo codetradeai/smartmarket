@@ -12,12 +12,25 @@
    ```
    postgresql://usuario:senha@host.neon.tech/smartmarket?sslmode=require
    ```
-4. No painel do projeto, abra o **SQL Editor** e execute os scripts na ordem:
+
+4. **Obrigatório antes de carregar o Neon**: rode o teste de integridade contra
+   o Postgres local para garantir que os scripts estão corretos:
+   ```bash
+   DOCKER_CONTAINER=smartmarket-db bash backend/deploy/test_seed_integridade.sh
+   ```
+   Todos os 5 testes devem passar. O checksum MD5 esperado dos 530 pares
+   (produto_id | rede | valor) é:
+   ```
+   9290cf98a94537edaf4cfed732f20420
+   ```
+   Não prossiga se qualquer teste falhar ou o checksum divergir.
+
+5. No painel do projeto, abra o **SQL Editor** e execute os scripts na ordem:
    ```sql
    -- Passo 1: estrutura completa
    \i backend/deploy/01_schema.sql
 
-   -- Passo 2: mercados iniciais (9 redes)
+   -- Passo 2: mercados iniciais (8 redes)
    \i backend/deploy/02_mercados.sql
 
    -- Passo 3 (opcional): catálogo seed com 530 produtos e preços
@@ -27,14 +40,31 @@
 
    > `03_carga.sql` é idempotente: pode ser re-executado sem duplicar dados
    > (sentinel: `DELETE FROM preco WHERE origem LIKE 'seed_%'`; não depende de data).
-   > O campo `coletado_em` reflete a data real de coleta por rede, lida do campo
-   > `data_coleta` dos arquivos `scraper/output/coleta_<rede>.json` (outubro/2026);
-   > **não** é a data de execução deste script.
+   >
+   > **Datas de coleta**: o campo `coletado_em` foi confirmado nos arquivos
+   > `scraper/output/coleta_<rede>.json` (campo `data_coleta`):
+   > asun, atacadao, master, zaffari, rissul → **2026-10-27** (datas reais de coleta,
+   > 100% dos preços batem com os JSONs).
+   > Para o stok → **2026-10-27** (data em que a carga foi versionada no git,
+   > commit `87340ff`); os preços do stok no SQL foram coletados nessa data mas
+   > divergem do `coleta_stok.json` atual (54 diferenças, 30 ausentes) — essa
+   > data não pode ser afirmada como data de coleta real.
+   >
+   > **Ordem dos mercados**: `02_mercados.sql` usa IDs explícitos idênticos
+   > ao `carga_completa_530_produtos.sql` (1=Fort, 2=Carrefour, 3=Asun, 4=Atacadão,
+   > 5=Master, 6=Zaffari, 7=Rissul, 8=Stok); `03_carga.sql` resolve o mercado por
+   > nome (subselect), nunca por id numérico fixo. Sem essa combinação, em banco vazio
+   > todos os 530 preços ligam à rede errada (IDs atribuídos pela sequência são
+   > não-determinísticos sem ORDER BY).
+   >
+   > **Segurança contra typo**: `preco.mercado_id` é `NOT NULL`; um nome de mercado
+   > digitado errado no subselect causa falha do INSERT em vez de gravar `NULL`.
+   >
    > Pule este passo se preferir que os dados venham apenas do scraper.
 
 5. Confirme as contagens após os scripts:
    ```sql
-   SELECT COUNT(*) AS mercados  FROM mercado;   -- esperado: 9
+   SELECT COUNT(*) AS mercados  FROM mercado;   -- esperado: 8
    SELECT COUNT(*) AS produtos  FROM produto;   -- esperado: 530 (se rodou o 03)
    SELECT COUNT(*) AS precos    FROM preco;     -- esperado: 530 (se rodou o 03)
 

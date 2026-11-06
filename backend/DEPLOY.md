@@ -17,23 +17,30 @@
    -- Passo 1: estrutura completa
    \i backend/deploy/01_schema.sql
 
-   -- Passo 2: mercados iniciais
+   -- Passo 2: mercados iniciais (9 redes)
    \i backend/deploy/02_mercados.sql
+
+   -- Passo 3 (opcional): catálogo seed com 530 produtos e preços
+   \i backend/deploy/03_carga.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
 
-5. Confirme que as tabelas foram criadas:
+   > `03_carga.sql` é idempotente: pode ser re-executado sem duplicar dados
+   > (usa sentinel `coletado_em = '2024-01-01 12:00:00'`).
+   > Pule este passo se preferir que os dados venham apenas do scraper.
+
+5. Confirme as contagens após os scripts:
    ```sql
+   SELECT COUNT(*) AS mercados  FROM mercado;   -- esperado: 9
+   SELECT COUNT(*) AS produtos  FROM produto;   -- esperado: 530 (se rodou o 03)
+   SELECT COUNT(*) AS precos    FROM preco;     -- esperado: 530 (se rodou o 03)
+
    SELECT table_name FROM information_schema.tables
    WHERE table_schema = 'public' ORDER BY table_name;
    ```
-   Esperado: `alerta`, `favorito`, `favorito_produto`, `item_lista`,
+   Tabelas esperadas: `alerta`, `favorito`, `favorito_produto`, `item_lista`,
    `lista_compra`, `mercado`, `preco`, `produto`, `promocao`,
    `usuario`, `vinculo_produto`.
-
-> Os 530+ produtos chegam via scraper (ver `scraper/README.md`).
-> Execute o pipeline apontando `DATABASE_URL` para o Neon antes de
-> abrir o app ao público.
 
 ---
 

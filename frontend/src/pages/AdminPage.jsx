@@ -392,7 +392,7 @@ export default function AdminPage() {
   )
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto w-full">
+    <div className="min-w-0 w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 bg-brand-navy text-white px-5 py-3 rounded-2xl shadow-xl border border-brand-green/40 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200">
@@ -402,10 +402,10 @@ export default function AdminPage() {
       )}
 
       {/* Header do Painel */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="min-w-0 text-xl sm:text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
               Painel Administrativo
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-brand-navy text-white tracking-wider">
@@ -417,14 +417,14 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto">
           {activeTab === "produtos" && (
-            <Button variant="primary" size="md" leftIcon={<span>+</span>} onClick={openNewProductModal}>
+            <Button variant="primary" size="md" className="w-full sm:w-auto" leftIcon={<span>+</span>} onClick={openNewProductModal}>
               Novo Produto
             </Button>
           )}
           {activeTab === "mercados" && (
-            <Button variant="primary" size="md" leftIcon={<span>+</span>} onClick={openNewMarketModal}>
+            <Button variant="primary" size="md" className="w-full sm:w-auto" leftIcon={<span>+</span>} onClick={openNewMarketModal}>
               Novo Mercado
             </Button>
           )}
@@ -501,14 +501,14 @@ export default function AdminPage() {
       </div>
 
       {/* Navegação por Abas */}
-      <div className="flex items-center gap-2 mb-6 bg-white p-1.5 rounded-2xl border border-brand-border w-fit shadow-xs">
+      <div className="mb-6 flex min-w-0 w-full max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-brand-border bg-white p-1.5 shadow-xs">
         <button
           type="button"
           onClick={() => {
             setActiveTab("produtos")
             setSearch("")
           }}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === "produtos"
               ? "bg-brand-green text-white shadow-sm"
               : "text-brand-muted hover:text-brand-navy hover:bg-slate-50"
@@ -524,7 +524,7 @@ export default function AdminPage() {
             setActiveTab("mercados")
             setSearch("")
           }}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === "mercados"
               ? "bg-brand-green text-white shadow-sm"
               : "text-brand-muted hover:text-brand-navy hover:bg-slate-50"
@@ -540,7 +540,7 @@ export default function AdminPage() {
             setActiveTab("usuarios")
             setSearch("")
           }}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
             activeTab === "usuarios"
               ? "bg-brand-green text-white shadow-sm"
               : "text-brand-muted hover:text-brand-navy hover:bg-slate-50"
@@ -581,8 +581,8 @@ export default function AdminPage() {
 
         {/* TABELA: PRODUTOS */}
         {activeTab === "produtos" && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="min-w-0 overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-3.5 px-4">#</th>
@@ -684,8 +684,8 @@ export default function AdminPage() {
 
         {/* TABELA: MERCADOS */}
         {activeTab === "mercados" && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="min-w-0 overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-3.5 px-4">Rede</th>
@@ -758,8 +758,8 @@ export default function AdminPage() {
 
         {/* TABELA: USUÁRIOS */}
         {activeTab === "usuarios" && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="min-w-0 overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-3.5 px-4">Usuário</th>

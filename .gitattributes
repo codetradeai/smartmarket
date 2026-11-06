@@ -1,0 +1,8 @@
+graphify-out/graph.json merge=graphify
+
+# Garante LF nos shell scripts que rodam em Alpine Linux (Docker).
+# eol=lf: LF no index e no checkout em Linux/macOS (core.autocrlf=false).
+# No Windows com core.autocrlf=true o checkout pode sair CRLF; por isso
+# o Dockerfile tambem executa sed -i como cinto+suspensorio.
+backend/mvnw text eol=lf
+*.sh       text eol=lf

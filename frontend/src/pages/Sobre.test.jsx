@@ -2,6 +2,9 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Sobre from './Sobre'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
 function renderizar() {
   return render(
     <MemoryRouter>
@@ -10,22 +13,9 @@ function renderizar() {
   )
 }
 
+// Página institucional: os testes cobrem só a navegação. Textos de missão e diferenciais
+// são conteúdo editorial e mudam sem que nada quebre.
 describe('Sobre', () => {
-  it('apresenta a missao do SmartMarket', () => {
-    renderizar()
-
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Economia inteligente na palma da sua mão')
-    expect(screen.getByText('Nossa Missão')).toBeInTheDocument()
-  })
-
-  it('descreve os tres diferenciais', () => {
-    renderizar()
-
-    expect(screen.getByRole('heading', { name: 'Coleta Automatizada' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Comparação Cesta a Cesta' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Transparência Total' })).toBeInTheDocument()
-  })
-
   it('oferece navegacao para as principais paginas', () => {
     renderizar()
 

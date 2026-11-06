@@ -25,6 +25,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
+from gerar_catalogo_e_sql import MERCADOS_MAP, escape_sql
+
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -38,6 +40,17 @@ SQL_UPDATE_PATH = BASE_DIR / "backend" / "database" / "atualizacao_precos_recent
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 LOGGER = logging.getLogger("verificador_precos")
+
+
+def sql_atualizacao_preco(prod_id: Any, nome: str, mercado_key: str, valor: float) -> str:
+    """INSERT de histórico de preço usando o mercado_id oficial do MERCADOS_MAP."""
+    mercado_id = MERCADOS_MAP[mercado_key]["id"]
+    return (
+        f"-- Atualização produto {prod_id} ({mercado_key}): {nome}\n"
+        f"INSERT INTO preco(produto_id, mercado_id, valor, coletado_em, disponivel) "
+        f"VALUES ((SELECT id FROM produto WHERE nome = {escape_sql(nome)} LIMIT 1), "
+        f"{mercado_id}, {valor:.2f}, NOW(), true);\n"
+    )
 
 HEADERS_COMMON = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 (SmartMarket RS PriceTracker)",
@@ -193,6 +206,7 @@ def executar_sincronizacao(aplicar: bool = True, limite: int = 50) -> Dict[str, 
         recursos = prod.setdefault("recursosVisuais", {})
         
         preco_modificado = False
+        redes_alteradas = []
         status_item = "ESTÁVEL"
         mudancas = []
 
@@ -211,12 +225,14 @@ def executar_sincronizacao(aplicar: bool = True, limite: int = 50) -> Dict[str, 
                     mudancas.append(f"Asun: R$ {preco_atual_asun:.2f} ➜ R$ {preco_online:.2f} ({pct}%) 🔥")
                     prices["asun"] = preco_online
                     preco_modificado = True
+                    redes_alteradas.append("asun")
                 elif dif > 0:
                     status_item = "AUMENTO"
                     total_aumentos += 1
                     mudancas.append(f"Asun: R$ {preco_atual_asun:.2f} ➜ R$ {preco_online:.2f} (+{pct}%) 📈")
                     prices["asun"] = preco_online
                     preco_modificado = True
+                    redes_alteradas.append("asun")
 
             # Captura 3D automática
             if info["has_3d"] and not recursos.get("has360"):
@@ -243,12 +259,14 @@ def executar_sincronizacao(aplicar: bool = True, limite: int = 50) -> Dict[str, 
                     mudancas.append(f"Fort: R$ {preco_atual_fort:.2f} ➜ R$ {preco_online:.2f} ({pct}%) 🔥")
                     prices["fort"] = preco_online
                     preco_modificado = True
+                    redes_alteradas.append("fort")
                 elif dif > 0:
                     status_item = "AUMENTO"
                     total_aumentos += 1
                     mudancas.append(f"Fort: R$ {preco_atual_fort:.2f} ➜ R$ {preco_online:.2f} (+{pct}%) 📈")
                     prices["fort"] = preco_online
                     preco_modificado = True
+                    redes_alteradas.append("fort")
 
             # Captura 3D automática
             if info["has_3d"] and not recursos.get("has360"):
@@ -272,11 +290,8 @@ def executar_sincronizacao(aplicar: bool = True, limite: int = 50) -> Dict[str, 
                 menor_m = min(prices, key=prices.get)
                 prod["menorPreco"] = prices[menor_m]
                 prod["mercadoMenorPreco"] = menor_m
-            comandos_sql.append(
-                f"-- Atualização produto {prod.get('id')}: {nome}\n"
-                f"INSERT INTO preco(produto_id, mercado_id, valor, coletado_em, disponivel) "
-                f"VALUES ((SELECT id FROM produto WHERE nome = '{nome}' LIMIT 1), 1, {prices.get('asun', 0.0)}, NOW(), true);\n"
-            )
+            for rede in dict.fromkeys(redes_alteradas):
+                comandos_sql.append(sql_atualizacao_preco(prod.get("id"), nome, rede, prices[rede]))
 
         simbolo = "🔥" if status_item == "QUEDA" else ("📈" if status_item == "AUMENTO" else "⚖️")
         print(f"[{i:02d}/{limite:02d}] {simbolo} {nome[:40]:<40} | {' | '.join(mudancas)}")

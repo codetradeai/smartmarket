@@ -1,4 +1,5 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import logoImg from "../assets/logo.png"
 
@@ -70,9 +71,40 @@ function IconLogout() {
   )
 }
 
+const COMPACT_SHELL = "(max-width: 1279px)"
+
 export default function Layout() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, isAdmin, logout } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [compact, setCompact] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia(COMPACT_SHELL).matches
+  )
+
+  useEffect(() => {
+    const media = window.matchMedia(COMPACT_SHELL)
+    const onChange = () => {
+      setCompact(media.matches)
+      if (!media.matches) setMenuOpen(false)
+    }
+    onChange()
+    media.addEventListener("change", onChange)
+    return () => media.removeEventListener("change", onChange)
+  }, [])
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const onKey = (event) => {
+      if (event.key === "Escape") setMenuOpen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [menuOpen])
 
   // Links de navegação: O link Admin só aparece se o usuário for ADMIN
   const navItems = [
@@ -90,20 +122,39 @@ export default function Layout() {
   const initialLetter = user?.nome ? user.nome[0].toUpperCase() : "U"
 
   return (
-    <div style={{ display: "flex", minHeight: "100%", background: C.bg }}>
-      {/* Sidebar */}
+    <div className={`sm-shell ${menuOpen ? "is-menu-open" : ""}`}>
+      <header className="sm-shell-top">
+        <button
+          type="button"
+          className={`sm-shell-menu ${menuOpen ? "is-open" : ""}`}
+          aria-expanded={menuOpen}
+          aria-controls="sm-shell-nav"
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <NavLink to="/" className="sm-shell-brand" title="Ir para a página inicial">
+          <img src={logoImg} alt="SmartMarket" />
+        </NavLink>
+        <span className="sm-shell-avatar" aria-hidden="true">{initialLetter}</span>
+      </header>
+
+      <button
+        type="button"
+        className={`sm-shell-backdrop ${menuOpen ? "is-open" : ""}`}
+        aria-label="Fechar menu"
+        tabIndex={menuOpen ? 0 : -1}
+        onClick={() => setMenuOpen(false)}
+      />
+
       <aside
-        style={{
-          width: "260px",
-          flexShrink: 0,
-          background: C.navy,
-          display: "flex",
-          flexDirection: "column",
-          padding: "18px 12px",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-        }}
+        id="sm-shell-nav"
+        className={`sm-shell-aside ${menuOpen ? "is-open" : ""}`}
+        inert={compact && !menuOpen ? true : undefined}
+        aria-hidden={compact && !menuOpen ? true : undefined}
       >
         {/* Logo */}
         <NavLink
@@ -237,7 +288,7 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+      <main className="sm-shell-main">
         <Outlet />
       </main>
     </div>

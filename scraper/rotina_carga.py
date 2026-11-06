@@ -135,11 +135,15 @@ def obter_dsn(dsn_arg=None):
     """Obtém a string DSN do argumento ou de variáveis de ambiente do projeto."""
     if dsn_arg:
         return dsn_arg
-    return (
-        os.environ.get("SMARTMARKET_DSN")
-        or os.environ.get("SMARTMARKET_LOCAL_DSN")
-        or "host=localhost port=5436 dbname=smartmarket user=smartmarket password=smartmarket123"
-    )
+    dsn = os.environ.get("SMARTMARKET_DSN") or os.environ.get("SMARTMARKET_LOCAL_DSN")
+    if not dsn:
+        raise SystemExit(
+            "Erro: DSN nao definido. Defina SMARTMARKET_DSN ou SMARTMARKET_LOCAL_DSN "
+            "antes de executar a rotina de carga. Exemplo:\n"
+            "  export SMARTMARKET_DSN='host=localhost port=5436 dbname=smartmarket "
+            "user=smartmarket password=SENHA'"
+        )
+    return dsn
 
 
 def garantir_mercados_existentes(conn, permitir_criacao=True):

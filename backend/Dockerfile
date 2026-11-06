@@ -10,8 +10,8 @@ WORKDIR /workspace
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
-# Concede permissao de execucao ao wrapper Maven
-RUN chmod +x mvnw
+# .gitattributes garante LF no index; sed -i cobre Windows (core.autocrlf=true)
+RUN sed -i 's/\r$//' mvnw && chmod +x mvnw
 
 # Baixa dependencias em cache
 RUN ./mvnw dependency:go-offline -B
@@ -38,7 +38,7 @@ USER smartmarket
 
 # Variaveis de ambiente padrao
 ENV SPRING_PROFILES_ACTIVE=prod \
-    JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+    JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8080
 

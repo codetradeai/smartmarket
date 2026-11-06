@@ -1,4 +1,6 @@
 import importlib.util
+import os
+from unittest import mock as _mock_env
 import json
 import logging
 from datetime import datetime, timedelta, timezone
@@ -128,6 +130,7 @@ class ColetaTest(unittest.TestCase):
         self.assertEqual(buscar.call_count, fort.MAX_PAGINAS_POR_CATEGORIA)
         self.assertEqual(falhas[-1]['motivo'], 'limite_paginas')
 
+    @_mock_env.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"})
     def test_cliente_http_converte_erros_sem_vazar_resposta(self):
         class RequestError(Exception): pass
         requests = types.SimpleNamespace(RequestException=RequestError, get=Mock())

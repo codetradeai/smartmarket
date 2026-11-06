@@ -69,6 +69,8 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Health check — usado pelo Render como liveness probe
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 // Endpoints públicos de autenticação
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 // Documentação Swagger

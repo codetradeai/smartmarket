@@ -1,0 +1,6256 @@
+{
+  "meta": {
+    "inicio": "2026-11-04T01:37:17+00:00",
+    "fim": "2026-11-04T01:52:23+00:00",
+    "concluida": true,
+    "duracao_s": 905.9,
+    "user_agent": "SmartMarketBot/0.1 (projeto academico Codifica/+praTI; contato: github.com/codetradeai/smartmarket)",
+    "intervalo_minimo_s": 2.0,
+    "requisicoes_por_host": {
+      "www.atacadao.com.br": 205,
+      "services.vipcommerce.com.br": 447
+    },
+    "requisicoes_total": 652,
+    "robots": [
+      {
+        "rede": "atacadao",
+        "metodo": "GET",
+        "endpoint": "https://www.atacadao.com.br/api/catalog_system/pub/products/search",
+        "robots": "https://www.atacadao.com.br/robots.txt",
+        "status_robots": 200,
+        "permitido": true,
+        "motivo": "permitido pelo robots.txt"
+      },
+      {
+        "rede": "master",
+        "metodo": "POST",
+        "endpoint": "https://services.vipcommerce.com.br/api-admin/v1/org/193/auth/loja/login",
+        "robots": "https://services.vipcommerce.com.br/robots.txt",
+        "status_robots": 404,
+        "permitido": true,
+        "motivo": "robots.txt 404: sem restrições"
+      },
+      {
+        "rede": "master",
+        "metodo": "GET",
+        "endpoint": "https://services.vipcommerce.com.br/api-admin/v1/org/193/filial/1/centro_distribuicao/1/loja/buscas/produtos/termo/x",
+        "robots": "https://services.vipcommerce.com.br/robots.txt",
+        "status_robots": 404,
+        "permitido": true,
+        "motivo": "robots.txt 404: sem restrições"
+      },
+      {
+        "rede": "stok",
+        "metodo": "POST",
+        "endpoint": "https://services.vipcommerce.com.br/api-admin/v1/org/130/auth/loja/login",
+        "robots": "https://services.vipcommerce.com.br/robots.txt",
+        "status_robots": 404,
+        "permitido": true,
+        "motivo": "robots.txt 404: sem restrições"
+      },
+      {
+        "rede": "stok",
+        "metodo": "GET",
+        "endpoint": "https://services.vipcommerce.com.br/api-admin/v1/org/130/filial/1/centro_distribuicao/1/loja/buscas/produtos/termo/x",
+        "robots": "https://services.vipcommerce.com.br/robots.txt",
+        "status_robots": 404,
+        "permitido": true,
+        "motivo": "robots.txt 404: sem restrições"
+      }
+    ],
+    "bloqueio": null,
+    "erro_rede": null,
+    "candidatos": 240
+  },
+  "resumo": {
+    "candidatos_processados": 240,
+    "com_ean_valido": 204,
+    "com_preco_em_2_ou_mais_redes": 84,
+    "com_preco_em_3_redes": 3,
+    "produtos_com_par_confirmado": 83,
+    "pares_confirmado": 83,
+    "pares_revisar": 4,
+    "situacoes": {
+      "nao_encontrado_na_origem": 31,
+      "ok": 204,
+      "sem_ean_valido": 5
+    }
+  },
+  "resultados": [
+    {
+      "id": "p11",
+      "rede_origem": "master",
+      "id_origem": "154",
+      "nome_catalogo": "Arroz Parbolizado Tio João Tp1 5kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p12",
+      "rede_origem": "master",
+      "id_origem": "323",
+      "nome_catalogo": "Arroz Bco Blue Ville Tp1 1kg",
+      "ean": "07896011906881",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "323",
+          "nome": "Arroz Bco Blue Ville Tp1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.89,
+          "preco_normal": 4.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:24+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6741",
+          "nome": "Arroz Blue Ville Branco Tipo 1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:27+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p13",
+      "rede_origem": "master",
+      "id_origem": "624",
+      "nome_catalogo": "Arroz Camil Tipo 1 2kg",
+      "ean": "07896006711124",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "624",
+          "nome": "Arroz Camil Tipo 1 2kg",
+          "ean": "07896006711124",
+          "preco": 9.59,
+          "preco_normal": 9.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:29+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p14",
+      "rede_origem": "master",
+      "id_origem": "1025",
+      "nome_catalogo": "Arroz Blue Ville Culinária Gaúcha 1kg",
+      "ean": "07896011945057",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1025",
+          "nome": "Arroz Blue Ville Culinária Gaúcha 1kg",
+          "ean": "07896011945057",
+          "preco": 13.29,
+          "preco_normal": 13.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:34+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7949",
+          "nome": "Arroz Blue Ville Culinária Gaúcha 1kg",
+          "ean": "07896011945057",
+          "preco": 12.05,
+          "preco_normal": 12.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:35+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p15",
+      "rede_origem": "master",
+      "id_origem": "1647",
+      "nome_catalogo": "Arroz Carreteiro Tio João 175g",
+      "ean": "07893500012672",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1647",
+          "nome": "Arroz Carreteiro Tio João 175g",
+          "ean": "07893500012672",
+          "preco": 11.59,
+          "preco_normal": 11.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:37+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p16",
+      "rede_origem": "master",
+      "id_origem": "1890",
+      "nome_catalogo": "Arroz Parboilizado Bella Dica 2kg",
+      "ean": "07896305701543",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1890",
+          "nome": "Arroz Parboilizado Bella Dica 2kg",
+          "ean": "07896305701543",
+          "preco": 10.49,
+          "preco_normal": 10.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:41+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p17",
+      "rede_origem": "master",
+      "id_origem": "1911",
+      "nome_catalogo": "Arroz Tio João Cozinha Tailandesa 1kg",
+      "ean": "07893500019244",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1911",
+          "nome": "Arroz Tio João Cozinha Tailandesa 1kg",
+          "ean": "07893500019244",
+          "preco": 19.39,
+          "preco_normal": 19.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:46+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p18",
+      "rede_origem": "master",
+      "id_origem": "2189",
+      "nome_catalogo": "Arroz Branco Bella Dica 2kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p19",
+      "rede_origem": "master",
+      "id_origem": "2261",
+      "nome_catalogo": "Arroz Blue Ville Espinafre 250g",
+      "ean": "07896011946290",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "2261",
+          "nome": "Arroz Blue Ville Espinafre 250g",
+          "ean": "07896011946290",
+          "preco": 5.49,
+          "preco_normal": 5.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:52+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p20",
+      "rede_origem": "master",
+      "id_origem": "2582",
+      "nome_catalogo": "Arroz Tio João Galinha 175g",
+      "ean": "07893500012689",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "2582",
+          "nome": "Arroz Tio João Galinha 175g",
+          "ean": "07893500012689",
+          "preco": 15.69,
+          "preco_normal": 15.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:37:56+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p21",
+      "rede_origem": "master",
+      "id_origem": "522",
+      "nome_catalogo": "Feijao Preto Caldo De Ouro 1kg",
+      "ean": null,
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "522",
+          "nome": "Feijao Preto Caldo De Ouro 1kg",
+          "ean": null,
+          "preco": 9.69,
+          "preco_normal": 9.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:00+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "sem_ean_valido"
+    },
+    {
+      "id": "p22",
+      "rede_origem": "master",
+      "id_origem": "31466",
+      "nome_catalogo": "Feijão Vermelho Arbaza Tipo 1 500g",
+      "ean": "07896116900548",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "31466",
+          "nome": "Feijão Vermelho Arbaza Tipo 1 500g",
+          "ean": "07896116900548",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:02+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p23",
+      "rede_origem": "master",
+      "id_origem": "31457",
+      "nome_catalogo": "Feijão Branco Arbaza Tipo 1 500g",
+      "ean": "07898165250483",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "31457",
+          "nome": "Feijão Branco Arbaza Tipo 1 500g",
+          "ean": "07898165250483",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:06+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4735",
+          "nome": "Feijão Arbaza Branco Tipo1 500g",
+          "ean": "07898165250483",
+          "preco": 6.39,
+          "preco_normal": 6.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:08+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p24",
+      "rede_origem": "master",
+      "id_origem": "29438",
+      "nome_catalogo": "Feijão Preto Gasparin Tipo 1 1kg",
+      "ean": "07898941416164",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "29438",
+          "nome": "Feijão Preto Gasparin Tipo 1 1kg",
+          "ean": "07898941416164",
+          "preco": 6.69,
+          "preco_normal": 6.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:10+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p25",
+      "rede_origem": "master",
+      "id_origem": "26865",
+      "nome_catalogo": "Feijão Preto Gasparin Ypiranga 1kg",
+      "ean": "07898941416584",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "26865",
+          "nome": "Feijão Preto Gasparin Ypiranga 1kg",
+          "ean": "07898941416584",
+          "preco": 6.99,
+          "preco_normal": 6.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:15+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p26",
+      "rede_origem": "master",
+      "id_origem": "24145",
+      "nome_catalogo": "Feijão Preto Ondão Tp1 1kg",
+      "ean": "07896305700416",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "24145",
+          "nome": "Feijão Preto Ondão Tp1 1kg",
+          "ean": "07896305700416",
+          "preco": 7.99,
+          "preco_normal": 7.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:18+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p27",
+      "rede_origem": "master",
+      "id_origem": "14986",
+      "nome_catalogo": "Feijao Preto Grãos Do Sul 1kg",
+      "ean": "07898165250292",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "14986",
+          "nome": "Feijao Preto Grãos Do Sul 1kg",
+          "ean": "07898165250292",
+          "preco": 5.19,
+          "preco_normal": 5.19,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:22+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p28",
+      "rede_origem": "master",
+      "id_origem": "12136",
+      "nome_catalogo": "Feijao Carioca Caldo De Ouro 1kg",
+      "ean": "07896305700034",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12136",
+          "nome": "Feijao Carioca Caldo De Ouro 1kg",
+          "ean": "07896305700034",
+          "preco": 12.59,
+          "preco_normal": 12.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:26+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p29",
+      "rede_origem": "master",
+      "id_origem": "11334",
+      "nome_catalogo": "Feijao Azuki Blue Ville 500g",
+      "ean": "07896011946160",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "11334",
+          "nome": "Feijao Azuki Blue Ville 500g",
+          "ean": "07896011946160",
+          "preco": 13.39,
+          "preco_normal": 13.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:30+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p30",
+      "rede_origem": "master",
+      "id_origem": "10384",
+      "nome_catalogo": "Feijão Preto Biju Tipo1 1kg",
+      "ean": "07893500060239",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "10384",
+          "nome": "Feijão Preto Biju Tipo1 1kg",
+          "ean": "07893500060239",
+          "preco": 8.89,
+          "preco_normal": 8.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:34+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p71",
+      "rede_origem": "master",
+      "id_origem": "32",
+      "nome_catalogo": "Farinha Aveia Quaker 165g",
+      "ean": "07892840815783",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "32",
+          "nome": "Farinha Aveia Quaker 165g",
+          "ean": "07892840815783",
+          "preco": 6.69,
+          "preco_normal": 6.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:38+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p211",
+      "rede_origem": "stok",
+      "id_origem": "2414",
+      "nome_catalogo": "Arroz Blue Ville Branco Tipo 1 5kg",
+      "ean": "07896011906874",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2414",
+          "nome": "Arroz Blue Ville Branco Tipo 1 5kg",
+          "ean": "07896011906874",
+          "preco": 21.99,
+          "preco_normal": 21.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:42+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8161",
+          "nome": "Arroz Bco Blue Ville Tp1 5kg",
+          "ean": "07896011906874",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:44+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p212",
+      "rede_origem": "stok",
+      "id_origem": "6741",
+      "nome_catalogo": "Arroz Blue Ville Branco Tipo 1 1kg",
+      "ean": "07896011906881",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6741",
+          "nome": "Arroz Blue Ville Branco Tipo 1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:46+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "323",
+          "nome": "Arroz Bco Blue Ville Tp1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.89,
+          "preco_normal": 4.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:48+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p213",
+      "rede_origem": "stok",
+      "id_origem": "17629",
+      "nome_catalogo": "Arroz Rozcato Branco Tipo 1 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p214",
+      "rede_origem": "stok",
+      "id_origem": "10566",
+      "nome_catalogo": "Arroz Tordilho Branco Tipo 1 5kg",
+      "ean": "07897143200120",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10566",
+          "nome": "Arroz Tordilho Branco Tipo 1 5kg",
+          "ean": "07897143200120",
+          "preco": 21.49,
+          "preco_normal": 21.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:53+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p215",
+      "rede_origem": "stok",
+      "id_origem": "7067",
+      "nome_catalogo": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+      "ean": "07896011900049",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7067",
+          "nome": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+          "ean": "07896011900049",
+          "preco": 21.99,
+          "preco_normal": 21.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:38:56+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p216",
+      "rede_origem": "stok",
+      "id_origem": "8430",
+      "nome_catalogo": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+      "ean": "07896011900025",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8430",
+          "nome": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+          "ean": "07896011900025",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:00+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "4199",
+          "nome": "Arroz Parboilizado Blue Ville Tp1 1kg",
+          "ean": "07896011900025",
+          "preco": 4.59,
+          "preco_normal": 4.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:02+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p217",
+      "rede_origem": "stok",
+      "id_origem": "22571",
+      "nome_catalogo": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+      "ean": "07896754600336",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "22571",
+          "nome": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+          "ean": "07896754600336",
+          "preco": 12.05,
+          "preco_normal": 12.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:04+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p218",
+      "rede_origem": "stok",
+      "id_origem": "29141",
+      "nome_catalogo": "Arroz Áurea Branco Tipo 1 5kg",
+      "ean": "07896786400034",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "29141",
+          "nome": "Arroz Áurea Branco Tipo 1 5kg",
+          "ean": "07896786400034",
+          "preco": 14.9,
+          "preco_normal": 18.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:39:08+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p219",
+      "rede_origem": "stok",
+      "id_origem": "10861",
+      "nome_catalogo": "Arroz Tordilho Branco Tipo 1 1kg",
+      "ean": "07897143200113",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10861",
+          "nome": "Arroz Tordilho Branco Tipo 1 1kg",
+          "ean": "07897143200113",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:12+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p220",
+      "rede_origem": "stok",
+      "id_origem": "17601",
+      "nome_catalogo": "Arroz Rozcato Parboilizado Tipo 1 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p221",
+      "rede_origem": "stok",
+      "id_origem": "14800",
+      "nome_catalogo": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+      "ean": "07890300155929",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14800",
+          "nome": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+          "ean": "07890300155929",
+          "preco": 7.19,
+          "preco_normal": 8.09,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:39:18+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p222",
+      "rede_origem": "stok",
+      "id_origem": "10970",
+      "nome_catalogo": "Feijão Tordilho Preto Tipo 1 1kg",
+      "ean": "07897143200014",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10970",
+          "nome": "Feijão Tordilho Preto Tipo 1 1kg",
+          "ean": "07897143200014",
+          "preco": 7.05,
+          "preco_normal": 7.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:22+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p223",
+      "rede_origem": "stok",
+      "id_origem": "8934",
+      "nome_catalogo": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+      "ean": "07890300379349",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8934",
+          "nome": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+          "ean": "07890300379349",
+          "preco": 9.35,
+          "preco_normal": 9.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:26+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p224",
+      "rede_origem": "stok",
+      "id_origem": "5332",
+      "nome_catalogo": "Feijão Arbaza Carioca Tipo 1 1kg",
+      "ean": "07896116900036",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "5332",
+          "nome": "Feijão Arbaza Carioca Tipo 1 1kg",
+          "ean": "07896116900036",
+          "preco": 10.99,
+          "preco_normal": 10.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:30+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "794",
+          "nome": "Feijao Carioca Arbaza 1kg",
+          "ean": "07896116900036",
+          "preco": 9.49,
+          "preco_normal": 9.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:32+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p225",
+      "rede_origem": "stok",
+      "id_origem": "31320",
+      "nome_catalogo": "Feijão Big Bom Preto Tipo 1 1kg",
+      "ean": "07896661100103",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31320",
+          "nome": "Feijão Big Bom Preto Tipo 1 1kg",
+          "ean": "07896661100103",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:34+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p226",
+      "rede_origem": "stok",
+      "id_origem": "25190",
+      "nome_catalogo": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+      "ean": "07896305700928",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25190",
+          "nome": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+          "ean": "07896305700928",
+          "preco": 11.39,
+          "preco_normal": 11.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:38+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "9497",
+          "nome": "Feijao Vermelho Caldo De Ouro 1kg",
+          "ean": "07896305700928",
+          "preco": 12.99,
+          "preco_normal": 12.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:40+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p227",
+      "rede_origem": "stok",
+      "id_origem": "7149",
+      "nome_catalogo": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+      "ean": "07890300147009",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7149",
+          "nome": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+          "ean": "07890300147009",
+          "preco": 7.25,
+          "preco_normal": 7.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:42+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p228",
+      "rede_origem": "stok",
+      "id_origem": "14070",
+      "nome_catalogo": "Feijão Caldão Preto Tipo 1 1kg",
+      "ean": "07897656600011",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14070",
+          "nome": "Feijão Caldão Preto Tipo 1 1kg",
+          "ean": "07897656600011",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:46+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p229",
+      "rede_origem": "stok",
+      "id_origem": "5213",
+      "nome_catalogo": "Feijão Fritz & Frida Preto Tipo 1 500g",
+      "ean": "07890300155936",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "5213",
+          "nome": "Feijão Fritz & Frida Preto Tipo 1 500g",
+          "ean": "07890300155936",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:50+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p230",
+      "rede_origem": "stok",
+      "id_origem": "4735",
+      "nome_catalogo": "Feijão Arbaza Branco Tipo1 500g",
+      "ean": "07898165250483",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4735",
+          "nome": "Feijão Arbaza Branco Tipo1 500g",
+          "ean": "07898165250483",
+          "preco": 6.39,
+          "preco_normal": 6.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:55+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31457",
+          "nome": "Feijão Branco Arbaza Tipo 1 500g",
+          "ean": "07898165250483",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:57+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p271",
+      "rede_origem": "stok",
+      "id_origem": "6841",
+      "nome_catalogo": "Farinha De Trigo Nordeste Tipo1 1kg",
+      "ean": "07896021810017",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6841",
+          "nome": "Farinha De Trigo Nordeste Tipo1 1kg",
+          "ean": "07896021810017",
+          "preco": 4.05,
+          "preco_normal": 4.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:39:58+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p272",
+      "rede_origem": "stok",
+      "id_origem": "9174",
+      "nome_catalogo": "Farinha De Trigo Gardênia Tipo 2 1kg",
+      "ean": "07896659600608",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9174",
+          "nome": "Farinha De Trigo Gardênia Tipo 2 1kg",
+          "ean": "07896659600608",
+          "preco": 2.69,
+          "preco_normal": 2.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:02+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p273",
+      "rede_origem": "stok",
+      "id_origem": "6849",
+      "nome_catalogo": "Farinha De Trigo Panfácil Tradicional 5kg",
+      "ean": "07898665611586",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6849",
+          "nome": "Farinha De Trigo Panfácil Tradicional 5kg",
+          "ean": "07898665611586",
+          "preco": 19.99,
+          "preco_normal": 19.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:06+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p274",
+      "rede_origem": "stok",
+      "id_origem": "9129",
+      "nome_catalogo": "Farinha De Trigo Gardênia Tipo 2 5kg",
+      "ean": "07896659600455",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9129",
+          "nome": "Farinha De Trigo Gardênia Tipo 2 5kg",
+          "ean": "07896659600455",
+          "preco": 13.79,
+          "preco_normal": 13.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:10+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p275",
+      "rede_origem": "stok",
+      "id_origem": "10755",
+      "nome_catalogo": "Farinha De Trigo Tordilho 1kg",
+      "ean": "07897143200243",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10755",
+          "nome": "Farinha De Trigo Tordilho 1kg",
+          "ean": "07897143200243",
+          "preco": 4.89,
+          "preco_normal": 4.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:14+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p276",
+      "rede_origem": "stok",
+      "id_origem": "357",
+      "nome_catalogo": "Farinha De Trigo Biondina Tipo1 1kg",
+      "ean": "07896522501056",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "357",
+          "nome": "Farinha De Trigo Biondina Tipo1 1kg",
+          "ean": "07896522501056",
+          "preco": 3.49,
+          "preco_normal": 3.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:18+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p277",
+      "rede_origem": "stok",
+      "id_origem": "10738",
+      "nome_catalogo": "Farinha De Milho Tordilho Média 1kg",
+      "ean": "07897143200632",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10738",
+          "nome": "Farinha De Milho Tordilho Média 1kg",
+          "ean": "07897143200632",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:22+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p278",
+      "rede_origem": "stok",
+      "id_origem": "7796",
+      "nome_catalogo": "Farinha De Trigo Panfácil Tipo 1 1kg",
+      "ean": "07898665611500",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7796",
+          "nome": "Farinha De Trigo Panfácil Tipo 1 1kg",
+          "ean": "07898665611500",
+          "preco": 3.79,
+          "preco_normal": 3.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:29+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p279",
+      "rede_origem": "stok",
+      "id_origem": "5973",
+      "nome_catalogo": "Farinha De Milho Beatriz Média 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p411",
+      "rede_origem": "stok",
+      "id_origem": "2414",
+      "nome_catalogo": "Arroz Blue Ville Branco Tipo 1 5kg",
+      "ean": "07896011906874",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2414",
+          "nome": "Arroz Blue Ville Branco Tipo 1 5kg",
+          "ean": "07896011906874",
+          "preco": 21.99,
+          "preco_normal": 21.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:34+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8161",
+          "nome": "Arroz Bco Blue Ville Tp1 5kg",
+          "ean": "07896011906874",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:36+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p412",
+      "rede_origem": "stok",
+      "id_origem": "6741",
+      "nome_catalogo": "Arroz Blue Ville Branco Tipo 1 1kg",
+      "ean": "07896011906881",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6741",
+          "nome": "Arroz Blue Ville Branco Tipo 1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:38+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "323",
+          "nome": "Arroz Bco Blue Ville Tp1 1kg",
+          "ean": "07896011906881",
+          "preco": 4.89,
+          "preco_normal": 4.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:40+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p413",
+      "rede_origem": "stok",
+      "id_origem": "17629",
+      "nome_catalogo": "Arroz Rozcato Branco Tipo 1 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p414",
+      "rede_origem": "stok",
+      "id_origem": "10566",
+      "nome_catalogo": "Arroz Tordilho Branco Tipo 1 5kg",
+      "ean": "07897143200120",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10566",
+          "nome": "Arroz Tordilho Branco Tipo 1 5kg",
+          "ean": "07897143200120",
+          "preco": 21.49,
+          "preco_normal": 21.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:44+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p415",
+      "rede_origem": "stok",
+      "id_origem": "7067",
+      "nome_catalogo": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+      "ean": "07896011900049",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7067",
+          "nome": "Arroz Blue Ville Parboilizado Tipo1 5kg",
+          "ean": "07896011900049",
+          "preco": 21.99,
+          "preco_normal": 21.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:48+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p416",
+      "rede_origem": "stok",
+      "id_origem": "8430",
+      "nome_catalogo": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+      "ean": "07896011900025",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8430",
+          "nome": "Arroz Blue Ville Parboilizado Tipo1 1kg",
+          "ean": "07896011900025",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:51+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "4199",
+          "nome": "Arroz Parboilizado Blue Ville Tp1 1kg",
+          "ean": "07896011900025",
+          "preco": 4.59,
+          "preco_normal": 4.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:54+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p417",
+      "rede_origem": "stok",
+      "id_origem": "22571",
+      "nome_catalogo": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+      "ean": "07896754600336",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "22571",
+          "nome": "Arroz Rei Arthur Para Cozinha Japonesa Grãos Curtos Tipo 1 1kg",
+          "ean": "07896754600336",
+          "preco": 12.05,
+          "preco_normal": 12.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:40:56+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p418",
+      "rede_origem": "stok",
+      "id_origem": "29141",
+      "nome_catalogo": "Arroz Áurea Branco Tipo 1 5kg",
+      "ean": "07896786400034",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "29141",
+          "nome": "Arroz Áurea Branco Tipo 1 5kg",
+          "ean": "07896786400034",
+          "preco": 14.9,
+          "preco_normal": 18.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:41:00+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p419",
+      "rede_origem": "stok",
+      "id_origem": "10861",
+      "nome_catalogo": "Arroz Tordilho Branco Tipo 1 1kg",
+      "ean": "07897143200113",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10861",
+          "nome": "Arroz Tordilho Branco Tipo 1 1kg",
+          "ean": "07897143200113",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:04+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p420",
+      "rede_origem": "stok",
+      "id_origem": "17601",
+      "nome_catalogo": "Arroz Rozcato Parboilizado Tipo 1 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p421",
+      "rede_origem": "stok",
+      "id_origem": "14800",
+      "nome_catalogo": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+      "ean": "07890300155929",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14800",
+          "nome": "Feijão Fritz & Frida Preto Premium Tipo 1 1kg",
+          "ean": "07890300155929",
+          "preco": 7.19,
+          "preco_normal": 8.09,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:41:10+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p422",
+      "rede_origem": "stok",
+      "id_origem": "10970",
+      "nome_catalogo": "Feijão Tordilho Preto Tipo 1 1kg",
+      "ean": "07897143200014",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10970",
+          "nome": "Feijão Tordilho Preto Tipo 1 1kg",
+          "ean": "07897143200014",
+          "preco": 7.05,
+          "preco_normal": 7.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:14+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p423",
+      "rede_origem": "stok",
+      "id_origem": "8934",
+      "nome_catalogo": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+      "ean": "07890300379349",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8934",
+          "nome": "Feijão Fritz & Frida Vermelho Premium Tipo 1 500g",
+          "ean": "07890300379349",
+          "preco": 9.35,
+          "preco_normal": 9.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:18+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p424",
+      "rede_origem": "stok",
+      "id_origem": "5332",
+      "nome_catalogo": "Feijão Arbaza Carioca Tipo 1 1kg",
+      "ean": "07896116900036",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "5332",
+          "nome": "Feijão Arbaza Carioca Tipo 1 1kg",
+          "ean": "07896116900036",
+          "preco": 10.99,
+          "preco_normal": 10.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:22+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "794",
+          "nome": "Feijao Carioca Arbaza 1kg",
+          "ean": "07896116900036",
+          "preco": 9.49,
+          "preco_normal": 9.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:24+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p425",
+      "rede_origem": "stok",
+      "id_origem": "31320",
+      "nome_catalogo": "Feijão Big Bom Preto Tipo 1 1kg",
+      "ean": "07896661100103",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31320",
+          "nome": "Feijão Big Bom Preto Tipo 1 1kg",
+          "ean": "07896661100103",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:26+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p426",
+      "rede_origem": "stok",
+      "id_origem": "25190",
+      "nome_catalogo": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+      "ean": "07896305700928",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25190",
+          "nome": "Feijão Caldo Ouro Vermelho Tipo 1 1kg",
+          "ean": "07896305700928",
+          "preco": 11.39,
+          "preco_normal": 11.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:30+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "9497",
+          "nome": "Feijao Vermelho Caldo De Ouro 1kg",
+          "ean": "07896305700928",
+          "preco": 12.99,
+          "preco_normal": 12.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:32+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p427",
+      "rede_origem": "stok",
+      "id_origem": "7149",
+      "nome_catalogo": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+      "ean": "07890300147009",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7149",
+          "nome": "Feijão Fritz & Frida Carioca Tipo 1 500g",
+          "ean": "07890300147009",
+          "preco": 7.25,
+          "preco_normal": 7.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:34+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p428",
+      "rede_origem": "stok",
+      "id_origem": "14070",
+      "nome_catalogo": "Feijão Caldão Preto Tipo 1 1kg",
+      "ean": "07897656600011",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14070",
+          "nome": "Feijão Caldão Preto Tipo 1 1kg",
+          "ean": "07897656600011",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:37+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p429",
+      "rede_origem": "stok",
+      "id_origem": "5213",
+      "nome_catalogo": "Feijão Fritz & Frida Preto Tipo 1 500g",
+      "ean": "07890300155936",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "5213",
+          "nome": "Feijão Fritz & Frida Preto Tipo 1 500g",
+          "ean": "07890300155936",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:42+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p430",
+      "rede_origem": "stok",
+      "id_origem": "4735",
+      "nome_catalogo": "Feijão Arbaza Branco Tipo1 500g",
+      "ean": "07898165250483",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4735",
+          "nome": "Feijão Arbaza Branco Tipo1 500g",
+          "ean": "07898165250483",
+          "preco": 6.39,
+          "preco_normal": 6.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:45+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31457",
+          "nome": "Feijão Branco Arbaza Tipo 1 500g",
+          "ean": "07898165250483",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:48+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p471",
+      "rede_origem": "stok",
+      "id_origem": "6841",
+      "nome_catalogo": "Farinha De Trigo Nordeste Tipo1 1kg",
+      "ean": "07896021810017",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6841",
+          "nome": "Farinha De Trigo Nordeste Tipo1 1kg",
+          "ean": "07896021810017",
+          "preco": 4.05,
+          "preco_normal": 4.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:50+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p472",
+      "rede_origem": "stok",
+      "id_origem": "9174",
+      "nome_catalogo": "Farinha De Trigo Gardênia Tipo 2 1kg",
+      "ean": "07896659600608",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9174",
+          "nome": "Farinha De Trigo Gardênia Tipo 2 1kg",
+          "ean": "07896659600608",
+          "preco": 2.69,
+          "preco_normal": 2.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:54+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p473",
+      "rede_origem": "stok",
+      "id_origem": "6849",
+      "nome_catalogo": "Farinha De Trigo Panfácil Tradicional 5kg",
+      "ean": "07898665611586",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6849",
+          "nome": "Farinha De Trigo Panfácil Tradicional 5kg",
+          "ean": "07898665611586",
+          "preco": 19.99,
+          "preco_normal": 19.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:41:57+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p474",
+      "rede_origem": "stok",
+      "id_origem": "9129",
+      "nome_catalogo": "Farinha De Trigo Gardênia Tipo 2 5kg",
+      "ean": "07896659600455",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9129",
+          "nome": "Farinha De Trigo Gardênia Tipo 2 5kg",
+          "ean": "07896659600455",
+          "preco": 13.79,
+          "preco_normal": 13.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:02+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p475",
+      "rede_origem": "stok",
+      "id_origem": "10755",
+      "nome_catalogo": "Farinha De Trigo Tordilho 1kg",
+      "ean": "07897143200243",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10755",
+          "nome": "Farinha De Trigo Tordilho 1kg",
+          "ean": "07897143200243",
+          "preco": 4.89,
+          "preco_normal": 4.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:06+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p476",
+      "rede_origem": "stok",
+      "id_origem": "357",
+      "nome_catalogo": "Farinha De Trigo Biondina Tipo1 1kg",
+      "ean": "07896522501056",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "357",
+          "nome": "Farinha De Trigo Biondina Tipo1 1kg",
+          "ean": "07896522501056",
+          "preco": 3.49,
+          "preco_normal": 3.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:09+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p477",
+      "rede_origem": "stok",
+      "id_origem": "10738",
+      "nome_catalogo": "Farinha De Milho Tordilho Média 1kg",
+      "ean": "07897143200632",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "10738",
+          "nome": "Farinha De Milho Tordilho Média 1kg",
+          "ean": "07897143200632",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:14+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p478",
+      "rede_origem": "stok",
+      "id_origem": "7796",
+      "nome_catalogo": "Farinha De Trigo Panfácil Tipo 1 1kg",
+      "ean": "07898665611500",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7796",
+          "nome": "Farinha De Trigo Panfácil Tipo 1 1kg",
+          "ean": "07898665611500",
+          "preco": 3.79,
+          "preco_normal": 3.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:17+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p479",
+      "rede_origem": "stok",
+      "id_origem": "5973",
+      "nome_catalogo": "Farinha De Milho Beatriz Média 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p8",
+      "rede_origem": "atacadao",
+      "id_origem": "59317",
+      "nome_catalogo": "Leite Condensado Moça Integral 15% Grátis 395g",
+      "ean": "07891000366059",
+      "precos": {
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "59317",
+          "nome": "Leite Condensado Moça Integral 15% Grátis 395g",
+          "ean": "07891000366059",
+          "preco": 8.48,
+          "preco_normal": 8.48,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:22+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p32",
+      "rede_origem": "master",
+      "id_origem": "86",
+      "nome_catalogo": "Leite Fermentado Polpa Activia 510g Mamao/cer.",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p33",
+      "rede_origem": "master",
+      "id_origem": "321",
+      "nome_catalogo": "Leite Em Pó Nan Comfort N2 800g",
+      "ean": "07891000079515",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "321",
+          "nome": "Leite Em Pó Nan Comfort N2 800g",
+          "ean": "07891000079515",
+          "preco": 89.9,
+          "preco_normal": 89.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:30+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7100",
+          "nome": "Fórmula Infantil Nestlé Nan Comfor 2 800g",
+          "ean": "07891000079515",
+          "preco": 80.99,
+          "preco_normal": 80.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:32+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p34",
+      "rede_origem": "master",
+      "id_origem": "428",
+      "nome_catalogo": "Leite Fermentado Polpa Activia 510g Mor.",
+      "ean": "07891025123200",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "428",
+          "nome": "Leite Fermentado Polpa Activia 510g Mor.",
+          "ean": "07891025123200",
+          "preco": 17.99,
+          "preco_normal": 17.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:34+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p35",
+      "rede_origem": "master",
+      "id_origem": "661",
+      "nome_catalogo": "Leite Condensado Nestlé Moça Lata 395g Integral",
+      "ean": "07891000100103",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "661",
+          "nome": "Leite Condensado Nestlé Moça Lata 395g Integral",
+          "ean": "07891000100103",
+          "preco": 12.49,
+          "preco_normal": 12.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:38+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6923",
+          "nome": "Leite Condensado Nestlé Moça Integral 395g",
+          "ean": "07891000100103",
+          "preco": 12.79,
+          "preco_normal": 12.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:40+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p36",
+      "rede_origem": "master",
+      "id_origem": "1005",
+      "nome_catalogo": "Leite De Côco Light Sococo 200ml",
+      "ean": "07896004400136",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1005",
+          "nome": "Leite De Côco Light Sococo 200ml",
+          "ean": "07896004400136",
+          "preco": 9.99,
+          "preco_normal": 9.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:42+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p37",
+      "rede_origem": "master",
+      "id_origem": "1088",
+      "nome_catalogo": "Leite Santa Clara Integral 1l",
+      "ean": null,
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1088",
+          "nome": "Leite Santa Clara Integral 1l",
+          "ean": null,
+          "preco": 5.29,
+          "preco_normal": 5.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:47+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "sem_ean_valido"
+    },
+    {
+      "id": "p38",
+      "rede_origem": "master",
+      "id_origem": "1141",
+      "nome_catalogo": "Leite Leitissimo 1l Uht Zero Lactose Integral",
+      "ean": "07898939247022",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1141",
+          "nome": "Leite Leitissimo 1l Uht Zero Lactose Integral",
+          "ean": "07898939247022",
+          "preco": 12.49,
+          "preco_normal": 12.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:48+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p39",
+      "rede_origem": "master",
+      "id_origem": "1508",
+      "nome_catalogo": "Leite Molico Desnatado 1l",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p40",
+      "rede_origem": "master",
+      "id_origem": "1625",
+      "nome_catalogo": "Leite Fermentado Nestlé Chamyto 720g",
+      "ean": "07891000027974",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1625",
+          "nome": "Leite Fermentado Nestlé Chamyto 720g",
+          "ean": "07891000027974",
+          "preco": 14.39,
+          "preco_normal": 14.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:54+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "31781",
+          "nome": "Leite Fermentado Chamyto Big 720g",
+          "ean": "07891000027974",
+          "preco": 9.49,
+          "preco_normal": 9.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:54+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4001",
+          "nome": "Leite Fermentado Nestlé Chamyto Big 720g Com 6 Unidades",
+          "ean": "07891000027974",
+          "preco": 13.49,
+          "preco_normal": 13.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:56+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "atacadao",
+          "status": "confirmado",
+          "motivo": null
+        },
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "revisar",
+          "motivo": "embalagem_diferente"
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p231",
+      "rede_origem": "stok",
+      "id_origem": "1956",
+      "nome_catalogo": "Leite Elegê Uht Integral 1l",
+      "ean": "07896079500151",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "1956",
+          "nome": "Leite Elegê Uht Integral 1l",
+          "ean": "07896079500151",
+          "preco": 4.65,
+          "preco_normal": 4.65,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:42:58+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "3723",
+          "nome": "Leite Longa Vida Elegê Integral 1l",
+          "ean": "07896079500151",
+          "preco": 5.29,
+          "preco_normal": 5.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:00+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p234",
+      "rede_origem": "stok",
+      "id_origem": "9474",
+      "nome_catalogo": "Leite Italac Uht Zero Lactose 1l",
+      "ean": "07898080640932",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9474",
+          "nome": "Leite Italac Uht Zero Lactose 1l",
+          "ean": "07898080640932",
+          "preco": 5.49,
+          "preco_normal": 5.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:02+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p235",
+      "rede_origem": "stok",
+      "id_origem": "6977",
+      "nome_catalogo": "Leite Condensado Elegê Semidesnatado 395g",
+      "ean": "07896079510976",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6977",
+          "nome": "Leite Condensado Elegê Semidesnatado 395g",
+          "ean": "07896079510976",
+          "preco": 5.49,
+          "preco_normal": 5.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:07+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7819",
+          "nome": "Leite Condensado Elegê Tp 395g",
+          "ean": "07896079510976",
+          "preco": 7.59,
+          "preco_normal": 7.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:09+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p236",
+      "rede_origem": "stok",
+      "id_origem": "4546",
+      "nome_catalogo": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+      "ean": "07898215157403",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4546",
+          "nome": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+          "ean": "07898215157403",
+          "preco": 5.79,
+          "preco_normal": 5.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:13+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "10823",
+          "nome": "Leite Longa Vida Ninho Integral 1l",
+          "ean": "07898215157403",
+          "preco": 6.99,
+          "preco_normal": 6.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:14+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p237",
+      "rede_origem": "stok",
+      "id_origem": "4822",
+      "nome_catalogo": "Leite Elegê Uht Desnatado 1l",
+      "ean": "07896079500175",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4822",
+          "nome": "Leite Elegê Uht Desnatado 1l",
+          "ean": "07896079500175",
+          "preco": 4.45,
+          "preco_normal": 4.45,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:16+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p238",
+      "rede_origem": "stok",
+      "id_origem": "634",
+      "nome_catalogo": "Leite Italac Uht Semidesnatado 1l",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p239",
+      "rede_origem": "stok",
+      "id_origem": "142",
+      "nome_catalogo": "Leite Condensado Italac Semidesnatado 395g",
+      "ean": "07898080640413",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "142",
+          "nome": "Leite Condensado Italac Semidesnatado 395g",
+          "ean": "07898080640413",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:22+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7131",
+          "nome": "Leite Condensado Semi Desnatado Italac Tp 395g",
+          "ean": "07898080640413",
+          "preco": 6.89,
+          "preco_normal": 6.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:24+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p240",
+      "rede_origem": "stok",
+      "id_origem": "25931",
+      "nome_catalogo": "Leite Condensado Bão De Minas Semidesnatado 395g",
+      "ean": "07897076023391",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25931",
+          "nome": "Leite Condensado Bão De Minas Semidesnatado 395g",
+          "ean": "07897076023391",
+          "preco": 4.55,
+          "preco_normal": 4.55,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:26+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31587",
+          "nome": "Leite Condensando Bão De Minas Tp 395g",
+          "ean": "07897076023391",
+          "preco": 5.59,
+          "preco_normal": 5.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:28+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p431",
+      "rede_origem": "stok",
+      "id_origem": "1956",
+      "nome_catalogo": "Leite Elegê Uht Integral 1l",
+      "ean": "07896079500151",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "1956",
+          "nome": "Leite Elegê Uht Integral 1l",
+          "ean": "07896079500151",
+          "preco": 4.65,
+          "preco_normal": 4.65,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:30+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "3723",
+          "nome": "Leite Longa Vida Elegê Integral 1l",
+          "ean": "07896079500151",
+          "preco": 5.29,
+          "preco_normal": 5.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:32+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p434",
+      "rede_origem": "stok",
+      "id_origem": "9474",
+      "nome_catalogo": "Leite Italac Uht Zero Lactose 1l",
+      "ean": "07898080640932",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9474",
+          "nome": "Leite Italac Uht Zero Lactose 1l",
+          "ean": "07898080640932",
+          "preco": 5.49,
+          "preco_normal": 5.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:34+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p435",
+      "rede_origem": "stok",
+      "id_origem": "6977",
+      "nome_catalogo": "Leite Condensado Elegê Semidesnatado 395g",
+      "ean": "07896079510976",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6977",
+          "nome": "Leite Condensado Elegê Semidesnatado 395g",
+          "ean": "07896079510976",
+          "preco": 5.49,
+          "preco_normal": 5.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:38+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7819",
+          "nome": "Leite Condensado Elegê Tp 395g",
+          "ean": "07896079510976",
+          "preco": 7.59,
+          "preco_normal": 7.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:40+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p436",
+      "rede_origem": "stok",
+      "id_origem": "4546",
+      "nome_catalogo": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+      "ean": "07898215157403",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4546",
+          "nome": "Leite Nestlé Ninho Uht Integral Forti+ 1l",
+          "ean": "07898215157403",
+          "preco": 5.79,
+          "preco_normal": 5.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:43+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "10823",
+          "nome": "Leite Longa Vida Ninho Integral 1l",
+          "ean": "07898215157403",
+          "preco": 6.99,
+          "preco_normal": 6.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:44+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p437",
+      "rede_origem": "stok",
+      "id_origem": "4822",
+      "nome_catalogo": "Leite Elegê Uht Desnatado 1l",
+      "ean": "07896079500175",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4822",
+          "nome": "Leite Elegê Uht Desnatado 1l",
+          "ean": "07896079500175",
+          "preco": 4.45,
+          "preco_normal": 4.45,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:46+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p438",
+      "rede_origem": "stok",
+      "id_origem": "634",
+      "nome_catalogo": "Leite Italac Uht Semidesnatado 1l",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p439",
+      "rede_origem": "stok",
+      "id_origem": "142",
+      "nome_catalogo": "Leite Condensado Italac Semidesnatado 395g",
+      "ean": "07898080640413",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "142",
+          "nome": "Leite Condensado Italac Semidesnatado 395g",
+          "ean": "07898080640413",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:52+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7131",
+          "nome": "Leite Condensado Semi Desnatado Italac Tp 395g",
+          "ean": "07898080640413",
+          "preco": 6.89,
+          "preco_normal": 6.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:54+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p440",
+      "rede_origem": "stok",
+      "id_origem": "25931",
+      "nome_catalogo": "Leite Condensado Bão De Minas Semidesnatado 395g",
+      "ean": "07897076023391",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25931",
+          "nome": "Leite Condensado Bão De Minas Semidesnatado 395g",
+          "ean": "07897076023391",
+          "preco": 4.55,
+          "preco_normal": 4.55,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:56+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31587",
+          "nome": "Leite Condensando Bão De Minas Tp 395g",
+          "ean": "07897076023391",
+          "preco": 5.59,
+          "preco_normal": 5.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:43:59+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p41",
+      "rede_origem": "master",
+      "id_origem": "6752",
+      "nome_catalogo": "Café Torrado E Moído 3 Corações Peneirando Café 250g",
+      "ean": "07896045109609",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "6752",
+          "nome": "Café Torrado E Moído 3 Corações Peneirando Café 250g",
+          "ean": "07896045109609",
+          "preco": 32.9,
+          "preco_normal": 32.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:00+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p42",
+      "rede_origem": "master",
+      "id_origem": "6073",
+      "nome_catalogo": "Café 3 Corações Café/leite Cápsulas 90g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p45",
+      "rede_origem": "master",
+      "id_origem": "12416",
+      "nome_catalogo": "Café Moido Orgânico Native 250g",
+      "ean": "07898206500119",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12416",
+          "nome": "Café Moido Orgânico Native 250g",
+          "ean": "07898206500119",
+          "preco": 31.98,
+          "preco_normal": 31.98,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:06+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p46",
+      "rede_origem": "master",
+      "id_origem": "12380",
+      "nome_catalogo": "Café Torrado E Moído Melitta Tradicional 500g",
+      "ean": null,
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12380",
+          "nome": "Café Torrado E Moído Melitta Tradicional 500g",
+          "ean": null,
+          "preco": 25.99,
+          "preco_normal": 28.99,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:44:10+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "sem_ean_valido"
+    },
+    {
+      "id": "p47",
+      "rede_origem": "master",
+      "id_origem": "12214",
+      "nome_catalogo": "Café Melitta Regiões Brasileiras Mogiana 250g",
+      "ean": "07891021005562",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12214",
+          "nome": "Café Melitta Regiões Brasileiras Mogiana 250g",
+          "ean": "07891021005562",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:12+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p48",
+      "rede_origem": "master",
+      "id_origem": "12037",
+      "nome_catalogo": "Café Liofilizado Orgânico Native 50g",
+      "ean": "07898206500850",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12037",
+          "nome": "Café Liofilizado Orgânico Native 50g",
+          "ean": "07898206500850",
+          "preco": 24.98,
+          "preco_normal": 24.98,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:16+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p49",
+      "rede_origem": "master",
+      "id_origem": "11964",
+      "nome_catalogo": "Café Extra Forte Melitta 250g",
+      "ean": "07891021006927",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "11964",
+          "nome": "Café Extra Forte Melitta 250g",
+          "ean": "07891021006927",
+          "preco": 16.99,
+          "preco_normal": 16.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:20+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "1347",
+          "nome": "Café Melitta Torrado E Moído Extra Forte 250g",
+          "ean": "07891021006927",
+          "preco": 14.09,
+          "preco_normal": 14.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:22+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p241",
+      "rede_origem": "stok",
+      "id_origem": "8628",
+      "nome_catalogo": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+      "ean": "07891021006125",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8628",
+          "nome": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+          "ean": "07891021006125",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:24+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p242",
+      "rede_origem": "stok",
+      "id_origem": "3169",
+      "nome_catalogo": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+      "ean": "07896035733326",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "3169",
+          "nome": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+          "ean": "07896035733326",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:28+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "10900",
+          "nome": "Café Torrado E Moído Bom Jesus Cx 500g",
+          "ean": "07896035733326",
+          "preco": 27.9,
+          "preco_normal": 27.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:30+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p243",
+      "rede_origem": "stok",
+      "id_origem": "4595",
+      "nome_catalogo": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+      "ean": "07896045102440",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4595",
+          "nome": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+          "ean": "07896045102440",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:32+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "4348",
+          "nome": "Café 3 Corações Vácuo Tradicional 500g",
+          "ean": "07896045102440",
+          "preco": 31.89,
+          "preco_normal": 31.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:35+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p244",
+      "rede_origem": "stok",
+      "id_origem": "8608",
+      "nome_catalogo": "Café Melitta Regiões Sul De Minas 250g",
+      "ean": "07891021005586",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8608",
+          "nome": "Café Melitta Regiões Sul De Minas 250g",
+          "ean": "07891021005586",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:36+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8806",
+          "nome": "Café Melitta Regiões Brasileiras Sul De Minas 250g",
+          "ean": "07891021005586",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:38+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p245",
+      "rede_origem": "stok",
+      "id_origem": "4496",
+      "nome_catalogo": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+      "ean": "07891021006934",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4496",
+          "nome": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+          "ean": "07891021006934",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:40+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p246",
+      "rede_origem": "stok",
+      "id_origem": "12224",
+      "nome_catalogo": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+      "ean": "07891021005517",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "12224",
+          "nome": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+          "ean": "07891021005517",
+          "preco": 29.99,
+          "preco_normal": 29.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:44+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8693",
+          "nome": "Café Torrado E Moído Melitta Sabor Da Fazenda Tradicional 500g",
+          "ean": "07891021005517",
+          "preco": 29.49,
+          "preco_normal": 34.29,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:44:46+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p247",
+      "rede_origem": "stok",
+      "id_origem": "22402",
+      "nome_catalogo": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+      "ean": "07896045110001",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "22402",
+          "nome": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+          "ean": "07896045110001",
+          "preco": 22.9,
+          "preco_normal": 24.99,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:44:48+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p248",
+      "rede_origem": "stok",
+      "id_origem": "24134",
+      "nome_catalogo": "Café Bom Jesus Solúvel Sachê 40g",
+      "ean": "07896348301007",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "24134",
+          "nome": "Café Bom Jesus Solúvel Sachê 40g",
+          "ean": "07896348301007",
+          "preco": 5.99,
+          "preco_normal": 5.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:52+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p249",
+      "rede_origem": "stok",
+      "id_origem": "17460",
+      "nome_catalogo": "Café Melitta Solúvel Tradicional 40g",
+      "ean": "07896348300895",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "17460",
+          "nome": "Café Melitta Solúvel Tradicional 40g",
+          "ean": "07896348300895",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:56+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "9537",
+          "nome": "Café Solúvel Melitta Sac.tradicional 40g",
+          "ean": "07896348300895",
+          "preco": 7.69,
+          "preco_normal": 7.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:44:58+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p250",
+      "rede_origem": "stok",
+      "id_origem": "7499",
+      "nome_catalogo": "Café Melitta Regiões Cerrado 250g",
+      "ean": "07891021005609",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7499",
+          "nome": "Café Melitta Regiões Cerrado 250g",
+          "ean": "07891021005609",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:03+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "5428",
+          "nome": "Café Melitta Regiões Brasileiras Cerrado 250g",
+          "ean": "07891021005609",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:05+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p441",
+      "rede_origem": "stok",
+      "id_origem": "8628",
+      "nome_catalogo": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+      "ean": "07891021006125",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8628",
+          "nome": "Café Melitta Torrado E Moído A Vácuo Tradicional 500g",
+          "ean": "07891021006125",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:07+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p442",
+      "rede_origem": "stok",
+      "id_origem": "3169",
+      "nome_catalogo": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+      "ean": "07896035733326",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "3169",
+          "nome": "Café Bom Jesus Vácuo Torrado E Moído Tradicional 500g",
+          "ean": "07896035733326",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:10+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "10900",
+          "nome": "Café Torrado E Moído Bom Jesus Cx 500g",
+          "ean": "07896035733326",
+          "preco": 27.9,
+          "preco_normal": 27.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:12+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p443",
+      "rede_origem": "stok",
+      "id_origem": "4595",
+      "nome_catalogo": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+      "ean": "07896045102440",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4595",
+          "nome": "Café 3 Corações Vácuo Torrado Moído Tradicional 500g",
+          "ean": "07896045102440",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:15+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "4348",
+          "nome": "Café 3 Corações Vácuo Tradicional 500g",
+          "ean": "07896045102440",
+          "preco": 31.89,
+          "preco_normal": 31.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:17+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p444",
+      "rede_origem": "stok",
+      "id_origem": "8608",
+      "nome_catalogo": "Café Melitta Regiões Sul De Minas 250g",
+      "ean": "07891021005586",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8608",
+          "nome": "Café Melitta Regiões Sul De Minas 250g",
+          "ean": "07891021005586",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:18+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8806",
+          "nome": "Café Melitta Regiões Brasileiras Sul De Minas 250g",
+          "ean": "07891021005586",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:21+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p445",
+      "rede_origem": "stok",
+      "id_origem": "4496",
+      "nome_catalogo": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+      "ean": "07891021006934",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4496",
+          "nome": "Café Melitta Torrado E Moído A Vacuo Extra Forte 500g",
+          "ean": "07891021006934",
+          "preco": 23.99,
+          "preco_normal": 23.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:22+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p446",
+      "rede_origem": "stok",
+      "id_origem": "12224",
+      "nome_catalogo": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+      "ean": "07891021005517",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "12224",
+          "nome": "Café Melitta Torrado E Moído Sabor Da Fazenda Tradicional 500g",
+          "ean": "07891021005517",
+          "preco": 29.99,
+          "preco_normal": 29.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:29+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8693",
+          "nome": "Café Torrado E Moído Melitta Sabor Da Fazenda Tradicional 500g",
+          "ean": "07891021005517",
+          "preco": 29.49,
+          "preco_normal": 34.29,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:45:30+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p447",
+      "rede_origem": "stok",
+      "id_origem": "22402",
+      "nome_catalogo": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+      "ean": "07896045110001",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "22402",
+          "nome": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+          "ean": "07896045110001",
+          "preco": 22.9,
+          "preco_normal": 24.99,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:45:32+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p448",
+      "rede_origem": "stok",
+      "id_origem": "24134",
+      "nome_catalogo": "Café Bom Jesus Solúvel Sachê 40g",
+      "ean": "07896348301007",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "24134",
+          "nome": "Café Bom Jesus Solúvel Sachê 40g",
+          "ean": "07896348301007",
+          "preco": 5.99,
+          "preco_normal": 5.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:36+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p449",
+      "rede_origem": "stok",
+      "id_origem": "17460",
+      "nome_catalogo": "Café Melitta Solúvel Tradicional 40g",
+      "ean": "07896348300895",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "17460",
+          "nome": "Café Melitta Solúvel Tradicional 40g",
+          "ean": "07896348300895",
+          "preco": 6.49,
+          "preco_normal": 6.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:40+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "9537",
+          "nome": "Café Solúvel Melitta Sac.tradicional 40g",
+          "ean": "07896348300895",
+          "preco": 7.69,
+          "preco_normal": 7.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:42+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p450",
+      "rede_origem": "stok",
+      "id_origem": "7499",
+      "nome_catalogo": "Café Melitta Regiões Cerrado 250g",
+      "ean": "07891021005609",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7499",
+          "nome": "Café Melitta Regiões Cerrado 250g",
+          "ean": "07891021005609",
+          "preco": 23.49,
+          "preco_normal": 23.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:44+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "5428",
+          "nome": "Café Melitta Regiões Brasileiras Cerrado 250g",
+          "ean": "07891021005609",
+          "preco": 24.99,
+          "preco_normal": 24.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:47+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p62",
+      "rede_origem": "master",
+      "id_origem": "11210",
+      "nome_catalogo": "Óleo Coco Qualicoco S/sabor 200ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p63",
+      "rede_origem": "master",
+      "id_origem": "11052",
+      "nome_catalogo": "Óleo Côco Copra Spray 100ml Ext.virg.",
+      "ean": "07898596082073",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "11052",
+          "nome": "Óleo Côco Copra Spray 100ml Ext.virg.",
+          "ean": "07898596082073",
+          "preco": 51.9,
+          "preco_normal": 51.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:51+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p65",
+      "rede_origem": "master",
+      "id_origem": "10555",
+      "nome_catalogo": "Óleo Coco Copra S/sabor 200ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p67",
+      "rede_origem": "master",
+      "id_origem": "10233",
+      "nome_catalogo": "Óleo Coco Coco Show Extra Virgem 500ml",
+      "ean": "07898596080598",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "10233",
+          "nome": "Óleo Coco Coco Show Extra Virgem 500ml",
+          "ean": "07898596080598",
+          "preco": 49.9,
+          "preco_normal": 49.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:45:57+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p70",
+      "rede_origem": "master",
+      "id_origem": "7905",
+      "nome_catalogo": "Óleo Côco Sococo Ext.virg.200ml",
+      "ean": "07896004402031",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "7905",
+          "nome": "Óleo Côco Sococo Ext.virg.200ml",
+          "ean": "07896004402031",
+          "preco": 19.99,
+          "preco_normal": 19.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:01+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "16188",
+          "nome": "Óleo de Coco Sococo Extra virgem 200ml",
+          "ean": "07896004402031",
+          "preco": 10.98,
+          "preco_normal": 10.98,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:01+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "atacadao",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p261",
+      "rede_origem": "stok",
+      "id_origem": "204",
+      "nome_catalogo": "Óleo De Soja Coamo Tipo 1 900ml",
+      "ean": "07896279600538",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "204",
+          "nome": "Óleo De Soja Coamo Tipo 1 900ml",
+          "ean": "07896279600538",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:05+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p265",
+      "rede_origem": "stok",
+      "id_origem": "31450",
+      "nome_catalogo": "Óleo De Girassol Legítimo Tipo1 900ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p266",
+      "rede_origem": "stok",
+      "id_origem": "17521",
+      "nome_catalogo": "Óleo De Girassol Soya Tipo 1 900ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p268",
+      "rede_origem": "stok",
+      "id_origem": "11174",
+      "nome_catalogo": "Óleo De Soja Soya Tipo 1 900ml",
+      "ean": "07891107101621",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "11174",
+          "nome": "Óleo De Soja Soya Tipo 1 900ml",
+          "ean": "07891107101621",
+          "preco": 8.29,
+          "preco_normal": 8.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:13+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7057",
+          "nome": "Óleo Soja Soya Pet 900ml",
+          "ean": "07891107101621",
+          "preco": 7.99,
+          "preco_normal": 7.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:15+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p461",
+      "rede_origem": "stok",
+      "id_origem": "204",
+      "nome_catalogo": "Óleo De Soja Coamo Tipo 1 900ml",
+      "ean": "07896279600538",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "204",
+          "nome": "Óleo De Soja Coamo Tipo 1 900ml",
+          "ean": "07896279600538",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:16+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p465",
+      "rede_origem": "stok",
+      "id_origem": "31450",
+      "nome_catalogo": "Óleo De Girassol Legítimo Tipo1 900ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p466",
+      "rede_origem": "stok",
+      "id_origem": "17521",
+      "nome_catalogo": "Óleo De Girassol Soya Tipo 1 900ml",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p468",
+      "rede_origem": "stok",
+      "id_origem": "11174",
+      "nome_catalogo": "Óleo De Soja Soya Tipo 1 900ml",
+      "ean": "07891107101621",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "11174",
+          "nome": "Óleo De Soja Soya Tipo 1 900ml",
+          "ean": "07891107101621",
+          "preco": 8.29,
+          "preco_normal": 8.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:24+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7057",
+          "nome": "Óleo Soja Soya Pet 900ml",
+          "ean": "07891107101621",
+          "preco": 7.99,
+          "preco_normal": 7.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:27+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p9",
+      "rede_origem": "atacadao",
+      "id_origem": "55718",
+      "nome_catalogo": "Molho de Tomate Quero Tradicional 240g",
+      "ean": "07896102503661",
+      "precos": {
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "55718",
+          "nome": "Molho de Tomate Quero Tradicional 240g",
+          "ean": "07896102503661",
+          "preco": 1.89,
+          "preco_normal": 1.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:27+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "25175",
+          "nome": "Molho Tomate Quero Tradicional Sachê 240g",
+          "ean": "07896102503661",
+          "preco": 2.69,
+          "preco_normal": 2.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:29+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "atacadao",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p10",
+      "rede_origem": "atacadao",
+      "id_origem": "171471",
+      "nome_catalogo": "Açúcar Refinado Bulnez 1kg",
+      "ean": "07896534405779",
+      "precos": {
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "171471",
+          "nome": "Açúcar Refinado Bulnez 1kg",
+          "ean": "07896534405779",
+          "preco": 3.19,
+          "preco_normal": 3.19,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:32+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p51",
+      "rede_origem": "master",
+      "id_origem": "1291",
+      "nome_catalogo": "Açúcar Cristal Montare 5kg",
+      "ean": "00602883467651",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1291",
+          "nome": "Açúcar Cristal Montare 5kg",
+          "ean": "00602883467651",
+          "preco": 12.99,
+          "preco_normal": 18.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:46:37+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p52",
+      "rede_origem": "master",
+      "id_origem": "1302",
+      "nome_catalogo": "Açúcar Baunilha Monopol 500g",
+      "ean": "07898236721461",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1302",
+          "nome": "Açúcar Baunilha Monopol 500g",
+          "ean": "07898236721461",
+          "preco": 16.29,
+          "preco_normal": 16.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:41+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p53",
+      "rede_origem": "master",
+      "id_origem": "1364",
+      "nome_catalogo": "Açúcar Demerara Caravelas 1kg",
+      "ean": "07896894900235",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1364",
+          "nome": "Açúcar Demerara Caravelas 1kg",
+          "ean": "07896894900235",
+          "preco": 5.89,
+          "preco_normal": 5.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:45+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p54",
+      "rede_origem": "master",
+      "id_origem": "1782",
+      "nome_catalogo": "Açúcar Refinado Caravelas 5kg",
+      "ean": "07896894900037",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1782",
+          "nome": "Açúcar Refinado Caravelas 5kg",
+          "ean": "07896894900037",
+          "preco": 19.9,
+          "preco_normal": 19.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:49+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p55",
+      "rede_origem": "master",
+      "id_origem": "3370",
+      "nome_catalogo": "Açúcar Mascavo Guimarães 500g",
+      "ean": "07896775178135",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "3370",
+          "nome": "Açúcar Mascavo Guimarães 500g",
+          "ean": "07896775178135",
+          "preco": 6.29,
+          "preco_normal": 7.99,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:46:53+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p56",
+      "rede_origem": "master",
+      "id_origem": "3566",
+      "nome_catalogo": "Açúcar Cristal Colombo 1kg",
+      "ean": null,
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "3566",
+          "nome": "Açúcar Cristal Colombo 1kg",
+          "ean": null,
+          "preco": 3.59,
+          "preco_normal": 3.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:57+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "sem_ean_valido"
+    },
+    {
+      "id": "p57",
+      "rede_origem": "master",
+      "id_origem": "3939",
+      "nome_catalogo": "Açúcar Cristal Colombo 2kg",
+      "ean": null,
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "3939",
+          "nome": "Açúcar Cristal Colombo 2kg",
+          "ean": null,
+          "preco": 7.79,
+          "preco_normal": 7.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:46:59+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "sem_ean_valido"
+    },
+    {
+      "id": "p58",
+      "rede_origem": "master",
+      "id_origem": "4399",
+      "nome_catalogo": "Açúcar Orgânico Native Demerara 1kg",
+      "ean": "07898206500027",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "4399",
+          "nome": "Açúcar Orgânico Native Demerara 1kg",
+          "ean": "07898206500027",
+          "preco": 10.99,
+          "preco_normal": 10.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:01+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p59",
+      "rede_origem": "master",
+      "id_origem": "5249",
+      "nome_catalogo": "Açúcar Baunilha Apti 100g",
+      "ean": "07896327510260",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "5249",
+          "nome": "Açúcar Baunilha Apti 100g",
+          "ean": "07896327510260",
+          "preco": 3.49,
+          "preco_normal": 3.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:05+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9627",
+          "nome": "Açúcar Apti Baunilha 100g",
+          "ean": "07896327510260",
+          "preco": 3.29,
+          "preco_normal": 3.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:07+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p60",
+      "rede_origem": "master",
+      "id_origem": "6822",
+      "nome_catalogo": "Açúcar Refinado União 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p64",
+      "rede_origem": "master",
+      "id_origem": "10835",
+      "nome_catalogo": "Óleo Milho Soya 900ml",
+      "ean": "07891080150456",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "10835",
+          "nome": "Óleo Milho Soya 900ml",
+          "ean": "07891080150456",
+          "preco": 13.49,
+          "preco_normal": 15.99,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:47:11+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31432",
+          "nome": "Óleo De Milho Soya Tipo1 900ml",
+          "ean": "07891080150456",
+          "preco": 14.09,
+          "preco_normal": 14.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:13+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p72",
+      "rede_origem": "master",
+      "id_origem": "319",
+      "nome_catalogo": "Farinha Amendoim Geração Saude 500g",
+      "ean": "07896035122403",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "319",
+          "nome": "Farinha Amendoim Geração Saude 500g",
+          "ean": "07896035122403",
+          "preco": 21.49,
+          "preco_normal": 21.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:15+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p73",
+      "rede_origem": "master",
+      "id_origem": "362",
+      "nome_catalogo": "Farinha Milho Yoki Kimilho 500g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p74",
+      "rede_origem": "master",
+      "id_origem": "601",
+      "nome_catalogo": "Farinha Berinjela Geração Saude 150g",
+      "ean": "07896035126708",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "601",
+          "nome": "Farinha Berinjela Geração Saude 150g",
+          "ean": "07896035126708",
+          "preco": 18.69,
+          "preco_normal": 18.69,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:21+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p75",
+      "rede_origem": "master",
+      "id_origem": "703",
+      "nome_catalogo": "Farinha Kimilho Yoki Flocao 500g",
+      "ean": "07891095006878",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "703",
+          "nome": "Farinha Kimilho Yoki Flocao 500g",
+          "ean": "07891095006878",
+          "preco": 5.99,
+          "preco_normal": 5.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:25+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p76",
+      "rede_origem": "master",
+      "id_origem": "2941",
+      "nome_catalogo": "Farinha Yoki Kipolenta 500g",
+      "ean": "07891095200207",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "2941",
+          "nome": "Farinha Yoki Kipolenta 500g",
+          "ean": "07891095200207",
+          "preco": 7.39,
+          "preco_normal": 7.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:29+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p77",
+      "rede_origem": "master",
+      "id_origem": "3327",
+      "nome_catalogo": "Farinha Milho Beatriz Fina 1kg",
+      "ean": "07896659600127",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "3327",
+          "nome": "Farinha Milho Beatriz Fina 1kg",
+          "ean": "07896659600127",
+          "preco": 5.99,
+          "preco_normal": 5.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:33+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p78",
+      "rede_origem": "master",
+      "id_origem": "3938",
+      "nome_catalogo": "Farinha Neston Vitam.ban./pera/mor/400g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p79",
+      "rede_origem": "master",
+      "id_origem": "4528",
+      "nome_catalogo": "Farinha Láctea Nestlé Sachê 210g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p80",
+      "rede_origem": "master",
+      "id_origem": "4835",
+      "nome_catalogo": "Farinha Milho Yoki Amarela 500g",
+      "ean": "07891095200399",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "4835",
+          "nome": "Farinha Milho Yoki Amarela 500g",
+          "ean": "07891095200399",
+          "preco": 8.99,
+          "preco_normal": 8.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:41+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "7411",
+          "nome": "Farinha De Milho Yoki Amarela 500g",
+          "ean": "07891095200399",
+          "preco": 7.35,
+          "preco_normal": 7.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:47:43+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p81",
+      "rede_origem": "master",
+      "id_origem": "330",
+      "nome_catalogo": "Massa Fresca Romena Espaguete 500g",
+      "ean": "07896249500479",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "330",
+          "nome": "Massa Fresca Romena Espaguete 500g",
+          "ean": "07896249500479",
+          "preco": 7.99,
+          "preco_normal": 10.19,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:47:45+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p82",
+      "rede_origem": "master",
+      "id_origem": "414",
+      "nome_catalogo": "Massa Ovos Sêmola Barilla 500g Linguine",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p83",
+      "rede_origem": "master",
+      "id_origem": "898",
+      "nome_catalogo": "Massa Fresca Romena Penne 500g",
+      "ean": "07896249500592",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "898",
+          "nome": "Massa Fresca Romena Penne 500g",
+          "ean": "07896249500592",
+          "preco": 7.99,
+          "preco_normal": 10.19,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:47:51+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p84",
+      "rede_origem": "master",
+      "id_origem": "986",
+      "nome_catalogo": "Massa P/pizza João Das Massas 200g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p85",
+      "rede_origem": "master",
+      "id_origem": "1028",
+      "nome_catalogo": "Massa P/pastel Italiany 200g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p86",
+      "rede_origem": "master",
+      "id_origem": "1063",
+      "nome_catalogo": "Massa P/pastel Italiany 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p87",
+      "rede_origem": "master",
+      "id_origem": "1173",
+      "nome_catalogo": "Massa Caseiro Germani Talharim Largo 500g",
+      "ean": "07898045270426",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1173",
+          "nome": "Massa Caseiro Germani Talharim Largo 500g",
+          "ean": "07898045270426",
+          "preco": 8.19,
+          "preco_normal": 11.19,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:48:01+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p88",
+      "rede_origem": "master",
+      "id_origem": "1308",
+      "nome_catalogo": "Massa Paganini Rigatoni 500g",
+      "ean": "07898152990149",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1308",
+          "nome": "Massa Paganini Rigatoni 500g",
+          "ean": "07898152990149",
+          "preco": 9.99,
+          "preco_normal": 12.89,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:48:05+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "39235",
+          "nome": "Macarrão Grano Duro Paganini Rigatoni 500g",
+          "ean": "07898152990149",
+          "preco": 6.99,
+          "preco_normal": 6.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:05+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "atacadao",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p89",
+      "rede_origem": "master",
+      "id_origem": "1350",
+      "nome_catalogo": "Massa P/pastel Romena 500g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p90",
+      "rede_origem": "master",
+      "id_origem": "1416",
+      "nome_catalogo": "Massa Caseiro P/pastel Italiany 650g",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p251",
+      "rede_origem": "stok",
+      "id_origem": "2071",
+      "nome_catalogo": "Açúcar Alto Alegre Refinado 1kg",
+      "ean": "07896508200034",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2071",
+          "nome": "Açúcar Alto Alegre Refinado 1kg",
+          "ean": "07896508200034",
+          "preco": 2.99,
+          "preco_normal": 3.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:48:13+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p252",
+      "rede_origem": "stok",
+      "id_origem": "3386",
+      "nome_catalogo": "Açúcar Gasparin Cristal 2kg",
+      "ean": "07898941416027",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "3386",
+          "nome": "Açúcar Gasparin Cristal 2kg",
+          "ean": "07898941416027",
+          "preco": 6.85,
+          "preco_normal": 6.85,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:17+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p253",
+      "rede_origem": "stok",
+      "id_origem": "2258",
+      "nome_catalogo": "Açúcar Gasparin Cristal 1kg",
+      "ean": "07898941416041",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2258",
+          "nome": "Açúcar Gasparin Cristal 1kg",
+          "ean": "07898941416041",
+          "preco": 3.59,
+          "preco_normal": 3.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:21+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "27085",
+          "nome": "Açúcar Cristal Gasparin 1kg",
+          "ean": "07898941416041",
+          "preco": 3.99,
+          "preco_normal": 3.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:23+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p254",
+      "rede_origem": "stok",
+      "id_origem": "9651",
+      "nome_catalogo": "Açúcar Caravelas Refinado 1kg",
+      "ean": "07896894900013",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9651",
+          "nome": "Açúcar Caravelas Refinado 1kg",
+          "ean": "07896894900013",
+          "preco": 2.99,
+          "preco_normal": 3.89,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:48:25+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8007",
+          "nome": "Açúcar Refinado Caravelas 1kg",
+          "ean": "07896894900013",
+          "preco": 4.09,
+          "preco_normal": 4.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:27+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p255",
+      "rede_origem": "stok",
+      "id_origem": "4056",
+      "nome_catalogo": "Açúcar União Naturale Demerara 1kg",
+      "ean": "07891910020065",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4056",
+          "nome": "Açúcar União Naturale Demerara 1kg",
+          "ean": "07891910020065",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:29+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p256",
+      "rede_origem": "stok",
+      "id_origem": "6620",
+      "nome_catalogo": "Açúcar Gasparin Mascavo 500g",
+      "ean": "07898941416294",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6620",
+          "nome": "Açúcar Gasparin Mascavo 500g",
+          "ean": "07898941416294",
+          "preco": 5.89,
+          "preco_normal": 5.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:33+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p257",
+      "rede_origem": "stok",
+      "id_origem": "19234",
+      "nome_catalogo": "Açúcar Gasparin Mascavo 1kg",
+      "ean": "07898941416225",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19234",
+          "nome": "Açúcar Gasparin Mascavo 1kg",
+          "ean": "07898941416225",
+          "preco": 12.05,
+          "preco_normal": 12.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:37+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p258",
+      "rede_origem": "stok",
+      "id_origem": "9359",
+      "nome_catalogo": "Açúcar Caravelas Refinado 5kg",
+      "ean": "07896894900044",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9359",
+          "nome": "Açúcar Caravelas Refinado 5kg",
+          "ean": "07896894900044",
+          "preco": 19.29,
+          "preco_normal": 19.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:41+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p259",
+      "rede_origem": "stok",
+      "id_origem": "7657",
+      "nome_catalogo": "Açúcar União Refinado 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p260",
+      "rede_origem": "stok",
+      "id_origem": "8353",
+      "nome_catalogo": "Açúcar Gasparin Demerara 1kg",
+      "ean": "07898941416256",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8353",
+          "nome": "Açúcar Gasparin Demerara 1kg",
+          "ean": "07898941416256",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:47+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "27741",
+          "nome": "Açúcar Demerara Gasparin 1kg",
+          "ean": "07898941416256",
+          "preco": 4.19,
+          "preco_normal": 5.09,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:48:49+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p262",
+      "rede_origem": "stok",
+      "id_origem": "14761",
+      "nome_catalogo": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+      "ean": "07891080000485",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14761",
+          "nome": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+          "ean": "07891080000485",
+          "preco": 207.99,
+          "preco_normal": 207.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:51+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p263",
+      "rede_origem": "stok",
+      "id_origem": "31879",
+      "nome_catalogo": "Oleo Nivea Banho Relaxante 200ml",
+      "ean": "04005808808281",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31879",
+          "nome": "Oleo Nivea Banho Relaxante 200ml",
+          "ean": "04005808808281",
+          "preco": 47.99,
+          "preco_normal": 47.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:55+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "57971",
+          "nome": "Sabonete Líquido Nivea Óleo de Banho 200ml",
+          "ean": "04005808808281",
+          "preco": 38.9,
+          "preco_normal": 38.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:55+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "atacadao",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p264",
+      "rede_origem": "stok",
+      "id_origem": "1043",
+      "nome_catalogo": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+      "ean": "07896036098325",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "1043",
+          "nome": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+          "ean": "07896036098325",
+          "preco": 19.99,
+          "preco_normal": 19.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:48:59+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20001",
+          "nome": "Oleo Comp.olivia Tradicional 500ml Soja/oliva",
+          "ean": "07896036098325",
+          "preco": 18.89,
+          "preco_normal": 18.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:01+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p267",
+      "rede_origem": "stok",
+      "id_origem": "215",
+      "nome_catalogo": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+      "ean": "07896552901307",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "215",
+          "nome": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+          "ean": "07896552901307",
+          "preco": 18.99,
+          "preco_normal": 18.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:03+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "616",
+          "nome": "Óleo Côco Qualicoco Ext.virg.200ml",
+          "ean": "07896552901307",
+          "preco": 27.49,
+          "preco_normal": 27.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:05+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p269",
+      "rede_origem": "stok",
+      "id_origem": "34403",
+      "nome_catalogo": "Óleo De Algodão Saúde Tipo1 900ml",
+      "ean": "07896248101592",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "34403",
+          "nome": "Óleo De Algodão Saúde Tipo1 900ml",
+          "ean": "07896248101592",
+          "preco": 11.39,
+          "preco_normal": 11.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:09+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p270",
+      "rede_origem": "stok",
+      "id_origem": "31440",
+      "nome_catalogo": "Óleo Canola Soya Tipo1 900ml",
+      "ean": "07891080150449",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31440",
+          "nome": "Óleo Canola Soya Tipo1 900ml",
+          "ean": "07891080150449",
+          "preco": 13.09,
+          "preco_normal": 13.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:13+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7157",
+          "nome": "Óleo Canola Soya 900ml",
+          "ean": "07891080150449",
+          "preco": 12.29,
+          "preco_normal": 13.29,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:49:15+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p280",
+      "rede_origem": "stok",
+      "id_origem": "4487",
+      "nome_catalogo": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+      "ean": "07890300398968",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4487",
+          "nome": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+          "ean": "07890300398968",
+          "preco": 4.09,
+          "preco_normal": 4.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:16+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p281",
+      "rede_origem": "stok",
+      "id_origem": "20039",
+      "nome_catalogo": "Massa Monte Viso Com Ovos Parafuso 500g",
+      "ean": "07896412851841",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "20039",
+          "nome": "Massa Monte Viso Com Ovos Parafuso 500g",
+          "ean": "07896412851841",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:20+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p282",
+      "rede_origem": "stok",
+      "id_origem": "754",
+      "nome_catalogo": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+      "ean": "07896022087081",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "754",
+          "nome": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+          "ean": "07896022087081",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:24+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20882",
+          "nome": "Massa Sêmola Isabela Espaguete 400g",
+          "ean": "07896022087081",
+          "preco": 3.39,
+          "preco_normal": 3.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:27+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p283",
+      "rede_origem": "stok",
+      "id_origem": "2276",
+      "nome_catalogo": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+      "ean": "07896022087135",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2276",
+          "nome": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+          "ean": "07896022087135",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:28+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20777",
+          "nome": "Massa Sêmola Isabela Parafuso 400g",
+          "ean": "07896022087135",
+          "preco": 3.39,
+          "preco_normal": 3.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:31+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p284",
+      "rede_origem": "stok",
+      "id_origem": "20038",
+      "nome_catalogo": "Massa Monte Viso Com Ovos Espaguete 500g",
+      "ean": "07896412851834",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "20038",
+          "nome": "Massa Monte Viso Com Ovos Espaguete 500g",
+          "ean": "07896412851834",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:32+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p285",
+      "rede_origem": "stok",
+      "id_origem": "19023",
+      "nome_catalogo": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+      "ean": "07896412800108",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19023",
+          "nome": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+          "ean": "07896412800108",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:36+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "11705",
+          "nome": "Massa Ovos Orquidea 500g Parafuso",
+          "ean": "07896412800108",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:39+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p286",
+      "rede_origem": "stok",
+      "id_origem": "19075",
+      "nome_catalogo": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+      "ean": "07896412800092",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19075",
+          "nome": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+          "ean": "07896412800092",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:40+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "2882",
+          "nome": "Massa Ovos Orquidea 500g Espag.",
+          "ean": "07896412800092",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:43+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p287",
+      "rede_origem": "stok",
+      "id_origem": "19025",
+      "nome_catalogo": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+      "ean": "07896412800665",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19025",
+          "nome": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+          "ean": "07896412800665",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:44+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "6045",
+          "nome": "Massa Ovos Orquidea 500g Rigatone",
+          "ean": "07896412800665",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:47+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p288",
+      "rede_origem": "stok",
+      "id_origem": "21230",
+      "nome_catalogo": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+      "ean": "07896412800795",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "21230",
+          "nome": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+          "ean": "07896412800795",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:48+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "2558",
+          "nome": "Massa Ovos Orquidea 500g Tortiglione",
+          "ean": "07896412800795",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:51+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p289",
+      "rede_origem": "stok",
+      "id_origem": "31121",
+      "nome_catalogo": "Massa Orquídea Mais Molho Rigatone Riscado Com Ovo 400g",
+      "ean": "07896412853043",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31121",
+          "nome": "Massa Orquídea Mais Molho Com Ovos Rigatone Riscado 400g",
+          "ean": "07896412853043",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:53+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31691",
+          "nome": "Massa Com Ovos Orquídea Mais Molho Rigatone 400g",
+          "ean": "07896412853043",
+          "preco": 4.99,
+          "preco_normal": 4.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:55+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p290",
+      "rede_origem": "stok",
+      "id_origem": "25529",
+      "nome_catalogo": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+      "ean": "07896005030530",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25529",
+          "nome": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+          "ean": "07896005030530",
+          "preco": 2.39,
+          "preco_normal": 2.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:49:57+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p451",
+      "rede_origem": "stok",
+      "id_origem": "2071",
+      "nome_catalogo": "Açúcar Alto Alegre Refinado 1kg",
+      "ean": "07896508200034",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2071",
+          "nome": "Açúcar Alto Alegre Refinado 1kg",
+          "ean": "07896508200034",
+          "preco": 2.99,
+          "preco_normal": 3.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:50:00+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p452",
+      "rede_origem": "stok",
+      "id_origem": "3386",
+      "nome_catalogo": "Açúcar Gasparin Cristal 2kg",
+      "ean": "07898941416027",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "3386",
+          "nome": "Açúcar Gasparin Cristal 2kg",
+          "ean": "07898941416027",
+          "preco": 6.85,
+          "preco_normal": 6.85,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:04+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p453",
+      "rede_origem": "stok",
+      "id_origem": "2258",
+      "nome_catalogo": "Açúcar Gasparin Cristal 1kg",
+      "ean": "07898941416041",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2258",
+          "nome": "Açúcar Gasparin Cristal 1kg",
+          "ean": "07898941416041",
+          "preco": 3.59,
+          "preco_normal": 3.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:08+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "27085",
+          "nome": "Açúcar Cristal Gasparin 1kg",
+          "ean": "07898941416041",
+          "preco": 3.99,
+          "preco_normal": 3.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:11+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p454",
+      "rede_origem": "stok",
+      "id_origem": "9651",
+      "nome_catalogo": "Açúcar Caravelas Refinado 1kg",
+      "ean": "07896894900013",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9651",
+          "nome": "Açúcar Caravelas Refinado 1kg",
+          "ean": "07896894900013",
+          "preco": 2.99,
+          "preco_normal": 3.89,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:50:12+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "8007",
+          "nome": "Açúcar Refinado Caravelas 1kg",
+          "ean": "07896894900013",
+          "preco": 4.09,
+          "preco_normal": 4.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:15+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p455",
+      "rede_origem": "stok",
+      "id_origem": "4056",
+      "nome_catalogo": "Açúcar União Naturale Demerara 1kg",
+      "ean": "07891910020065",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4056",
+          "nome": "Açúcar União Naturale Demerara 1kg",
+          "ean": "07891910020065",
+          "preco": 6.09,
+          "preco_normal": 6.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:16+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p456",
+      "rede_origem": "stok",
+      "id_origem": "6620",
+      "nome_catalogo": "Açúcar Gasparin Mascavo 500g",
+      "ean": "07898941416294",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6620",
+          "nome": "Açúcar Gasparin Mascavo 500g",
+          "ean": "07898941416294",
+          "preco": 5.89,
+          "preco_normal": 5.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:20+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p457",
+      "rede_origem": "stok",
+      "id_origem": "19234",
+      "nome_catalogo": "Açúcar Gasparin Mascavo 1kg",
+      "ean": "07898941416225",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19234",
+          "nome": "Açúcar Gasparin Mascavo 1kg",
+          "ean": "07898941416225",
+          "preco": 12.05,
+          "preco_normal": 12.05,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:24+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p458",
+      "rede_origem": "stok",
+      "id_origem": "9359",
+      "nome_catalogo": "Açúcar Caravelas Refinado 5kg",
+      "ean": "07896894900044",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "9359",
+          "nome": "Açúcar Caravelas Refinado 5kg",
+          "ean": "07896894900044",
+          "preco": 19.29,
+          "preco_normal": 19.29,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:29+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p459",
+      "rede_origem": "stok",
+      "id_origem": "7657",
+      "nome_catalogo": "Açúcar União Refinado 1kg",
+      "ean": null,
+      "precos": {},
+      "pares": [],
+      "situacao": "nao_encontrado_na_origem"
+    },
+    {
+      "id": "p460",
+      "rede_origem": "stok",
+      "id_origem": "8353",
+      "nome_catalogo": "Açúcar Gasparin Demerara 1kg",
+      "ean": "07898941416256",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "8353",
+          "nome": "Açúcar Gasparin Demerara 1kg",
+          "ean": "07898941416256",
+          "preco": 4.25,
+          "preco_normal": 4.25,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:34+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "27741",
+          "nome": "Açúcar Demerara Gasparin 1kg",
+          "ean": "07898941416256",
+          "preco": 4.19,
+          "preco_normal": 5.09,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:50:37+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p462",
+      "rede_origem": "stok",
+      "id_origem": "14761",
+      "nome_catalogo": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+      "ean": "07891080000485",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "14761",
+          "nome": "Oleo De Algodão Soya Tipo 1 Uso Profissional 14,5kg",
+          "ean": "07891080000485",
+          "preco": 207.99,
+          "preco_normal": 207.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:38+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p463",
+      "rede_origem": "stok",
+      "id_origem": "31879",
+      "nome_catalogo": "Oleo Nivea Banho Relaxante 200ml",
+      "ean": "04005808808281",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31879",
+          "nome": "Oleo Nivea Banho Relaxante 200ml",
+          "ean": "04005808808281",
+          "preco": 47.99,
+          "preco_normal": 47.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:42+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "57971",
+          "nome": "Sabonete Líquido Nivea Óleo de Banho 200ml",
+          "ean": "04005808808281",
+          "preco": 38.9,
+          "preco_normal": 38.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:43+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "atacadao",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p464",
+      "rede_origem": "stok",
+      "id_origem": "1043",
+      "nome_catalogo": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+      "ean": "07896036098325",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "1043",
+          "nome": "Óleo Olívia Composto De Soja E Oliva Tradicional 500ml",
+          "ean": "07896036098325",
+          "preco": 19.99,
+          "preco_normal": 19.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:46+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20001",
+          "nome": "Oleo Comp.olivia Tradicional 500ml Soja/oliva",
+          "ean": "07896036098325",
+          "preco": 18.89,
+          "preco_normal": 18.89,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:49+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p467",
+      "rede_origem": "stok",
+      "id_origem": "215",
+      "nome_catalogo": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+      "ean": "07896552901307",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "215",
+          "nome": "Óleo De Coco Qualicoco Extra Virgem 200ml",
+          "ean": "07896552901307",
+          "preco": 18.99,
+          "preco_normal": 18.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:50+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "616",
+          "nome": "Óleo Côco Qualicoco Ext.virg.200ml",
+          "ean": "07896552901307",
+          "preco": 27.49,
+          "preco_normal": 27.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:53+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p469",
+      "rede_origem": "stok",
+      "id_origem": "34403",
+      "nome_catalogo": "Óleo De Algodão Saúde Tipo1 900ml",
+      "ean": "07896248101592",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "34403",
+          "nome": "Óleo De Algodão Saúde Tipo1 900ml",
+          "ean": "07896248101592",
+          "preco": 11.39,
+          "preco_normal": 11.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:55+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p470",
+      "rede_origem": "stok",
+      "id_origem": "31440",
+      "nome_catalogo": "Óleo Canola Soya Tipo1 900ml",
+      "ean": "07891080150449",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31440",
+          "nome": "Óleo Canola Soya Tipo1 900ml",
+          "ean": "07891080150449",
+          "preco": 13.09,
+          "preco_normal": 13.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:50:58+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "7157",
+          "nome": "Óleo Canola Soya 900ml",
+          "ean": "07891080150449",
+          "preco": 12.29,
+          "preco_normal": 13.29,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:51:01+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p480",
+      "rede_origem": "stok",
+      "id_origem": "4487",
+      "nome_catalogo": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+      "ean": "07890300398968",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4487",
+          "nome": "Farinha De Mandioca Fritz & Frida Branca Fina Tipo 1 500g",
+          "ean": "07890300398968",
+          "preco": 4.09,
+          "preco_normal": 4.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:02+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p481",
+      "rede_origem": "stok",
+      "id_origem": "20039",
+      "nome_catalogo": "Massa Monte Viso Com Ovos Parafuso 500g",
+      "ean": "07896412851841",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "20039",
+          "nome": "Massa Monte Viso Com Ovos Parafuso 500g",
+          "ean": "07896412851841",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:07+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p482",
+      "rede_origem": "stok",
+      "id_origem": "754",
+      "nome_catalogo": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+      "ean": "07896022087081",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "754",
+          "nome": "Massa Isabela Sêmola Sem Ovos Espaguete 400g",
+          "ean": "07896022087081",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:10+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20882",
+          "nome": "Massa Sêmola Isabela Espaguete 400g",
+          "ean": "07896022087081",
+          "preco": 3.39,
+          "preco_normal": 3.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:13+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p483",
+      "rede_origem": "stok",
+      "id_origem": "2276",
+      "nome_catalogo": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+      "ean": "07896022087135",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2276",
+          "nome": "Massa Isabela Sêmola Sem Ovos Parafuso 400g",
+          "ean": "07896022087135",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:14+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "20777",
+          "nome": "Massa Sêmola Isabela Parafuso 400g",
+          "ean": "07896022087135",
+          "preco": 3.39,
+          "preco_normal": 3.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:17+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p484",
+      "rede_origem": "stok",
+      "id_origem": "20038",
+      "nome_catalogo": "Massa Monte Viso Com Ovos Espaguete 500g",
+      "ean": "07896412851834",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "20038",
+          "nome": "Massa Monte Viso Com Ovos Espaguete 500g",
+          "ean": "07896412851834",
+          "preco": 3.09,
+          "preco_normal": 3.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:18+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p485",
+      "rede_origem": "stok",
+      "id_origem": "19023",
+      "nome_catalogo": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+      "ean": "07896412800108",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19023",
+          "nome": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+          "ean": "07896412800108",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:22+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "11705",
+          "nome": "Massa Ovos Orquidea 500g Parafuso",
+          "ean": "07896412800108",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:25+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p486",
+      "rede_origem": "stok",
+      "id_origem": "19075",
+      "nome_catalogo": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+      "ean": "07896412800092",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19075",
+          "nome": "Massa Orquídea Sêmola Espaguete Com Ovos 500g",
+          "ean": "07896412800092",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:26+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "2882",
+          "nome": "Massa Ovos Orquidea 500g Espag.",
+          "ean": "07896412800092",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:29+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p487",
+      "rede_origem": "stok",
+      "id_origem": "19025",
+      "nome_catalogo": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+      "ean": "07896412800665",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "19025",
+          "nome": "Massa Orquídea Sêmola Com Ovos Rigatone 500g",
+          "ean": "07896412800665",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:34+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "6045",
+          "nome": "Massa Ovos Orquidea 500g Rigatone",
+          "ean": "07896412800665",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:36+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p488",
+      "rede_origem": "stok",
+      "id_origem": "21230",
+      "nome_catalogo": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+      "ean": "07896412800795",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "21230",
+          "nome": "Massa Orquídea Sêmola Com Ovos Tortiglione 500g",
+          "ean": "07896412800795",
+          "preco": 4.15,
+          "preco_normal": 4.15,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:37+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "2558",
+          "nome": "Massa Ovos Orquidea 500g Tortiglione",
+          "ean": "07896412800795",
+          "preco": 4.49,
+          "preco_normal": 4.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:39+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p489",
+      "rede_origem": "stok",
+      "id_origem": "31121",
+      "nome_catalogo": "Massa Orquídea Mais Molho Rigatone Riscado Com Ovo 400g",
+      "ean": "07896412853043",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "31121",
+          "nome": "Massa Orquídea Mais Molho Com Ovos Rigatone Riscado 400g",
+          "ean": "07896412853043",
+          "preco": 4.35,
+          "preco_normal": 4.35,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:40+00:00"
+        },
+        "master": {
+          "rede": "master",
+          "id_origem": "31691",
+          "nome": "Massa Com Ovos Orquídea Mais Molho Rigatone 400g",
+          "ean": "07896412853043",
+          "preco": 4.99,
+          "preco_normal": 4.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:43+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "stok",
+          "rede_b": "master",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p490",
+      "rede_origem": "stok",
+      "id_origem": "25529",
+      "nome_catalogo": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+      "ean": "07896005030530",
+      "precos": {
+        "stok": {
+          "rede": "stok",
+          "id_origem": "25529",
+          "nome": "Massa Pilar Macarrão Semola Espaguete Fino 400g",
+          "ean": "07896005030530",
+          "preco": 2.39,
+          "preco_normal": 2.39,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:44+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p61",
+      "rede_origem": "master",
+      "id_origem": "12278",
+      "nome_catalogo": "Óleo Kalipto Eucalipto 120ml",
+      "ean": "07891022853490",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "12278",
+          "nome": "Óleo Kalipto Eucalipto 120ml",
+          "ean": "07891022853490",
+          "preco": 18.79,
+          "preco_normal": 18.79,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:49+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p66",
+      "rede_origem": "master",
+      "id_origem": "10528",
+      "nome_catalogo": "Óleo De Peroba King Restaurador Madeira Avermelhada 200ml",
+      "ean": "07896050500118",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "10528",
+          "nome": "Óleo De Peroba King Restaurador Madeira Avermelhada 200ml",
+          "ean": "07896050500118",
+          "preco": 26.49,
+          "preco_normal": 26.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:53+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "4438",
+          "nome": "Óleo Peroba Restaurador Madeira Vermelha 200ml",
+          "ean": "07896050500118",
+          "preco": 22.99,
+          "preco_normal": 22.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:55+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p69",
+      "rede_origem": "master",
+      "id_origem": "9828",
+      "nome_catalogo": "Óleo Lubrificante King Multiuso 100ml",
+      "ean": "07896050500071",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "9828",
+          "nome": "Óleo Lubrificante King Multiuso 100ml",
+          "ean": "07896050500071",
+          "preco": 7.99,
+          "preco_normal": 7.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:57+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "2778",
+          "nome": "Óleo King Lubrificante Multiuso 100ml",
+          "ean": "07896050500071",
+          "preco": 8.19,
+          "preco_normal": 8.19,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:51:59+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p111",
+      "rede_origem": "master",
+      "id_origem": "563",
+      "nome_catalogo": "Sabão Barra Font Glicerinado Jeans 200g",
+      "ean": "07896012121610",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "563",
+          "nome": "Sabão Barra Font Glicerinado Jeans 200g",
+          "ean": "07896012121610",
+          "preco": 3.49,
+          "preco_normal": 4.69,
+          "em_promocao": true,
+          "coletado_em": "2026-11-04T01:52:01+00:00"
+        }
+      },
+      "pares": [],
+      "situacao": "ok"
+    },
+    {
+      "id": "p112",
+      "rede_origem": "master",
+      "id_origem": "1056",
+      "nome_catalogo": "Sabão Barra Ypê Neutro 180g",
+      "ean": "07896098905913",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "1056",
+          "nome": "Sabão Barra Ypê Neutro 180g",
+          "ean": "07896098905913",
+          "preco": 4.99,
+          "preco_normal": 4.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:05+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "56548",
+          "nome": "Sabão em Pedaço Ypê Neutro 160g",
+          "ean": "07896098905913",
+          "preco": 2.9,
+          "preco_normal": 2.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:05+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "15547",
+          "nome": "Sabão Em Barra Ypê Glicerinado Neutro Original 160g",
+          "ean": "07896098905913",
+          "preco": 4.45,
+          "preco_normal": 4.45,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:07+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "atacadao",
+          "status": "revisar",
+          "motivo": "quantidade_diferente"
+        },
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "revisar",
+          "motivo": "quantidade_diferente"
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p113",
+      "rede_origem": "master",
+      "id_origem": "2142",
+      "nome_catalogo": "Sabão Barra Girando Sol Glicerinado Glicerina 400g",
+      "ean": "07896404600341",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "2142",
+          "nome": "Sabão Barra Girando Sol Glicerinado Glicerina 400g",
+          "ean": "07896404600341",
+          "preco": 9.49,
+          "preco_normal": 9.49,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:09+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "6273",
+          "nome": "Sabão Em Barra Girando Sol Glicerina 400g",
+          "ean": "07896404600341",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:11+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p114",
+      "rede_origem": "master",
+      "id_origem": "4427",
+      "nome_catalogo": "Sabão Barra Vanish Super 75g",
+      "ean": "07891035040191",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "4427",
+          "nome": "Sabão Barra Vanish Super 75g",
+          "ean": "07891035040191",
+          "preco": 7.99,
+          "preco_normal": 7.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:13+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "5503",
+          "nome": "Tira-manchas Em Barra Vanish Multiuso 75g",
+          "ean": "07891035040191",
+          "preco": 8.09,
+          "preco_normal": 8.09,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:15+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p115",
+      "rede_origem": "master",
+      "id_origem": "5015",
+      "nome_catalogo": "Sabão Barra Ypê Aloe Vera 5x180g",
+      "ean": "07896098905968",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "5015",
+          "nome": "Sabão Barra Ypê Aloe Vera 5x180g",
+          "ean": "07896098905968",
+          "preco": 18.99,
+          "preco_normal": 18.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:17+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "26387",
+          "nome": "Sabão Em Barra Ypê Glicerinado Aloe Vera Com 5 Unidades De 160g",
+          "ean": "07896098905968",
+          "preco": 16.59,
+          "preco_normal": 16.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:19+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    },
+    {
+      "id": "p116",
+      "rede_origem": "master",
+      "id_origem": "9085",
+      "nome_catalogo": "Sabão Barra Ypê Neutro 5x180g",
+      "ean": "07896098905906",
+      "precos": {
+        "master": {
+          "rede": "master",
+          "id_origem": "9085",
+          "nome": "Sabão Barra Ypê Neutro 5x180g",
+          "ean": "07896098905906",
+          "preco": 18.99,
+          "preco_normal": 18.99,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:21+00:00"
+        },
+        "atacadao": {
+          "rede": "atacadao",
+          "id_origem": "56546",
+          "nome": "Sabão em Barra Ypê Neutro 800g",
+          "ean": "07896098905906",
+          "preco": 12.9,
+          "preco_normal": 12.9,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:21+00:00"
+        },
+        "stok": {
+          "rede": "stok",
+          "id_origem": "15400",
+          "nome": "Sabão Em Barra Ypê Glicerinado Neutro Original Com 5 Unidades De 160g",
+          "ean": "07896098905906",
+          "preco": 16.59,
+          "preco_normal": 16.59,
+          "em_promocao": false,
+          "coletado_em": "2026-11-04T01:52:23+00:00"
+        }
+      },
+      "pares": [
+        {
+          "rede_a": "master",
+          "rede_b": "atacadao",
+          "status": "revisar",
+          "motivo": "embalagem_diferente"
+        },
+        {
+          "rede_a": "master",
+          "rede_b": "stok",
+          "status": "confirmado",
+          "motivo": null
+        }
+      ],
+      "situacao": "ok"
+    }
+  ]
+}

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
 import { ProductDetailModal } from './ProductDetailModal'
 
 describe('ProductDetailModal (Fase 2)', () => {
@@ -36,7 +35,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={false}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
     expect(container.firstChild).toBeNull()
@@ -48,7 +47,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -65,15 +64,22 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
     // O menor preço é Stok (23.40), seguido por Asun (24.90) e Zaffari (26.50)
     expect(screen.getAllByText(/23\.40/).length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('R$ 24.90')).toBeInTheDocument()
-    expect(screen.getByText('R$ 26.50')).toBeInTheDocument()
+    expect(screen.getAllByText('R$ 24.90').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('R$ 26.50').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Melhor Preço do RS/i)).toBeInTheDocument()
+
+    // A ordem importa: no ranking de barras, cada posição (1º, 2º, 3º) fica na mesma linha
+    // que a rede correspondente. Sem isto, inverter a ordenação passaria despercebido.
+    const linhaDaPosicao = (posicao) => screen.getByText(posicao).parentElement
+    expect(linhaDaPosicao('1º')).toHaveTextContent('Stok Center')
+    expect(linhaDaPosicao('2º')).toHaveTextContent('Asun Supermercados')
+    expect(linhaDaPosicao('3º')).toHaveTextContent('Zaffari / Bourbon')
   })
 
   it('exibe a comprovação promocional quando precoNormal > menor preço', () => {
@@ -82,7 +88,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -98,7 +104,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -109,7 +115,7 @@ describe('ProductDetailModal (Fase 2)', () => {
   })
 
   it('chama onClose ao clicar no botão de fechar', () => {
-    const handleClose = vi.fn()
+    const handleClose = jest.fn()
     render(
       <ProductDetailModal
         product={mockProductComprovado}
@@ -130,7 +136,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -156,7 +162,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={productCom360}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -179,7 +185,7 @@ describe('ProductDetailModal (Fase 2)', () => {
         product={mockProductComprovado}
         markets={mockMarkets}
         isOpen={true}
-        onClose={vi.fn()}
+        onClose={jest.fn()}
       />
     )
 
@@ -243,7 +249,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={[]}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -257,7 +263,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={mockCatalogoRelacionados}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -277,7 +283,7 @@ describe('ProductDetailModal (Fase 2)', () => {
           allProducts={mockCatalogoRelacionados}
           markets={mockMarkets}
           isOpen={true}
-          onClose={vi.fn()}
+          onClose={jest.fn()}
         />
       )
 
@@ -291,9 +297,9 @@ describe('ProductDetailModal (Fase 2)', () => {
     })
 
     it('ao clicar em uma alternativa, atualiza o produto no modal sem fechá-lo e dispara onSelectProduct', () => {
-      const handleSelect = vi.fn()
-      const handleClose = vi.fn()
-      const handleAddToList = vi.fn()
+      const handleSelect = jest.fn()
+      const handleClose = jest.fn()
+      const handleAddToList = jest.fn()
 
       render(
         <ProductDetailModal
@@ -331,10 +337,10 @@ describe('ProductDetailModal (Fase 2)', () => {
       let currentSelected = mockProductComprovado // Produto A (Melitta 500g)
       let modalOpen = true
 
-      const handleSelect = vi.fn((newProd) => {
+      const handleSelect = jest.fn((newProd) => {
         currentSelected = newProd
       })
-      const handleClose = vi.fn(() => {
+      const handleClose = jest.fn(() => {
         modalOpen = false
       })
 

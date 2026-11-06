@@ -11,9 +11,4 @@ export default defineConfig({
       ignored: ['**/templates/**', '**/*.zip'],
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './jest/setupTests.js',
-  },
 })

@@ -1,7 +1,14 @@
 import axios from "axios"
+import { limparDadosPrivados } from "./storageKeys"
 
-// Base URL configurável via env ou fallback relativo / localhost Spring Boot
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api"
+// Base URL da API:
+// 1. VITE_API_URL, quando definida no build (backend em outro dominio).
+// 2. Em producao, "/api" relativo: a Vercel faz o proxy de /api/* para o
+//    backend (ver vercel.json), sem CORS e sem URL do backend no bundle.
+// 3. Em desenvolvimento, o Spring Boot local.
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? "/api" : "http://localhost:8080/api")
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -41,6 +48,7 @@ api.interceptors.response.use(
       } catch {
         // fallback
       }
+      limparDadosPrivados()
 
       // Redireciona para o login apenas se não estiver já na página de autenticação
       if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {

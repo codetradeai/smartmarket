@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, act } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { Product360HoverPreview } from './Product360HoverPreview'
 
 describe('Product360HoverPreview (Fase 3D)', () => {
@@ -25,22 +24,22 @@ describe('Product360HoverPreview (Fase 3D)', () => {
   }
 
   beforeEach(() => {
-    vi.useFakeTimers()
+    jest.useFakeTimers()
     // Mock padrão do matchMedia (sem prefers-reduced-motion)
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
+    window.matchMedia = jest.fn().mockImplementation((query) => ({
       matches: false,
       media: query,
       onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
     }))
   })
 
   afterEach(() => {
-    vi.useRealTimers()
+    jest.useRealTimers()
   })
 
   it('renderiza estático sem selo 360° para produtos comuns', () => {
@@ -72,7 +71,7 @@ describe('Product360HoverPreview (Fase 3D)', () => {
 
     // Aguarda debounce de intenção (80ms) + 1 frame (100ms)
     act(() => {
-      vi.advanceTimersByTime(190)
+      jest.advanceTimersByTime(190)
     })
 
     // O quadro mudou para frame 1
@@ -80,7 +79,7 @@ describe('Product360HoverPreview (Fase 3D)', () => {
 
     // Avança mais um intervalo
     act(() => {
-      vi.advanceTimersByTime(100)
+      jest.advanceTimersByTime(100)
     })
     expect(container).toHaveAttribute('data-active-frame', '2')
   })
@@ -93,7 +92,7 @@ describe('Product360HoverPreview (Fase 3D)', () => {
     // Entra e roda alguns quadros
     fireEvent.mouseEnter(container)
     act(() => {
-      vi.advanceTimersByTime(290)
+      jest.advanceTimersByTime(290)
     })
     expect(container).toHaveAttribute('data-active-frame', '2')
 
@@ -105,22 +104,22 @@ describe('Product360HoverPreview (Fase 3D)', () => {
 
     // Mesmo que o tempo passe, o frame permanece 0
     act(() => {
-      vi.advanceTimersByTime(500)
+      jest.advanceTimersByTime(500)
     })
     expect(container).toHaveAttribute('data-active-frame', '0')
   })
 
   it('obedece a preferência prefers-reduced-motion e não inicia o giro automático', () => {
     // Simula usuário que ativou "reduzir movimento" no sistema
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
+    window.matchMedia = jest.fn().mockImplementation((query) => ({
       matches: query.includes('prefers-reduced-motion'),
       media: query,
       onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
     }))
 
     render(<Product360HoverPreview product={mockProduct360} alt={mockProduct360.name} />)
@@ -128,7 +127,7 @@ describe('Product360HoverPreview (Fase 3D)', () => {
 
     fireEvent.mouseEnter(container)
     act(() => {
-      vi.advanceTimersByTime(400)
+      jest.advanceTimersByTime(400)
     })
 
     // Permanece no frame 0 por respeito à acessibilidade
@@ -146,7 +145,7 @@ describe('Product360HoverPreview (Fase 3D)', () => {
   })
 
   it('permite que cliques no card se propaguem normalmente sem bloqueio', () => {
-    const handleCardClick = vi.fn()
+    const handleCardClick = jest.fn()
     render(
       <div onClick={handleCardClick} data-testid="card-parent">
         <Product360HoverPreview product={mockProduct360} alt={mockProduct360.name} />

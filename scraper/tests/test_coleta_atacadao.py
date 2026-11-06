@@ -61,6 +61,57 @@ class TestColetaAtacadao(unittest.TestCase):
         with self.assertRaises(ValueError):
             preco_positivo("invalido")
 
+class TestCodigoBarrasAtacadao(unittest.TestCase):
+    def _produto(self, ean):
+        sku = {"ean": ean, "images": [], "sellers": [{"commertialOffer": {"Price": 5.0, "ListPrice": 5.0}}]}
+        return {"productId": "1", "productName": "Arroz Teste 1kg", "brand": "X", "linkText": "arroz", "items": [sku]}
+
+    def test_captura_ean_valido_de_items_ean(self):
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        res = transformar_produto(self._produto("7896011906881"), "Mercearia", instante)
+        self.assertEqual(res["codigo_barras"], "7896011906881")
+
+    def test_descarta_ean_invalido_ou_ausente(self):
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        for ruim in ("7896011906882", "49072", "", None):
+            with self.subTest(ruim=ruim):
+                res = transformar_produto(self._produto(ruim), "Mercearia", instante)
+                self.assertIsNone(res["codigo_barras"])
+
+    def test_codigo_interno_de_8_digitos_nao_vira_ean(self):
+        # "39870001" passa no dígito verificador por acaso (EAN-8), mas é código interno de granel/PLU
+        instante = datetime(2026, 11, 3, tzinfo=timezone.utc)
+        res = transformar_produto(self._produto("39870001"), "Hortifruti", instante)
+        self.assertIsNone(res["codigo_barras"])
+
+    def test_codigo_barras_esta_no_contrato_csv(self):
+        from coleta_atacadao import CAMPOS
+        self.assertIn("codigo_barras", CAMPOS)
+
+
+
+
+
+class UserAgentAtacadaoTest(unittest.TestCase):
+    def test_user_agent_identificavel_e_nao_finge_ser_navegador(self):
+        import os
+        from unittest import mock
+        import coleta_atacadao
+        resp = mock.Mock(status_code=200)
+        resp.json.return_value = []
+        with mock.patch.dict(os.environ, {"SMARTMARKET_CONTATO": "github.com/codetradeai/smartmarket"}), \
+             mock.patch("requests.get", return_value=resp) as get:
+            coleta_atacadao.buscar_pagina(coleta_atacadao.BASE_URL, headers=coleta_atacadao.HEADERS, params={})
+        ua = get.call_args.kwargs["headers"]["User-Agent"]
+        self.assertTrue(ua.startswith("SmartMarketBot/0.1"))
+        self.assertIn("contato: github.com/codetradeai/smartmarket", ua)
+        for navegador in ("Mozilla", "Chrome", "Safari", "AppleWebKit"):
+            self.assertNotIn(navegador, ua)
+        self.assertNotIn("User-Agent", coleta_atacadao.HEADERS)
+        enviados = get.call_args.kwargs["headers"]
+        self.assertNotIn("Origin", enviados)
+        self.assertNotIn("Referer", enviados)
+
 
 if __name__ == "__main__":
     unittest.main()

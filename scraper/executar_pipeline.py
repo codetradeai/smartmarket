@@ -1,7 +1,6 @@
 """Orquestra fixture Fort -> extração -> normalização -> carga local com checkpoint."""
 import argparse
 from decimal import Decimal
-import fcntl
 import hashlib
 import json
 import os
@@ -10,6 +9,20 @@ import re
 
 import coleta_fort_atacadista as fort
 from pipeline import carregar, ErroIngestao, validar_dsn
+
+
+def travar_exclusivo(arquivo):
+    """Lock exclusivo e não bloqueante, em Unix (fcntl) e Windows (msvcrt)."""
+    try:
+        try:
+            import fcntl
+            fcntl.flock(arquivo, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except ImportError:
+            import msvcrt
+            arquivo.seek(0)
+            msvcrt.locking(arquivo.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError as exc:
+        raise ErroIngestao('execucao_ja_em_andamento_para_este_run_id') from exc
 
 
 def executar(*, fixture, output_root, run_id, dsn, mercado_id):
@@ -24,7 +37,7 @@ def executar(*, fixture, output_root, run_id, dsn, mercado_id):
     directory = Path(output_root) / run_id
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / '.run.lock').open('a') as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        travar_exclusivo(lock)
         manifest = directory / 'manifest.json'
         if manifest.exists():
             salvo = json.loads(manifest.read_text())

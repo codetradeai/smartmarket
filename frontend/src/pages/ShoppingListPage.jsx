@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import {
   MARKETS as DEFAULT_MARKETS,
   PRODUCTS as DEFAULT_PRODUCTS,
@@ -54,7 +55,8 @@ const C = {
   error: "#D63B3B",
 };
 
-// Cesta sugerida inicial para que a página nunca abra vazia em testes de primeira viagem
+// Cesta de demonstração: só para visitante (sem sessão) que ainda não tem lista gravada.
+// Usuário logado nunca a recebe.
 const INITIAL_DEMO_LIST = {
   p1: 2, // 2x Arroz Branco Tio João 5kg
   p3: 2, // 2x Feijão Carioca Camil 1kg
@@ -63,14 +65,20 @@ const INITIAL_DEMO_LIST = {
   p17: 2, // 2x Café Pilão 500g
 };
 
-function getStoredList() {
+// Distingue "nunca gravou" (chave ausente) de "gravou vazio" ({} depois de limpar a lista):
+// a lista vazia gravada é respeitada. A demonstração só entra para visitante, e só quando
+// não há lista válida gravada.
+function getStoredList(usarDemonstracao) {
+  const semLista = usarDemonstracao ? { ...INITIAL_DEMO_LIST } : {};
+  const raw = sessionStorage.getItem("sm_list");
+  if (raw === null) return semLista;
   try {
-    const stored = JSON.parse(sessionStorage.getItem("sm_list") || "{}");
-    if (Object.keys(stored).length > 0) return stored;
-    return INITIAL_DEMO_LIST;
+    const stored = JSON.parse(raw);
+    if (stored && typeof stored === "object" && !Array.isArray(stored)) return stored;
   } catch {
-    return INITIAL_DEMO_LIST;
+    // conteúdo corrompido: trata como "sem lista"
   }
+  return semLista;
 }
 function saveStoredList(l) {
   sessionStorage.setItem("sm_list", JSON.stringify(l));
@@ -146,13 +154,19 @@ function compareMarkets(list, products, markets) {
       };
     })
     .filter((r) => r.available > 0)
-    .sort((a, b) => a.total - b.total);
+    // Redes com mais itens da lista vêm primeiro; o total só desempata cestas iguais.
+    // Ordenar só pelo total elegeria a rede que tem menos itens (cada produto tem
+    // preço apenas na rede onde foi coletado). Mesma regra do ComparadorService.
+    .sort((a, b) => a.missing.length - b.missing.length || a.total - b.total);
 }
 
 export default function ShoppingListPage() {
+  // useContext direto (e não useAuth) para a página funcionar também fora de um AuthProvider.
+  const auth = useContext(AuthContext);
+  const usarDemonstracao = !auth?.isAuthenticated;
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [markets, setMarkets] = useState(DEFAULT_MARKETS);
-  const [list, setList] = useState(getStoredList);
+  const [list, setList] = useState(() => getStoredList(usarDemonstracao));
   const [compared, setCompared] = useState(true);
   const [chartMode, setChartMode] = useState("total"); // 'total' | 'diferenca'
   const [selectedMarketId, setSelectedMarketId] = useState(null);
@@ -239,9 +253,12 @@ export default function ShoppingListPage() {
   const winnerMarket = winner
     ? markets.find((m) => m.id === winner.marketId)
     : null;
+  // Economia só faz sentido entre redes com a lista inteira (mesma cesta).
+  const completos = results.filter((r) => r.missing.length === 0);
+  const winnerCompleto = Boolean(winner) && winner.missing.length === 0;
   const savings =
-    results.length >= 2
-      ? results[results.length - 1].total - results[0].total
+    winnerCompleto && completos.length >= 2
+      ? completos[completos.length - 1].total - completos[0].total
       : 0;
 
   return (
@@ -257,8 +274,8 @@ export default function ShoppingListPage() {
       {/* Header Principal da Página */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="min-w-0 text-2xl md:text-3xl font-extrabold text-brand-navy tracking-tight">
               Minha Lista de Compras
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-brand-green">
@@ -270,7 +287,7 @@ export default function ShoppingListPage() {
             supermercados.
           </p>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
           {items.length > 0 && (
             <button
               onClick={clear}
@@ -394,15 +411,15 @@ export default function ShoppingListPage() {
                 return (
                   <div
                     key={product.id}
-                    className="group flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-7 p-5 sm:p-7 hover:bg-emerald-50/25 transition-colors"
+                    className="group flex flex-col justify-between gap-4 p-5 sm:p-7 hover:bg-emerald-50/25 transition-colors"
                   >
                     {/* Bloco Esquerdo: Imagem Grande + Informações do Produto */}
                     <div
                       onClick={() => setSelectedProductDetail(product)}
-                      className="flex items-center gap-5 sm:gap-6 flex-1 min-w-0 cursor-pointer"
+                      className="flex items-center gap-3 sm:gap-6 flex-1 min-w-0 cursor-pointer"
                       title="Ver foto e detalhes do produto"
                     >
-                      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-brand-border/80 flex items-center justify-center text-4xl shrink-0 overflow-hidden p-3 shadow-xs group-hover:bg-white group-hover:border-brand-green/50 transition-all">
+                      <div className="w-[4.5rem] h-[4.5rem] sm:w-32 sm:h-32 rounded-2xl bg-slate-50 border border-brand-border/80 flex items-center justify-center text-3xl sm:text-4xl shrink-0 overflow-hidden p-2 sm:p-3 shadow-xs group-hover:bg-white group-hover:border-brand-green/50 transition-all">
                         {imgSrc ? (
                           <ProductImage
                             src={imgSrc}
@@ -453,7 +470,7 @@ export default function ShoppingListPage() {
                     </div>
 
                     {/* Bloco Direito: Subtotal + Controle de Quantidade Ampliado */}
-                    <div className="flex items-center justify-between md:justify-end gap-5 sm:gap-7 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 shrink-0">
+                    <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 pt-3 border-t border-slate-100 min-w-0">
                       {subtotal !== null && (
                         <div className="text-left md:text-right">
                           <span className="block text-xs font-bold uppercase tracking-wider text-brand-muted">
@@ -514,7 +531,9 @@ export default function ShoppingListPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-extrabold text-emerald-300 uppercase tracking-wider">
-                        🏆 Onde sua compra sai mais barata
+                        {winnerCompleto
+                          ? "🏆 Onde sua compra sai mais barata"
+                          : "🏆 Rede com mais itens da sua lista"}
                       </span>
                       <h3 className="mt-3 text-2xl sm:text-3xl font-black tracking-tight text-white">
                         {winnerMarket.name}
@@ -522,6 +541,11 @@ export default function ShoppingListPage() {
                       <p className="text-xs text-white/70 mt-0.5">
                         {winner.available} de {items.length} produtos disponíveis
                       </p>
+                      {!winnerCompleto && (
+                        <p className="text-xs font-semibold text-amber-300 mt-1">
+                          {winner.missing.length} produto(s) sem preço nesta rede
+                        </p>
+                      )}
                     </div>
 
                     {MARKET_LOGOS[winnerMarket.id] && (
@@ -631,6 +655,9 @@ export default function ShoppingListPage() {
                       const diffPct = minTotal > 0 ? (diff / minTotal) * 100 : 0;
                       const isWinner = i === 0;
                       const isWorst = i === results.length - 1 && results.length > 2;
+                      // "+R$ mais caro" só entre redes com a lista inteira (mesma cesta).
+                      const comparavel = winnerCompleto && r.missing.length === 0;
+                      const rotuloCobertura = `${r.available} de ${r.available + r.missing.length} itens com preço nesta rede`;
                       const isSelected = selectedMarketId === r.marketId;
 
                       // Largura da barra animada (escala visual clara)
@@ -700,9 +727,13 @@ export default function ShoppingListPage() {
                                 <span className="text-xs sm:text-sm font-extrabold text-brand-navy block truncate">
                                   {m.name}
                                 </span>
-                                {isWinner ? (
+                                {isWinner && winnerCompleto ? (
                                   <span className="text-[10px] font-extrabold text-emerald-700">
                                     ★ Melhor escolha para o seu bolso
+                                  </span>
+                                ) : !comparavel ? (
+                                  <span className="text-[10px] font-semibold text-amber-700">
+                                    {rotuloCobertura}
                                   </span>
                                 ) : (
                                   <span className="text-[10px] font-semibold text-rose-600">
@@ -742,7 +773,9 @@ export default function ShoppingListPage() {
                             >
                               {chartMode === "total"
                                 ? `R$ ${r.total.toFixed(2)}`
-                                : isWinner
+                                : !comparavel
+                                  ? `${r.available} de ${r.available + r.missing.length} itens`
+                                  : isWinner
                                   ? "R$ 0,00 a mais (Mais barato!)"
                                   : `+R$ ${diff.toFixed(2)}`}
                             </div>

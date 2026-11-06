@@ -1,207 +1,105 @@
-import { act, fireEvent, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { fireEvent, render, screen, within } from '@testing-library/react'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './Home'
+import { MARKETS, PRODUCTS } from '../data'
 
+// Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
+jest.mock('../data', () => require('../test/dataFixture'))
+
+// Home.jsx usa useAuth() só para saber se há sessão (isAuthenticated). O mock abaixo representa o
+// visitante, que é o que a Home mostra por padrão (modo "apresentacao"). Função comum, não jest.fn,
+// para não ser zerada por jest.resetAllMocks().
 jest.mock('../hooks/useAuth', () => ({
-  useAuth: () => {
-    throw new Error('sem provider')
-  },
+  useAuth: () => ({
+    isAuthenticated: false,
+    isAdmin: false,
+    isLoading: false,
+    user: null,
+    token: null,
+    login: () => {},
+    register: () => {},
+    logout: () => {},
+  }),
 }))
+
+// Mostra para onde a Home navegou (rota /auth), com a query string completa.
+function DestinoAuth() {
+  const { pathname, search } = useLocation()
+  return <p data-testid="destino">{`${pathname}${search}`}</p>
+}
 
 function renderizar() {
   return render(
-    <MemoryRouter>
-      <Home />
+    <MemoryRouter initialEntries={['/']}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<DestinoAuth />} />
+      </Routes>
     </MemoryRouter>
   )
 }
 
-const campoBuscaDaNavbar = () => screen.getByPlaceholderText('Buscar produtos, marcas ou categorias...')
-const botaoCategoria = (nome) => screen.getByRole('button', { name: nome })
-const contadorDoCarrinho = () => screen.getByRole('button', { name: 'Minha Lista de Compras' })
+const destino = () => new URL(screen.getByTestId('destino').textContent, 'http://localhost')
 
-describe('Home', () => {
-  afterEach(() => {
-    jest.useRealTimers()
-  })
-
-  it('mostra o titulo principal e o usuario de demonstracao na navbar', () => {
+describe('Home (visitante)', () => {
+  it('renderiza a apresentação com o título e a busca que convida ao cadastro', () => {
     renderizar()
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/Economize no mercado/i)
-    expect(screen.getByText('Davi Cardozo')).toBeInTheDocument()
-    expect(screen.getByText('davi@smartmarket.com.br')).toBeInTheDocument()
+    const primeiraDobra = screen.getByRole('region', { name: 'Compare sua lista de compras' })
+    expect(within(primeiraDobra).getByRole('heading', { level: 1 })).toHaveTextContent(/^Sua lista\.\s*O menor\s*preço\.$/)
+    expect(within(primeiraDobra).getByLabelText('Buscar no catálogo')).toHaveValue('')
+    expect(within(primeiraDobra).getByRole('button', { name: 'Criar conta e buscar' })).toBeInTheDocument()
+    expect(within(primeiraDobra).getByText('A busca abre com a sua conta')).toBeInTheDocument()
   })
 
-  it('lista os quatro produtos de demonstracao com precos formatados', () => {
+  it('a busca leva ao cadastro levando o termo digitado', () => {
     renderizar()
 
-    expect(screen.getByText('Arroz Branco Tipo 1 5kg')).toBeInTheDocument()
-    expect(screen.getByText('Feijão Preto Tipo 1 1kg')).toBeInTheDocument()
-    expect(screen.getByText('Leite UHT Integral 1L')).toBeInTheDocument()
-    expect(screen.getByText('Café Torrado e Moído 500g')).toBeInTheDocument()
-    expect(screen.getByText('R$ 26.90')).toBeInTheDocument()
-    expect(screen.getByText('R$ 28.50')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Buscar no catálogo'), { target: { value: '  arroz tio joão  ' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Criar conta e buscar' }))
+
+    const url = destino()
+    expect(url.pathname).toBe('/auth')
+    expect(url.searchParams.get('mode')).toBe('register')
+    expect(url.searchParams.get('intent')).toBe('busca')
+    expect(url.searchParams.get('q')).toBe('arroz tio joão')
   })
 
-  it('indica o mercado mais barato e a economia apenas quando ha diferenca', () => {
+  it('a busca vazia leva ao cadastro sem termo', () => {
     renderizar()
 
-    expect(screen.getAllByText('Mais barato no Fort Atacadista')).toHaveLength(2)
-    expect(screen.getByText('-R$ 1.60')).toBeInTheDocument()
-    expect(screen.getByText('Mais barato no Carrefour')).toBeInTheDocument()
-    expect(screen.getByText('-R$ 0.80')).toBeInTheDocument()
-    expect(screen.queryByText('Mais barato no Empate')).not.toBeInTheDocument()
-    expect(screen.getAllByText(/^Mais barato no/)).toHaveLength(3)
+    fireEvent.click(screen.getByRole('button', { name: 'Criar conta e buscar' }))
+
+    const url = destino()
+    expect(url.searchParams.get('intent')).toBe('busca')
+    expect(url.searchParams.has('q')).toBe(false)
   })
 
-  it('o campo "Nome do Produto" nao esta ligado ao filtro (comportamento atual)', () => {
+  it('os atalhos de busca e os botões da primeira dobra apontam para o cadastro', () => {
+    renderizar()
+    const primeiraDobra = screen.getByRole('region', { name: 'Compare sua lista de compras' })
+
+    expect(within(primeiraDobra).getByRole('link', { name: /Montar a lista/ })).toHaveAttribute(
+      'href',
+      '/auth?mode=register&intent=lista'
+    )
+    expect(within(primeiraDobra).getByRole('link', { name: 'Ver o catálogo' })).toHaveAttribute(
+      'href',
+      '/auth?mode=register&intent=catalogo'
+    )
+
+    fireEvent.click(within(primeiraDobra).getByRole('button', { name: 'Café Melitta' }))
+
+    const url = destino()
+    expect(url.searchParams.get('intent')).toBe('busca')
+    expect(url.searchParams.get('q')).toBe('Café Melitta')
+  })
+
+  it('os contadores mostram quantas redes e quantos produtos há no catálogo', () => {
     renderizar()
 
-    fireEvent.change(screen.getByPlaceholderText('Ex: Arroz Integral 1kg'), { target: { value: 'xyz' } })
-
-    expect(screen.getByText('Arroz Branco Tipo 1 5kg')).toBeInTheDocument()
-    expect(screen.getByText('Leite UHT Integral 1L')).toBeInTheDocument()
-  })
-
-  describe('filtro por categoria', () => {
-    it('mostra apenas os graos', () => {
-      renderizar()
-
-      fireEvent.click(botaoCategoria('graos'))
-
-      expect(screen.getByText('Arroz Branco Tipo 1 5kg')).toBeInTheDocument()
-      expect(screen.getByText('Feijão Preto Tipo 1 1kg')).toBeInTheDocument()
-      expect(screen.queryByText('Leite UHT Integral 1L')).not.toBeInTheDocument()
-      expect(screen.queryByText('Café Torrado e Moído 500g')).not.toBeInTheDocument()
-    })
-
-    it('mostra apenas laticinios e volta a mostrar tudo em "todos"', () => {
-      renderizar()
-
-      fireEvent.click(botaoCategoria('laticinios'))
-      expect(screen.getByText('Leite UHT Integral 1L')).toBeInTheDocument()
-      expect(screen.queryByText('Arroz Branco Tipo 1 5kg')).not.toBeInTheDocument()
-
-      fireEvent.click(botaoCategoria('todos'))
-      expect(screen.getByText('Arroz Branco Tipo 1 5kg')).toBeInTheDocument()
-      expect(screen.getByText('Leite UHT Integral 1L')).toBeInTheDocument()
-    })
-
-    it('mostra apenas mercearia', () => {
-      renderizar()
-
-      fireEvent.click(botaoCategoria('mercearia'))
-
-      expect(screen.getByText('Café Torrado e Moído 500g')).toBeInTheDocument()
-      expect(screen.queryByText('Feijão Preto Tipo 1 1kg')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('busca', () => {
-    it('filtra pelo nome do produto a partir da navbar, sem diferenciar maiusculas', () => {
-      renderizar()
-      const campo = campoBuscaDaNavbar()
-
-      fireEvent.change(campo, { target: { value: 'ARROZ' } })
-      fireEvent.submit(campo.closest('form'))
-
-      expect(screen.getByText('Arroz Branco Tipo 1 5kg')).toBeInTheDocument()
-      expect(screen.queryByText('Feijão Preto Tipo 1 1kg')).not.toBeInTheDocument()
-    })
-
-    it('filtra pela marca no campo de busca especializada', () => {
-      renderizar()
-
-      fireEvent.change(screen.getByPlaceholderText('Pesquisar por categoria...'), { target: { value: 'pilão' } })
-
-      expect(screen.getByText('Café Torrado e Moído 500g')).toBeInTheDocument()
-      expect(screen.queryByText('Arroz Branco Tipo 1 5kg')).not.toBeInTheDocument()
-    })
-
-    it('combina busca e categoria, e nao mostra nada quando nada corresponde', () => {
-      renderizar()
-      fireEvent.change(screen.getByPlaceholderText('Pesquisar por categoria...'), { target: { value: 'arroz' } })
-      fireEvent.click(botaoCategoria('laticinios'))
-
-      expect(screen.queryByText('Arroz Branco Tipo 1 5kg')).not.toBeInTheDocument()
-      expect(screen.queryByText('Leite UHT Integral 1L')).not.toBeInTheDocument()
-    })
-
-    it('limpa a busca pelo botao de limpar', () => {
-      renderizar()
-      const campo = screen.getByPlaceholderText('Pesquisar por categoria...')
-      fireEvent.change(campo, { target: { value: 'arroz' } })
-      expect(screen.queryByText('Leite UHT Integral 1L')).not.toBeInTheDocument()
-
-      fireEvent.click(screen.getByTitle('Limpar campo'))
-
-      expect(screen.getByText('Leite UHT Integral 1L')).toBeInTheDocument()
-    })
-  })
-
-  it('incrementa o contador da lista ao adicionar um produto', () => {
-    renderizar()
-    expect(contadorDoCarrinho()).toHaveTextContent('3')
-
-    fireEvent.click(screen.getAllByRole('button', { name: '+ Adicionar à Lista' })[0])
-    fireEvent.click(screen.getAllByRole('button', { name: '+ Adicionar à Lista' })[1])
-
-    expect(contadorDoCarrinho()).toHaveTextContent('5')
-  })
-
-  it('mostra o estado de carregamento por 2 segundos', () => {
-    jest.useFakeTimers()
-    renderizar()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Testar Estado Loading' }))
-    expect(screen.getByRole('button', { name: 'Carregando...' })).toBeDisabled()
-
-    act(() => {
-      jest.advanceTimersByTime(2000)
-    })
-    expect(screen.getByRole('button', { name: 'Testar Estado Loading' })).toBeEnabled()
-  })
-
-  describe('modal de comparacao', () => {
-    const abrirModal = () => fireEvent.click(screen.getByRole('button', { name: 'Testar Modal de Comparação' }))
-
-    it('abre com o conteudo da comparacao', () => {
-      renderizar()
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-
-      abrirModal()
-
-      expect(screen.getByRole('dialog')).toBeInTheDocument()
-      expect(screen.getByText('Comparação Detalhada de Preço')).toBeInTheDocument()
-      expect(screen.getByLabelText('Definir alerta de preço (R$)')).toBeInTheDocument()
-    })
-
-    it('fecha pelo botao Cancelar', () => {
-      renderizar()
-      abrirModal()
-
-      fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }))
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    })
-
-    it('fecha pelo botao Salvar Alerta', () => {
-      renderizar()
-      abrirModal()
-
-      fireEvent.click(screen.getByRole('button', { name: 'Salvar Alerta' }))
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    })
-
-    it('fecha pelo botao de fechar do modal', () => {
-      renderizar()
-      abrirModal()
-
-      fireEvent.click(screen.getByRole('button', { name: 'Fechar modal' }))
-
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    })
+    const valorDe = (rotulo) => screen.getByText(rotulo).closest('div').querySelector('dd')
+    expect(valorDe('Redes no catálogo')).toHaveTextContent(new RegExp(`^${MARKETS.length}$`))
+    expect(valorDe('Produtos com preço coletado')).toHaveTextContent(new RegExp(`^${PRODUCTS.length}$`))
   })
 })

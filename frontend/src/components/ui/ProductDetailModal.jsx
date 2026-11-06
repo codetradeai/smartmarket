@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import { ProductImage } from "./ProductImage"
 import { Button } from "./Button"
 import { ProductViewer360 } from "./ProductViewer360"
+import { CestaDemoPrecos } from "./CestaDemoPrecos"
 import { getRelatedProducts } from "../../utils/relatedProducts"
 
 /**
@@ -761,6 +762,9 @@ export function ProductDetailModal({
                 ))}
               </div>
             </div>
+
+            {/* Cesta de demonstração: preços reais por rede, com data da coleta (cesta-demo.json) */}
+            <CestaDemoPrecos produtoId={currentProduct.id} markets={markets} />
 
             {/* SEÇÃO INFORMAÇÕES DO PRODUTO (Dobra de Baixo - Idêntico à Foto 2) */}
             {currentProduct.descricao && (

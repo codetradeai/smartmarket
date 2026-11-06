@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -25,14 +26,16 @@ public class PromocaoService {
 
     @Transactional(readOnly = true)
     public List<PromocaoResponse> listar() {
+        // Quem termina antes aparece primeiro; promoção sem data de fim (validade desconhecida) fica por último.
         return promocaoRepository.findAll().stream()
+            .sorted(Comparator.comparing(Promocao::getDataFim, Comparator.nullsLast(Comparator.naturalOrder())))
             .map(PromocaoResponse::from)
             .toList();
     }
 
     @Transactional
     public PromocaoResponse criar(PromocaoRequest request) {
-        if (request.getDataInicio().isAfter(request.getDataFim())) {
+        if (request.getDataFim() != null && request.getDataInicio().isAfter(request.getDataFim())) {
             throw new IllegalArgumentException(
                 "A data de inicio nao pode ser posterior a data de fim.");
         }

@@ -85,7 +85,7 @@ INSERT INTO preco (
     produto_id, mercado_id, valor, coletado_em, origem, nome_bruto, disponivel, created_at
 )
 SELECT
-    p.id, m.id, s.valor, s.coletado_em, s.origem, s.nome_bruto, s.disponivel, s.coletado_em
+    p.id, m.id, s.valor, s.coletado_em, s.origem, s.nome_produto, s.disponivel, s.coletado_em
 FROM (VALUES
     ('Arroz Branco Tio Urbano Tipo 1 com 1kg', 'Fort Atacadista', 4.96, TIMESTAMP '2026-08-24 19:06:25', 'seed-historico', TRUE),
     ('Arroz Branco Tio Urbano Tipo 1 com 1kg', 'Fort Atacadista', 4.79, TIMESTAMP '2026-09-07 19:06:25', 'coleta-fort', TRUE),

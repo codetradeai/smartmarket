@@ -282,7 +282,7 @@ export function SearchSuggest({
           }}
         >
           <label htmlFor={id} className="sr-only">Buscar no catálogo</label>
-          <div className="flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)]">
+          <div className="flex flex-col gap-2 rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.65)] xl:flex-row xl:items-center">
             <input
               id={id}
               name="q"
@@ -293,7 +293,7 @@ export function SearchSuggest({
               onChange={(event) => escrever(event.target.value)}
               onFocus={() => setActive(true)}
               placeholder={placeholder}
-              className="sm-search-input min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
+              className="sm-search-input min-w-0 w-full flex-1 bg-transparent px-3 py-2.5 text-sm font-medium text-brand-navy placeholder:text-brand-muted focus:outline-none"
             />
             {value && (
               <button
@@ -305,7 +305,7 @@ export function SearchSuggest({
                 ✕
               </button>
             )}
-            <button type="submit" className="sm-cta shrink-0">
+            <button type="submit" className="sm-cta w-full justify-center xl:w-auto shrink-0">
               Buscar
             </button>
           </div>

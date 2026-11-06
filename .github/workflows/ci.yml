@@ -28,11 +28,14 @@ jobs:
 
       - name: Run Backend Compilation and Tests
         working-directory: ./backend
+        env:
+          SMARTMARKET_JWT_SECRET: test-secret-somente-para-ci-nao-usar-em-producao-xx
         run: ./mvnw clean test -B
 
   frontend-test:
     name: Frontend Tests & Production Build (React / Vite)
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Repository
@@ -49,7 +52,8 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: Run Vitest Unit Tests
+      - name: Run Frontend Unit Tests (Jest)
+        timeout-minutes: 15
         working-directory: ./frontend
         run: npm test
 

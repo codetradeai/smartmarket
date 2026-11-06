@@ -13,10 +13,11 @@ from test_normalizacao_pipeline import registro
 from vinculos import gravar_vinculos
 
 BOMBRIL = "7891022868036"
+DETERGENTE = "7896098900208"
 
 
-def reg(rede_id, nome, ean, **kw):
-    return registro(id_produto_origem=rede_id, nome_bruto=nome, marca="Bombril", codigo_barras=ean, **kw)
+def reg(rede_id, nome, ean, marca="Bombril", **kw):
+    return registro(id_produto_origem=rede_id, nome_bruto=nome, marca=marca, codigo_barras=ean, **kw)
 
 
 class VinculosPostgresTest(unittest.TestCase):
@@ -38,9 +39,12 @@ class VinculosPostgresTest(unittest.TestCase):
     def _montar(self):
         u = self.uid
         dados = {
-            "atacadao": [reg("A1" + u, "Lã de Aço Bombril 45g", BOMBRIL)],
+            "atacadao": [reg("A1" + u, "Lã de Aço Bombril 45g", BOMBRIL),
+                         reg("A2" + u, "Detergente Neutro Ypê 500ml", DETERGENTE, marca="Ypê")],
             "master": [reg("M1" + u, "Esponja Aço Bombril Eco Com 6 Unidade", BOMBRIL)],
-            "stok": [reg("S1" + u, "Esponja Bombril Aço Eco 45g Com 6 Unidades", BOMBRIL)],
+            "stok": [reg("S1" + u, "Esponja Bombril Aço Eco 45g Com 6 Unidades", BOMBRIL),
+                     # Medida (500ml) e embalagem iguais nos dois lados → par "confirmado".
+                     reg("S2" + u, "Detergente Ypê Neutro 500ml", DETERGENTE, marca="Ypê")],
         }
         for rede, rows in dados.items():
             self.carregar_rede(rede, rows, f"vinc_{rede}_{u}")
@@ -54,24 +58,26 @@ class VinculosPostgresTest(unittest.TestCase):
     def test_grava_pares_com_origem_e_status(self):
         res = self._montar()
         resumo = gravar_vinculos(res["pares"], dsn=self.dsn)
-        self.assertEqual(resumo["inseridos"], 3)
+        self.assertEqual(resumo["inseridos"], 4)
         # Master ("6 Unidade") não tem medida em g/ml → medida_ausente (revisar);
-        # Atacadão(45g) × Stok(45g, 6 un) → embalagem_diferente (revisar).
+        # Atacadão(45g) × Stok(45g, 6 un) → embalagem_diferente (revisar);
+        # Detergente 500ml × 500ml, mesma embalagem → confirmado (sem motivo).
         self.assertEqual(resumo["revisar"], 3)
         linhas = self.linhas()
-        self.assertEqual(len(linhas), 3)
+        self.assertEqual(len(linhas), 4)
         self.assertTrue(all(a < b for a, b, *_ in linhas))
         self.assertEqual({l[2] for l in linhas}, {"ean"})
-        self.assertEqual(sorted(l[3] for l in linhas), ["revisar", "revisar", "revisar"])
-        self.assertEqual(sorted(l[4] for l in linhas),
-                         ["embalagem_diferente", "medida_ausente", "medida_ausente"])
+        self.assertEqual(sorted(l[3] for l in linhas), ["confirmado", "revisar", "revisar", "revisar"])
+        self.assertEqual(sorted((l[4] or "") for l in linhas),
+                         ["", "embalagem_diferente", "medida_ausente", "medida_ausente"])
+        self.assertEqual([l[4] for l in linhas if l[3] == "confirmado"], [None])
 
     def test_regravar_e_idempotente(self):
         res = self._montar()
         gravar_vinculos(res["pares"], dsn=self.dsn)
         resumo = gravar_vinculos(res["pares"], dsn=self.dsn)
-        self.assertEqual((resumo["inseridos"], resumo["atualizados"]), (0, 3))
-        self.assertEqual(len(self.linhas()), 3)
+        self.assertEqual((resumo["inseridos"], resumo["atualizados"]), (0, 4))
+        self.assertEqual(len(self.linhas()), 4)
 
     def test_vinculo_ean_nao_e_rebaixado_para_nome(self):
         res = self._montar()

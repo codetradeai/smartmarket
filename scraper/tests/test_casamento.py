@@ -1,10 +1,12 @@
 import sys
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from casamento import casar, chave_nome_identica, embalagens_compativeis
+from casamento import assinatura_embalagem, casar, chave_nome_identica, embalagens_compativeis
+from normalizacao import MEDIDA
 
 
 def reg(id_, nome, marca="Camil", ean=None, **kw):
@@ -176,6 +178,46 @@ class EmbalagemDivergenteTest(unittest.TestCase):
         res = casar({"a": [reg("1", "Arroz Branco Camil 1kg", ean="7896011906881")],
                      "b": [reg("2", "Arroz Branco Camil 1kg")]})
         self.assertEqual(res["pares"][0]["origem"], "nome")
+
+
+class MedidaAbreviadaEMultipackTest(unittest.TestCase):
+    """Nomes reais da cesta (cesta_20261104T013717Z.json) que o extrator de medida deixava passar."""
+
+    def test_ponto_de_abreviacao_antes_da_medida(self):
+        self.assertEqual(MEDIDA.findall("oleo coco sococo ext.virg.200ml"), [("200", "ml")])
+        self.assertEqual(
+            embalagens_compativeis("Óleo Côco Sococo Ext.virg.200ml", "Óleo de Coco Sococo Extra virgem 200ml"),
+            (True, None))
+        self.assertEqual(
+            embalagens_compativeis("Óleo Côco Qualicoco Ext.virg.200ml", "Óleo De Coco Qualicoco Extra Virgem 200ml"),
+            (True, None))
+
+    def test_multipack_NxMEDIDA_vira_unidades_de_medida(self):
+        self.assertEqual(MEDIDA.findall("sabao barra ype aloe vera 5x180g"), [("180", "g")])
+        medidas, pack = assinatura_embalagem("Sabão Barra Ypê Aloe Vera 5x180g")
+        self.assertEqual({(Decimal(v), u) for v, u in medidas}, {(Decimal(180), "g")})
+        self.assertEqual(pack, 5)
+
+    def test_sabao_180g_contra_160g_e_quantidade_diferente(self):
+        self.assertEqual(
+            embalagens_compativeis("Sabão Barra Ypê Aloe Vera 5x180g",
+                                   "Sabão Em Barra Ypê Glicerinado Aloe Vera Com 5 Unidades De 160g"),
+            (False, "quantidade_diferente"))
+        self.assertEqual(
+            embalagens_compativeis("Sabão Barra Ypê Neutro 5x180g",
+                                   "Sabão Em Barra Ypê Glicerinado Neutro Original Com 5 Unidades De 160g"),
+            (False, "quantidade_diferente"))
+
+    def test_decimais_nao_viram_inteiros(self):
+        for texto, esperado in (("suco 1.5l", ("1.5", "l")), ("suco 1,5l", ("1,5", "l")),
+                                ("arroz 2,5kg", ("2,5", "kg")), ("pack 6x1,5l", ("1,5", "l"))):
+            with self.subTest(texto=texto):
+                self.assertEqual(MEDIDA.findall(texto), [esperado])
+
+    def test_decimais_equivalentes_casam_e_diferentes_nao(self):
+        self.assertEqual(embalagens_compativeis("Suco 1.5L", "Suco 1,5L"), (True, None))
+        self.assertEqual(embalagens_compativeis("Arroz 2,5kg", "Arroz 5kg"), (False, "quantidade_diferente"))
+        self.assertEqual(embalagens_compativeis("Suco 1.5L", "Suco 5L"), (False, "quantidade_diferente"))
 
 
 if __name__ == "__main__":

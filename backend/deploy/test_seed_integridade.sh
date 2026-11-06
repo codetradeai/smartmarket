@@ -224,6 +224,24 @@ else
     echo "   OK: mutação produziu $DIV_MUT divergências (bug detectado corretamente)."
 fi
 
+# ----------------------------------------------------------------
+echo ""
+echo "=== [5] NOT NULL: nome de mercado errado deve causar falha ==="
+# Subselect com nome inexistente retorna NULL; NOT NULL em preco.mercado_id deve rejeitar
+set +e
+run_sql "$DB_A" -c "
+  INSERT INTO preco (produto_id, mercado_id, valor, coletado_em, origem, nome_bruto, disponivel)
+  VALUES (1, (SELECT id FROM mercado WHERE nome = 'Mercado Inexistente XYZ'), 9.99, CURRENT_DATE, 'teste_null', 'Produto Teste Null', TRUE);" > /dev/null 2>&1
+INSERT_RC=$?
+set -e
+
+if [ "$INSERT_RC" -eq 0 ]; then
+    echo "   FALHA: INSERT com mercado inexistente deveria ter falhado (NOT NULL violado), mas foi aceito."
+    FAIL=1
+else
+    echo "   OK: INSERT com mercado inexistente rejeitado corretamente (NOT NULL em mercado_id)."
+fi
+
 echo ""
 if [ "$FAIL" -eq 0 ]; then
     echo "=== TODOS OS TESTES PASSARAM ==="

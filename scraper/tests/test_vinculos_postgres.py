@@ -55,13 +55,16 @@ class VinculosPostgresTest(unittest.TestCase):
         res = self._montar()
         resumo = gravar_vinculos(res["pares"], dsn=self.dsn)
         self.assertEqual(resumo["inseridos"], 3)
-        self.assertEqual(resumo["revisar"], 2)
+        # Master ("6 Unidade") não tem medida em g/ml → medida_ausente (revisar);
+        # Atacadão(45g) × Stok(45g, 6 un) → embalagem_diferente (revisar).
+        self.assertEqual(resumo["revisar"], 3)
         linhas = self.linhas()
         self.assertEqual(len(linhas), 3)
         self.assertTrue(all(a < b for a, b, *_ in linhas))
         self.assertEqual({l[2] for l in linhas}, {"ean"})
-        self.assertEqual(sorted(l[3] for l in linhas), ["confirmado", "revisar", "revisar"])
-        self.assertEqual({l[4] for l in linhas if l[3] == "revisar"}, {"embalagem_diferente"})
+        self.assertEqual(sorted(l[3] for l in linhas), ["revisar", "revisar", "revisar"])
+        self.assertEqual(sorted(l[4] for l in linhas),
+                         ["embalagem_diferente", "medida_ausente", "medida_ausente"])
 
     def test_regravar_e_idempotente(self):
         res = self._montar()

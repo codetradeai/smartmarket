@@ -46,11 +46,15 @@
    > exige que a coluna `ativa BOOLEAN NOT NULL DEFAULT TRUE` já exista em `promocao`; sem ela,
    > o backend recusa inicializar. O script é idempotente (`ADD COLUMN IF NOT EXISTS`).
    >
-   > **Quem chama `inativarNaoRecoletadas`**: o método `PromocaoService.inativarNaoRecoletadas`
-   > existe e está testado, mas ainda não possui chamador em produção. O ponto previsto é o
-   > `rotina_carga.py` após cada ciclo bem-sucedido de uma rede (via chamada REST ao backend ou
-   > chamada direta ao banco), passando o `mercado_id` e o `inicio_coleta` do ciclo. Enquanto não
-   > for plugado, promoções sem `data_fim` só serão inativadas manualmente pelo SQL abaixo:
+   > **A inativação automática de promoções AINDA NÃO TEM CHAMADOR.**
+   > `PromocaoService.inativarNaoRecoletadas` e a query do repositório existem e têm teste
+   > unitário, mas nenhuma rotina as invoca: nem o `rotina_carga.py`, nem o backend
+   > (não há `@Scheduled`, controller ou endpoint que as use). O scraper também não consegue
+   > chamá-las hoje, porque grava direto no PostgreSQL e o backend não expõe esse método via REST.
+   > Consequência: `ativa` permanece `TRUE` em todas as promoções, e o comportamento em produção
+   > é idêntico ao anterior a este PR. O chamador (que informará `mercado_id` e o início da
+   > coleta) será feito em uma próxima entrega. Enquanto isso, a inativação só ocorre
+   > manualmente pelo SQL abaixo:
    > ```sql
    > UPDATE promocao SET ativa = FALSE
    > WHERE mercado_id = <id> AND data_fim IS NULL AND coletado_em < '<inicio_coleta>';

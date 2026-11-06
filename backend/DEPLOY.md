@@ -26,7 +26,10 @@
    Ou copie e cole o conteúdo de cada arquivo diretamente.
 
    > `03_carga.sql` é idempotente: pode ser re-executado sem duplicar dados
-   > (usa sentinel `coletado_em = '2024-01-01 12:00:00'`).
+   > (sentinel: `DELETE FROM preco WHERE origem LIKE 'seed_%'`; não depende de data).
+   > O campo `coletado_em` reflete a data real de coleta por rede, lida do campo
+   > `data_coleta` dos arquivos `scraper/output/coleta_<rede>.json` (outubro/2026);
+   > **não** é a data de execução deste script.
    > Pule este passo se preferir que os dados venham apenas do scraper.
 
 5. Confirme as contagens após os scripts:

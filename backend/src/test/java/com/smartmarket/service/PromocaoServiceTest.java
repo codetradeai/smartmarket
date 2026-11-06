@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,6 +101,16 @@ class PromocaoServiceTest {
             .mercado(Mercado.builder().id(5L).nome("Fort").build())
             .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("8"))
             .dataInicio(inicio).dataFim(fim).build();
+    }
+
+    @Test void inativarNaoRecoletadas_DelegaAoRepositorioERetornaContagem() {
+        var inicio = LocalDateTime.of(2026, 11, 6, 4, 0);
+        when(promocoes.inativarNaoRecoletadas(5L, inicio)).thenReturn(3);
+
+        int resultado = service.inativarNaoRecoletadas(5L, inicio);
+
+        assertThat(resultado).isEqualTo(3);
+        verify(promocoes).inativarNaoRecoletadas(5L, inicio);
     }
 
     @Test void criar_ValidaEntidadesESalvaValores() {

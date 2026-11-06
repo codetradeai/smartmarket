@@ -250,7 +250,7 @@
     "cesta_demonstracao": {
       "status": "na main (PR #54 mergeado em 05/11/2026)",
       "arquivo": "frontend/src/data/cesta-demo.json (gerado por scraper/gerar_cesta_demo.py)",
-      "produtos": 77,
+      "produtos": 44,
       "redes": [
         "Master",
         "Stok"
@@ -1325,7 +1325,7 @@
       "arquivo": "frontend/src/pages/"
     },
     {
-      "titulo": "Cesta de demonstração no detalhe do produto (77 produtos, Master e Stok, foto de 03/11/2026)",
+      "titulo": "Cesta de demonstração no detalhe do produto (44 produtos distintos, Master e Stok, foto de 03/11/2026)",
       "pr": "#54",
       "commit": "7230016",
       "arquivo": "frontend/src/data/cesta-demo.json"

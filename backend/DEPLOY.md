@@ -16,7 +16,7 @@
 4. **Obrigatório antes de carregar o Neon**: rode o teste de integridade contra
    o Postgres local para garantir que os scripts estão corretos:
    ```bash
-   DOCKER_CONTAINER=smartmarket-db bash backend/deploy/test_seed_integridade.sh
+   DOCKER_CONTAINER=smartmarket-db-dev bash backend/deploy/test_seed_integridade.sh
    ```
    Todos os 5 testes devem passar. O checksum MD5 esperado dos 530 pares
    (produto_id | rede | valor) é:

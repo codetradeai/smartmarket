@@ -36,7 +36,8 @@ public class PrecoService {
         Produto produto = produtoRepository.findById(produtoId)
             .orElseThrow(() -> new ResourceNotFoundException("Produto", produtoId));
 
-        List<Preco> precos = precoRepository.findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(produtoId);
+        List<Preco> precos = PrecosVigentes.descartandoParesIndisponiveis(
+            precoRepository.findByProdutoIdOrderByColetadoEmDescIdDesc(produtoId));
 
         Map<Long, BigDecimal> precosMap = new HashMap<>();
         List<PrecoResponse> detalhados = precos.stream()
@@ -77,7 +78,8 @@ public class PrecoService {
     @Transactional(readOnly = true)
     public List<ProdutoComPrecosResponse> buscarTodosComPrecos() {
         List<Produto> produtos = produtoRepository.findAll();
-        List<Preco> todosPrecos = precoRepository.findByDisponivelTrueOrderByColetadoEmDescIdDesc();
+        List<Preco> todosPrecos = PrecosVigentes.descartandoParesIndisponiveis(
+            precoRepository.findAllByOrderByColetadoEmDescIdDesc());
 
         java.time.LocalDate hoje = java.time.LocalDate.now();
         List<com.smartmarket.model.Promocao> promocoes = promocaoRepository

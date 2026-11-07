@@ -3,14 +3,14 @@
 # =========================================================
 
 # Estagio 1: Compilacao da aplicacao React
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Copia manifestos de dependencias
 COPY package*.json ./
 
 # Instalacao limpa e reprodutivel das dependencias
-RUN npm ci || npm install
+RUN npm ci
 
 # Copia todo o codigo-fonte
 COPY . .

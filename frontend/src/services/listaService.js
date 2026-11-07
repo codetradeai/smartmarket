@@ -59,10 +59,10 @@ export const listaService = {
   },
 
   /**
-   * Remove um item da lista
+   * Remove um item da lista (itemId e o id do ItemLista, nao o do produto)
    */
-  async removerItem(listaId, produtoId) {
-    const response = await api.delete(`/listas/${listaId}/itens/${produtoId}`)
+  async removerItem(listaId, itemId) {
+    const response = await api.delete(`/listas/${listaId}/itens/${itemId}`)
     return response.data
   },
 
@@ -77,7 +77,7 @@ export const listaService = {
    * Executa a comparação de cestas entre os mercados no servidor
    */
   async compararCesta(listaId) {
-    const response = await api.get(`/listas/${listaId}/comparar`)
+    const response = await api.get(`/listas/${listaId}/comparacao`)
     return response.data
   },
 }

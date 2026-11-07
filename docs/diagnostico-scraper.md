@@ -21,7 +21,7 @@
 1. Dois coletores estão quebrados na prática. Master e Stok terminam com exit 1 porque o `CAMPOS` do CSV não tem `is_clube`/`clube_nome`.
 2. O Carrefour grava nomes com mojibake (`CafÃ© em PÃ³`). O `requests` decodifica o HTML como ISO-8859-1.
 3. **Só Asun e Fort têm preço real no catálogo do frontend.** Os outros 6 preços de cada produto são o preço real multiplicado por um fator fixo (seção 7).
-4. Zaffari e Rissul expõem `Disallow: /api` no robots.txt, e os dois coletores usam exatamente `/api/catalog_system/...`.
+4. Zaffari e Rissul expõem `Disallow: /api` no robots.txt, e os dois coletores usam exatamente `/api/catalog_system/...`. **Atualização:** as duas redes estão suspensas em `scraper/rotina_carga.py` (`REDES_SUSPENSAS`); os módulos seguem no repositório e, para reativar, basta remover a rede desse dicionário após autorização da rede.
 5. Nenhum coletor captura imagens adicionais. Fort e Carrefour nem a imagem principal.
 6. `sincronizar_catalogo_completo.py` usa `ThreadPoolExecutor(max_workers=8)` sem pausa, o que contraria o intervalo seguro (seção 6).
 

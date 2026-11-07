@@ -103,6 +103,21 @@ describe('api (axios)', () => {
       expect(consoleErro).not.toHaveBeenCalled()
     })
 
+    it('em erro 403 mantem a sessao, nao redireciona e anexa mensagem de permissao', async () => {
+      window.history.pushState({}, '', '/admin')
+      localStorage.setItem('sm_token', 'abc123')
+      localStorage.setItem('sm_user', '{"nome":"Ana"}')
+      const consoleErro = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const erro = { response: { status: 403 } }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(erro.userMessage).toBe('Você não tem permissão para acessar este recurso.')
+      expect(localStorage.getItem('sm_token')).toBe('abc123')
+      expect(localStorage.getItem('sm_user')).toBe('{"nome":"Ana"}')
+      expect(consoleErro).not.toHaveBeenCalled()
+    })
+
     it('em outros erros mantem a sessao e rejeita o erro', async () => {
       localStorage.setItem('sm_token', 'abc123')
       const erro = { response: { status: 500 } }

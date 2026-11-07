@@ -1,0 +1,14 @@
+# Arquivos que NÃO precisam ir no upload de um deploy feito pela CLI (vercel deploy).
+# Observação: com a integração Git da Vercel o repositório é clonado e este arquivo não filtra nada;
+# lá o controle é o ignoreCommand do vercel.json. Não ignore frontend/src nem frontend/public:
+# o build precisa deles (o catálogo data.js e as imagens).
+backend/
+scraper/
+docs/
+scripts/
+realtime-demo/
+.github/
+.claude/
+.vscode/
+frontend/templates/
+frontend/logo/

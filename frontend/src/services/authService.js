@@ -1,34 +1,53 @@
 import api from "./api"
 
-// Usuários mock para fallback caso o backend Spring Boot esteja offline
+// Modo demo: so existe se habilitado explicitamente no build (VITE_ENABLE_DEMO_LOGIN=true).
+// Por padrao fica desligado; sem ele, falha de rede vira mensagem de erro, nunca sessao falsa.
+function demoHabilitado() {
+  return import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true"
+}
+
+export const MSG_SEM_SERVIDOR =
+  "Não foi possível falar com o servidor. Verifique sua conexão e tente novamente em instantes."
+
+function semRespostaDoServidor(error) {
+  return !error.response || error.code === "ERR_NETWORK" || error.code === "ECONNREFUSED"
+}
+
+// Converte falha de rede em erro com mensagem clara em PT-BR (lida pelo AuthContext)
+function erroSemServidor(error) {
+  error.userMessage = MSG_SEM_SERVIDOR
+  return error
+}
+
+// Usuários mock (somente quando o modo demo estiver habilitado)
 const DEMO_USERS = [
   {
     id: 1,
     nome: "Davi Souza",
     email: "davi@smartmarket.com.br",
     papel: "ADMIN",
-    senha: "admin",
+    senha: "admin123",
   },
   {
     id: 2,
     nome: "Gilbert Lima",
     email: "gilbert@smartmarket.com.br",
     papel: "ADMIN",
-    senha: "admin",
+    senha: "admin123",
   },
   {
     id: 3,
     nome: "Rudinei Silva",
     email: "rudinei@smartmarket.com.br",
     papel: "ADMIN",
-    senha: "admin",
+    senha: "admin123",
   },
   {
     id: 4,
     nome: "Maria Santos",
     email: "maria@email.com",
     papel: "USER",
-    senha: "user",
+    senha: "user123",
   },
 ]
 
@@ -56,10 +75,12 @@ export const authService = {
       const response = await api.post("/auth/login", { email, senha })
       return response.data
     } catch (error) {
-      // Se for erro de conexão (backend offline), utiliza a autenticação demo
-      if (!error.response || error.code === "ERR_NETWORK" || error.code === "ECONNREFUSED") {
+      if (!semRespostaDoServidor(error)) throw error
+
+      // Modo demo (opt-in): so aceita usuarios conhecidos com a senha correta
+      if (demoHabilitado()) {
         const foundUser = DEMO_USERS.find(
-          (u) => u.email.toLowerCase() === email.toLowerCase()
+          (u) => u.email.toLowerCase() === String(email).toLowerCase() && u.senha === senha
         )
         if (foundUser) {
           return {
@@ -72,25 +93,8 @@ export const authService = {
             isDemo: true,
           }
         }
-        // Se não encontrar, cria um usuário demo padrão com base no email
-        const isDemoAdmin = email.toLowerCase().includes("admin") || email.toLowerCase().includes("davi")
-        const dynamicUser = {
-          id: Date.now(),
-          nome: email.split("@")[0].replace(".", " "),
-          email,
-          papel: isDemoAdmin ? "ADMIN" : "USER",
-        }
-        return {
-          token: generateDemoToken(dynamicUser),
-          tipo: "Bearer",
-          id: dynamicUser.id,
-          nome: dynamicUser.nome,
-          email: dynamicUser.email,
-          papel: dynamicUser.papel,
-          isDemo: true,
-        }
       }
-      throw error
+      throw erroSemServidor(error)
     }
   },
 
@@ -102,8 +106,9 @@ export const authService = {
       const response = await api.post("/auth/register", { nome, email, senha })
       return response.data
     } catch (error) {
-      // Fallback demo caso backend esteja offline
-      if (!error.response || error.code === "ERR_NETWORK" || error.code === "ECONNREFUSED") {
+      if (!semRespostaDoServidor(error)) throw error
+
+      if (demoHabilitado()) {
         const newUser = {
           id: Date.now(),
           nome,
@@ -120,7 +125,7 @@ export const authService = {
           isDemo: true,
         }
       }
-      throw error
+      throw erroSemServidor(error)
     }
   },
 

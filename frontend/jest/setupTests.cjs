@@ -4,6 +4,11 @@ const { TextEncoder, TextDecoder } = require('util')
 global.TextEncoder = TextEncoder
 global.TextDecoder = TextDecoder
 
+// Mock @vercel/analytics
+jest.mock('@vercel/analytics/react', () => ({
+  Analytics: () => null,
+}))
+
 // jsdom não implementa window.matchMedia. Este stub simula um navegador de desktop sem
 // preferências especiais (nenhuma media query casa) e suporta tanto addEventListener quanto
 // o addListener legado. É uma função comum (não jest.fn) para sobreviver a jest.resetAllMocks().

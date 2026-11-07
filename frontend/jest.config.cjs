@@ -8,6 +8,9 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx)$': ['babel-jest', { configFile: './babel.config.cjs' }],
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(@vercel/analytics)/)',
+  ],
   testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx}',

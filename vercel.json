@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "ignoreCommand": "if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 1; fi; git diff --quiet HEAD^ HEAD -- frontend vercel.json",
   "services": {
     "frontend": {
       "root": "frontend",
@@ -13,7 +14,9 @@
     },
     {
       "source": "/(.*)",
-      "destination": { "service": "frontend" }
+      "destination": {
+        "service": "frontend"
+      }
     }
   ]
 }

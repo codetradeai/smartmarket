@@ -4,6 +4,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(png|jpg|jpeg|gif|svg|webp)$': '<rootDir>/jest/mocks/fileMock.js',
+    '@vercel/speed-insights/react': '<rootDir>/jest/mocks/speedInsightsMock.js',
   },
   transform: {
     '^.+\\.(js|jsx)$': ['babel-jest', { configFile: './babel.config.cjs' }],

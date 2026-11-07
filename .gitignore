@@ -152,6 +152,7 @@ node_modules/
 output/
 
 frontend/templates/**/*.zip
+.neon
 docs/auditoria-interna.md
 .claude/settings.local.json
 graphify-out/

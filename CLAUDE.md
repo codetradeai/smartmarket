@@ -78,3 +78,4 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 ## Convenções
 - Branches: `feature/nome-da-tarefa` a partir de `main`; PR com revisão antes do merge (template em `.github/pull_request_template.md`).
 - `login/`, `output/` e `frontend/templates/` não são código da aplicação (artefatos/protótipos).
+- Comentários de bots nas PRs (ECC Tools, Vercel): veja `docs/COMENTARIOS-DE-BOTS.md` para saber quais olhar e quais ignorar.

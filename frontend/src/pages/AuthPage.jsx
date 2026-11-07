@@ -98,10 +98,10 @@ export default function AuthPage() {
   const fillCredentials = (type) => {
     if (type === "admin") {
       setLoginEmail("davi@smartmarket.com.br")
-      setLoginPassword("admin")
+      setLoginPassword("admin123")
     } else {
       setLoginEmail("maria@email.com")
-      setLoginPassword("user")
+      setLoginPassword("user123")
     }
     setTab("login")
     setErrorMessage("")

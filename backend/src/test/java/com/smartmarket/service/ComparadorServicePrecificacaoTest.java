@@ -111,7 +111,7 @@ class ComparadorServicePrecificacaoTest {
         when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
         when(listaCompraRepository.findByIdAndUsuarioId(3L, 1L)).thenReturn(Optional.of(lista));
         when(itemListaRepository.findByListaCompraId(3L)).thenReturn(List.copyOf(lista.getItens()));
-        when(precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(precos);
         when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
             any(), any(), any())).thenReturn(promocoes);

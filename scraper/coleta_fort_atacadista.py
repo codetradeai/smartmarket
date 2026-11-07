@@ -79,7 +79,7 @@ TERMOS_BUSCA = {
 # escopo de MVP de 20-40 produtos no total, conforme o documento oficial)
 LIMITE_POR_CATEGORIA = 20
 TAMANHO_PAGINA = 10  # quantos produtos pedir por requisição
-PAUSA_ENTRE_REQUISICOES = 1.5  # segundos - educado com o servidor
+PAUSA_ENTRE_REQUISICOES = 2.0  # segundos - educado com o servidor
 
 HEADERS = {
     # Identifica o script de forma honesta (projeto acadêmico), sem se

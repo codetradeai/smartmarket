@@ -6,10 +6,15 @@ on:
   pull_request:
     branches: [ "main", "develop" ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   backend-test:
     name: Backend Tests & Build (Java 17 / Spring Boot)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
       - name: Checkout Repository
@@ -64,6 +69,7 @@ jobs:
   scraper-test:
     name: Scraper Tests (Python 3.11)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
       - name: Checkout Repository

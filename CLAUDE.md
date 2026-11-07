@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 SmartMarket é um comparador de preços de supermercados do RS (Grupo 40, Trilha Dev Full Stack 2026). Monorepo com três partes independentes que se comunicam via PostgreSQL e API REST:
 
 - `frontend/` — React 19 + Vite + Tailwind v4 (SPA, servida por Nginx em produção)
-- `backend/` — Spring Boot 3.4 / Java 17 (API REST, JPA, JWT)
+- `backend/` — Spring Boot 4.0 / Java 17 (API REST, JPA, JWT)
 - `scraper/` — Python: coletores por rede, normalização e carga no PostgreSQL
 - `docs/` — documentação técnica, modelagem ER, cenários de teste; `output/` guarda dados coletados
 

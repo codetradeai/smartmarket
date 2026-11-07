@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import {
-  CATEGORIES,
-  MARKETS as DEFAULT_MARKETS,
-  PRODUCTS as DEFAULT_PRODUCTS,
-} from "../data";
+import { CATEGORIES, MARKETS as DEFAULT_MARKETS } from "../catalogoResumo";
+import ComCatalogo from "../components/ComCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui";
 import logoFort from "../../logo/logo-fort.png";
@@ -1020,7 +1017,12 @@ function CategoryShelf({
 // -----------------------------------------------------------------------------
 // PÁGINA PRINCIPAL DO CATÁLOGO SMARTMARKET
 // -----------------------------------------------------------------------------
+// O catálogo (data.js) é carregado sob demanda; a tela só monta com os produtos em mãos.
 export default function CatalogPage() {
+  return <ComCatalogo>{(produtos) => <CatalogPageConteudo produtos={produtos} />}</ComCatalogo>;
+}
+
+function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
   const [markets, setMarkets] = useState(DEFAULT_MARKETS);
   const [loading, setLoading] = useState(true);

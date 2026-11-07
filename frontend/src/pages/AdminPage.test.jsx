@@ -6,6 +6,8 @@ import { PRODUCTS } from '../data'
 // O catálogo real (src/data.js) tem ~32 MB e 9.406 produtos: importá-lo custa ~11 s por arquivo e
 // renderizar a tabela leva ~20 s por teste, o que fazia esta suíte nunca terminar no CI.
 // Aqui usamos uma fixture pequena, com os mesmos formatos (id textual = dado local, sem backend).
+// MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados do mesmo catálogo mockado abaixo.
+jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
 jest.mock('../data', () => ({
   CATEGORIES: [
     { id: 'todos', label: 'Todos os Departamentos', icon: '🏪' },

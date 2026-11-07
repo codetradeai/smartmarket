@@ -1,9 +1,7 @@
 import { useState, useEffect, useMemo, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
-import {
-  MARKETS as DEFAULT_MARKETS,
-  PRODUCTS as DEFAULT_PRODUCTS,
-} from "../data";
+import { MARKETS as DEFAULT_MARKETS } from "../catalogoResumo";
+import ComCatalogo from "../components/ComCatalogo";
 import { produtoService, mercadoService } from "../services";
 import { ProductImage, ProductDetailModal } from "../components/ui";
 import logoFort from "../../logo/logo-fort.png";
@@ -160,7 +158,12 @@ function compareMarkets(list, products, markets) {
     .sort((a, b) => a.missing.length - b.missing.length || a.total - b.total);
 }
 
+// O catálogo (data.js) é carregado sob demanda; a tela só monta com os produtos em mãos.
 export default function ShoppingListPage() {
+  return <ComCatalogo>{(produtos) => <ShoppingListPageConteudo produtos={produtos} />}</ComCatalogo>;
+}
+
+function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   // useContext direto (e não useAuth) para a página funcionar também fora de um AuthProvider.
   const auth = useContext(AuthContext);
   const usarDemonstracao = !auth?.isAuthenticated;

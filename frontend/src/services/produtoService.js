@@ -1,5 +1,5 @@
 import api from "./api"
-import { PRODUCTS } from "../data"
+import { carregarProdutos } from "../utils/carregarProdutos"
 
 export const produtoService = {
   /**
@@ -27,9 +27,9 @@ export const produtoService = {
           pricesPerUnit: p.precosPorUnidadePadrao || {},
         }))
       }
-      return PRODUCTS
+      return await carregarProdutos()
     } catch {
-      return PRODUCTS
+      return carregarProdutos()
     }
   },
 
@@ -47,7 +47,7 @@ export const produtoService = {
     } catch (error) {
       if (!error.response) {
         // Fallback local
-        let filtrados = [...PRODUCTS]
+        let filtrados = [...(await carregarProdutos())]
         if (nome) {
           filtrados = filtrados.filter((p) =>
             p.name.toLowerCase().includes(nome.toLowerCase())

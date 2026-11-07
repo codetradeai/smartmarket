@@ -1,8 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Home from './Home'
 
 // Catálogo sem preço simulado: cada produto tem preço só na rede onde foi coletado.
+// MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados do mesmo catálogo mockado abaixo.
+jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
 jest.mock('../data', () => ({
   CATEGORIES: [{ id: 'todos', label: 'Todos', icon: '🏪' }, { id: 'graos', label: 'Grãos', icon: '🌾' }],
   MARKETS: [
@@ -20,13 +22,15 @@ jest.mock('../hooks/useAuth', () => ({
   useAuth: () => ({ isAuthenticated: false, isAdmin: false, isLoading: false, user: null }),
 }))
 
-function renderizar() {
+async function renderizar() {
   render(
     <MemoryRouter>
       <Home />
     </MemoryRouter>
   )
   fireEvent.click(screen.getByRole('button', { name: /Grãos e Arroz/ }))
+  // O catálogo chega por import dinâmico: espera o "Carregando o catálogo…" sumir.
+  await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
 }
 
 const cartaoDe = (nome) => screen.getByText(nome).closest('.group')
@@ -59,8 +63,8 @@ describe('Home: contador do catálogo', () => {
 })
 
 describe('Home com preço em uma rede só', () => {
-  it('não diz "Comparado em 1 mercados" nem "Melhor Preço" quando só uma rede tem preço', () => {
-    renderizar()
+  it('não diz "Comparado em 1 mercados" nem "Melhor Preço" quando só uma rede tem preço', async () => {
+    await renderizar()
     const cartao = cartaoDe('Arroz Só Fort 5kg')
 
     expect(cartao).not.toHaveTextContent(/Comparado em 1 mercados/)
@@ -69,8 +73,8 @@ describe('Home com preço em uma rede só', () => {
     expect(cartao).toHaveTextContent('Preço só nesta rede')
   })
 
-  it('mantém a comparação quando há preço em duas redes', () => {
-    renderizar()
+  it('mantém a comparação quando há preço em duas redes', async () => {
+    await renderizar()
     const cartao = cartaoDe('Feijão Duas Redes 1kg')
 
     expect(cartao).toHaveTextContent('Melhor Preço (Fort Atacadista)')

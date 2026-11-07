@@ -23,7 +23,11 @@ import {
   SmartMarketLogo,
   CarrosselRedes,
 } from "../components/ui"
-import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
+import { MARKETS, TOTAIS } from "../catalogoResumo"
+import { useProdutos } from "../hooks/useProdutos"
+import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
+
+const SEM_PRODUTOS = []
 
 const SECTOR_BANNERS = [
   { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
@@ -44,9 +48,10 @@ const SECTOR_BANNERS = [
 ]
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
-const redesComPreco = (p) => Object.values(p.prices || {}).filter((v) => typeof v === "number" && v > 0).length
-const PRODUTOS_COM_PRECO = PRODUCTS.filter((p) => redesComPreco(p) > 0).length
-const PRODUTOS_EM_2_REDES = PRODUCTS.filter((p) => redesComPreco(p) >= 2).length
+// Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por produto distinto (rede + id de origem).
+const TOTAL_PRODUTOS = TOTAIS.produtosDistintos
+const PRODUTOS_COM_PRECO = TOTAIS.produtosComPreco
+const PRODUTOS_EM_2_REDES = TOTAIS.produtosEm2Redes
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -139,6 +144,17 @@ export function Home() {
     }
   }
 
+  // O catálogo (data.js) só é baixado quando algo precisa dele: usuário logado (busca da Navbar),
+  // setor/rede/busca escolhidos ou produto aberto. A primeira dobra não depende dele.
+  const precisaProdutos =
+    isAuthenticated ||
+    selectedCategory !== "nenhum" ||
+    selectedMarket !== "todos" ||
+    searchTerm.trim() !== "" ||
+    Boolean(selectedProductDetail)
+  const { produtos, carregando: carregandoProdutos, erro: erroProdutos, recarregar } = useProdutos(precisaProdutos)
+  const PRODUCTS = produtos || SEM_PRODUTOS
+
   // Filtra produtos reais do catálogo com suporte a pesquisa, categoria e rede parceira
   const filteredProducts = useMemo(() => {
     const fold = (s) =>
@@ -180,7 +196,7 @@ export function Home() {
 
       return matchesSearch && matchesCategory && matchesMarket
     })
-  }, [searchTerm, selectedCategory, selectedMarket])
+  }, [PRODUCTS, searchTerm, selectedCategory, selectedMarket])
 
   const heroVideoRef = useRef(null)
 
@@ -457,7 +473,7 @@ export function Home() {
                   Explore por Setor do Supermercado
                 </h2>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green">
-                  {PRODUCTS.length} produtos monitorados
+                  {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos monitorados
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
@@ -541,7 +557,7 @@ export function Home() {
                 👆 Escolha um setor acima para espiar
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
-                Quer ver todos os {PRODUCTS.length.toLocaleString("pt-BR")} produtos do catálogo?
+                Quer ver todos os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo?
               </h3>
               <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
                 Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.
@@ -565,6 +581,10 @@ export function Home() {
               </div>
             </div>
           </div>
+        ) : erroProdutos ? (
+          <CatalogoErro onTentarNovamente={recarregar} className="rounded-3xl border border-brand-border bg-white" />
+        ) : carregandoProdutos ? (
+          <CatalogoCarregando className="rounded-3xl border border-brand-border bg-white" />
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-3xl border border-brand-border p-8 space-y-4">
             <h3 className="text-base font-bold text-brand-navy">
@@ -739,7 +759,7 @@ export function Home() {
                   Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens deste setor!
                 </h3>
                 <p className="text-xs sm:text-sm text-white/75 max-w-2xl">
-                  Com a sua conta gratuita, você libera os {PRODUCTS.length} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
+                  Com a sua conta gratuita, você libera os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
                 </p>
               </div>
 

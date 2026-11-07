@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { CATEGORIES } from "../../data"
+import { CATEGORIES } from "../../catalogoResumo"
 import { Input } from "./Input"
 
 const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useContext } from "react"
 import { Link } from "react-router-dom"
 import { AuthContext } from "../contexts/AuthContext"
-import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
+import { MARKETS, CATEGORIES } from "../catalogoResumo"
+import ComCatalogo from "../components/ComCatalogo"
 import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui"
 import { favoritoService } from "../services"
 import logoFort from "../../logo/logo-fort.png"
@@ -225,7 +226,12 @@ function evaluateAlertForProduct(product, alertEntry, favMarketIds = []) {
   }
 }
 
+// O catálogo (data.js) é carregado sob demanda; a tela só monta com os produtos em mãos.
 export default function FavoritesPage() {
+  return <ComCatalogo>{(produtos) => <FavoritesPageConteudo produtos={produtos} />}</ComCatalogo>
+}
+
+function FavoritesPageConteudo({ produtos: PRODUCTS }) {
   // useContext direto (e não useAuth) para a página funcionar também fora de um AuthProvider.
   const auth = useContext(AuthContext)
   const usarDemonstracao = !auth?.isAuthenticated

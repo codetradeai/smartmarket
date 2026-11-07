@@ -6,6 +6,8 @@ import { favoritoService } from '../services'
 
 // Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
 jest.mock('../data', () => require('../test/dataFixture'))
+// MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados da mesma fixture.
+jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
 
 jest.mock('../services', () => ({
   favoritoService: {

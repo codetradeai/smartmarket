@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { PRODUCTS, MARKETS, CATEGORIES } from "../data"
+import { MARKETS, CATEGORIES } from "../catalogoResumo"
+import ComCatalogo from "../components/ComCatalogo"
 import { produtoService, mercadoService, adminService } from "../services"
 import {
   Button,
@@ -21,7 +22,12 @@ const INITIAL_USERS = [
   { id: 5, name: "João Lima", email: "joao@email.com", role: "USER", createdAt: "2026-10-15", lists: 2, status: "ATIVO" },
 ]
 
+// O catálogo (data.js) é carregado sob demanda; a tela só monta com os produtos em mãos.
 export default function AdminPage() {
+  return <ComCatalogo>{(produtos) => <AdminPageConteudo produtos={produtos} />}</ComCatalogo>
+}
+
+function AdminPageConteudo({ produtos: PRODUCTS }) {
   const [activeTab, setActiveTab] = useState("produtos") // 'produtos' | 'mercados' | 'usuarios'
   const [search, setSearch] = useState("")
   const [products, setProducts] = useState(PRODUCTS)

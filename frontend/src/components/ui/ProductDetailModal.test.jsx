@@ -416,6 +416,17 @@ describe('ProductDetailModal (Fase 2)', () => {
       expect(screen.getByRole('button', { name: /Giro 360°/i })).toBeInTheDocument()
     })
   })
+  it('no celular o modal tem classes de posicionamento e botão de fechar com rótulo acessível', () => {
+    render(
+      <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+    )
+
+    const dialogo = screen.getByRole('dialog')
+    expect(dialogo).toHaveClass('sm-modal-dialog')
+    expect(dialogo.parentElement).toHaveClass('sm-modal-overlay')
+    expect(dialogo.className).toMatch(/max-h-\[calc\(100dvh-1\.5rem\)\]/)
+    expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument()
+  })
 })
 
 

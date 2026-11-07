@@ -157,3 +157,6 @@ docs/auditoria-interna.md
 graphify-out/
 
 .neon
+
+# Material de dev pessoal (fica so na maquina de cada pessoa)
+.ai/

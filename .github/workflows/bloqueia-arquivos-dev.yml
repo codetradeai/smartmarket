@@ -1,0 +1,22 @@
+name: Bloqueia arquivos de dev
+
+# Falha a PR se ela mexer em material de dev pessoal (handoff de IA, configuracao local).
+on:
+  pull_request:
+
+jobs:
+  verifica:
+    name: Sem arquivos de dev na PR
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Procura arquivos proibidos no diff
+        run: |
+          proibidos=$(git diff --name-only --diff-filter=AMR "origin/${{ github.base_ref }}...HEAD" | grep -E '^(\.ai/|AGENTS\.md$|\.claude/settings\.local\.json$|\.neon$)' || true)
+          if [ -n "$proibidos" ]; then
+            echo "::error::Esta PR mexe em arquivos de dev pessoal, que nao devem ir para a main:"
+            echo "$proibidos"
+            exit 1
+          fi

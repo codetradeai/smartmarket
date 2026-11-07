@@ -141,9 +141,7 @@ export function CarrosselRedes({ selectedMarket, onSelect }) {
     while (next >= n * 2) next -= n
     while (next < n) next += n
     offsetRef.current = next
-    // Usa a largura já medida pelo ResizeObserver: ler clientWidth aqui (a cada frame e a cada
-    // render, logo depois de escrever o transform) forçava um layout síncrono contínuo.
-    const width = viewportWidth || viewportRef.current?.clientWidth || 0
+    const width = viewportRef.current?.clientWidth || viewportWidth
     const translate = width > 0 ? width / 2 - cardWidth / 2 - next * step : 0
     if (trackRef.current) trackRef.current.style.transform = `translate3d(${translate}px, 0, 0)`
     const center = Math.min(n * 3 - 1, Math.max(0, Math.round(next)))

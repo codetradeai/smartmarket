@@ -27,6 +27,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
     private static final int MAX_REQUESTS_PER_MINUTE = 15;
     private static final long ONE_MINUTE_MS = 60_000L;
+    private static final int MAX_ENTRIES_BEFORE_CLEANUP = 10_000;
 
     @org.springframework.beans.factory.annotation.Value("${security.rate-limit.enabled:true}")
     private boolean enabled;
@@ -60,6 +61,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String clientIp = extractClientIp(request);
         long now = System.currentTimeMillis();
+        limparExpirados(now);
 
         RequestCounter counter = requestCountsPerIp.compute(clientIp, (ip, existingCounter) -> {
             if (existingCounter == null || (now - existingCounter.windowStartMs) > ONE_MINUTE_MS) {
@@ -81,15 +83,20 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Usa apenas o endereco remoto da conexao. Cabecalhos X-Forwarded-For/X-Real-IP
+     * enviados pelo cliente nao sao confiaveis (permitiriam burlar o limite e forjar IP).
+     * Atras de proxy, a reescrita do IP fica a cargo do container
+     * (server.forward-headers-strategy=native), que so confia em proxies internos.
+     */
     private String extractClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        String realIp = request.getHeader("X-Real-IP");
-        if (realIp != null && !realIp.isBlank()) {
-            return realIp.trim();
-        }
         return request.getRemoteAddr();
+    }
+
+    /** Remove contadores cujas janelas ja expiraram, evitando crescimento ilimitado do mapa. */
+    private void limparExpirados(long now) {
+        if (requestCountsPerIp.size() > MAX_ENTRIES_BEFORE_CLEANUP) {
+            requestCountsPerIp.entrySet().removeIf(e -> (now - e.getValue().windowStartMs) > ONE_MINUTE_MS);
+        }
     }
 }

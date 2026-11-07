@@ -86,31 +86,44 @@ class RateLimitingFilterTest {
     }
 
     @Test
-    void devePriorizarXForwardedForUsandoPrimeiroEndereco() throws Exception {
+    void deveIgnorarXForwardedForForjadoEUsarEnderecoRemoto() throws Exception {
+        // Mesmo IP remoto, cabecalho forjado diferente a cada requisicao: o limite continua valendo.
         for (int i = 0; i < LIMITE; i++) {
             MockHttpServletRequest request = post("/api/auth/login", "192.168.0.1");
-            request.addHeader("X-Forwarded-For", " 203.0.113.9 , 10.1.1.1");
-            executar(request);
+            request.addHeader("X-Forwarded-For", "203.0.113." + i);
+            assertThat(executar(request).getStatus()).isEqualTo(200);
         }
 
-        MockHttpServletRequest mesmoClienteOutroProxy = post("/api/auth/login", "192.168.0.2");
-        mesmoClienteOutroProxy.addHeader("X-Forwarded-For", "203.0.113.9");
+        MockHttpServletRequest forjada = post("/api/auth/login", "192.168.0.1");
+        forjada.addHeader("X-Forwarded-For", "198.51.100.77");
 
-        assertThat(executar(mesmoClienteOutroProxy).getStatus()).isEqualTo(429);
+        assertThat(executar(forjada).getStatus()).isEqualTo(429);
     }
 
     @Test
-    void deveUsarXRealIpQuandoNaoHaXForwardedFor() throws Exception {
+    void deveIgnorarXRealIpForjadoEUsarEnderecoRemoto() throws Exception {
         for (int i = 0; i < LIMITE; i++) {
             MockHttpServletRequest request = post("/api/auth/login", "192.168.0.1");
-            request.addHeader("X-Real-IP", " 203.0.113.7 ");
+            request.addHeader("X-Real-IP", "203.0.113." + i);
             executar(request);
         }
 
-        MockHttpServletRequest request = post("/api/auth/login", "192.168.0.99");
-        request.addHeader("X-Real-IP", "203.0.113.7");
+        MockHttpServletRequest request = post("/api/auth/login", "192.168.0.1");
+        request.addHeader("X-Real-IP", "198.51.100.88");
 
         assertThat(executar(request).getStatus()).isEqualTo(429);
+    }
+
+    @Test
+    void headerForjadoNaoDeveCompartilharContadorComOutroIpRemoto() throws Exception {
+        for (int i = 0; i < LIMITE; i++) {
+            executar(post("/api/auth/login", "192.168.0.1"));
+        }
+
+        MockHttpServletRequest outro = post("/api/auth/login", "192.168.0.2");
+        outro.addHeader("X-Forwarded-For", "192.168.0.1");
+
+        assertThat(executar(outro).getStatus()).isEqualTo(200);
     }
 
     @Test

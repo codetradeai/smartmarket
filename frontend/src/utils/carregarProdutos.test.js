@@ -29,24 +29,40 @@ describe('carregarProdutos / carregarFrames', () => {
     await expect(carregarProdutos()).resolves.toEqual([{ id: 'p9' }])
   })
 
-  it('frames só são baixados em carregarFrames, uma vez, e [] para produto sem frames', async () => {
-    global.fetch = jest.fn(async () => resposta({ p1: ['a.webp', 'b.webp'] }))
+  it('frames: um fetch por produto, só em carregarFrames, com cache por id', async () => {
+    global.fetch = jest.fn(async (url) =>
+      resposta(url === '/catalogo/frames/p1.json' ? ['a.webp', 'b.webp'] : url === '/catalogo/frames/p2.json' ? [] : [{ id: 'p1' }]),
+    )
     const { carregarProdutos, carregarFrames } = require('./carregarProdutos')
 
-    global.fetch = jest.fn(async (url) => resposta(url.endsWith('frames.json') ? { p1: ['a.webp', 'b.webp'] } : []))
     await carregarProdutos()
-    expect(global.fetch).not.toHaveBeenCalledWith('/catalogo/frames.json')
+    expect(global.fetch.mock.calls.map(([u]) => u)).toEqual(['/catalogo/produtos.json'])
 
     await expect(carregarFrames('p1')).resolves.toEqual(['a.webp', 'b.webp'])
+    await expect(carregarFrames('p1')).resolves.toEqual(['a.webp', 'b.webp'])
     await expect(carregarFrames('p2')).resolves.toEqual([])
-    expect(global.fetch.mock.calls.filter(([u]) => u === '/catalogo/frames.json')).toHaveLength(1)
+    expect(global.fetch.mock.calls.map(([u]) => u).filter((u) => u.includes('frames'))).toEqual([
+      '/catalogo/frames/p1.json',
+      '/catalogo/frames/p2.json',
+    ])
   })
 
-  it('se frames.json falhar, rejeita e a chamada seguinte tenta de novo', async () => {
-    global.fetch = jest.fn().mockResolvedValueOnce(resposta(null, 404)).mockResolvedValueOnce(resposta({ p1: ['x', 'y'] }))
+  it('se o JSON de frames falhar, rejeita e a chamada seguinte tenta de novo', async () => {
+    global.fetch = jest.fn().mockResolvedValueOnce(resposta(null, 404)).mockResolvedValueOnce(resposta(['x', 'y']))
     const { carregarFrames } = require('./carregarProdutos')
 
     await expect(carregarFrames('p1')).rejects.toThrow('HTTP 404')
     await expect(carregarFrames('p1')).resolves.toEqual(['x', 'y'])
+  })
+
+  it('com versão injetada pelo Vite, as URLs levam o hash no caminho', () => {
+    global.__CATALOGO_VERSAO__ = 'abc123def4'
+    try {
+      const { URL_PRODUTOS, urlFrames } = require('./carregarProdutos')
+      expect(URL_PRODUTOS).toBe('/catalogo/produtos.abc123def4.json')
+      expect(urlFrames('p5')).toBe('/catalogo/frames/abc123def4/p5.json')
+    } finally {
+      delete global.__CATALOGO_VERSAO__
+    }
   })
 })

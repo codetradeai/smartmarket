@@ -172,15 +172,15 @@ describe('Product360HoverPreview: frames sob demanda', () => {
     global.fetch = fetchOriginal
   })
 
-  it('sem hover não baixa frames.json; no hover baixa uma vez', async () => {
-    global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ p77: ['f0.webp', 'f1.webp', 'f2.webp'] }) }))
+  it('sem hover não baixa os frames; no hover baixa uma vez', async () => {
+    global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ['f0.webp', 'f1.webp', 'f2.webp'] }))
 
     render(<Product360HoverPreview product={produto} />)
     expect(screen.getByTestId('product-360-hover-preview')).toBeInTheDocument()
     expect(global.fetch).not.toHaveBeenCalled()
 
     fireEvent.mouseEnter(screen.getByTestId('product-360-hover-preview'))
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/catalogo/frames.json'))
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/catalogo/frames/p77.json'))
     expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 })

@@ -49,7 +49,7 @@ describe('imports estáticos do data.js', () => {
 })
 
 // Depois da etapa 1, nenhum código da aplicação (fora de testes e fixtures) lê o data.js: o catálogo
-// vem de /catalogo/produtos.json e os frames 360° de /catalogo/frames.json (gerados no build).
+// vem de /catalogo/produtos.<hash>.json e os frames 360° de /catalogo/frames/<versao>/<id>.json (gerados no build).
 describe('data.js fora do código da aplicação', () => {
   const arquivos = []
   const varrer = (dir) => {

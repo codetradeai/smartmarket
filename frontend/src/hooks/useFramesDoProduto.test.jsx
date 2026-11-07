@@ -22,8 +22,8 @@ describe('useFramesDoProduto', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  it('não baixa nada enquanto inativo; ao ativar, busca em frames.json', async () => {
-    global.fetch = jest.fn(async () => resposta({ p1: ['a', 'b', 'c'] }))
+  it('não baixa nada enquanto inativo; ao ativar, busca o JSON de frames do produto', async () => {
+    global.fetch = jest.fn(async () => resposta(['a', 'b', 'c']))
     const produto = { id: 'p1', recursosVisuais: { has360: true } }
     const { result, rerender } = renderHook(({ ativo }) => useFramesDoProduto(produto, ativo), { initialProps: { ativo: false } })
     expect(result.current).toEqual([])

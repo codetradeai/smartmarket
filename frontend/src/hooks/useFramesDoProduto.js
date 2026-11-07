@@ -5,7 +5,7 @@ const SEM_FRAMES = []
 
 /**
  * Frames do 360° de um produto. Se o objeto já traz os frames (dados antigos ou testes), usa-os;
- * senão, com `ativo = true`, busca em /catalogo/frames.json. Devolve [] enquanto não houver frames
+ * senão, com `ativo = true`, busca /catalogo/frames/<versao>/<id>.json. Devolve [] enquanto não houver frames
  * (ou se a busca falhar: o 360° simplesmente não aparece e a imagem estática continua valendo).
  */
 export function useFramesDoProduto(produto, ativo = true) {

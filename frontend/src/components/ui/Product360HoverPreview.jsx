@@ -23,7 +23,7 @@ export function Product360HoverPreview({
   fps = 6, // ~160ms por quadro para rotação contemplativa e suave
   isCardHovered = false, // controle opcional via card pai
 }) {
-  // O produto traz só a marca has360; os quadros vêm de /catalogo/frames.json na primeira vez que
+  // O produto traz só a marca has360; os quadros vêm de /catalogo/frames/<versao>/<id>.json na primeira vez que
   // o mouse passa por cima (até lá o card mostra a imagem estática com o selo 360°).
   const has360 = Boolean(product?.recursosVisuais?.has360)
 

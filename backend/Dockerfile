@@ -3,7 +3,7 @@
 # =========================================================
 
 # Estagio 1: Build da aplicacao
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:24-jdk-alpine AS builder
 WORKDIR /workspace
 
 # Copia arquivos de build do Maven
@@ -23,7 +23,7 @@ COPY src src
 RUN ./mvnw clean package -DskipTests -B
 
 # Estagio 2: Runtime enxuto e seguro (JRE)
-FROM eclipse-temurin:17-jre-alpine AS runner
+FROM eclipse-temurin:24-jre-alpine AS runner
 WORKDIR /app
 
 # Criacao de usuario nao-root para seguranca corporativa

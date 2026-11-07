@@ -1,0 +1,16 @@
+{
+  "name": "smartmarket-realtime-demo",
+  "private": true,
+  "type": "module",
+  "description": "Demonstração de live query com Neon Realtime (tabela realtime_demo)",
+  "dependencies": {
+    "@neon/realtime": "^0.2.0",
+    "@neondatabase/serverless": "^1.2.0",
+    "ws": "^8.22.1"
+  },
+  "scripts": {
+    "servidor": "node --env-file=../.env.local servidor.mjs",
+    "assinante": "node --env-file=../.env.local assinante.mjs",
+    "inserir": "node --env-file=../.env.local inserir.mjs"
+  }
+}

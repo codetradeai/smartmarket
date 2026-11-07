@@ -78,3 +78,17 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 ## Convenções
 - Branches: `feature/nome-da-tarefa` a partir de `main`; PR com revisão antes do merge (template em `.github/pull_request_template.md`).
 - `login/`, `output/` e `frontend/templates/` não são código da aplicação (artefatos/protótipos).
+
+## Agent skills
+
+### Issue tracker
+
+As issues ficam no GitHub Issues de `codetradeai/smartmarket` (CLI `gh`). Veja `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Vocabulário padrão: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Veja `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` e `docs/adr/` na raiz, criados sob demanda. Veja `docs/agents/domain.md`.

@@ -12,8 +12,14 @@
       "destination": "https://BACKEND-SMARTMARKET-URL-AQUI/api/$1"
     },
     {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/(.*)",
-      "destination": { "service": "frontend" }
+      "destination": {
+        "service": "frontend"
+      }
     }
   ]
 }

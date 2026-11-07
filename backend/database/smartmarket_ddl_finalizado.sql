@@ -7,6 +7,7 @@
 -- Limpa as tabelas caso o script seja executado novamente
 DROP TABLE IF EXISTS vinculo_produto CASCADE;
 DROP TABLE IF EXISTS alerta CASCADE;
+DROP TABLE IF EXISTS favorito_produto CASCADE;
 DROP TABLE IF EXISTS favorito CASCADE;
 DROP TABLE IF EXISTS item_lista CASCADE;
 DROP TABLE IF EXISTS lista_compra CASCADE;
@@ -185,6 +186,30 @@ CREATE TABLE favorito (
 
     CONSTRAINT uk_favorito_usuario_mercado
         UNIQUE (usuario_id, mercado_id)
+);
+
+-- ============================================================
+-- FAVORITO_PRODUTO
+-- ============================================================
+
+CREATE TABLE favorito_produto (
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL,
+    produto_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_favorito_produto_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuario(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_favorito_produto_produto
+        FOREIGN KEY (produto_id)
+        REFERENCES produto(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT uk_favorito_produto_usuario_produto
+        UNIQUE (usuario_id, produto_id)
 );
 
 -- ============================================================

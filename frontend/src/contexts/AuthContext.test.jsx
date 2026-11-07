@@ -80,16 +80,18 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem(USER_KEY)).toBeNull()
     })
 
-    it('aceita token sem data de expiracao ou fora do formato JWT', () => {
+    it('descarta token sem data de expiracao ou fora do formato JWT', () => {
       localStorage.setItem(TOKEN_KEY, criarJwt({ sub: 'ana' }))
       localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
       const { unmount } = renderizar()
-      expect(screen.getByTestId('autenticado')).toHaveTextContent('true')
+      expect(screen.getByTestId('autenticado')).toHaveTextContent('false')
+      expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
       unmount()
 
       localStorage.setItem(TOKEN_KEY, 'token-sem-pontos')
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
       renderizar()
-      expect(screen.getByTestId('autenticado')).toHaveTextContent('true')
+      expect(screen.getByTestId('autenticado')).toHaveTextContent('false')
     })
 
     it('ignora usuario guardado com JSON corrompido', () => {
@@ -193,6 +195,23 @@ describe('AuthProvider', () => {
       })
 
       expect(resultado.error).toBe('Falha ao realizar login. Verifique seu e-mail e senha.')
+    })
+
+    it('usa a mensagem de falta de conexao (userMessage) no login e no cadastro', async () => {
+      const msg = 'Não foi possível falar com o servidor. Tente novamente.'
+      authService.login.mockRejectedValue(Object.assign(new Error('rede'), { userMessage: msg }))
+      authService.register.mockRejectedValue(Object.assign(new Error('rede'), { userMessage: msg }))
+      renderizar()
+
+      let login
+      let cadastro
+      await act(async () => {
+        login = await capturado.atual.login('a@a.com', 'x')
+        cadastro = await capturado.atual.register('A', 'a@a.com', 'x')
+      })
+
+      expect(login).toEqual({ success: false, error: msg })
+      expect(cadastro).toEqual({ success: false, error: msg })
     })
 
     it('grava sm_owner com o email do usuario apos login bem-sucedido', async () => {

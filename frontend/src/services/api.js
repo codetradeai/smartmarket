@@ -56,6 +56,12 @@ api.interceptors.response.use(
       }
     }
 
+    if (status === 403) {
+      // Sem permissao para o recurso: a sessao continua valida, entao nao desloga.
+      // A mensagem fica disponivel para quem exibir o erro.
+      error.userMessage = "Você não tem permissão para acessar este recurso."
+    }
+
     return Promise.reject(error)
   }
 )

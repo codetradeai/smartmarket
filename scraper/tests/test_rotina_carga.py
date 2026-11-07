@@ -188,8 +188,6 @@ class TestRotinaCarga(unittest.TestCase):
             {"source": "asun", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
             {"source": "atacadao", "status": "concluido", "produtos_criados": 1, "precos_inseridos": 1},
             {"source": "master", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
-            {"source": "zaffari", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
-            {"source": "rissul", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
             {"source": "stok", "status": "concluido", "produtos_criados": 2, "precos_inseridos": 2},
         ]
 
@@ -207,9 +205,16 @@ class TestRotinaCarga(unittest.TestCase):
         self.assertIn("asun", relatorio["redes"])
         self.assertIn("atacadao", relatorio["redes"])
         self.assertIn("master", relatorio["redes"])
-        self.assertIn("zaffari", relatorio["redes"])
-        self.assertIn("rissul", relatorio["redes"])
         self.assertIn("stok", relatorio["redes"])
+
+        # Zaffari e Rissul estao suspensas (robots.txt proibe /api/): nao chamam o ciclo de coleta.
+        self.assertEqual(mock_ciclo.call_count, 6)
+        chaves_executadas = [c.args[0] for c in mock_ciclo.call_args_list]
+        self.assertNotIn("zaffari", chaves_executadas)
+        self.assertNotIn("rissul", chaves_executadas)
+        for chave in ("zaffari", "rissul"):
+            self.assertEqual(relatorio["redes"][chave]["status"], "suspensa")
+            self.assertIn("robots.txt", relatorio["redes"][chave]["motivo"])
 
         # Verifica se o arquivo de relatório foi gravado
         arquivo_relatorio = self.temp_dir / "relatorios" / "relatorio_rotina.json"

@@ -32,7 +32,7 @@ DB_MUT="sm_test_mut_$$"
 if command -v psql >/dev/null 2>&1; then
     PG_EXEC="psql $DSN"
 else
-    CONTAINER="${DOCKER_CONTAINER:-smartmarket-db}"
+    CONTAINER="${DOCKER_CONTAINER:-smartmarket-db-dev}"
     PG_EXEC="docker exec -i $CONTAINER psql -U smartmarket"
     # DSN_SUFFIX extrai apenas o nome do banco
     db_from_dsn() { printf '%s' "${1##*/}"; }

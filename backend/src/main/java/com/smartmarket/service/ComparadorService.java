@@ -58,8 +58,10 @@ public class ComparadorService {
             .distinct()
             .toList();
 
-        Map<ChaveProdutoMercado, Preco> precos = precoRepository
-            .findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(produtoIds).stream()
+        // Historico completo: o par so entra se a linha mais recente estiver disponivel.
+        Map<ChaveProdutoMercado, Preco> precos = PrecosVigentes
+            .descartandoParesIndisponiveis(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(produtoIds))
+            .stream()
             .collect(Collectors.toMap(
                 preco -> new ChaveProdutoMercado(preco.getProduto().getId(), preco.getMercado().getId()),
                 Function.identity(),

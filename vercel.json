@@ -3,7 +3,13 @@
   "services": {
     "frontend": {
       "root": "frontend",
-      "framework": "vite"
+      "framework": "vite",
+      "rewrites": [
+        {
+          "source": "/((?!assets/)[^.]*)",
+          "destination": "/index.html"
+        }
+      ]
     }
   },
   "rewrites": [
@@ -12,14 +18,8 @@
       "destination": "https://BACKEND-SMARTMARKET-URL-AQUI/api/$1"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
-    },
-    {
       "source": "/(.*)",
-      "destination": {
-        "service": "frontend"
-      }
+      "destination": { "service": "frontend" }
     }
   ]
 }

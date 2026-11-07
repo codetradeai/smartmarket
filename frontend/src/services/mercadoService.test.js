@@ -1,6 +1,6 @@
 import api from './api'
 import mercadoService from './mercadoService'
-import { MARKETS } from '../data'
+import { MARKETS } from '../catalogoResumo'
 
 jest.mock('./api', () => ({
   __esModule: true,

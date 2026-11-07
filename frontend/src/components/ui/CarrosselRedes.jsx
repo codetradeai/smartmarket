@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
-import { MARKETS } from "../../data"
+import { MARKETS } from "../../catalogoResumo"
 import logoFort from "../../../logo/logo-fort.png"
 import logoAsun from "../../../logo/logo-asun.png"
 import logoStok from "../../../logo/logo-stok.png"

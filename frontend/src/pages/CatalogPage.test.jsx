@@ -2,9 +2,16 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import CatalogPage from './CatalogPage'
 import { produtoService, mercadoService, favoritoService } from '../services'
 import { PRODUCTS } from '../data'
+import { carregarProdutos } from '../utils/carregarProdutos'
+
+// O catálogo chega por import() dinâmico; carrega a fixture uma vez antes dos testes para que o
+// primeiro import (lento com a máquina ocupada) não estoure o prazo do findBy de cada teste.
+beforeAll(() => carregarProdutos(), 30000)
 
 // Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
 jest.mock('../data', () => require('../test/dataFixture'))
+// MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados da mesma fixture.
+jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
 
 jest.mock('../services', () => ({
   produtoService: { buscarCatalogoComPrecos: jest.fn() },
@@ -46,7 +53,8 @@ function configurarServicos({ produtos = PRODUTOS, mercados = MERCADOS, favMerca
 
 // Fim do carregamento: o subtítulo troca "Sincronizando prateleiras..." por
 // "8 Redes do RS integradas · N produtos disponíveis".
-const esperarCarregamento = () => screen.findByText(/produtos disponíveis/)
+// Prazo maior que o padrão (1 s): com a suíte inteira em paralelo a página leva mais para sair de "Sincronizando".
+const esperarCarregamento = () => screen.findByText(/produtos disponíveis/, undefined, { timeout: 4000 })
 
 // `grade: true` troca a visão padrão (prateleiras por categoria) pela grade de cartões completos,
 // onde ficam o melhor preço, a economia e o botão de lista.
@@ -79,8 +87,10 @@ describe('CatalogPage', () => {
       configurarServicos()
       render(<CatalogPage />)
 
-      expect(screen.getByText('Sincronizando prateleiras...')).toBeInTheDocument()
-      expect(await screen.findByText(`8 Redes do RS integradas · ${TOTAL_COM_API} produtos disponíveis`)).toBeInTheDocument()
+      // O catálogo (data.js) agora chega por import dinâmico: antes aparece "Carregando o catálogo…".
+      expect(screen.getByRole('status')).toHaveTextContent('Carregando o catálogo')
+      expect(await screen.findByText('Sincronizando prateleiras...')).toBeInTheDocument()
+      expect(await screen.findByText(`8 Redes do RS integradas · ${TOTAL_COM_API} produtos disponíveis`, undefined, { timeout: 4000 })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 1, name: 'Catálogo SmartMarket' })).toBeInTheDocument()
     })
 

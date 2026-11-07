@@ -5,6 +5,8 @@ import { MARKETS, PRODUCTS } from '../data'
 
 // Catálogo real (src/data.js) tem 32 MB; os testes usam a fixture pequena.
 jest.mock('../data', () => require('../test/dataFixture'))
+// MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados da mesma fixture.
+jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
 
 // Home.jsx usa useAuth() só para saber se há sessão (isAuthenticated). O mock abaixo representa o
 // visitante, que é o que a Home mostra por padrão (modo "apresentacao"). Função comum, não jest.fn,

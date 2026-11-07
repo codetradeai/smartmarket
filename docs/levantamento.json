@@ -187,7 +187,7 @@
         "scraper/tests/test_precos_sem_simulacao.py (15 testes)"
       ],
       "carga_sql": "530 produtos e 530 linhas de preco: 1 preço por produto, na rede de coleta.",
-      "catalogo_estatico_frontend": "frontend/src/data.js na main tem 9.406 produtos com 1 preço cada (o da rede de coleta, sem simulação). Cabeçalho do arquivo confirma: '9406 produtos, cada um com o preço real da rede onde foi coletado (sem preço simulado)'. Regenerado no PR #54.",
+      "catalogo_estatico_frontend": "frontend/src/data.js na main tem 9.277 produtos distintos com 1 preço cada (o da rede de coleta, sem simulação). Cabeçalho do arquivo confirma: '9406 produtos, cada um com o preço real da rede onde foi coletado (sem preço simulado)'. Regenerado no PR #54.",
       "status": "resolvido: 1 preço por produto no gerador, na carga SQL e no data.js (PR #54 mergeado em 05/11/2026)."
     },
     "ean": {
@@ -776,14 +776,14 @@
     },
     "commits_no_repositorio": 313,
     "catalogo_estatico_frontend": {
-      "total": 9406,
+      "total": 9277,
       "arquivo": "frontend/src/data.js",
       "mede": "Produtos do catálogo estático que as páginas do frontend importam.",
       "precos_por_produto": 1,
       "evidencia": "Cabeçalho do data.js na main: '9406 produtos, cada um com o preço real da rede onde foi coletado (sem preço simulado)' (PR #54 regenerou o arquivo)",
       "gerado_em": "PR #54 (mergeado em 05/11/2026)"
     },
-    "produtos_carga_vs_catalogo": "530 e 9.406 medem coisas diferentes: 530 é a carga SQL do banco (1 preço por produto); 9.406 é o catálogo estático do frontend (1 preço por produto, na rede de coleta, desde o PR #54)."
+    "produtos_carga_vs_catalogo": "530 e 9.277 medem coisas diferentes: 530 é a carga SQL do banco (1 preço por produto); 9.277 é o catálogo estático do frontend (1 preço por produto, na rede de coleta, desde o PR #54)."
   },
   "achados_de_auditoria": [
     {
@@ -1039,7 +1039,7 @@
         "scraper/gerar_catalogo_e_sql.py"
       ],
       "evidencia": "data.js (9.406 produtos, gerado em 30/10/2026) tinha preço nas 8 redes para cada produto: 1 coletado e 7 simulados. O gerador foi corrigido (6dc390d) e o data.js regenerado no PR #54.",
-      "situacao_em_2026_11_05": "Resolvido: PR #54 mergeado. data.js na main tem 9.406 produtos com 1 preço cada (rede de coleta). Cabeçalho confirmado com git show.",
+      "situacao_em_2026_11_05": "Resolvido: PR #54 mergeado. data.js na main tem 9.277 produtos distintos com 1 preço cada (rede de coleta). Cabeçalho confirmado com git show.",
       "pr": "#54"
     },
     {
@@ -1313,7 +1313,7 @@
       "nota": "Job Scraper Tests verde na main."
     },
     {
-      "titulo": "data.js sem preço simulado (9.406 produtos, 1 preço cada)",
+      "titulo": "data.js sem preço simulado (9.277 produtos distintos, 1 preço cada)",
       "pr": "#54",
       "commit": "12a9edc",
       "arquivo": "frontend/src/data.js; scraper/gerar_catalogo_e_sql.py"

@@ -1,5 +1,5 @@
 import api from "./api"
-import { MARKETS } from "../data"
+import { MARKETS } from "../catalogoResumo"
 
 export const mercadoService = {
   /**

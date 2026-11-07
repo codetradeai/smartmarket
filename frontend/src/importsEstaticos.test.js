@@ -47,3 +47,22 @@ describe('imports estáticos do data.js', () => {
     expect(cadeia && cadeia.join(' -> ')).toBeNull()
   })
 })
+
+// Depois da etapa 1, nenhum código da aplicação (fora de testes e fixtures) lê o data.js: o catálogo
+// vem de /catalogo/produtos.json e os frames 360° de /catalogo/frames.json (gerados no build).
+describe('data.js fora do código da aplicação', () => {
+  const arquivos = []
+  const varrer = (dir) => {
+    for (const nome of fs.readdirSync(dir)) {
+      const caminho = path.join(dir, nome)
+      if (fs.statSync(caminho).isDirectory()) varrer(caminho)
+      else if (/\.(jsx?|mjs)$/.test(nome) && !/\.test\.|dataFixture/.test(nome) && caminho !== DATA) arquivos.push(caminho)
+    }
+  }
+  varrer(RAIZ)
+
+  it('nenhum módulo da aplicação importa o data.js (estático ou dinâmico)', () => {
+    const importadores = arquivos.filter((a) => /(?:from\s*|import\s*\(\s*)['"](?:\.\.?\/)+data['"]/.test(fs.readFileSync(a, 'utf8')))
+    expect(importadores.map((a) => path.relative(RAIZ, a))).toEqual([])
+  })
+})

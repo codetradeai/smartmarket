@@ -32,3 +32,27 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
     }),
   })
 }
+
+// fetch() do catálogo: o app baixa /catalogo/produtos.json e /catalogo/frames.json (arquivos gerados
+// no build). Nos testes, o stub abaixo responde com o módulo '../src/data' (que cada teste troca pela
+// fixture via jest.mock) para que a interface leia os mesmos dados de antes. O require fica dentro da
+// função para respeitar o jest.mock do teste. Um teste pode sobrescrever global.fetch por jest.fn.
+if (typeof global !== 'undefined') {
+  const resposta = (corpo, status = 200) => ({
+    ok: status >= 200 && status < 300,
+    status,
+    json: async () => corpo,
+  })
+  global.fetch = async (url) => {
+    const alvo = String(url)
+    if (alvo.endsWith('/catalogo/produtos.json')) return resposta(require('../src/data').PRODUCTS)
+    if (alvo.endsWith('/catalogo/frames.json')) {
+      const mapa = {}
+      for (const p of require('../src/data').PRODUCTS) {
+        if (p.recursosVisuais?.frames?.length) mapa[p.id] = p.recursosVisuais.frames
+      }
+      return resposta(mapa)
+    }
+    return resposta({}, 404)
+  }
+}

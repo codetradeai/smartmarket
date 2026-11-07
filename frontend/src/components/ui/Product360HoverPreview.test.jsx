@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { Product360HoverPreview } from './Product360HoverPreview'
+import { reiniciarCacheDoCatalogo } from '../../utils/carregarProdutos'
 
 describe('Product360HoverPreview (Fase 3D)', () => {
   const mockProduct360 = {
@@ -157,5 +158,29 @@ describe('Product360HoverPreview (Fase 3D)', () => {
 
     // O clique foi propagado para o card pai abrir o modal
     expect(handleCardClick).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('Product360HoverPreview: frames sob demanda', () => {
+  const produto = { id: 'p77', imageLocal: '/estatica.webp', recursosVisuais: { has360: true } }
+  let fetchOriginal
+  beforeEach(() => {
+    reiniciarCacheDoCatalogo()
+    fetchOriginal = global.fetch
+  })
+  afterEach(() => {
+    global.fetch = fetchOriginal
+  })
+
+  it('sem hover não baixa frames.json; no hover baixa uma vez', async () => {
+    global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ p77: ['f0.webp', 'f1.webp', 'f2.webp'] }) }))
+
+    render(<Product360HoverPreview product={produto} />)
+    expect(screen.getByTestId('product-360-hover-preview')).toBeInTheDocument()
+    expect(global.fetch).not.toHaveBeenCalled()
+
+    fireEvent.mouseEnter(screen.getByTestId('product-360-hover-preview'))
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/catalogo/frames.json'))
+    expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 })

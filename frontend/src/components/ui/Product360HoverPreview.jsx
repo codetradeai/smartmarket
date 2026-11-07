@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { ProductImage } from "./ProductImage"
+import { useFramesDoProduto } from "../../hooks/useFramesDoProduto"
 
 /**
  * Product360HoverPreview - Componente de Pré-visualização Automática 360° em Cards
@@ -22,16 +23,14 @@ export function Product360HoverPreview({
   fps = 6, // ~160ms por quadro para rotação contemplativa e suave
   isCardHovered = false, // controle opcional via card pai
 }) {
-  const frames = product?.recursosVisuais?.frames || []
-  const has360 = Boolean(
-    product?.recursosVisuais?.has360 &&
-    Array.isArray(frames) &&
-    frames.length >= 2
-  )
+  // O produto traz só a marca has360; os quadros vêm de /catalogo/frames.json na primeira vez que
+  // o mouse passa por cima (até lá o card mostra a imagem estática com o selo 360°).
+  const has360 = Boolean(product?.recursosVisuais?.has360)
 
   const [currentFrame, setCurrentFrame] = useState(0)
   const [isInternalHover, setIsInternalHover] = useState(false)
   const isHovered = isCardHovered || isInternalHover
+  const frames = useFramesDoProduto(product, isHovered)
 
   const timerRef = useRef(null)
   const debounceTimerRef = useRef(null)
@@ -95,7 +94,7 @@ export function Product360HoverPreview({
     )
   }
 
-  const activeSrc = frames[currentFrame] || staticSrc
+  const activeSrc = (frames.length >= 2 && frames[currentFrame]) || staticSrc
 
   return (
     <div

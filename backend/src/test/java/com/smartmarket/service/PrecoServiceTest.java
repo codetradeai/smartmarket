@@ -40,14 +40,14 @@ class PrecoServiceTest {
 
     @Test void buscarPrecosPorProduto_SemPrecosNemPromocoes() {
         when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
-        when(precos.findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
+        when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
         assertThat(service.buscarPrecosPorProduto(1L)).isNotNull();
     }
 
     @Test void buscarPrecosPorProduto_ConsideraUltimoPrecoPorMercado() {
         when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
-        when(precos.findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(1L))
+        when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L))
             .thenReturn(List.of(preco(1L, 2L, "8.00"), preco(1L, 2L, "10.00")));
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
         assertThat(service.buscarPrecosPorProduto(1L)).isNotNull();
@@ -55,7 +55,7 @@ class PrecoServiceTest {
 
     @Test void buscarPrecosPorProduto_ComPromocao() {
         when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
-        when(precos.findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
+        when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
         Promocao promocao = Promocao.builder().produto(produto(1L)).mercado(mercado(2L))
             .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("8")).build();
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of(promocao));
@@ -69,14 +69,14 @@ class PrecoServiceTest {
 
     @Test void buscarTodosComPrecos_BaseVazia() {
         when(produtos.findAll()).thenReturn(List.of());
-        when(precos.findByDisponivelTrueOrderByColetadoEmDescIdDesc()).thenReturn(List.of());
+        when(precos.findAllByOrderByColetadoEmDescIdDesc()).thenReturn(List.of());
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
         assertThat(service.buscarTodosComPrecos()).isEmpty();
     }
 
     @Test void buscarTodosComPrecos_PrecosAgrupadosEProdutosSemPreco() {
         when(produtos.findAll()).thenReturn(List.of(produto(1L), produto(3L)));
-        when(precos.findByDisponivelTrueOrderByColetadoEmDescIdDesc())
+        when(precos.findAllByOrderByColetadoEmDescIdDesc())
             .thenReturn(List.of(preco(1L, 2L, "8"), preco(1L, 2L, "10")));
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
         assertThat(service.buscarTodosComPrecos()).hasSize(2);
@@ -84,11 +84,25 @@ class PrecoServiceTest {
 
     @Test void buscarTodosComPrecos_ComPromocaoVigente() {
         when(produtos.findAll()).thenReturn(List.of(produto(1L)));
-        when(precos.findByDisponivelTrueOrderByColetadoEmDescIdDesc()).thenReturn(List.of());
+        when(precos.findAllByOrderByColetadoEmDescIdDesc()).thenReturn(List.of());
         var promo = Promocao.builder().produto(produto(1L)).mercado(mercado(2L))
             .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("7")).build();
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of(promo, promo));
         assertThat(service.buscarTodosComPrecos()).hasSize(1);
+    }
+
+    @Test void buscarTodosComPrecos_UltimaLinhaIndisponivel_NaoReexibePrecoAntigo() {
+        Preco recenteIndisponivel = preco(1L, 2L, "12");
+        recenteIndisponivel.setDisponivel(false);
+        when(produtos.findAll()).thenReturn(List.of(produto(1L)));
+        when(precos.findAllByOrderByColetadoEmDescIdDesc())
+            .thenReturn(List.of(recenteIndisponivel, preco(1L, 2L, "10"), preco(1L, 3L, "9")));
+        when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
+
+        var resposta = service.buscarTodosComPrecos();
+
+        assertThat(resposta).hasSize(1);
+        assertThat(resposta.get(0).getPrecos()).containsOnlyKeys(3L);
     }
 
     @Test void criar_ProdutoInexistente() {

@@ -36,6 +36,17 @@ from pipeline import carregar, ErroIngestao, validar_dsn
 
 LOGGER = logging.getLogger("rotina_carga")
 
+# Redes cujo coletor usa um caminho proibido pelo robots.txt. Os modulos
+# (coleta_zaffari.py / coleta_rissul.py) continuam no repositorio, mas a rotina
+# NAO os executa. Motivo: ambos coletam por /api/catalog_system/..., e o robots.txt
+# das duas redes traz "Disallow: /api/" (ver docs/diagnostico-scraper.md, secao 0).
+# Como reativar: so depois de obter autorizacao da rede (ou trocar o coletor por um
+# caminho permitido), apague a entrada correspondente deste dicionario.
+REDES_SUSPENSAS = {
+    "zaffari": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
+    "rissul": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
+}
+
 REDES_CONFIG = {
     "fort": {
         "nome": "Fort Atacadista",
@@ -278,6 +289,14 @@ def executar_rodada_completa(*, dsn, diretorio_base, modo_fixture=False,
 
     resultados = {}
     for chave, config_rede in REDES_CONFIG.items():
+        if chave in REDES_SUSPENSAS:
+            LOGGER.warning(
+                "Rede %s SUSPENSA na rotina: %s. Para reativar, remova a rede de "
+                "REDES_SUSPENSAS em rotina_carga.py apos autorizacao da rede.",
+                chave, REDES_SUSPENSAS[chave],
+            )
+            resultados[chave] = {"status": "suspensa", "motivo": REDES_SUSPENSAS[chave]}
+            continue
         try:
             resultados[chave] = executar_ciclo_rede(
                 chave, config_rede,
@@ -326,7 +345,7 @@ def executar_rodada_completa(*, dsn, diretorio_base, modo_fixture=False,
         "duracao_segundos": duracao,
         "modo": "fixture" if modo_fixture else "live",
         "redes": resultados,
-        "sucesso_geral": all(r.get("status") in ("concluido", "parcial") for r in resultados.values()),
+        "sucesso_geral": all(r.get("status") in ("concluido", "parcial", "suspensa") for r in resultados.values()),
     }
 
     dir_rotina = diretorio_base / "relatorios"

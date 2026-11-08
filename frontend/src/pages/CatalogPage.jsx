@@ -421,7 +421,12 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
               }`}
               title={`Clique na logo para filtrar por ${m.name} ou na estrela para favoritar a rede`}
             >
-              <div className="h-9 sm:h-10 flex-1 min-w-0 flex items-center justify-center overflow-hidden px-1">
+              <button
+                type="button"
+                aria-pressed={isSelected}
+                aria-label={`Filtrar por ${m.name}`}
+                className="h-9 sm:h-10 flex-1 min-w-0 flex items-center justify-center overflow-hidden px-1 cursor-pointer rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
+              >
                 {logoSrc ? (
                   <img
                     src={logoSrc}
@@ -433,7 +438,7 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
                     {m.name}
                   </span>
                 )}
-              </div>
+              </button>
               {onToggleFav && (
                 <button
                   type="button"
@@ -460,7 +465,6 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
 function ProductCard({
   product,
   markets,
-  favMarkets,
   isFavProduct,
   onToggleFavProduct,
   onAdd,
@@ -471,15 +475,6 @@ function ProductCard({
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
-
-  const imgSrc =
-    product.imageLocal ||
-    product.imagem_local ||
-    product.imageUrl ||
-    product.imagem_url ||
-    (typeof product.image === "string" && product.image.startsWith("http")
-      ? product.image
-      : null);
 
   function handleAddClick(e) {
     e.stopPropagation();
@@ -518,7 +513,7 @@ function ProductCard({
             className={`absolute top-6 right-6 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
               isFavProduct
                 ? "bg-rose-50 text-rose-600 border border-rose-200"
-                : "bg-white/85 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-0 group-hover:opacity-100"
+                : "bg-white/85 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-70 group-hover:opacity-100 focus-visible:opacity-100"
             }`}
             title={isFavProduct ? "Remover dos favoritos" : "Salvar nos favoritos"}
           >
@@ -557,8 +552,15 @@ function ProductCard({
           </div>
 
           {/* Nome e Descrição */}
-          <h3 className="text-sm font-bold text-brand-navy mt-2 line-clamp-2 leading-snug group-hover:text-brand-green transition-colors">
-            {product.name}
+          <h3 className="text-sm font-bold text-brand-navy mt-2 leading-snug group-hover:text-brand-green transition-colors">
+            {/* Botão real: dá ao teclado e ao leitor de tela o acesso ao detalhe/comparativo. O clique
+                sobe até o cartão, que abre o detalhe (também para quem usa mouse em qualquer área). */}
+            <button
+              type="button"
+              className="block w-full text-left line-clamp-2 cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
+            >
+              {product.name}
+            </button>
           </h3>
 
           <p className="line-clamp-2 text-[11px] text-brand-muted mt-1 min-h-[1.75rem]">
@@ -669,7 +671,7 @@ function ProductCard({
         className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all ${
           isFavProduct
             ? "bg-rose-50 text-rose-600 border border-rose-200"
-            : "bg-white/80 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-0 group-hover:opacity-100 sm:opacity-70"
+            : "bg-white/80 backdrop-blur-xs text-brand-muted hover:text-rose-500 border border-slate-200/70 opacity-70 group-hover:opacity-100 focus-visible:opacity-100"
         }`}
         title={isFavProduct ? "Remover dos favoritos" : "Salvar nos favoritos"}
       >
@@ -708,8 +710,13 @@ function ProductCard({
           </span>
         </div>
 
-        <h3 className="text-xs sm:text-sm font-bold text-brand-navy line-clamp-2 leading-snug min-h-[2.5rem] group-hover:text-brand-green transition-colors">
-          {product.name}
+        <h3 className="text-xs sm:text-sm font-bold text-brand-navy leading-snug min-h-[2.5rem] group-hover:text-brand-green transition-colors">
+          <button
+            type="button"
+            className="block w-full text-left line-clamp-2 cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/50"
+          >
+            {product.name}
+          </button>
         </h3>
       </div>
 
@@ -822,7 +829,6 @@ function CategoryShelf({
   category,
   products,
   markets,
-  favMarkets,
   favProducts,
   onToggleFavProduct,
   onAdd,
@@ -939,11 +945,13 @@ function CategoryShelf({
       >
         {/* DETALHE LATERAL VERTICAL DA CATEGORIA (253x453) - Idêntico às referências visuais */}
         {meta.bannerVertical && (
-          <div
+          <button
+            type="button"
             onClick={() => onSelectCategory(category.id)}
-            className="w-[160px] sm:w-[185px] md:w-[205px] shrink-0 self-stretch rounded-2xl overflow-hidden relative shadow-xs border border-brand-border/70 group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 snap-start bg-slate-50 flex items-center justify-center"
+            className="w-[160px] sm:w-[185px] md:w-[205px] shrink-0 self-stretch rounded-2xl overflow-hidden relative shadow-xs border border-brand-border/70 group cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 snap-start bg-slate-50 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green/60"
             style={{ minHeight: "360px" }}
             title={`Ver todos os produtos de ${category.label}`}
+            aria-label={`Ver todos os produtos de ${category.label}`}
           >
             <img
               src={meta.bannerVertical}
@@ -956,11 +964,11 @@ function CategoryShelf({
               }}
             />
             {/* Tag flutuante sutil apenas no hover para indicar ação */}
-            <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-between text-white text-xs font-bold">
+            <span className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200 flex items-center justify-between text-white text-xs font-bold">
               <span>Explorar {category.label}</span>
               <span className="text-emerald-300 font-extrabold">&rarr;</span>
-            </div>
-          </div>
+            </span>
+          </button>
         )}
 
         {/* CARDS DE PRODUTOS DA CATEGORIA */}
@@ -969,7 +977,6 @@ function CategoryShelf({
             key={prod.id}
             product={prod}
             markets={markets}
-            favMarkets={favMarkets}
             isFavProduct={favProducts.includes(String(prod.id))}
             onToggleFavProduct={onToggleFavProduct}
             onAdd={onAdd}
@@ -1016,9 +1023,13 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [visibleLimit, setVisibleLimit] = useState(48);
 
-  useEffect(() => {
+  // "Ver mais" recomeça em 48 sempre que a consulta muda (ajuste de estado na renderização)
+  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode].join("|");
+  const [consultaAnterior, setConsultaAnterior] = useState(consultaAtual);
+  if (consultaAtual !== consultaAnterior) {
+    setConsultaAnterior(consultaAtual);
     setVisibleLimit(48);
-  }, [selectedCat, search, mktFilter, sortBy, viewMode]);
+  }
 
   // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());
@@ -1071,7 +1082,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
       }
     }
     carregarDados();
-  }, []);
+  }, [DEFAULT_PRODUCTS]);
 
   // Gestão de produtos favoritos (persiste sempre no localStorage)
   async function toggleFavProduct(id) {
@@ -1392,7 +1403,6 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                   category={category}
                   products={catProds}
                   markets={markets}
-                  favMarkets={favMarkets}
                   favProducts={favProducts}
                   onToggleFavProduct={toggleFavProduct}
                   onAdd={handleAddToList}
@@ -1485,7 +1495,6 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                       key={prod.id}
                       product={prod}
                       markets={markets}
-                      favMarkets={favMarkets}
                       isFavProduct={favProducts.includes(String(prod.id))}
                       onToggleFavProduct={toggleFavProduct}
                       onAdd={handleAddToList}

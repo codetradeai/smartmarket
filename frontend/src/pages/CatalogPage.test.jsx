@@ -301,29 +301,6 @@ describe('CatalogPage', () => {
       expect(favoritoService.favoritarMercado).not.toHaveBeenCalled()
       expect(screen.getByTitle('Favoritar rede Fort Atacadista')).toBeInTheDocument()
     })
-
-    // Recurso removido no redesenho: CatalogPage passa favMarkets ao ProductCard, mas o cartão não
-    // usa mais essa prop, então não existe destaque "⭐ <mercado favorito>". Os 3 testes abaixo ficam
-    // pulados até decidirem se o destaque volta (e, nesse caso, voltam a valer como estão).
-    test.skip('destaca o melhor preco do mercado favorito quando difere do melhor geral', async () => {
-      await renderizar({ favMercados: [2] }, { grade: true })
-
-      const cartao = within(cartaoDe('Quinoa Real'))
-      expect(cartao.getByText('⭐ Carrefour')).toBeInTheDocument()
-      expect(cartao.getAllByText('R$ 24.50').length).toBeGreaterThanOrEqual(1)
-    })
-
-    test.skip('nao repete o destaque quando o favorito ja e o melhor mercado', async () => {
-      await renderizar({ favMercados: [1] }, { grade: true })
-
-      expect(within(cartaoDe('Quinoa Real')).queryByText(/⭐/)).not.toBeInTheDocument()
-    })
-
-    test.skip('nao destaca favorito sem preco naquele produto', async () => {
-      await renderizar({ favMercados: [2] }, { grade: true })
-
-      expect(within(cartaoDe('Kefir Natural')).queryByText(/⭐/)).not.toBeInTheDocument()
-    })
   })
 
   describe('produtos favoritos', () => {
@@ -518,4 +495,86 @@ describe('CatalogPage', () => {
       expect(within(cartaoDe('Kefir Natural')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
     })
   })
+
+  // Achado 16: card, faixa de redes e banner de categoria eram div com onClick (so mouse).
+  describe('operacao por teclado e leitor de tela', () => {
+    it.each([
+      ['grade', true],
+      ['prateleira', false],
+    ])('o cartao da %s tem um botao real com o nome do produto que abre o detalhe', async (_nome, grade) => {
+      await renderizar({}, { grade })
+
+      const botao = within(cartaoDe('Quinoa Real')).getByRole('button', { name: 'Quinoa Real' })
+      expect(botao.tagName).toBe('BUTTON')
+      expect(botao).toHaveAttribute('type', 'button')
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+      // Enter/Espaco num <button> disparam "click"; o clique sobe ate o cartao e abre o detalhe.
+      fireEvent.click(botao)
+
+      expect(screen.getByRole('dialog', { name: 'Quinoa Real' })).toBeInTheDocument()
+    })
+
+    it('abrir o detalhe pelo botao chama o detalhe uma unica vez', async () => {
+      await renderizar({}, { grade: true })
+
+      fireEvent.click(within(cartaoDe('Quinoa Real')).getByRole('button', { name: 'Quinoa Real' }))
+
+      expect(screen.getAllByRole('dialog')).toHaveLength(1)
+    })
+
+    it.each([
+      ['grade', true],
+      ['prateleira', false],
+    ])('o coracao da %s fica visivel ao receber foco e em telas sem hover', async (_nome, grade) => {
+      await renderizar({}, { grade })
+
+      const coracao = within(cartaoDe('Quinoa Real')).getByTitle('Salvar nos favoritos')
+
+      // Antes: opacity-0 ate o hover, entao ficava invisivel no teclado e no celular.
+      expect(coracao.className).not.toMatch(/(^|\s)opacity-0(\s|$)/)
+      expect(coracao.className).toContain('focus-visible:opacity-100')
+      expect(coracao.className).toContain('group-hover:opacity-100')
+    })
+
+    it('a faixa de redes filtra por um botao com aria-pressed', async () => {
+      await renderizar()
+
+      const botaoFort = screen.getByRole('button', { name: 'Filtrar por Fort Atacadista' })
+      expect(botaoFort).toHaveAttribute('aria-pressed', 'false')
+
+      fireEvent.click(botaoFort)
+
+      expect(screen.getByRole('button', { name: 'Filtrar por Fort Atacadista' })).toHaveAttribute('aria-pressed', 'true')
+      expect(screen.getByTitle('Filtrar por rede')).toHaveValue('1')
+      expect(temCartao('Papel Toalha')).toBe(false)
+
+      fireEvent.click(screen.getByRole('button', { name: 'Filtrar por Fort Atacadista' }))
+      expect(screen.getByTitle('Filtrar por rede')).toHaveValue('todos')
+    })
+
+    it('a estrela de favoritar a rede nao dispara o filtro', async () => {
+      await renderizar()
+
+      await act(async () => {
+        fireEvent.click(screen.getByTitle('Favoritar rede Fort Atacadista'))
+      })
+
+      expect(screen.getByTitle('Filtrar por rede')).toHaveValue('todos')
+    })
+
+    it('o banner vertical da categoria e um botao que leva aos produtos do departamento', async () => {
+      await renderizar()
+
+      const banner = screen.getAllByRole('button', { name: /^Ver todos os produtos de / })[0]
+      expect(banner.tagName).toBe('BUTTON')
+      const categoria = banner.getAttribute('aria-label').replace('Ver todos os produtos de ', '')
+
+      fireEvent.click(banner)
+
+      expect(screen.getByRole('heading', { level: 2, name: categoria })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /^Ver todos os produtos de / })).not.toBeInTheDocument()
+    })
+  })
 })
+

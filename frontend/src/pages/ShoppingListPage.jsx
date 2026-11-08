@@ -184,8 +184,19 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     [list, products, markets],
   );
 
-  useEffect(() => {
+  // As barras recomeçam recolhidas quando a lista, o modo ou a comparação mudam
+  // (ajuste de estado na renderização, em vez de setState dentro de efeito).
+  const [depsDasBarras, setDepsDasBarras] = useState({ list, chartMode, compared });
+  if (
+    depsDasBarras.list !== list ||
+    depsDasBarras.chartMode !== chartMode ||
+    depsDasBarras.compared !== compared
+  ) {
+    setDepsDasBarras({ list, chartMode, compared });
     setAnimateBars(false);
+  }
+
+  useEffect(() => {
     const timer = requestAnimationFrame(() => {
       requestAnimationFrame(() => setAnimateBars(true));
     });
@@ -212,7 +223,7 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
       }
     }
     carregarDados();
-  }, []);
+  }, [DEFAULT_PRODUCTS]);
 
   const items = Object.entries(list)
     .map(([id, qty]) => ({
@@ -249,7 +260,6 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     showToast("Gráfico comparativo atualizado!");
   }
 
-  const totalUnits = Object.values(list).reduce((a, b) => a + b, 0);
   const winner = results[0];
   const winnerMarket = winner
     ? markets.find((m) => m.id === winner.marketId)
@@ -640,24 +650,38 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                     <span className="w-3 h-3 rounded-full bg-rose-500 inline-block" />
                     <strong className="text-brand-navy">Vermelho:</strong> Mais caro
                   </span>
+                  {results.some((r) => r.missing.length > 0) && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-slate-300 inline-block" />
+                      <strong className="text-brand-navy">Cinza:</strong> Falta item da lista (não comparável)
+                    </span>
+                  )}
                 </div>
 
                 {/* Barras Horizontais Animadas */}
                 <div className="space-y-3">
                   {(() => {
-                    const minTotal = results[0]?.total || 1;
-                    const maxTotal = results[results.length - 1]?.total || minTotal;
-                    const maxDiff = Math.max(0.01, maxTotal - minTotal);
+                    // A lista vem ordenada por cobertura (não por preço): mínimo e máximo precisam
+                    // ser calculados sobre os totais, não lidos da primeira e da última linha.
+                    const totais = results.map((r) => r.total);
+                    const minTotal = totais.length ? Math.min(...totais) : 1;
+                    const maxTotal = totais.length ? Math.max(...totais) : minTotal;
+                    // "Mais caro" e o semáforo só valem entre redes com a lista inteira (mesma cesta).
+                    const totaisCompletos = completos.map((r) => r.total);
+                    const minCompleto = totaisCompletos.length ? Math.min(...totaisCompletos) : 0;
+                    const maxCompleto = totaisCompletos.length ? Math.max(...totaisCompletos) : 0;
+                    const maxDiff = Math.max(0.01, maxCompleto - minCompleto);
 
                     return results.map((r, i) => {
                       const m = markets.find((x) => x.id === r.marketId);
                       if (!m) return null;
-                      const diff = Math.max(0, r.total - minTotal);
-                      const diffPct = minTotal > 0 ? (diff / minTotal) * 100 : 0;
-                      const isWinner = i === 0;
-                      const isWorst = i === results.length - 1 && results.length > 2;
                       // "+R$ mais caro" só entre redes com a lista inteira (mesma cesta).
                       const comparavel = winnerCompleto && r.missing.length === 0;
+                      const diff = comparavel ? Math.max(0, r.total - minCompleto) : 0;
+                      const diffPct = comparavel && minCompleto > 0 ? (diff / minCompleto) * 100 : 0;
+                      const isWinner = comparavel && i === 0;
+                      const isWorst = comparavel && completos.length > 2 && r.total === maxCompleto;
+                      const cobertura = r.available / (r.available + r.missing.length);
                       const rotuloCobertura = `${r.available} de ${r.available + r.missing.length} itens com preço nesta rede`;
                       const isSelected = selectedMarketId === r.marketId;
 
@@ -667,15 +691,20 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                           ? maxTotal > minTotal
                             ? 52 + ((r.total - minTotal) / (maxTotal - minTotal)) * 48
                             : 100
-                          : isWinner
-                            ? 14
-                            : 22 + (diff / maxDiff) * 78;
+                          : !comparavel
+                            ? Math.max(14, Math.round(cobertura * 100))
+                            : isWinner
+                              ? 14
+                              : 22 + (diff / maxDiff) * 78;
 
-                      const barGradient = isWinner
-                        ? "from-emerald-500 to-teal-500"
-                        : isWorst || i >= Math.ceil(results.length * 0.65)
-                          ? "from-rose-500 to-orange-500"
-                          : "from-amber-400 to-amber-500";
+                      // Semáforo só entre redes comparáveis; rede com a lista incompleta fica neutra.
+                      const barGradient = !comparavel
+                        ? "from-slate-300 to-slate-400"
+                        : isWinner
+                          ? "from-emerald-500 to-teal-500"
+                          : isWorst || i >= Math.ceil(completos.length * 0.65)
+                            ? "from-rose-500 to-orange-500"
+                            : "from-amber-400 to-amber-500";
 
                       const logoSrc = MARKET_LOGOS[m.id];
                       const opticalClass = MARKET_LOGO_OPTICAL_CLASS[m.id] || "max-h-7";

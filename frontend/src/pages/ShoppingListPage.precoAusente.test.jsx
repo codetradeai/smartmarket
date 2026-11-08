@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import ShoppingListPage from './ShoppingListPage'
 
@@ -73,4 +73,31 @@ describe('ShoppingListPage com preço em uma rede só', () => {
     expect(within(card).getByText('até R$ 2.00')).toBeInTheDocument()
     expect(screen.getByText(/\+R\$ 2\.00 mais caro/)).toBeInTheDocument()
   })
+
+  // Achado 12: a lista vem ordenada por cobertura, mas o grafico usava a primeira linha como
+  // "minimo" e a ultima como "maximo" de preco. Com redes incompletas, o minimo ficava maior que o
+  // maximo (barras todas em 100%) e a rede de menor total aparecia como a pior, em vermelho.
+  describe('grafico com redes incompletas', () => {
+    const linha = (nome) =>
+      screen
+        .getAllByTitle('Clique para ver o preço de cada produto neste supermercado')
+        .find((el) => within(el).queryAllByText(nome).length > 0)
+    const barra = (nome) => linha(nome).querySelector('[class*="bg-gradient-to-r"]')
+
+    it('dimensiona as barras pelo menor e pelo maior total de verdade, nao pela ordem da lista', async () => {
+      // Fort: 2 de 3 itens (R$ 28). Asun: 1 de 3 itens (R$ 2). A lista fica [Fort, Asun].
+      await renderizar({ p1: 1, p2: 1, p3: 1 })
+
+      await waitFor(() => expect(barra('Fort Atacadista')).toHaveStyle({ width: '100%' }))
+      // Antes da correcao: minimo (28) > maximo (2) => as duas barras ficavam em 100%.
+      expect(barra('Asun Supermercados')).toHaveStyle({ width: '52%' })
+    })
+
+    it('mantem verde para a rede mais barata entre as que tem a lista inteira', async () => {
+      await renderizar({ p4: 2 })
+
+      expect(barra('Stok Center').className).toContain('from-emerald')
+    })
+  })
 })
+

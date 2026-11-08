@@ -1,6 +1,6 @@
 import { createContext, useState, useMemo, useCallback } from "react"
 import authService from "../services/authService"
-import { CHAVES, limparDadosPrivados } from "../services/storageKeys"
+import { CHAVES, ativarDadosDoUsuario, guardarDadosPrivados } from "../services/storageKeys"
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null)
@@ -44,6 +44,8 @@ function getStoredToken() {
     if (storedToken && isTokenValid(storedToken)) {
       return storedToken
     }
+    // Sessão vencida: só invalida a sessão. Os dados locais ficam guardados para o dono.
+    guardarDadosPrivados()
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
     return null
@@ -80,19 +82,14 @@ export function AuthProvider({ children }) {
         papel: data.papel || "USER",
       }
 
-      const donoDono = (() => {
-        try { return localStorage.getItem(CHAVES.owner) } catch { return null }
-      })()
-      if (donoDono !== data.email) {
-        limparDadosPrivados()
-      }
+      // Troca o namespace dos dados locais para o deste usuário (sem apagar os de ninguém)
+      ativarDadosDoUsuario(data.email)
 
       setToken(data.token)
       setUser(userObj)
 
       localStorage.setItem(TOKEN_KEY, data.token)
       localStorage.setItem(USER_KEY, JSON.stringify(userObj))
-      try { localStorage.setItem(CHAVES.owner, data.email) } catch { /* fallback */ }
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
@@ -129,19 +126,14 @@ export function AuthProvider({ children }) {
         papel: data.papel || "USER",
       }
 
-      const donoDono = (() => {
-        try { return localStorage.getItem(CHAVES.owner) } catch { return null }
-      })()
-      if (donoDono !== data.email) {
-        limparDadosPrivados()
-      }
+      // Troca o namespace dos dados locais para o deste usuário (sem apagar os de ninguém)
+      ativarDadosDoUsuario(data.email)
 
       setToken(data.token)
       setUser(userObj)
 
       localStorage.setItem(TOKEN_KEY, data.token)
       localStorage.setItem(USER_KEY, JSON.stringify(userObj))
-      try { localStorage.setItem(CHAVES.owner, data.email) } catch { /* fallback */ }
 
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
@@ -168,14 +160,15 @@ export function AuthProvider({ children }) {
    * Realiza logout
    */
   const logout = useCallback(() => {
+    // Guarda (não apaga) favoritos, alertas e lista no namespace do dono; o mesmo usuário os
+    // recebe de volta no próximo login. Precisa vir antes de remover o usuário (descobre o dono).
+    guardarDadosPrivados()
     try {
       localStorage.removeItem(TOKEN_KEY)
       localStorage.removeItem(USER_KEY)
-      localStorage.removeItem(CHAVES.owner)
     } catch {
       // fallback
     }
-    limparDadosPrivados()
     setToken(null)
     setUser(null)
   }, [])

@@ -1,6 +1,10 @@
 import axios from "axios"
-import { limparDadosPrivados } from "./storageKeys"
+import { guardarDadosPrivados } from "./storageKeys"
 import { urlPublica } from "../utils/urlPublica"
+
+// A tela de autenticação também responde em /login e /register, então o caminho da página
+// não distingue "senha errada" de "sessão expirada": olha-se a chamada que falhou.
+const ehChamadaDeAutenticacao = (error) => /\/auth\/(login|register)\/?(\?|$)/.test(String(error?.config?.url ?? ""))
 
 // Base URL da API:
 // 1. VITE_API_URL, quando definida no build (backend em outro dominio).
@@ -41,15 +45,19 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status
 
-    if (status === 401) {
-      // Sessão expirada ou inválida
+    // 401 de /auth/login ou /auth/register é credencial errada, não sessão expirada: não
+    // encerra nada, não apaga nada e não redireciona (o erro é mostrado na própria tela).
+    if (status === 401 && !ehChamadaDeAutenticacao(error)) {
+      // Sessão expirada ou inválida: só invalida a sessão. Os dados locais (favoritos,
+      // alertas, lista) são GUARDADOS no namespace do dono, não apagados, e voltam no
+      // próximo login da mesma conta. Guardar vem antes de remover o usuário (descobre o dono).
+      guardarDadosPrivados()
       try {
         localStorage.removeItem("sm_token")
         localStorage.removeItem("sm_user")
       } catch {
         // fallback
       }
-      limparDadosPrivados()
 
       // Redireciona para o login apenas se não estiver já na página de autenticação
       if (typeof window !== "undefined" && !window.location.pathname.startsWith(urlPublica("/auth"))) {

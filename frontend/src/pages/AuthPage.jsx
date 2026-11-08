@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
+import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService"
 import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
 import logoImg from "../assets/logo.png"
 
@@ -94,15 +95,14 @@ export default function AuthPage() {
     setSuccessMessage("")
   }
 
-  // Atalhos de teste para avaliadores
-  const fillCredentials = (type) => {
-    if (type === "admin") {
-      setLoginEmail("davi@smartmarket.com.br")
-      setLoginPassword("admin123")
-    } else {
-      setLoginEmail("maria@email.com")
-      setLoginPassword("user123")
-    }
+  // Atalhos de teste para avaliadores: só em desenvolvimento ou com VITE_ENABLE_DEMO_LOGIN=true.
+  // As credenciais vêm de um import dinâmico, então não existem no bundle de produção.
+  const mostrarAtalhosDemo = atalhosDemoHabilitados()
+  const fillCredentials = async (type) => {
+    const credenciais = await credenciaisDemo(type)
+    if (!credenciais) return
+    setLoginEmail(credenciais.email)
+    setLoginPassword(credenciais.senha)
     setTab("login")
     setErrorMessage("")
   }
@@ -370,28 +370,30 @@ export default function AuthPage() {
                   </button>
                 </p>
 
-                {/* Atalhos Rápidos para Banca de Avaliação */}
-                <div className="pt-4 border-t border-slate-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center mb-2">
-                    Acesso Rápido para Avaliação
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("admin")}
-                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
-                    >
-                      🛡️ Perfil Administrador
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("user")}
-                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
-                    >
-                      👤 Perfil Usuário
-                    </button>
+                {/* Atalhos Rápidos para Banca de Avaliação (somente DEV / modo demo) */}
+                {mostrarAtalhosDemo && (
+                  <div className="pt-4 border-t border-slate-100">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center mb-2">
+                      Acesso Rápido para Avaliação
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fillCredentials("admin")}
+                        className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                      >
+                        🛡️ Perfil Administrador
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fillCredentials("user")}
+                        className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                      >
+                        👤 Perfil Usuário
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </form>
             ) : (
               <form onSubmit={handleCadastroSubmit} className="space-y-4">

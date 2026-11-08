@@ -1,9 +1,34 @@
 import api from "./api"
 
-// Modo demo: so existe se habilitado explicitamente no build (VITE_ENABLE_DEMO_LOGIN=true).
-// Por padrao fica desligado; sem ele, falha de rede vira mensagem de erro, nunca sessao falsa.
-function demoHabilitado() {
-  return import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true"
+// Credenciais de demonstração (DEMO_USERS, atalhos da tela de login) ficam em demoLogin.js e só são
+// carregadas por import dinâmico. A condição de cada import fica escrita DIRETAMENTE no `if`: em
+// produção o Vite troca import.meta.env.DEV por `false` e a flag por `undefined`, o `if` vira
+// constante e o bundler descarta o import() junto com o chunk das senhas. Se a condição ficasse
+// dentro de uma função auxiliar, o bundler não a inlinaria e o chunk com as senhas seria publicado.
+// Conferir após mudar: `npm run build && grep -r "admin123\|user123" dist` deve dar zero.
+
+// Fallback de login/cadastro com backend offline: só existe se habilitado explicitamente no build
+// (VITE_ENABLE_DEMO_LOGIN=true). Sem ele, falha de rede vira mensagem de erro, nunca sessão falsa.
+async function carregarDemoDoFallback() {
+  if (import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true") return import("./demoLogin")
+  return null
+}
+
+// Botões de "Acesso Rápido" da tela de login: desenvolvimento local ou modo demo explícito.
+export function atalhosDemoHabilitados() {
+  return Boolean(import.meta.env.DEV) || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true"
+}
+
+async function carregarDemoDosAtalhos() {
+  if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEMO_LOGIN === "true") return import("./demoLogin")
+  return null
+}
+
+// Credenciais dos atalhos, ou null quando os atalhos estão desligados.
+export async function credenciaisDemo(tipo) {
+  const demo = await carregarDemoDosAtalhos()
+  if (!demo) return null
+  return demo.CREDENCIAIS_ATALHO[tipo === "admin" ? "admin" : "user"]
 }
 
 export const MSG_SEM_SERVIDOR =
@@ -19,53 +44,6 @@ function erroSemServidor(error) {
   return error
 }
 
-// Usuários mock (somente quando o modo demo estiver habilitado)
-const DEMO_USERS = [
-  {
-    id: 1,
-    nome: "Davi Souza",
-    email: "davi@smartmarket.com.br",
-    papel: "ADMIN",
-    senha: "admin123",
-  },
-  {
-    id: 2,
-    nome: "Gilbert Lima",
-    email: "gilbert@smartmarket.com.br",
-    papel: "ADMIN",
-    senha: "admin123",
-  },
-  {
-    id: 3,
-    nome: "Rudinei Silva",
-    email: "rudinei@smartmarket.com.br",
-    papel: "ADMIN",
-    senha: "admin123",
-  },
-  {
-    id: 4,
-    nome: "Maria Santos",
-    email: "maria@email.com",
-    papel: "USER",
-    senha: "user123",
-  },
-]
-
-// Gera um mock JWT payload para o fallback
-function generateDemoToken(user) {
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-  const payload = btoa(
-    JSON.stringify({
-      sub: user.email,
-      id: user.id,
-      nome: user.nome,
-      papel: user.papel,
-      exp: Math.floor(Date.now() / 1000) + 86400, // 24h
-    })
-  )
-  return `${header}.${payload}.demo_signature_smartmarket`
-}
-
 export const authService = {
   /**
    * Realiza o login do usuário
@@ -78,13 +56,15 @@ export const authService = {
       if (!semRespostaDoServidor(error)) throw error
 
       // Modo demo (opt-in): so aceita usuarios conhecidos com a senha correta
-      if (demoHabilitado()) {
+      const demo = await carregarDemoDoFallback()
+      if (demo) {
+        const { DEMO_USERS, gerarTokenDemo } = demo
         const foundUser = DEMO_USERS.find(
           (u) => u.email.toLowerCase() === String(email).toLowerCase() && u.senha === senha
         )
         if (foundUser) {
           return {
-            token: generateDemoToken(foundUser),
+            token: gerarTokenDemo(foundUser),
             tipo: "Bearer",
             id: foundUser.id,
             nome: foundUser.nome,
@@ -108,7 +88,9 @@ export const authService = {
     } catch (error) {
       if (!semRespostaDoServidor(error)) throw error
 
-      if (demoHabilitado()) {
+      const demo = await carregarDemoDoFallback()
+      if (demo) {
+        const { gerarTokenDemo } = demo
         const newUser = {
           id: Date.now(),
           nome,
@@ -116,7 +98,7 @@ export const authService = {
           papel: "USER",
         }
         return {
-          token: generateDemoToken(newUser),
+          token: gerarTokenDemo(newUser),
           tipo: "Bearer",
           id: newUser.id,
           nome: newUser.nome,

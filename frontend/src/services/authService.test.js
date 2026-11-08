@@ -1,5 +1,5 @@
 import api from './api'
-import authService, { MSG_SEM_SERVIDOR } from './authService'
+import authService, { MSG_SEM_SERVIDOR, atalhosDemoHabilitados, credenciaisDemo } from './authService'
 
 jest.mock('./api', () => ({
   __esModule: true,
@@ -154,6 +154,51 @@ describe('authService', () => {
 
       expect(api.get).toHaveBeenCalledWith('/auth/me')
       expect(perfil).toEqual({ nome: 'Ana' })
+    })
+  })
+
+  describe('atalhos de demonstracao', () => {
+    afterEach(() => {
+      delete process.env.VITE_ENABLE_DEMO_LOGIN
+      delete process.env.DEV
+    })
+
+    it('ficam desligados por padrao (build de producao) e nao entregam credenciais', async () => {
+      expect(atalhosDemoHabilitados()).toBe(false)
+      await expect(credenciaisDemo('admin')).resolves.toBeNull()
+      await expect(credenciaisDemo('user')).resolves.toBeNull()
+    })
+
+    it('ligam em desenvolvimento (import.meta.env.DEV)', async () => {
+      process.env.DEV = '1'
+
+      expect(atalhosDemoHabilitados()).toBe(true)
+      await expect(credenciaisDemo('admin')).resolves.toEqual({
+        email: 'davi@smartmarket.com.br',
+        senha: 'admin123',
+      })
+    })
+
+    it('ligam com VITE_ENABLE_DEMO_LOGIN=true e devolvem o perfil comum para "user"', async () => {
+      process.env.VITE_ENABLE_DEMO_LOGIN = 'true'
+
+      expect(atalhosDemoHabilitados()).toBe(true)
+      await expect(credenciaisDemo('user')).resolves.toEqual({ email: 'maria@email.com', senha: 'user123' })
+    })
+
+    it('qualquer outro valor da flag mantem desligado', () => {
+      process.env.VITE_ENABLE_DEMO_LOGIN = '1'
+
+      expect(atalhosDemoHabilitados()).toBe(false)
+    })
+
+    it('o DEV sozinho nao liga o fallback de login offline (continua opt-in pela flag)', async () => {
+      process.env.DEV = '1'
+      api.post.mockRejectedValue(erroDeRede())
+
+      await expect(authService.login('davi@smartmarket.com.br', 'admin123')).rejects.toMatchObject({
+        userMessage: MSG_SEM_SERVIDOR,
+      })
     })
   })
 })

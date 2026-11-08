@@ -11,7 +11,10 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /api/health
-    autoDeploy: true
+    # Deploy automatico so depois que os checks do GitHub (CI) passarem na main. O Dockerfile empacota
+    # com -DskipTests, entao sem isto um merge com teste quebrado ou cobertura abaixo de 70% iria direto
+    # para producao. O Render nao implanta se nenhum check for detectado ou se algum falhar.
+    autoDeployTrigger: checksPass
     buildFilter:
       paths:
         - backend/**

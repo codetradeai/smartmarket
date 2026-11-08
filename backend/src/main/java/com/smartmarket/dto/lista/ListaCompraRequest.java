@@ -2,6 +2,7 @@ package com.smartmarket.dto.lista;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ import java.util.List;
 public class ListaCompraRequest {
 
     @NotBlank(message = "O nome da lista e obrigatorio")
+    @Size(max = 255, message = "O nome da lista deve ter no maximo 255 caracteres")
     private String nome;
 
+    @Size(max = ItemListaRequest.ITENS_MAXIMOS_POR_LISTA, message = "a lista aceita no maximo 100 itens")
     @Builder.Default
     private List<@Valid ItemListaRequest> itens = new ArrayList<>();
 }

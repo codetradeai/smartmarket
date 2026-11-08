@@ -13,6 +13,8 @@ Sem `SMARTMARKET_JWT_SECRET` a aplicação recusa inicializar e exibe a mensagem
 ```
 SMARTMARKET_JWT_SECRET nao definido. Defina a variavel de ambiente antes de iniciar a aplicacao.
 ```
+A aplicação também recusa inicializar (com mensagem própria) se o segredo tiver menos de 32 bytes ou se for o
+valor de exemplo de `.env.example` (`gere-um-segredo-...`), que é público.
 
 ---
 
@@ -104,4 +106,15 @@ docker compose -f backend/docker-compose.yml up -d postgres
 
 # Testes sem JaCoCo (Windows com & no caminho do usuário)
 ./mvnw test -Djacoco.skip=true
+```
+
+### Diretório temporário no Windows (opcional, só na sua máquina)
+
+O repositório **não** versiona `backend/.mvn/jvm.config` (antes ele apontava para uma pasta de uma máquina
+específica e, fora dela, o Maven criava uma pasta `E:` dentro do projeto). Se o seu usuário do Windows tem
+`&` ou acentos no caminho e o temp padrão atrapalha o build, crie o arquivo localmente (ele está no
+`.gitignore`) com um caminho que exista na sua máquina:
+
+```
+-Djava.io.tmpdir=C:/temp-maven
 ```

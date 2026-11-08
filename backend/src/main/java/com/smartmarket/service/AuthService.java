@@ -13,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -23,13 +25,16 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
+        // E-mail e identidade da conta: grava sempre sem espacos nas pontas e em minusculas, e
+        // trata "Maria@x.com" e "maria@x.com" como a mesma conta.
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        if (usuarioRepository.existsByEmailIgnoreCase(email)) {
             throw new IllegalArgumentException("Email ja cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
             .nome(request.getNome())
-            .email(request.getEmail())
+            .email(email)
             .senha(passwordEncoder.encode(request.getSenha()))
             .papel(Papel.USER)
             .build();
@@ -49,11 +54,15 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        // No login so tira os espacos: a busca ignora a caixa (primeiro o e-mail exato, depois sem
+        // diferenciar maiusculas) para continuar valendo para contas antigas gravadas com maiusculas.
+        String email = request.getEmail().trim();
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getSenha())
+            new UsernamePasswordAuthenticationToken(email, request.getSenha())
         );
 
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+        Usuario usuario = usuarioRepository.findByEmail(email)
+            .or(() -> usuarioRepository.findFirstByEmailIgnoreCaseOrderByIdAsc(email))
             .orElseThrow(() -> new IllegalArgumentException("Usuario nao encontrado"));
 
         String token = jwtTokenProvider.generateToken(usuario);

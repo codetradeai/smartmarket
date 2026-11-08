@@ -66,7 +66,7 @@ class AuthServiceTest {
 
     @Test
     void register_DeveCriarUsuarioERetornarToken() {
-        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmailIgnoreCase(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("$2a$10$hash");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
         when(jwtTokenProvider.generateToken(any(Usuario.class))).thenReturn("jwt-token");
@@ -82,7 +82,7 @@ class AuthServiceTest {
 
     @Test
     void register_DeveFalharQuandoEmailJaExiste() {
-        when(usuarioRepository.existsByEmail("teste@email.com")).thenReturn(true);
+        when(usuarioRepository.existsByEmailIgnoreCase("teste@email.com")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(registerRequest))
             .isInstanceOf(IllegalArgumentException.class)
@@ -128,7 +128,7 @@ class AuthServiceTest {
 
     @Test
     void register_DeveCodificarSenhaEAtribuirPapelUser() {
-        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(usuarioRepository.existsByEmailIgnoreCase(anyString())).thenReturn(false);
         when(passwordEncoder.encode("senha123")).thenReturn("hash-gerado");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
         when(jwtTokenProvider.generateToken(any(Usuario.class))).thenReturn("jwt-token");
@@ -139,5 +139,54 @@ class AuthServiceTest {
         verify(usuarioRepository).save(captor.capture());
         assertThat(captor.getValue().getSenha()).isEqualTo("hash-gerado");
         assertThat(captor.getValue().getPapel()).isEqualTo(Papel.USER);
+    }
+
+    @Test
+    void register_DeveNormalizarEmailComTrimEMinusculas() {
+        registerRequest.setEmail("  Maria.Silva@Email.COM ");
+        when(usuarioRepository.existsByEmailIgnoreCase("maria.silva@email.com")).thenReturn(false);
+        when(passwordEncoder.encode(anyString())).thenReturn("hash");
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(jwtTokenProvider.generateToken(any(Usuario.class))).thenReturn("jwt-token");
+
+        AuthResponse response = authService.register(registerRequest);
+
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(captor.capture());
+        assertThat(captor.getValue().getEmail()).isEqualTo("maria.silva@email.com");
+        assertThat(response.getEmail()).isEqualTo("maria.silva@email.com");
+    }
+
+    @Test
+    void register_DeveRecusarEmailQueSoDifereNaCaixa() {
+        registerRequest.setEmail("MARIA@email.com");
+        when(usuarioRepository.existsByEmailIgnoreCase("maria@email.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> authService.register(registerRequest))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Email ja cadastrado");
+
+        verify(usuarioRepository, never()).save(any());
+    }
+
+    @Test
+    void login_DeveAceitarEmailComCaixaDiferenteDaCadastrada() {
+        // Conta antiga, gravada antes da normalizacao, com maiusculas no e-mail.
+        Usuario legado = Usuario.builder().id(7L).nome("Legado").email("Legado@Email.com")
+            .senha("hash").papel(Papel.USER).build();
+        loginRequest.setEmail("  legado@email.com ");
+        when(usuarioRepository.findByEmail("legado@email.com")).thenReturn(java.util.Optional.empty());
+        when(usuarioRepository.findFirstByEmailIgnoreCaseOrderByIdAsc("legado@email.com"))
+            .thenReturn(java.util.Optional.of(legado));
+        when(jwtTokenProvider.generateToken(legado)).thenReturn("jwt-token");
+
+        AuthResponse response = authService.login(loginRequest);
+
+        assertThat(response.getToken()).isEqualTo("jwt-token");
+        assertThat(response.getEmail()).isEqualTo("Legado@Email.com");
+        ArgumentCaptor<org.springframework.security.core.Authentication> captor =
+            ArgumentCaptor.forClass(org.springframework.security.core.Authentication.class);
+        verify(authenticationManager).authenticate(captor.capture());
+        assertThat(captor.getValue().getPrincipal()).isEqualTo("legado@email.com");
     }
 }

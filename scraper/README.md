@@ -117,6 +117,20 @@ Para detalhes completos de arquitetura, parâmetros de linha de comando e regras
 
 ---
 
+## 5.1 Limpeza do catálogo do frontend (`frontend/src/data.js`)
+
+O `data.js` é editado por mais de um script e acumulou cópias, categorias por substring e unidades erradas. `limpar_catalogo.py` corrige isso de forma determinística e idempotente (cópias exatas por rede + idOrigem, linhas híbridas com preço simulado, categoria por palavra inteira com prioridade por tipo, unidade g/ml 1000x errada e nomes com encoding quebrado). Nunca renumera ids, só usa categorias que já existem e apenas lista (não remove) itens fora de supermercado.
+
+```bash
+python scraper/limpar_catalogo.py --verificar   # não grava; sai com 1 se houver o que limpar (use no CI/antes do PR)
+python scraper/limpar_catalogo.py                # limpa o data.js
+cd frontend && node scripts/gerar-catalogo-resumo.mjs   # atualiza os totais da Home
+```
+
+Registro da primeira limpeza, com cada id alterado (antes/depois): [`../docs/LIMPEZA-DO-CATALOGO.md`](../docs/LIMPEZA-DO-CATALOGO.md).
+
+---
+
 ## 6. Documentos Complementares
 
 * [`ROTINA-DE-CARGA.md`](ROTINA-DE-CARGA.md): Orquestração unificada, histórico e atualização contínua na tabela `preco`.

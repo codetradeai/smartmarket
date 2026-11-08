@@ -5,36 +5,35 @@ on:
     # Executa todos os dias às 07:00 UTC (04:00 horário de Brasília)
     - cron: '0 7 * * *'
   workflow_dispatch:
-    inputs:
-      notificar:
-        description: 'Enviar notificação ao concluir'
-        required: false
-        default: 'false'
-        type: boolean
+
+# Menor privilégio: nenhum passo escreve no repositório (o artifact usa o token interno do Actions).
+permissions:
+  contents: read
 
 jobs:
   executar-scrapers:
     name: Raspagem e Ingestão Diária - 8 Redes RS
     runs-on: ubuntu-latest
-    env:
-      # Mesmo nome lido por scraper/rotina_carga.py::obter_dsn (formato libpq,
-      # ex.: "host=localhost port=5436 dbname=smartmarket user=... password=...").
-      SMARTMARKET_DSN: ${{ secrets.SMARTMARKET_DSN }}
 
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Configurar Python 3.11
         uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: scraper/requirements-local.lock.txt
 
+      # Versões fixas (lock), não as faixas de requirements.txt: uma release nova e comprometida
+      # dentro da faixa não entra sozinha neste job. Nenhum secret existe neste passo.
       - name: Instalar Dependências do Scraper
         run: |
           python -m pip install --upgrade pip
-          pip install -r scraper/requirements.txt
+          pip install -r scraper/requirements-local.lock.txt
 
       - name: Executar Suíte de Testes Automatizados
         run: |
@@ -52,25 +51,67 @@ jobs:
       # (scraper/cron_coleta_diaria.sh ou smartmarket-scraper.service) ou
       # (b) manter o Actions apenas como teste. A variavel lida por
       # scraper/rotina_carga.py e SMARTMARKET_DSN (ou SMARTMARKET_LOCAL_DSN).
+      #
+      # Sem coleta nao ha o que consolidar: os passos seguintes (imagens, catalogo/SQL e
+      # artifact) so rodam quando a rotina de fato rodou e deixou saida em scraper/output.
+      # Antes eles rodavam sempre, saiam com exit 0 sobre entrada vazia e arquivavam um SQL
+      # esvaziado como se fosse o relatorio do dia.
+      - name: Detectar se há DSN configurado
+        id: dsn
+        env:
+          SMARTMARKET_DSN: ${{ secrets.SMARTMARKET_DSN }}
+        run: |
+          if [ -n "$SMARTMARKET_DSN" ]; then
+            echo "coletar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "coletar=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Coleta NÃO executada::O secret SMARTMARKET_DSN não está configurado: este workflow rodou só os testes offline do scraper. Nenhum preço foi coletado e nenhum relatório foi gerado."
+          fi
+
+      # O secret fica no env só deste passo (não no job): pip, testes e demais scripts não o enxergam.
       - name: Executar Rotina de Coleta e Carga Diária
-        if: ${{ env.SMARTMARKET_DSN != '' }}
+        if: ${{ steps.dsn.outputs.coletar == 'true' }}
+        env:
+          SMARTMARKET_DSN: ${{ secrets.SMARTMARKET_DSN }}
         run: |
           python scraper/rotina_carga.py
 
+      # A rotina grava em scraper/output/rotina/<rede>/<run_id>/produtos_coletados.json. Sem nenhum
+      # JSON coletado a execução FALHA (não é "verde com nada dentro").
+      # Os scripts de imagens e catálogo leem scraper/output/*.json (nível raiz); se não houver,
+      # eles são pulados com aviso em vez de gerar catálogo e SQL vazios.
+      - name: Verificar saída da coleta
+        id: verificar
+        if: ${{ steps.dsn.outputs.coletar == 'true' }}
+        run: |
+          if [ -z "$(find scraper/output -name 'produtos_coletados.json' -print -quit 2>/dev/null)" ]; then
+            echo "::error title=Coleta vazia::A rotina terminou sem gerar nenhum produtos_coletados.json em scraper/output."
+            exit 1
+          fi
+          if compgen -G 'scraper/output/*.json' > /dev/null; then
+            echo "consolidar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "consolidar=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Consolidação pulada::Não há scraper/output/*.json (nível raiz) para imagens e catálogo; nada foi consolidado."
+          fi
+
       - name: Baixar Novas Imagens em Alta Definição
+        if: ${{ steps.verificar.outputs.consolidar == 'true' }}
         run: |
           python scraper/download_imagens.py
 
       - name: Consolidar Catálogo e Script SQL
+        if: ${{ steps.verificar.outputs.consolidar == 'true' }}
         run: |
           python scraper/gerar_catalogo_e_sql.py
 
+      # Só arquiva depois de a saída ter sido verificada; se não houver arquivo, o passo falha
+      # (if-no-files-found: error) em vez de publicar um artifact vazio.
       - name: Arquivar Relatórios de Coleta como Artifact
         uses: actions/upload-artifact@v7
-        if: always()
+        if: ${{ !cancelled() && steps.verificar.outcome == 'success' }}
         with:
           name: relatorio-coleta-diaria-${{ github.run_id }}
-          path: |
-            scraper/output/*.json
-            backend/database/carga_completa_530_produtos.sql
+          path: scraper/output/**/*.json
+          if-no-files-found: error
           retention-days: 14

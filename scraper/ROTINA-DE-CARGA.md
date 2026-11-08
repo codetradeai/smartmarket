@@ -15,7 +15,7 @@ Esta entrega soluciona as pendências levantadas na entrega parcial da carga (PR
 4. **Regras de Negócio na Tabela `preco`**:
    - **Preservação de Histórico**: Cada coleta bem-sucedida armazena uma nova observação na tabela `preco` com `coletado_em` em UTC, permitindo gráficos de evolução temporal.
    - **Idempotência por Hash**: Replays idênticos dentro da mesma rodada ou mesmo timestamp não duplicam registros na tabela `preco`.
-   - **Atualização de Indisponibilidade (Cenário 3.1 BDD)**: Produtos vinculados à loja que deixam de constar na coleta mais recente têm seu status atualizado para `disponivel = FALSE`.
+   - **Atualização de Indisponibilidade (Cenário 3.1 BDD)**: Produtos vinculados à loja que deixam de constar na coleta mais recente têm seu status atualizado para `disponivel = FALSE`. Isso só acontece quando a coleta foi **completa** (status 0, sem falhas) **e exaustiva** (`coleta_exaustiva: True` na entrada da rede em `REDES_CONFIG`). Coleta parcial (status 2) ou por amostra (top-N por categoria, o caso de todos os coletores hoje) carrega os preços, mas **não** marca ninguém como indisponível; o resumo da rede traz `indisponibilidade` = `atualizada`, `ignorada_coleta_parcial` ou `ignorada_coleta_amostral`.
    - **Inicialização Automática de Mercados**: Garante a integridade referencial inserindo as redes na tabela `mercado` (`id=1`: Fort Atacadista, `id=2`: Carrefour).
 
 ---

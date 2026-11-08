@@ -47,6 +47,11 @@ REDES_SUSPENSAS = {
     "rissul": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
 }
 
+# Chave opcional "coleta_exaustiva" (padrao False) em cada entrada de REDES_CONFIG: so
+# declare True quando o coletor percorre o catalogo INTEIRO da loja (sem limite por
+# categoria/pagina e sem amostra por ranking de vendas). Hoje todos os coletores
+# amostram (LIMITE_POR_CATEGORIA, top-N por vendas), entao ausencia na coleta NAO prova
+# que o produto saiu da loja e ninguem e marcado como indisponivel por ela.
 REDES_CONFIG = {
     "fort": {
         "nome": "Fort Atacadista",
@@ -256,11 +261,22 @@ def executar_ciclo_rede(chave_rede, config_rede, *, dsn, diretorio_base,
         permitir_banco_app=permitir_banco_app
     )
 
-    # 3. Atualização de Indisponibilidade
-    config_db = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
-    with conectar_banco(config_db) as conn:
-        coletados_ids = {str(r.get("id_produto_origem")) for r in registros if r.get("id_produto_origem")}
-        atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, coletados_ids)
+    # 3. Atualização de Indisponibilidade: só com coleta completa (status 0) E exaustiva.
+    # Coleta parcial (status 2) ou amostral não prova que o produto saiu da loja.
+    if status_coleta != 0:
+        resumo_carga["indisponibilidade"] = "ignorada_coleta_parcial"
+        LOGGER.warning("Indisponibilidade NAO atualizada para %s: coleta parcial (status %s).",
+                       config_rede["nome"], status_coleta)
+    elif not config_rede.get("coleta_exaustiva", False):
+        resumo_carga["indisponibilidade"] = "ignorada_coleta_amostral"
+        LOGGER.info("Indisponibilidade NAO atualizada para %s: o coletor trabalha por amostra "
+                    "(coleta_exaustiva=False).", config_rede["nome"])
+    else:
+        config_db = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
+        with conectar_banco(config_db) as conn:
+            coletados_ids = {str(r.get("id_produto_origem")) for r in registros if r.get("id_produto_origem")}
+            atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, coletados_ids)
+        resumo_carga["indisponibilidade"] = "atualizada"
 
     resumo_carga["source"] = source
     resumo_carga["store"] = store

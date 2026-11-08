@@ -22,6 +22,9 @@ export function ProductViewer360({
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
+  // Estado só para o cursor: o ref abaixo vale para a lógica do arraste (leitura síncrona nos handlers),
+  // mas ler ref no render não re-renderiza ao soltar o mouse e deixava o cursor preso em "grabbing".
+  const [isDragging, setIsDragging] = useState(false)
 
   const isDraggingRef = useRef(false)
   const startXRef = useRef(0)
@@ -87,6 +90,7 @@ export function ProductViewer360({
   const handlePointerDown = (e) => {
     if (isLoading || hasError || totalFrames < 2) return
     isDraggingRef.current = true
+    setIsDragging(true)
     setHasInteracted(true)
     startXRef.current = e.clientX
     startFrameRef.current = currentFrame
@@ -113,6 +117,7 @@ export function ProductViewer360({
   const handlePointerUp = (e) => {
     if (!isDraggingRef.current) return
     isDraggingRef.current = false
+    setIsDragging(false)
     if (e.target.releasePointerCapture) {
       try {
         e.target.releasePointerCapture(e.pointerId)
@@ -159,7 +164,7 @@ export function ProductViewer360({
     <div
       ref={containerRef}
       className={`relative select-none w-full aspect-square bg-[#f8f9fa] rounded-2xl p-4 border border-slate-200/90 flex items-center justify-center overflow-hidden ${
-        isLoading ? "cursor-wait" : isDraggingRef.current ? "cursor-grabbing" : "cursor-grab"
+        isLoading ? "cursor-wait" : isDragging ? "cursor-grabbing" : "cursor-grab"
       } ${className}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}

@@ -1,3 +1,4 @@
+/* global process */
 import { reescreverUrlsDeAssets } from "./urlAssets"
 import { urlPublica } from "./urlPublica"
 

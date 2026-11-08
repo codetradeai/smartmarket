@@ -1,12 +1,23 @@
-# Coleta SmartMarket — Adaptadores Fort Atacadista e Carrefour Mercado
+# Coleta SmartMarket — Coletores das redes do RS
 
 Módulo de extração periódica de preços de supermercados para o projeto **SmartMarket** (Grupo 40 — Trilha Dev Full Stack 2026).
 
-Contém os adaptadores para as duas redes oficiais da aplicação:
-1. **Fort Atacadista** (`coleta_fort_atacadista.py`): API REST VIP Commerce / OSuper.
-2. **Carrefour Mercado** (`coleta_carrefour.py`): Stream React Router SSR em arquitetura Headless Storefront.
+Há um coletor por rede (`coleta_<rede>.py`):
 
-Ambos os coletores cumprem estritamente o **Contrato de Extração v1**, possuem gravação atômica, validação com `Decimal`, garantia de moeda `BRL`, controle de falhas parciais e testes offline com fixtures.
+| Rede | Módulo | API / técnica |
+|---|---|---|
+| Fort Atacadista | `coleta_fort_atacadista.py` | Sense / OSuper (`sense.osuper.com.br`) |
+| Carrefour Mercado | `coleta_carrefour.py` | Stream React Router SSR (headless storefront) |
+| Asun Supermercados | `coleta_asun.py` | Sense / OSuper (`sense.osuper.com.br`) |
+| Atacadão | `coleta_atacadao.py` | VTEX Catalog System |
+| Master Supermercados | `coleta_master.py` | VipCommerce |
+| Stok Center | `coleta_stok.py` | VipCommerce |
+| Zaffari / Bourbon | `coleta_zaffari.py` | VTEX Catalog System (**suspenso na rotina**) |
+| Rissul | `coleta_rissul.py` | VTEX Catalog System (**suspenso na rotina**) |
+
+Zaffari e Rissul coletam por `/api/catalog_system/...`, que o `robots.txt` das duas redes proíbe; por isso `rotina_carga.py` as pula (`REDES_SUSPENSAS`) e os módulos ficam no repositório só até haver autorização. Na prática a rotina diária coleta **6 redes**.
+
+Todos os coletores cumprem o **Contrato de Extração v1**, possuem gravação atômica, validação com `Decimal`, garantia de moeda `BRL`, controle de falhas parciais e testes offline com fixtures.
 
 ---
 
@@ -29,7 +40,7 @@ python scraper/coleta_carrefour.py --fixture scraper/tests/fixtures/carrefour_pa
 
 > **Nota sobre códigos de retorno:**
 > * `0`: Sucesso total (concluído sem falhas de item ou página).
-> * `2`: Sucesso parcial (itens válidos salvos, mas houve falhas pontuais registradas no relatório).
+> * `2`: Sucesso parcial (itens válidos salvos, mas houve falhas pontuais registradas no relatório). **Só Fort, Carrefour, Asun e Atacadão devolvem 2**; Master, Stok, Zaffari e Rissul devolvem apenas `0` ou `1`.
 > * `1`: Falha total ou fixture inválida (saída anterior preservada, sem sobrescrita).
 
 ---
@@ -53,11 +64,13 @@ python scraper/coleta_fort_atacadista.py --output-dir scraper/output/fort
 python scraper/coleta_carrefour.py --output-dir scraper/output/carrefour
 ```
 
+Os demais coletores seguem o mesmo padrão (`--fixture` para o modo offline, `--output-dir` para a saída).
+
 ---
 
 ## 3. Contrato de Extração v1
 
-Ambos os coletores exportam arquivos `.json` e `.csv` com colunas idênticas:
+Todos os coletores exportam arquivos `.json` e `.csv` com colunas idênticas:
 
 | Campo | Tipo / Contrato |
 |---|---|
@@ -66,10 +79,10 @@ Ambos os coletores exportam arquivos `.json` e `.csv` com colunas idênticas:
 | `preco_normal` | Número finito positivo, ou `null` se não informado |
 | `em_promocao` | Booleano indicando se o produto possui desconto ativo |
 | `marca` | Marca do produto ou `null` quando ausente |
-| `categoria` | Chave amigável da configuração (`Graos_Arrozes_Feijoes`, `Leites`) |
+| `categoria` | Chave amigável da configuração de cada coletor (por exemplo `Graos_Arrozes_Feijoes`, `Leites`) |
 | `slug` | Caminho relativo do link do produto ou `null` |
 | `id_produto_origem` | ID original no supermercado de origem |
-| `supermercado` | Nome da rede (`"Fort Atacadista"` ou `"Carrefour"`) |
+| `supermercado` | Nome da rede (por exemplo `"Fort Atacadista"`, `"Carrefour"`) |
 | `data_coleta` | Timestamp ISO 8601 UTC com sufixo `+00:00` |
 
 ---
@@ -87,7 +100,7 @@ Cada execução em um diretório de saída gera:
 
 ## 5. Rotina Automática de Inserção/Atualização na Tabela Preço
 
-Para executar a orquestração completa das duas redes (Fort Atacadista e Carrefour Mercado) com persistência contínua, histórico de preços, idempotência e atualização de disponibilidade:
+Para executar a orquestração completa das redes (as 8 de `REDES_CONFIG`, menos as suspensas) com persistência contínua, histórico de preços, idempotência e atualização de disponibilidade:
 
 ```bash
 # Execução one-shot com fixtures (offline)
@@ -107,5 +120,6 @@ Para detalhes completos de arquitetura, parâmetros de linha de comando e regras
 ## 6. Documentos Complementares
 
 * [`ROTINA-DE-CARGA.md`](ROTINA-DE-CARGA.md): Orquestração unificada, histórico e atualização contínua na tabela `preco`.
+* [`../docs/diagnostico-scraper.md`](../docs/diagnostico-scraper.md): Diagnóstico das 8 redes (API, robots.txt, o que cada coletor captura).
 * [`ENTREGA-SEGUNDA-REDE.md`](ENTREGA-SEGUNDA-REDE.md): Detalhamento da análise e implementação do coletor do Carrefour Mercado.
 * [`ENTREGA-JOAO.md`](ENTREGA-JOAO.md): Detalhamento do pipeline PostgreSQL, idempotência e revisão técnica v2.

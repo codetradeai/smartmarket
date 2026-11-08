@@ -107,10 +107,12 @@
    > unitário, mas nenhuma rotina as invoca: nem o `rotina_carga.py`, nem o backend
    > (não há `@Scheduled`, controller ou endpoint que as use). O scraper também não consegue
    > chamá-las hoje, porque grava direto no PostgreSQL e o backend não expõe esse método via REST.
-   > Consequência: `ativa` permanece `TRUE` em todas as promoções, e o comportamento em produção
-   > é idêntico ao anterior a este PR. O chamador (que informará `mercado_id` e o início da
-   > coleta) será feito em uma próxima entrega. Enquanto isso, a inativação só ocorre
-   > manualmente pelo SQL abaixo:
+   > Consequência: `ativa` permanece `TRUE` em todas as promoções até alguém inativá-las. O chamador
+   > (que informará `mercado_id` e o início da coleta) será feito em uma próxima entrega. Enquanto
+   > isso, a inativação só ocorre manualmente pelo SQL abaixo. As consultas de vigência
+   > (`PromocaoRepository`: comparador de lista, catálogo de preços, painel admin) **já filtram
+   > `ativa = true`**, então esse `UPDATE` tira a promoção do ar de verdade (antes a flag era
+   > ignorada e uma promoção sem `data_fim` valia para sempre):
    > ```sql
    > UPDATE promocao SET ativa = FALSE
    > WHERE mercado_id = <id> AND data_fim IS NULL AND coletado_em < '<inicio_coleta>';

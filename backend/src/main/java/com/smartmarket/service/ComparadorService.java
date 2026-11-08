@@ -128,8 +128,10 @@ public class ComparadorService {
             }
 
             Promocao promocao = promocoes.get(chave);
+            // Vale o menor entre a oferta e o preco coletado: uma promocao antiga, acima do
+            // preco que a rede pratica hoje, nao pode encarecer a cesta.
             BigDecimal valorUnitario = promocao != null
-                ? promocao.getValorPromocional()
+                ? promocao.getValorPromocional().min(preco.getValor())
                 : preco.getValor();
 
             total = total.add(valorUnitario.multiply(BigDecimal.valueOf(item.getQuantidade())));

@@ -6,6 +6,11 @@ export default defineConfig({
     realtime: true,
   },
   auth: false,
+  // Object Storage (S3). Guarda as fotos dos produtos e o catálogo em JSON, para eles não irem dentro
+  // de cada deploy da Vercel. "public_read" = leitura anônima; escrever exige credencial.
+  buckets: {
+    "smartmarket-assets": { access: "public_read" },
+  },
   // Branch policy: per-branch tuning
   branch: (branch) => {
     if (branch.isDefault) {

@@ -28,16 +28,15 @@ import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { urlPublica } from "../utils/urlPublica"
 import { redesComProdutos } from "../utils/redesDoCatalogo"
-import { totaisHonestos } from "../utils/totaisDoCatalogo"
 
 const SEM_PRODUTOS = []
 
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
-// Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por produto distinto (rede + id de origem).
-// Cada item tem preço de uma rede só: o resumo conta "anúncios" (rede + id de origem); "produtos em 2+ redes"
-// são os que têm preço em duas redes ou um grupo de equivalentes confirmado (utils/totaisDoCatalogo).
-const { anuncios: TOTAL_ANUNCIOS, anunciosComPreco: ANUNCIOS_COM_PRECO, produtosEm2Redes: PRODUTOS_EM_2_REDES } = totaisHonestos(TOTAIS)
+// Totais gerados do data.js e do equivalentes.json (scripts/gerar-catalogo-resumo.mjs). Cada item tem preço de uma
+// rede só: o resumo conta "anúncios" (rede + id de origem); "produtos em 2+ redes" são os grupos de equivalentes
+// confirmados (0 sem o arquivo).
+const { anuncios: TOTAL_ANUNCIOS, anunciosComPreco: ANUNCIOS_COM_PRECO, produtosEm2Redes: PRODUTOS_EM_2_REDES } = TOTAIS
 // Só as redes que têm anúncios com preço: o Carrefour, por exemplo, tem 0 hoje e não conta como "rede no catálogo".
 const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
 

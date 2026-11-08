@@ -1,5 +1,6 @@
 // GERADO por scripts/gerar-catalogo-resumo.mjs a partir de src/data.js. Não edite à mão.
-// Módulo leve: não importa o data.js (32 MB). Totais = produtos distintos por (rede, id de origem).
+// Módulo leve: não importa o data.js (32 MB). Totais = anúncios por (rede, id de origem), não produtos;
+// produtosEm2Redes = grupos confirmados de src/data/equivalentes.json (0 sem o arquivo).
 
 export const MARKETS = [
   {
@@ -147,10 +148,10 @@ export const CATEGORIES = [
 ]
 
 export const TOTAIS = {
-  "idsDeCatalogo": 9406,
-  "produtosDistintos": 9277,
-  "produtosComPreco": 9277,
-  "produtosEm2Redes": 0
+  "idsDeCatalogo": 9277,
+  "anuncios": 9277,
+  "anunciosComPreco": 9277,
+  "produtosEm2Redes": 191
 }
 
 export const REDES_COM_PRODUTOS = [

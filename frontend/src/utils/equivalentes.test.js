@@ -23,8 +23,9 @@ describe('indexarGrupos', () => {
   })
 
   it('devolve índice vazio para entrada inválida', () => {
-    expect(indexarGrupos(undefined).size).toBe(0)
     expect(indexarGrupos(null).size).toBe(0)
+    expect(indexarGrupos('texto').size).toBe(0)
+    expect(indexarGrupos({}).size).toBe(0)
   })
 })
 
@@ -150,10 +151,10 @@ describe('contarGruposConfirmados', () => {
   it('conta só os grupos confirmados (cada um é um produto em 2+ redes)', () => {
     expect(contarGruposConfirmados(GRUPOS)).toBe(4)
     expect(contarGruposConfirmados([])).toBe(0)
-    expect(contarGruposConfirmados(undefined)).toBe(0)
+    expect(contarGruposConfirmados(null)).toBe(0)
   })
 
-  it('o arquivo inicial vazio dá zero', () => {
+  it('sem argumento usa os grupos do arquivo versionado', () => {
     expect(contarGruposConfirmados()).toBe(dados.grupos.filter((g) => g.confianca === 'confirmado').length)
   })
 })

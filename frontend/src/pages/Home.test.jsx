@@ -44,6 +44,14 @@ function renderizar() {
 const destino = () => new URL(screen.getByTestId('destino').textContent, 'http://localhost')
 
 describe('Home (visitante)', () => {
+  it('sem grupos de equivalentes, não afirma produtos em 2+ redes (a fixture tem 2 preços no mesmo objeto)', () => {
+    renderizar()
+
+    const contador = screen.getByText('Anúncios com preço coletado').closest('div')
+    expect(contador).toHaveTextContent('cada um com o preço da rede onde foi coletado')
+    expect(contador).not.toHaveTextContent('2+ redes')
+  })
+
   it('renderiza a apresentação com o título e a busca que convida ao cadastro', () => {
     renderizar()
 

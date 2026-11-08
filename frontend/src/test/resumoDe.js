@@ -1,25 +1,17 @@
 // Monta, para os testes, o equivalente do src/catalogoResumo.js (gerado do data.js real) a partir
 // dos dados mockados do '../data'. Uso:
 //   jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
-// Mantém a regra do gerador: totais por produto distinto (rede + id de origem), sem números digitados.
-const redesComPreco = (p) => Object.values(p.prices || {}).filter((v) => typeof v === 'number' && v > 0).length
-const chave = (p) =>
-  p.supermercadoOrigem && p.idOrigem != null && p.idOrigem !== '' ? `${p.supermercadoOrigem}|${p.idOrigem}` : `catalogo|${p.id}`
+// Para simular produtos em 2+ redes, passe os equivalentes como 2º argumento:
+//   resumoDe(require('../data'), { grupos: [{ confianca: 'confirmado', itens: ['p1', 'p2'] }] })
+// Usa a mesma regra do gerador (utils/totaisCatalogo): totais por anúncio (rede + id de origem) e
+// produtosEm2Redes só dos grupos confirmados (0 sem equivalentes), sem números digitados.
+import { calcularTotais, anunciosPorRede } from '../utils/totaisCatalogo'
 
-export function resumoDe({ PRODUCTS = [], MARKETS = [], CATEGORIES = [] }) {
-  const distintos = (filtro = () => true) => new Set(PRODUCTS.filter(filtro).map(chave)).size
+export function resumoDe({ PRODUCTS = [], MARKETS = [], CATEGORIES = [] }, equivalentes = null) {
   return {
     MARKETS,
     CATEGORIES,
-    TOTAIS: {
-      idsDeCatalogo: PRODUCTS.length,
-      produtosDistintos: distintos(),
-      produtosComPreco: distintos((p) => redesComPreco(p) > 0),
-      produtosEm2Redes: distintos((p) => redesComPreco(p) >= 2),
-    },
-    REDES_COM_PRODUTOS: MARKETS.map((m) => ({
-      id: m.id,
-      anuncios: distintos((p) => typeof p.prices?.[m.id] === 'number' && p.prices[m.id] > 0),
-    })),
+    TOTAIS: calcularTotais(PRODUCTS, equivalentes),
+    REDES_COM_PRODUTOS: anunciosPorRede(PRODUCTS, MARKETS),
   }
 }

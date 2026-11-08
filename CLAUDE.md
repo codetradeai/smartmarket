@@ -84,7 +84,7 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 
 ### Issue tracker
 
-As issues ficam no GitHub Issues de `codetradeai/smartmarket` (CLI `gh`). Veja `docs/agents/issue-tracker.md`.
+As issues ficam no GitHub Issues de `smartmarket-team/smartmarket` (CLI `gh`). Veja `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

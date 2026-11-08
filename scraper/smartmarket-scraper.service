@@ -12,6 +12,10 @@ RestartSec=30
 Environment=PYTHONUNBUFFERED=1
 Environment=HORA_COLETA_DIARIA=4
 Environment=MINUTO_COLETA_DIARIA=0
+# Contato do User-Agent do SmartMarketBot (scraper/identificacao.py). Obrigatorio para a
+# coleta HTTP real: sem ele Fort, Master e Stok falham antes de requisitar. Para trocar,
+# use "systemctl edit smartmarket-scraper" (drop-in) em vez de editar este arquivo.
+Environment=SMARTMARKET_CONTATO=https://github.com/smartmarket-team/smartmarket
 
 [Install]
 WantedBy=multi-user.target

@@ -48,11 +48,13 @@ Configurados diretamente em [`src/index.css`](src/index.css) através do `@theme
 
 Todos os componentes residem em [`src/components/ui/`](src/components/ui/) e são exportados de forma unificada através de [`src/components/ui/index.js`](src/components/ui/index.js).
 
+Os exemplos abaixo importam por caminho relativo, como o código das páginas em `src/pages/` (o alias `@/` não está configurado no Vite nem no Jest). A partir de outra pasta, ajuste o `../` conforme a profundidade.
+
 ### 4.1. `Button`
 Suporta múltiplas variantes visuais, tamanhos, estados interativos e spinner de carregamento integrado.
 
 ```jsx
-import { Button } from "@/components/ui"
+import { Button } from "../components/ui"
 
 // Primário com ícone
 <Button variant="primary" size="md">Adicionar à Lista</Button>
@@ -73,7 +75,7 @@ import { Button } from "@/components/ui"
 Campo de formulário com rótulo, suporte a ícones prefixados/sufixados, estado de erro e modo de busca especializado com botão de limpeza rápida.
 
 ```jsx
-import { Input } from "@/components/ui"
+import { Input } from "../components/ui"
 
 // Input comum com label
 <Input label="E-mail" placeholder="seu@email.com" helperText="Nunca compartilharemos seu e-mail" />
@@ -95,7 +97,7 @@ import { Input } from "@/components/ui"
 Sistema de cards modulares e composables (`Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, `CardFooter`) com variantes padrão, elevada e interativa (com elevação suave no hover).
 
 ```jsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from "@/components/ui"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Button } from "../components/ui"
 
 <Card variant="interactive">
   <CardHeader>
@@ -119,7 +121,7 @@ Janela modal acessível renderizada via React Portal, com backdrop-blur suave, s
 
 ```jsx
 import { useState } from "react"
-import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, Button } from "@/components/ui"
+import { Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, Button } from "../components/ui"
 
 function MeuComponente() {
   const [isOpen, setIsOpen] = useState(false)
@@ -149,7 +151,7 @@ function MeuComponente() {
 Barra de navegação topo responsiva e moderna com logo oficial do SmartMarket, links de navegação com marcador de página ativa, barra de pesquisa rápida, badge com contador numérico de itens na lista de compras e menu lateral (drawer) para telas mobile.
 
 ```jsx
-import { Navbar } from "@/components/ui"
+import { Navbar } from "../components/ui"
 
 <Navbar
   cartCount={3}

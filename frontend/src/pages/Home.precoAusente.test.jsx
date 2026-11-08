@@ -4,7 +4,11 @@ import Home from './Home'
 
 // Catálogo sem preço simulado: cada produto tem preço só na rede onde foi coletado.
 // MARKETS, CATEGORIES e totais vêm do módulo leve; aqui derivados do mesmo catálogo mockado abaixo.
-jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(require('../data')))
+// "Em 2+ redes" vem dos equivalentes confirmados (p1 e p2 são o mesmo produto em redes diferentes);
+// ter dois preços no mesmo objeto não basta para contar.
+jest.mock('../catalogoResumo', () =>
+  require('../test/resumoDe').resumoDe(require('../data'), { grupos: [{ id: 'g1', confianca: 'confirmado', camada: 'T1', itens: ['p1', 'p2'] }] })
+)
 jest.mock('../data', () => ({
   CATEGORIES: [{ id: 'todos', label: 'Todos', icon: '🏪' }, { id: 'graos', label: 'Grãos', icon: '🌾' }],
   MARKETS: [

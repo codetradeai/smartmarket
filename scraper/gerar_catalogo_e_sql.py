@@ -9,6 +9,8 @@ do frontend (data.js) para pesquisa completa com fotos em alta resolução.
 import json
 import os
 import re
+import sys
+import tempfile
 import unicodedata
 from pathlib import Path
 
@@ -17,6 +19,9 @@ OUTPUT_DIR = BASE_DIR / "scraper" / "output"
 SQL_DESTINO = BASE_DIR / "backend" / "database" / "carga_completa_530_produtos.sql"
 DATA_JS_DESTINO = BASE_DIR / "frontend" / "src" / "data.js"
 IMAGENS_DIR = BASE_DIR / "frontend" / "public" / "images" / "produtos"
+# Registro dos ids de produto já atribuídos (chave natural -> id). Fica versionado junto com o
+# data.js: é ele que mantém o id de um produto igual entre execuções, mesmo que a lista mude.
+REGISTRO_IDS = BASE_DIR / "scraper" / "catalogo_ids.json"
 
 MERCADOS_MAP = {
     "fort": {"id": 1, "nome": "Fort Atacadista", "key": "fort"},
@@ -123,13 +128,126 @@ def carregar_todos_produtos():
     return todos
 
 
+class EntradaVaziaError(RuntimeError):
+    """Nenhum produto válido para gerar: o catálogo e o SQL versionados não devem ser sobrescritos."""
+
+
+def chave_estavel(item: dict) -> str:
+    """Chave natural do produto: rede + id de origem; sem id de origem, rede + nome normalizado."""
+    rede = chave_mercado(item.get("supermercado"))
+    origem = item.get("id_produto_origem")
+    origem = str(origem).strip() if origem is not None else ""
+    if origem:
+        return f"{rede}:id:{origem}"
+    return f"{rede}:nome:{nome_normalizado(item.get('nome_bruto') or '')}"
+
+
+def escrever_atomico(destino, texto: str) -> None:
+    """Grava em arquivo temporário do mesmo diretório e troca de uma vez: nunca deixa arquivo pela metade."""
+    destino = Path(destino)
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=destino.parent, prefix=destino.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as arq:
+            arq.write(texto)
+        # mkstemp cria 0600; mantém a permissão do arquivo que está sendo trocado (ou 0644).
+        os.chmod(tmp, destino.stat().st_mode & 0o777 if destino.exists() else 0o644)
+        os.replace(tmp, destino)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+class RegistroIds:
+    """ids de produto estáveis: cada chave natural recebe um id uma única vez e o mantém para sempre.
+
+    Antes o id era a posição do item na lista (prod_id += 1): se um produto sumisse da coleta, todos
+    os seguintes deslocavam. Aqui o id novo é sempre proximo_id (que só cresce), então um produto que
+    some não libera o id para outro e um que volta recupera o dele.
+    """
+
+    VERSAO = 1
+
+    def __init__(self, ids=None, proximo_id=1):
+        self.ids = dict(ids or {})
+        self.proximo_id = max(int(proximo_id), max(self.ids.values(), default=0) + 1)
+
+    def id_de(self, chave: str) -> int:
+        if chave not in self.ids:
+            self.ids[chave] = self.proximo_id
+            self.proximo_id += 1
+        return self.ids[chave]
+
+    def para_json(self) -> str:
+        return json.dumps({"versao": self.VERSAO, "proximo_id": self.proximo_id, "ids": self.ids},
+                          ensure_ascii=False, indent=1) + "\n"
+
+    @classmethod
+    def carregar(cls, caminho=None, data_js=None):
+        """Lê o registro; sem ele, aproveita os ids "p<id>" do data.js atual; sem nenhum, começa vazio."""
+        caminho = Path(caminho or REGISTRO_IDS)
+        if caminho.exists():
+            try:
+                dados = json.loads(caminho.read_text(encoding="utf-8"))
+                return cls(dados["ids"], dados.get("proximo_id", 1))
+            except (ValueError, KeyError, TypeError, AttributeError) as erro:
+                # Recomeçar do zero reatribuiria ids já gravados no banco: melhor parar.
+                raise RuntimeError(f"Registro de ids ilegível ({caminho}): {erro}. "
+                                   "Restaure o arquivo versionado em vez de apagá-lo.") from erro
+        return cls._do_data_js(Path(data_js or DATA_JS_DESTINO))
+
+    @classmethod
+    def _do_data_js(cls, caminho: Path):
+        if not caminho.exists():
+            return cls()
+        try:
+            texto = caminho.read_text(encoding="utf-8")
+            inicio = texto.index(MARCADOR_PRODUCTS) + len(MARCADOR_PRODUCTS)
+            produtos = json.loads(texto[inicio:texto.rindex("]") + 1])
+        except (ValueError, OSError) as erro:
+            print(f"Aviso: sem registro de ids e data.js ilegível ({erro}); ids recomeçam do 1.")
+            return cls()
+        ids, maior = {}, 0
+        for p in produtos:
+            m = re.fullmatch(r"p(\d+)", str(p.get("id", "")))
+            if not m:
+                continue
+            numero = int(m.group(1))
+            maior = max(maior, numero)
+            chave = chave_estavel({"supermercado": p.get("supermercadoOrigem"),
+                                   "id_produto_origem": p.get("idOrigem"),
+                                   "nome_bruto": p.get("name") or ""})
+            if chave not in ids or numero < ids[chave]:
+                ids[chave] = numero
+        return cls(ids, maior + 1)
+
+
 def sql_promocao(prod_id, mercado_id, preco_normal, preco, valida_ate=None) -> str:
-    """INSERT de promoção. Sem validade informada pela rede, data_fim é NULL (nunca estimada)."""
+    """INSERT de promoção. Sem validade informada pela rede, data_fim é NULL (nunca estimada).
+
+    Reexecutar o mesmo SQL no mesmo dia não duplica a promoção (WHERE NOT EXISTS).
+    """
     data_fim = escape_sql(valida_ate)
     return (
         f"INSERT INTO promocao (produto_id, mercado_id, valor_original, valor_promocional, data_inicio, data_fim, ativa) "
-        f"VALUES ({prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, {data_fim}, TRUE);"
+        f"SELECT {prod_id}, {mercado_id}, {preco_normal:.2f}, {preco:.2f}, CURRENT_TIMESTAMP, {data_fim}, TRUE "
+        f"WHERE NOT EXISTS (SELECT 1 FROM promocao WHERE produto_id = {prod_id} AND mercado_id = {mercado_id} "
+        f"AND valor_original = {preco_normal:.2f} AND valor_promocional = {preco:.2f} "
+        f"AND data_inicio = CURRENT_DATE AND data_fim IS NOT DISTINCT FROM {data_fim});"
     )
+
+
+def sql_ajustar_sequencias() -> list:
+    """setval das sequências depois dos INSERTs com id explícito.
+
+    Sem isso, o próximo INSERT sem id (a carga do pipeline usa RETURNING id) recebe 1 e colide com a
+    chave primária. Em tabela vazia fica 1 com is_called = false (setval(seq, 0) seria erro).
+    """
+    return [
+        f"SELECT setval(pg_get_serial_sequence('{tabela}', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) "
+        f"FROM {tabela};"
+        for tabela in ("mercado", "produto", "preco", "promocao")
+    ]
 
 
 def montar_precos(mercado_key: str, preco: float) -> dict:
@@ -223,11 +341,31 @@ def gerar_sql_e_data():
     itens = carregar_todos_produtos()
     print(f"Total de itens carregados para processamento: {len(itens)}")
 
+    # Entrada sem nenhum produto válido: recusa ANTES de tocar em qualquer arquivo. Antes o script
+    # gravava data.js e SQL versionados com catálogo vazio e saía com código 0.
+    validos = [i for i in itens if (i.get("nome_bruto") or "").strip()]
+    if not validos:
+        raise EntradaVaziaError(
+            f"Nenhum produto válido na entrada ({len(itens)} itens lidos de '{OUTPUT_DIR}'): "
+            f"'{SQL_DESTINO.name}' e '{DATA_JS_DESTINO.name}' foram mantidos como estavam.")
+
+    # Mesmo produto repetido na coleta (mesma rede e mesmo id de origem) vale um produto só.
+    registro = RegistroIds.carregar()
+    unicos, vistos = [], set()
+    for item in validos:
+        chave = chave_estavel(item)
+        if chave in vistos:
+            continue
+        vistos.add(chave)
+        unicos.append((item, chave))
+    if len(unicos) < len(validos):
+        print(f"Itens repetidos na coleta (mesma rede e id de origem) ignorados: {len(validos) - len(unicos)}")
+
     # 1. Gerar SQL
     linhas_sql = []
     linhas_sql.append("-- ============================================================")
     linhas_sql.append("-- SmartMarket - Script de Carga de Todos os Produtos Coletados (RS)")
-    linhas_sql.append(f"-- Total de produtos registrados: {len(itens)}")
+    linhas_sql.append(f"-- Total de produtos registrados: {len(unicos)}")
     linhas_sql.append("-- ============================================================\n")
     linhas_sql.append("BEGIN;\n")
 
@@ -252,12 +390,10 @@ def gerar_sql_e_data():
     linhas_sql.append("\n-- Inserção de Produtos e Preços\n")
 
     produtos_frontend = []
-    prod_id = 1
 
-    for item in itens:
+    for item, chave in unicos:
         nome = item.get("nome_bruto", "").strip()
-        if not nome:
-            continue
+        prod_id = registro.id_de(chave)
 
         marca = item.get("marca") or "Geral"
         cat_bruta = item.get("categoria") or ""
@@ -282,13 +418,18 @@ def gerar_sql_e_data():
             f"INSERT INTO produto (id, nome, nome_normalizado, marca, quantidade, unidade, categoria, imagem_url, descricao) "
             f"VALUES ({prod_id}, {escape_sql(nome)}, {escape_sql(nome_normalizado(nome))}, {escape_sql(marca)}, 1.0, {escape_sql(unidade)}, "
             f"{escape_sql(cat)}, {escape_sql(img_local)}, {escape_sql(desc)}) "
-            f"ON CONFLICT (id) DO UPDATE SET imagem_url = EXCLUDED.imagem_url, descricao = EXCLUDED.descricao, "
-            f"nome_normalizado = EXCLUDED.nome_normalizado;"
+            f"ON CONFLICT (id) DO UPDATE SET nome = EXCLUDED.nome, nome_normalizado = EXCLUDED.nome_normalizado, "
+            f"marca = EXCLUDED.marca, unidade = EXCLUDED.unidade, categoria = EXCLUDED.categoria, "
+            f"imagem_url = EXCLUDED.imagem_url, descricao = EXCLUDED.descricao;"
         )
 
+        # O histórico de preços cresce a cada coleta, mas reexecutar o mesmo SQL no mesmo dia
+        # com o mesmo valor não duplica a linha.
         linhas_sql.append(
             f"INSERT INTO preco (produto_id, mercado_id, valor, coletado_em, origem, nome_bruto, disponivel) "
-            f"VALUES ({prod_id}, {mercado_id}, {preco:.2f}, CURRENT_TIMESTAMP, {escape_sql(mercado_key)}, {escape_sql(nome)}, TRUE);"
+            f"SELECT {prod_id}, {mercado_id}, {preco:.2f}, CURRENT_TIMESTAMP, {escape_sql(mercado_key)}, {escape_sql(nome)}, TRUE "
+            f"WHERE NOT EXISTS (SELECT 1 FROM preco WHERE produto_id = {prod_id} AND mercado_id = {mercado_id} "
+            f"AND valor = {preco:.2f} AND origem = {escape_sql(mercado_key)} AND coletado_em::date = CURRENT_DATE);"
         )
 
         if em_promo and preco_normal > preco:
@@ -331,13 +472,12 @@ def gerar_sql_e_data():
 
         produtos_frontend.append(prod_dict)
 
-        prod_id += 1
-
+    linhas_sql.append("\n-- Ajusta as sequências após os INSERTs com id explícito (o INSERT sem id do pipeline não colide)")
+    linhas_sql.extend(sql_ajustar_sequencias())
     linhas_sql.append("\nCOMMIT;\n")
 
     # Salva arquivo SQL
-    SQL_DESTINO.parent.mkdir(parents=True, exist_ok=True)
-    SQL_DESTINO.write_text("\n".join(linhas_sql), encoding="utf-8")
+    escrever_atomico(SQL_DESTINO, "\n".join(linhas_sql))
     print(f"Script SQL gerado com sucesso em '{SQL_DESTINO}' ({len(linhas_sql)} linhas)")
 
     # 2. Gerar frontend/src/data.js
@@ -368,17 +508,30 @@ export const MARKETS = [
     produtos_json = json.dumps(produtos_frontend, ensure_ascii=False, indent=2)
     conteudo_data_js = f"{CABECALHO_DATA_JS.format(total=len(produtos_frontend))}\n\n{categorias_js}\nexport const PRODUCTS = {produtos_json};\n"
 
-    DATA_JS_DESTINO.write_text(conteudo_data_js, encoding="utf-8")
+    escrever_atomico(DATA_JS_DESTINO, conteudo_data_js)
     print(f"Catálogo do frontend atualizado com {len(produtos_frontend)} produtos em '{DATA_JS_DESTINO}'!")
 
+    # O registro só é gravado depois dos dois arquivos: se algo falhar antes, os ids novos de hoje
+    # são reatribuídos da mesma forma amanhã (mesma entrada, mesma ordem).
+    escrever_atomico(REGISTRO_IDS, registro.para_json())
+    print(f"Registro de ids gravado em '{REGISTRO_IDS}' (próximo id livre: {registro.proximo_id})")
 
-if __name__ == "__main__":
-    import sys
 
-    if "--limpar-data-js" in sys.argv:
+def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if "--limpar-data-js" in argv:
         r = regenerar_data_js()
         print(f"data.js regenerado sem preço simulado: {r['produtos']} produtos, "
               f"{r['precos_removidos']} preços fora da rede de origem removidos, "
               f"{r['sem_preco_na_origem']} sem preço na rede de origem. Por rede: {r['por_rede']}")
-    else:
+        return 0
+    try:
         gerar_sql_e_data()
+    except EntradaVaziaError as erro:
+        print(f"ERRO: {erro}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

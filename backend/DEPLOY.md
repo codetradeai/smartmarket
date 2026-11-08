@@ -10,6 +10,8 @@
 
 ## Passo a passo rápido (Render + GitHub Pages)
 
+> **Atalho:** o `render.yaml` na raiz do repositório já define o serviço (Docker, plano Free, região Virginia, health check, URL do Neon, CORS do Pages e um JWT gerado pelo Render). No Render, **New > Blueprint**, escolha este repositório e preencha só `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`. Com o Blueprint, os passos 2, 3 e 4 abaixo já vêm feitos; continue no passo 5.
+
 **1. Pegar os dados do Neon** (console.neon.tech > projeto > **Connect**, branch `production`, conexão **direta**, sem `-pooler`):
 - Host: `ep-divine-dew-bchgu6dk.c-16.us-east-1.aws.neon.tech` · banco: `neondb`
 - Usuário e senha: copie do próprio console (não os cole em chat, issue ou arquivo versionado).

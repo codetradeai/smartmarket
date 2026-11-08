@@ -1,0 +1,34 @@
+# Blueprint do Render para o backend do SmartMarket (Spring Boot, Docker).
+# Uso: Render > New > Blueprint > escolha este repositório. O Render pede só os valores marcados
+# com sync:false (usuário e senha do Neon). O segredo do JWT é gerado pelo próprio Render.
+# Passo a passo completo: backend/DEPLOY.md.
+services:
+  - type: web
+    name: smartmarket-backend
+    runtime: docker
+    plan: free
+    region: virginia # mesma região do Neon (aws-us-east-1)
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - backend/**
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # Conexão direta do Neon (sem -pooler). Host e banco não são segredo.
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://ep-divine-dew-bchgu6dk.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require
+      # Copie do console do Neon (Connect). Nunca coloque esses valores no repositório.
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      # Segredo novo, gerado e guardado só pelo Render.
+      - key: SMARTMARKET_JWT_SECRET
+        generateValue: true
+      # Domínio do frontend no GitHub Pages (sem /smartmarket e sem barra final).
+      - key: SMARTMARKET_CORS_ORIGINS
+        value: https://smartmarket-team.github.io

@@ -12,6 +12,7 @@ import logoCarrefour from "../../logo/logo-carrefour.png";
 import logoRissul from "../../logo/logo-rissul,.png";
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
 import logoMaster from "../../logo/mastersupermercados-logo.png";
+import { mesclarCatalogo } from "../utils/mesclarCatalogo"
 import { urlPublica } from "../utils/urlPublica"
 
 const MARKET_LOGOS = {
@@ -203,17 +204,7 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           mercadoService.listar(),
         ]);
         if (prodsData && prodsData.length > 0) {
-          const apiMap = new Map(prodsData.map((item) => [String(item.id), item]));
-          const merged = DEFAULT_PRODUCTS.map((defItem) =>
-            apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
-          );
-          // Produtos que só existem na API (ids numéricos) também entram, como no Catálogo;
-          // sem isso o item adicionado no Catálogo some da lista.
-          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
-          prodsData.forEach((item) => {
-            if (!existingIds.has(String(item.id))) merged.push(item);
-          });
-          setProducts(merged);
+          setProducts(mesclarCatalogo(DEFAULT_PRODUCTS, prodsData));
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
       } catch {

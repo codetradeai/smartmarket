@@ -32,11 +32,12 @@ const MERCADOS = [
 ]
 
 // Produtos que só existem na "API" (ids numéricos, como os Long do backend). A página soma esses
-// produtos aos 22 da fixture (data.js). Nomes e marcas escolhidos para não colidir com a fixture.
+// produtos aos 22 da fixture (data.js). Os ids são altos (910+) de propósito: id numérico N é o
+// mesmo produto do "pN" local, então 10, 11 e 12 casariam com p10, p11 e p12 da fixture. Nomes e marcas escolhidos para não colidir com a fixture.
 const PRODUTOS = [
-  { id: 10, name: 'Quinoa Real', brand: 'Vitao', category: 'graos', unit: '500 g', image: '🌾', prices: { 1: 22.9, 2: 24.5 } },
-  { id: 11, name: 'Kefir Natural', brand: 'Kefirbom', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 4.29 } },
-  { id: 12, name: 'Papel Toalha', brand: '', category: 'higiene', unit: '2 rolos', prices: {} },
+  { id: 910, name: 'Quinoa Real', brand: 'Vitao', category: 'graos', unit: '500 g', image: '🌾', prices: { 1: 22.9, 2: 24.5 } },
+  { id: 911, name: 'Kefir Natural', brand: 'Kefirbom', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 4.29 } },
+  { id: 912, name: 'Papel Toalha', brand: '', category: 'higiene', unit: '2 rolos', prices: {} },
 ]
 const TOTAL_COM_API = PRODUCTS.length + PRODUTOS.length
 
@@ -92,6 +93,15 @@ describe('CatalogPage', () => {
       expect(await screen.findByText('Sincronizando prateleiras...')).toBeInTheDocument()
       expect(await screen.findByText(`8 Redes do RS integradas · ${TOTAL_COM_API} produtos disponíveis`, undefined, { timeout: 4000 })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 1, name: 'Catálogo SmartMarket' })).toBeInTheDocument()
+    })
+
+    it('produto da API com id numérico de um produto local não duplica o catálogo', async () => {
+      // O catálogo local usa "p1"; a API devolve o mesmo produto como 1 (Long).
+      const arrozDaApi = { id: 1, name: 'Arroz Branco Tipo 1', brand: 'Tio João', category: 'graos', unit: '5 kg', image: '🌾', prices: { 1: 21.9, 2: 24.5 } }
+      await renderizar({ produtos: [arrozDaApi] }, { grade: true })
+
+      expect(subtitulo()).toHaveTextContent(`8 Redes do RS integradas · ${PRODUCTS.length} produtos disponíveis`)
+      expect(screen.getAllByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).toHaveLength(1)
     })
 
     it('mantem os dados de exemplo quando a API devolve listas vazias', async () => {
@@ -362,7 +372,7 @@ describe('CatalogPage', () => {
 
       fireEvent.click(botaoAdicionar('Quinoa Real'))
 
-      expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ 10: 1 })
+      expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ 910: 1 })
       expect(within(cartaoDe('Quinoa Real')).getByText('1 na lista')).toBeInTheDocument()
       expect(linkDaLista()).toHaveTextContent(/^Minha Lista\s*1$/)
     })
@@ -373,13 +383,13 @@ describe('CatalogPage', () => {
       fireEvent.click(botaoAdicionar('Quinoa Real'))
       fireEvent.click(within(cartaoDe('Quinoa Real')).getByTitle('Aumentar'))
 
-      expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ 10: 2 })
+      expect(JSON.parse(sessionStorage.getItem('sm_list'))).toEqual({ 910: 2 })
       expect(within(cartaoDe('Quinoa Real')).getByText('2 na lista')).toBeInTheDocument()
       expect(linkDaLista()).toHaveTextContent(/^Minha Lista\s*1$/)
     })
 
     it('mostra o contador inicial a partir da lista guardada na sessao', async () => {
-      sessionStorage.setItem('sm_list', JSON.stringify({ 10: 2, 11: 3 }))
+      sessionStorage.setItem('sm_list', JSON.stringify({ 910: 2, 911: 3 }))
       await renderizar()
 
       expect(linkDaLista()).toHaveTextContent(/^Minha Lista\s*2$/)
@@ -396,17 +406,17 @@ describe('CatalogPage', () => {
 
   // Achado 5: produtos vindos da API têm id numérico (Long do backend), mas os favoritos ficam
   // guardados como texto (favoritoService.listarProdutos devolve String; toggleFavProduct grava
-  // String(id)). A comparação favProducts.includes(prod.id) nunca casava "10" com 10.
+  // String(id)). A comparação favProducts.includes(prod.id) nunca casava "910" com 910.
   describe('coracao de produto vindo da API (id numerico)', () => {
     it('marca na grade o produto que o servidor devolve como favorito', async () => {
-      await renderizar({ favProdutos: ['10'] }, { grade: true })
+      await renderizar({ favProdutos: ['910'] }, { grade: true })
 
       expect(within(cartaoDe('Quinoa Real')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
       expect(within(cartaoDe('Kefir Natural')).getByTitle('Salvar nos favoritos')).toBeInTheDocument()
     })
 
     it('marca na prateleira o produto que o servidor devolve como favorito', async () => {
-      await renderizar({ favProdutos: ['10'] })
+      await renderizar({ favProdutos: ['910'] })
 
       expect(within(cartaoDe('Quinoa Real')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
     })
@@ -419,17 +429,17 @@ describe('CatalogPage', () => {
         fireEvent.click(cartao().getByTitle('Salvar nos favoritos'))
       })
       expect(cartao().getByTitle('Remover dos favoritos')).toBeInTheDocument()
-      expect(favoritoService.favoritarProduto).toHaveBeenCalledWith('10')
+      expect(favoritoService.favoritarProduto).toHaveBeenCalledWith('910')
 
       await act(async () => {
         fireEvent.click(cartao().getByTitle('Remover dos favoritos'))
       })
       expect(cartao().getByTitle('Salvar nos favoritos')).toBeInTheDocument()
-      expect(favoritoService.desfavoritarProduto).toHaveBeenCalledWith('10')
+      expect(favoritoService.desfavoritarProduto).toHaveBeenCalledWith('910')
     })
 
     it('mostra como favorito no detalhe do produto', async () => {
-      await renderizar({ favProdutos: ['10'] }, { grade: true })
+      await renderizar({ favProdutos: ['910'] }, { grade: true })
 
       fireEvent.click(screen.getByRole('heading', { level: 3, name: 'Quinoa Real' }))
 
@@ -439,7 +449,7 @@ describe('CatalogPage', () => {
     })
 
     it('aceita favoritos do servidor em objeto com id numerico', async () => {
-      await renderizar({ favProdutos: [{ produtoId: 11 }] }, { grade: true })
+      await renderizar({ favProdutos: [{ produtoId: 911 }] }, { grade: true })
 
       expect(within(cartaoDe('Kefir Natural')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
     })

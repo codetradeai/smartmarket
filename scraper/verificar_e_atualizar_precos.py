@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import time
+import unicodedata
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -42,13 +43,24 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 LOGGER = logging.getLogger("verificador_precos")
 
 
+def _para_comentario_sql(valor: Any) -> str:
+    """Texto seguro para uma linha de comentário '--': sem quebra de linha nem controle.
+
+    O nome vem do data.js, que veio da API da rede. Uma quebra de linha encerraria o
+    comentário e o resto viraria SQL executável quando o script for aplicado com psql.
+    str.split() cobre \\n, \\r, \\v, \\f, NEL (U+0085), U+2028/U+2029 e demais espaços.
+    """
+    texto = " ".join(str(valor).split())
+    return "".join(c for c in texto if unicodedata.category(c)[0] != "C")
+
+
 def sql_atualizacao_preco(prod_id: Any, nome: str, mercado_key: str, valor: float) -> str:
     """INSERT de histórico de preço usando o mercado_id oficial do MERCADOS_MAP."""
     mercado_id = MERCADOS_MAP[mercado_key]["id"]
     return (
-        f"-- Atualização produto {prod_id} ({mercado_key}): {nome}\n"
+        f"-- Atualização produto {_para_comentario_sql(prod_id)} ({mercado_key}): {_para_comentario_sql(nome)}\n"
         f"INSERT INTO preco(produto_id, mercado_id, valor, coletado_em, disponivel) "
-        f"VALUES ((SELECT id FROM produto WHERE nome = {escape_sql(nome)} LIMIT 1), "
+        f"VALUES ((SELECT id FROM produto WHERE nome = {escape_sql(nome)} ORDER BY id LIMIT 1), "
         f"{mercado_id}, {valor:.2f}, NOW(), true);\n"
     )
 

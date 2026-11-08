@@ -103,6 +103,50 @@ class TestVerificadorMercadoId(unittest.TestCase):
             self.assertIn(f", {dados['id']}, 1.00,", sql)
 
 
+class TestVerificadorSemInjecaoNoComentario(unittest.TestCase):
+    """O nome vem do data.js (que veio da API da rede): não pode escapar do comentário '--'."""
+
+    @staticmethod
+    def _sem_literais(sql):
+        import re
+        return re.sub(r"'(?:[^']|'')*'", "''", sql)
+
+    def _assert_so_um_insert_e_um_comentario(self, sql):
+        import re
+        fora = self._sem_literais(sql)
+        linhas = [l for l in re.split(r"[\r\n]", fora) if l.strip()]
+        self.assertEqual(len(linhas), 2, linhas)
+        self.assertTrue(linhas[0].startswith("-- "), linhas[0])
+        self.assertTrue(linhas[1].startswith("INSERT INTO preco"), linhas[1])
+        # o texto do nome pode aparecer no comentário, mas nunca como SQL executável
+        self.assertEqual(linhas[1].count(";"), 1)
+        self.assertNotIn("DROP", linhas[1].upper())
+
+    def test_quebras_de_linha_no_nome_nao_saem_do_comentario(self):
+        for separador in ("\n", "\r", "\r\n", "\u2028", "\u2029", "\x85", "\x0b", "\x0c"):
+            with self.subTest(separador=repr(separador)):
+                nome = f"Arroz{separador}DROP TABLE preco CASCADE;--"
+                sql = verificador.sql_atualizacao_preco(1, nome, "fort", 5.0)
+                self._assert_so_um_insert_e_um_comentario(sql)
+
+    def test_id_do_produto_tambem_e_sanitizado_no_comentario(self):
+        sql = verificador.sql_atualizacao_preco("p1\nDROP TABLE preco;--", "Arroz", "fort", 5.0)
+        self._assert_so_um_insert_e_um_comentario(sql)
+
+    def test_controles_sao_removidos_e_espacos_normalizados(self):
+        sql = verificador.sql_atualizacao_preco(1, "Leite\x00  \t Integral\x1b[31m 1L", "fort", 5.0)
+        comentario = sql.split("\n")[0]
+        self.assertEqual(comentario, "-- Atualização produto 1 (fort): Leite Integral[31m 1L")
+
+    def test_nome_comum_continua_legivel_no_comentario(self):
+        sql = verificador.sql_atualizacao_preco("p1", "Arroz Tipo 1 5kg", "fort", 5.0)
+        self.assertEqual(sql.split("\n")[0], "-- Atualização produto p1 (fort): Arroz Tipo 1 5kg")
+
+    def test_lookup_do_produto_e_deterministico(self):
+        sql = verificador.sql_atualizacao_preco("p1", "Arroz", "fort", 5.0)
+        self.assertIn("ORDER BY id LIMIT 1", sql)
+
+
 class TestSincronizadorEducado(unittest.TestCase):
     def test_user_agent_identificavel_e_sem_origin_forjado(self):
         sessao = mock.Mock()

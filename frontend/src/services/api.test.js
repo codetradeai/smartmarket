@@ -66,20 +66,70 @@ describe('api (axios)', () => {
       expect(localStorage.getItem('sm_user')).toBeNull()
     })
 
-    it('em erro 401 limpa os dados privados do usuario', async () => {
-      localStorage.setItem('sm_fav_products', '["1","2"]')
+    it('em erro 401 GUARDA os dados privados no namespace do dono em vez de apagar', async () => {
+      localStorage.setItem('sm_token', 'abc123')
+      localStorage.setItem('sm_user', '{"nome":"Ana","email":"ana@email.com"}')
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      localStorage.setItem('sm_fav_products', '["p1","p2"]')
       localStorage.setItem('sm_fav_markets', '["3"]')
-      localStorage.setItem('sm_price_alerts', '{"1":10}')
+      localStorage.setItem('sm_price_alerts', '{"p1":10}')
       sessionStorage.setItem('sm_list', '{"itens":[]}')
       window.history.pushState({}, '', '/auth')
       const erro = { response: { status: 401 } }
 
       await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
 
+      // chaves ativas vazias (privacidade) ...
       expect(localStorage.getItem('sm_fav_products')).toBeNull()
-      expect(localStorage.getItem('sm_fav_markets')).toBeNull()
       expect(localStorage.getItem('sm_price_alerts')).toBeNull()
       expect(sessionStorage.getItem('sm_list')).toBeNull()
+      // ... mas nada foi destruido
+      expect(localStorage.getItem('sm_fav_products:ana@email.com')).toBe('["p1","p2"]')
+      expect(localStorage.getItem('sm_fav_markets:ana@email.com')).toBe('["3"]')
+      expect(localStorage.getItem('sm_price_alerts:ana@email.com')).toBe('{"p1":10}')
+      expect(sessionStorage.getItem('sm_list:ana@email.com')).toBe('{"itens":[]}')
+    })
+
+    it('senha errada em /auth/login (401) nao apaga sessao nem dados e nao redireciona', async () => {
+      window.history.pushState({}, '', '/login')
+      localStorage.setItem('sm_token', 'abc123')
+      localStorage.setItem('sm_user', '{"nome":"Ana","email":"ana@email.com"}')
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      localStorage.setItem('sm_fav_products', '["p1"]')
+      const consoleErro = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const erro = { response: { status: 401 }, config: { url: '/auth/login' } }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(localStorage.getItem('sm_token')).toBe('abc123')
+      expect(localStorage.getItem('sm_fav_products')).toBe('["p1"]')
+      expect(localStorage.getItem('sm_owner')).toBe('ana@email.com')
+      expect(consoleErro).not.toHaveBeenCalled()
+    })
+
+    it('401 em /auth/register tambem nao e tratado como sessao expirada', async () => {
+      window.history.pushState({}, '', '/register')
+      localStorage.setItem('sm_fav_products', '["p1"]')
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      const consoleErro = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const erro = { response: { status: 401 }, config: { url: '/auth/register' } }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(localStorage.getItem('sm_fav_products')).toBe('["p1"]')
+      expect(consoleErro).not.toHaveBeenCalled()
+    })
+
+    it('401 de outra chamada, estando em /login, continua sendo sessao expirada', async () => {
+      window.history.pushState({}, '', '/login')
+      localStorage.setItem('sm_token', 'abc123')
+      const consoleErro = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const erro = { response: { status: 401 }, config: { url: '/favoritos' } }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(localStorage.getItem('sm_token')).toBeNull()
+      expect(consoleErro).toHaveBeenCalled()
     })
 
     it('em erro 401 fora da tela de login tenta redirecionar para o login', async () => {

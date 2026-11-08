@@ -80,6 +80,20 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem(USER_KEY)).toBeNull()
     })
 
+    it('token expirado so invalida a sessao: favoritos e alertas ficam guardados para o dono', () => {
+      localStorage.setItem(TOKEN_KEY, jwtExpirado)
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
+      localStorage.setItem('sm_owner', 'ana@email.com')
+      localStorage.setItem('sm_fav_products', '["p1","p2"]')
+      localStorage.setItem('sm_price_alerts', '{"p1":10}')
+
+      renderizar()
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_products:ana@email.com')).toBe('["p1","p2"]')
+      expect(localStorage.getItem('sm_price_alerts:ana@email.com')).toBe('{"p1":10}')
+    })
+
     it('descarta token sem data de expiracao ou fora do formato JWT', () => {
       localStorage.setItem(TOKEN_KEY, criarJwt({ sub: 'ana' }))
       localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
@@ -227,7 +241,7 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem('sm_owner')).toBe('chefe@email.com')
     })
 
-    it('login de B depois de A sem logout nao leva dados de A', async () => {
+    it('login de B depois de A sem logout nao leva dados de A, que ficam guardados para A', async () => {
       localStorage.setItem('sm_owner', 'a@email.com')
       localStorage.setItem('sm_fav_products', '["10","11"]')
       localStorage.setItem('sm_fav_markets', '["3"]')
@@ -248,6 +262,61 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem('sm_price_alerts')).toBeNull()
       expect(sessionStorage.getItem('sm_list')).toBeNull()
       expect(localStorage.getItem('sm_owner')).toBe('b@email.com')
+      expect(localStorage.getItem('sm_fav_products:a@email.com')).toBe('["10","11"]')
+      expect(localStorage.getItem('sm_price_alerts:a@email.com')).toBe('{"10":5}')
+    })
+
+    it('A favorita, sai, B entra e ve vazio, A volta e ve os dados dele (login e logout reais)', async () => {
+      authService.login.mockImplementation(async (email) => ({
+        token: jwtValido, id: email === 'a@email.com' ? 1 : 2, nome: email, email, papel: 'USER',
+      }))
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.login('a@email.com', 'senha')
+      })
+      localStorage.setItem('sm_fav_products', '["p1","p2"]')
+      localStorage.setItem('sm_price_alerts', '{"p1":9.9}')
+      sessionStorage.setItem('sm_list', '{"itens":["leite"]}')
+
+      act(() => {
+        capturado.atual.logout()
+      })
+      await act(async () => {
+        await capturado.atual.login('b@email.com', 'senha')
+      })
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_price_alerts')).toBeNull()
+      expect(sessionStorage.getItem('sm_list')).toBeNull()
+
+      act(() => {
+        capturado.atual.logout()
+      })
+      await act(async () => {
+        await capturado.atual.login('a@email.com', 'senha')
+      })
+
+      expect(JSON.parse(localStorage.getItem('sm_fav_products'))).toEqual(['p1', 'p2'])
+      expect(JSON.parse(localStorage.getItem('sm_price_alerts'))).toEqual({ p1: 9.9 })
+      expect(sessionStorage.getItem('sm_list')).toBe('{"itens":["leite"]}')
+    })
+
+    it('cadastro de outro usuario por cima de uma conta tambem isola os dados', async () => {
+      localStorage.setItem('sm_owner', 'a@email.com')
+      localStorage.setItem('sm_fav_products', '["10"]')
+      authService.register.mockResolvedValue({
+        token: jwtValido, id: 7, nome: 'Novo', email: 'novo@email.com', papel: 'USER',
+      })
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.register('Novo', 'novo@email.com', 'senha')
+      })
+
+      expect(localStorage.getItem('sm_fav_products')).toBeNull()
+      expect(localStorage.getItem('sm_fav_products:a@email.com')).toBe('["10"]')
+      expect(localStorage.getItem('sm_owner')).toBe('novo@email.com')
     })
 
     it('login do mesmo usuario nao limpa os dados locais', async () => {
@@ -342,7 +411,7 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem(USER_KEY)).toBeNull()
     })
 
-    it('logout limpa as 4 chaves privadas e sm_owner', () => {
+    it('logout NAO apaga: esvazia as chaves ativas, guarda no namespace do dono e remove sm_owner', () => {
       localStorage.setItem(TOKEN_KEY, jwtValido)
       localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
       localStorage.setItem('sm_owner', 'ana@email.com')
@@ -361,6 +430,10 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem('sm_price_alerts')).toBeNull()
       expect(sessionStorage.getItem('sm_list')).toBeNull()
       expect(localStorage.getItem('sm_owner')).toBeNull()
+      expect(localStorage.getItem('sm_fav_products:ana@email.com')).toBe('["1","2"]')
+      expect(localStorage.getItem('sm_fav_markets:ana@email.com')).toBe('["3"]')
+      expect(localStorage.getItem('sm_price_alerts:ana@email.com')).toBe('{"1":10}')
+      expect(sessionStorage.getItem('sm_list:ana@email.com')).toBe('{"itens":[]}')
     })
 
     it('encerra a sessao mesmo se o localStorage lancar erro', () => {

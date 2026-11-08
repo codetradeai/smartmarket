@@ -41,7 +41,9 @@ public class AdminController {
             @RequestParam(defaultValue = "20") int size) {
         int pagina = Math.max(page, 0);
         int tamanho = Math.min(Math.max(size, 1), TAMANHO_MAXIMO);
-        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("nome"));
+        Pageable pageable = PageRequest.of(pagina, tamanho,
+            // id desempata usuarios com o mesmo nome: paginacao precisa de ordenacao total
+            Sort.by(Sort.Order.asc("nome"), Sort.Order.asc("id")));
         return ResponseEntity.ok(adminService.listarUsuarios(pageable));
     }
 

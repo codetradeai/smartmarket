@@ -77,6 +77,8 @@ CREATE TABLE IF NOT EXISTS promocao (
     valor_promocional NUMERIC(12,2) NOT NULL,
     data_inicio      DATE          NOT NULL,
     data_fim         DATE,
+    -- false quando a coleta deixou de encontrar a promocao (so para data_fim nulo); a vigencia exige ativa
+    ativa            BOOLEAN       NOT NULL DEFAULT TRUE,
     coletado_em      TIMESTAMP     NOT NULL DEFAULT NOW(),
     created_at       TIMESTAMP     NOT NULL DEFAULT NOW()
 );

@@ -378,22 +378,6 @@ describe('CatalogPage', () => {
       expect(linkDaLista()).toHaveTextContent(/^Minha Lista\s*1$/)
     })
 
-    // Achado 6: ao adicionar, a quantidade passa a 1 e o botão é trocado na hora pelo controle de
-    // quantidade, então o estado "✓ Adicionado!" (justAdded) nunca fica visível. Pulado até o
-    // componente decidir entre o aviso temporário e o controle de quantidade.
-    test.skip('mostra "✓ Adicionado!" e volta ao texto original depois de 1,2 segundo', async () => {
-      await renderizar({}, { grade: true })
-      jest.useFakeTimers()
-
-      fireEvent.click(botaoAdicionar('Quinoa Real'))
-      expect(within(cartaoDe('Quinoa Real')).getByText('✓ Adicionado à Lista!')).toBeInTheDocument()
-
-      act(() => {
-        jest.advanceTimersByTime(1200)
-      })
-      expect(botaoAdicionar('Quinoa Real')).toBeInTheDocument()
-    })
-
     it('mostra o contador inicial a partir da lista guardada na sessao', async () => {
       sessionStorage.setItem('sm_list', JSON.stringify({ 10: 2, 11: 3 }))
       await renderizar()

@@ -12,6 +12,7 @@ import logoCarrefour from "../../logo/logo-carrefour.png";
 import logoRissul from "../../logo/logo-rissul,.png";
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
 import logoMaster from "../../logo/mastersupermercados-logo.png";
+import { urlPublica } from "../utils/urlAssets"
 
 const MARKET_LOGOS = {
   fort: logoFort,
@@ -206,6 +207,12 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           const merged = DEFAULT_PRODUCTS.map((defItem) =>
             apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
           );
+          // Produtos que só existem na API (ids numéricos) também entram, como no Catálogo;
+          // sem isso o item adicionado no Catálogo some da lista.
+          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
+          prodsData.forEach((item) => {
+            if (!existingIds.has(String(item.id))) merged.push(item);
+          });
           setProducts(merged);
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
@@ -310,7 +317,7 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             </button>
           )}
           <a
-            href="/catalog"
+            href={urlPublica("/catalog")}
             style={{
               display: "flex",
               alignItems: "center",
@@ -358,7 +365,7 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             mercados.
           </p>
           <a
-            href="/catalog"
+            href={urlPublica("/catalog")}
             style={{
               display: "inline-flex",
               alignItems: "center",

@@ -93,6 +93,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> conflito(DataIntegrityViolationException ex) {
+        // So a primeira linha da causa (ex.: nome da constraint): a linha "Detail" do Postgres traz
+        // os valores gravados, que nao devem ir para o log. O cliente nunca ve a causa.
+        String causa = String.valueOf(ex.getMostSpecificCause().getMessage()).lines().findFirst().orElse("");
+        log.warn("Violacao de integridade de dados: {}", causa);
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(Map.of("erro", "Violacao de integridade de dados"));
     }

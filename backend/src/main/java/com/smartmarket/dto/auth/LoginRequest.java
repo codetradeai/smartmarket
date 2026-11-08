@@ -2,6 +2,7 @@ package com.smartmarket.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ public class LoginRequest {
 
     @NotBlank(message = "Email e obrigatorio")
     @Email(message = "Email invalido")
+    @Size(max = 255, message = "Email deve ter no maximo 255 caracteres")
     private String email;
 
     @NotBlank(message = "Senha e obrigatoria")

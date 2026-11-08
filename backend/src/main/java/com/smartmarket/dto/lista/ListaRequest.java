@@ -2,6 +2,7 @@ package com.smartmarket.dto.lista;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ListaRequest {
 
     @NotBlank(message = "nome e obrigatorio")
+    @Size(max = 255, message = "nome deve ter no maximo 255 caracteres")
     private String nome;
 
     @Valid

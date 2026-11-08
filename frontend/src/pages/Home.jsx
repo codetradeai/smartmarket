@@ -200,11 +200,44 @@ export function Home() {
   }, [PRODUCTS, searchTerm, selectedCategory, selectedMarket])
 
   const heroVideoRef = useRef(null)
+  // O vídeo do hero (1,8 MB) só é pedido depois da primeira renderização e com a janela ociosa:
+  // até lá a página mostra o poster. Quem prefere menos movimento ou usa economia de dados não baixa.
+  const [heroVideoSrc, setHeroVideoSrc] = useState(undefined)
 
   useEffect(() => {
-    const video = heroVideoRef.current
-    if (!video) return undefined
     if (typeof window === "undefined" || !window.matchMedia) return undefined
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+    if (media?.matches || navigator.connection?.saveData) return undefined
+
+    let cancelado = false
+    let idle
+    const liberar = () => {
+      if (!cancelado) setHeroVideoSrc(urlPublica("/video/hero.mp4"))
+    }
+    const agendar = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idle = window.requestIdleCallback(liberar, { timeout: 3000 })
+      } else {
+        idle = window.setTimeout(liberar, 1500)
+      }
+    }
+    if (document.readyState === "complete") agendar()
+    else window.addEventListener("load", agendar, { once: true })
+
+    return () => {
+      cancelado = true
+      window.removeEventListener("load", agendar)
+      if (idle !== undefined) {
+        if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle)
+        else window.clearTimeout(idle)
+      }
+    }
+  }, [])
+
+  // Pausa/retoma o vídeo se a preferência de movimento mudar com a página aberta.
+  useEffect(() => {
+    const video = heroVideoRef.current
+    if (!video || !heroVideoSrc || typeof window === "undefined" || !window.matchMedia) return undefined
     const media = window.matchMedia("(prefers-reduced-motion: reduce)")
     const apply = () => {
       if (media?.matches) {
@@ -216,7 +249,7 @@ export function Home() {
     apply()
     media?.addEventListener?.("change", apply)
     return () => media?.removeEventListener?.("change", apply)
-  }, [])
+  }, [heroVideoSrc])
 
   // Sugestões de busca rápida
   const quickSearchTags = ["Café Melitta", "Arroz", "Azeite", "Leite", "Cerveja"]
@@ -365,13 +398,13 @@ export function Home() {
             <video
               ref={heroVideoRef}
               className="sm-hero-video"
-              src={urlPublica("/video/hero.mp4")}
+              src={heroVideoSrc}
               poster={urlPublica("/video/hero-poster.jpg")}
               muted
               autoPlay
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               aria-label="No caixa, o cupom assusta. Em seguida, a lista é comparada no SmartMarket."
             />
           </div>

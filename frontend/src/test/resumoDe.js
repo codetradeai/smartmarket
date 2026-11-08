@@ -17,5 +17,9 @@ export function resumoDe({ PRODUCTS = [], MARKETS = [], CATEGORIES = [] }) {
       produtosComPreco: distintos((p) => redesComPreco(p) > 0),
       produtosEm2Redes: distintos((p) => redesComPreco(p) >= 2),
     },
+    REDES_COM_PRODUTOS: MARKETS.map((m) => ({
+      id: m.id,
+      anuncios: distintos((p) => typeof p.prices?.[m.id] === 'number' && p.prices[m.id] > 0),
+    })),
   }
 }

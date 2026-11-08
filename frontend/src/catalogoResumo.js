@@ -152,3 +152,38 @@ export const TOTAIS = {
   "produtosComPreco": 9277,
   "produtosEm2Redes": 0
 }
+
+export const REDES_COM_PRODUTOS = [
+  {
+    "id": "zaffari",
+    "anuncios": 73
+  },
+  {
+    "id": "rissul",
+    "anuncios": 80
+  },
+  {
+    "id": "asun",
+    "anuncios": 3367
+  },
+  {
+    "id": "stok",
+    "anuncios": 118
+  },
+  {
+    "id": "atacadao",
+    "anuncios": 5
+  },
+  {
+    "id": "master",
+    "anuncios": 120
+  },
+  {
+    "id": "fort",
+    "anuncios": 5514
+  },
+  {
+    "id": "carrefour",
+    "anuncios": 0
+  }
+]

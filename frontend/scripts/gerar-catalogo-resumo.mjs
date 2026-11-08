@@ -20,6 +20,12 @@ const TOTAIS = {
   produtosEm2Redes: distintos((p) => redesComPreco(p) >= 2),
 }
 
+// Anúncios (rede + id de origem) com preço, por rede: quem tem 0 não pode aparecer em textos como "compare em ...".
+const REDES_COM_PRODUTOS = MARKETS.map((m) => ({
+  id: m.id,
+  anuncios: distintos((p) => typeof p.prices?.[m.id] === "number" && p.prices[m.id] > 0),
+}))
+
 const corpo = `// GERADO por scripts/gerar-catalogo-resumo.mjs a partir de src/data.js. Não edite à mão.
 // Módulo leve: não importa o data.js (32 MB). Totais = produtos distintos por (rede, id de origem).
 
@@ -28,6 +34,8 @@ export const MARKETS = ${JSON.stringify(MARKETS, null, 2)}
 export const CATEGORIES = ${JSON.stringify(CATEGORIES, null, 2)}
 
 export const TOTAIS = ${JSON.stringify(TOTAIS, null, 2)}
+
+export const REDES_COM_PRODUTOS = ${JSON.stringify(REDES_COM_PRODUTOS, null, 2)}
 `
 writeFileSync(path.join(raiz, "src", "catalogoResumo.js"), corpo, "utf8")
 console.log("catalogoResumo.js gerado:", JSON.stringify(TOTAIS))

@@ -26,27 +26,11 @@ import {
 import { MARKETS, TOTAIS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
-import { urlPublica } from "../utils/urlAssets"
+import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
+import { urlPublica } from "../utils/urlPublica"
 
 const SEM_PRODUTOS = []
 
-const SECTOR_BANNERS = [
-  { id: "todos", label: "Todos", img: urlPublica("/images/categorias/master/todos.png"), icon: "🏪" },
-  { id: "hortifruti", label: "Hortifrúti", img: urlPublica("/images/categorias/master/hortifruti.png"), icon: "🍎" },
-  { id: "carnes", label: "Carnes", img: urlPublica("/images/categorias/master/carnes.png"), icon: "🥩" },
-  { id: "padaria", label: "Padaria", img: urlPublica("/images/categorias/master/padaria.png"), icon: "🥖" },
-  { id: "leites", label: "Frios e Laticínios", img: urlPublica("/images/categorias/master/leites.png"), icon: "🥛" },
-  { id: "bebidas", label: "Bebidas", img: urlPublica("/images/categorias/master/bebidas.png"), icon: "🍺" },
-  { id: "congelados", label: "Congelados", img: urlPublica("/images/categorias/master/congelados.png"), icon: "🧊" },
-  { id: "graos", label: "Grãos e Arroz", img: urlPublica("/images/categorias/master/graos.png"), icon: "🌾" },
-  { id: "cafe", label: "Café e Matinais", img: urlPublica("/images/categorias/master/cafe.png"), icon: "☕" },
-  { id: "limpeza", label: "Limpeza", img: urlPublica("/images/categorias/master/limpeza.png"), icon: "🧹" },
-  { id: "higiene", label: "Higiene", img: urlPublica("/images/categorias/master/higiene.png"), icon: "🧴" },
-  { id: "oleos", label: "Óleos e Azeites", img: urlPublica("/images/categorias/master/oleos.png"), icon: "🫙" },
-  { id: "biscoitos", label: "Biscoitos", img: urlPublica("/images/categorias/master/biscoitos.png"), icon: "🍪" },
-  { id: "mercearia", label: "Mercearia", img: urlPublica("/images/categorias/master/mercearia.png"), icon: "🛒" },
-  { id: "bazar", label: "Bazar", img: urlPublica("/images/categorias/master/bazar.png"), icon: "🍽️" },
-]
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
 // Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por produto distinto (rede + id de origem).
@@ -507,7 +491,7 @@ export function Home() {
           {/* Banners Visuais dos Setores (Sem "Todos" aberto de cara para incentivar o clique no setor) */}
           <div className="bg-white rounded-2xl border border-brand-border/80 p-3 sm:p-4 shadow-2xs">
             <div className="flex items-start justify-between gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2">
-              {SECTOR_BANNERS.filter((cat) => cat.id !== "todos").map((cat) => {
+              {CATEGORIAS_VISUAIS.filter((cat) => cat.id !== "todos").map((cat) => {
                 const isActive = selectedCategory === cat.id
                 return (
                   <button

@@ -101,8 +101,11 @@ if (!soCatalogo) {
     const falhas = await enviarEmLotes(pendentes, 8, (f) => s3.send(new PutObjectCommand({
       Bucket: BUCKET, Key: f.key, Body: readFileSync(f.abs),
       ContentType: TIPOS[path.extname(f.abs).toLowerCase()] ?? "application/octet-stream",
-      // O nome do arquivo já leva o hash do conteúdo, então pode ficar em cache "para sempre".
-      CacheControl: "public, max-age=31536000, immutable",
+      // Só nomes com hash de conteúdo (ex.: 1000269_2ed176c231ac.jpg) ficam em cache "para sempre".
+      // Galeria e frames 360 (foto_0_frente.webp, frame_00.webp) não têm hash: cache de 1 dia.
+      CacheControl: /_[0-9a-f]{12}\.[a-z0-9]+$/i.test(f.rel)
+        ? "public, max-age=31536000, immutable"
+        : "public, max-age=86400",
     })))
     if (falhas.length) { falhou = true; console.error(`${falhas.length} falhas (primeiras 5):`, falhas.slice(0, 5)) }
     else console.log("Fotos enviadas.")

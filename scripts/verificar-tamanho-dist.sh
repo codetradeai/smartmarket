@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Falha se o build do frontend (dist/) ficar grande demais.
-# Cada deploy na Vercel guarda o dist inteiro; foi assim que o projeto passou de 8 GB.
+# Cada deploy guarda o dist inteiro (na Vercel foi assim que o projeto passou de 8 GB).
 #
 # Uso:  bash scripts/verificar-tamanho-dist.sh [pasta-do-dist]
 # Limites (podem ser trocados por variável de ambiente):
-#   MAX_TOTAL_MB    tamanho total do dist           (padrão 100; hoje ~85)
+#   MAX_TOTAL_MB    tamanho total do dist           (padrão 100; ~85 sem as variáveis do bucket, ~5 com elas)
 #   MAX_ARQUIVO_MB  maior arquivo individual        (padrão 3)
-# O chunk do catálogo (assets/data-*.js, ~28 MB) é a única exceção, enquanto o catálogo ainda
-# vai dentro do deploy. Quando ele sair do dist, apague a exceção e baixe MAX_TOTAL_MB.
+# O chunk do catálogo (assets/data-*.js, ~28 MB) é a única exceção: ele só existe no build sem
+# VITE_CATALOGO_URL (CI, dev, Docker). O deploy no Pages usa o catálogo do bucket e passa
+# MAX_TOTAL_MB=20 (ver .github/workflows/deploy-pages.yml e docs/ASSETS-NEON.md).
 set -euo pipefail
 
 DIST="${1:-frontend/dist}"

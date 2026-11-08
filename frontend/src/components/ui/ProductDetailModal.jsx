@@ -4,6 +4,7 @@ import { Button } from "./Button"
 import { ProductViewer360 } from "./ProductViewer360"
 import { CestaDemoPrecos } from "./CestaDemoPrecos"
 import { getRelatedProducts } from "../../utils/relatedProducts"
+import { useFramesDoProduto } from "../../hooks/useFramesDoProduto"
 
 /**
  * ProductDetailModal - Fase 2, 3 & 4: Detalhes do Produto Reutilizável Multi-rede com 360° e Produtos Relacionados
@@ -144,10 +145,9 @@ export function ProductDetailModal({
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || null
 
   // Validação estrita de rotação 360° (somente com sequência fotográfica real com 2+ quadros)
+  const frames360 = useFramesDoProduto(currentProduct, Boolean(isOpen))
   const hasValid360 = Boolean(
-    currentProduct?.recursosVisuais?.has360 &&
-    Array.isArray(currentProduct?.recursosVisuais?.frames) &&
-    currentProduct.recursosVisuais.frames.length >= 2
+    currentProduct?.recursosVisuais?.has360 && frames360.length >= 2
   )
 
   // 2. Preços ordenados estritamente pelo menor preço válido
@@ -345,7 +345,7 @@ export function ProductDetailModal({
                   <div className="flex-1 w-full min-w-0">
                     {hasValid360 && viewMode === "360" ? (
                       <ProductViewer360
-                        frames={currentProduct.recursosVisuais.frames}
+                        frames={frames360}
                         alt={currentProduct.name || currentProduct.nome_bruto}
                       />
                     ) : (
@@ -844,11 +844,7 @@ export function ProductDetailModal({
                     className="flex items-stretch gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1 px-0.5"
                   >
                     {(relatedTab === "other_brands" ? directAlternatives : brandAlternatives).map((alt) => {
-                      const altHas360 = Boolean(
-                        alt.recursosVisuais?.has360 &&
-                        Array.isArray(alt.recursosVisuais?.frames) &&
-                        alt.recursosVisuais.frames.length >= 2
-                      )
+                      const altHas360 = Boolean(alt.recursosVisuais?.has360)
                       const isPromo = Boolean(
                         alt.promo ||
                         (alt.precoNormal && alt._lowestPrice && alt.precoNormal > alt._lowestPrice)

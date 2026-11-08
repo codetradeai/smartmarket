@@ -207,6 +207,12 @@ function ShoppingListPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           const merged = DEFAULT_PRODUCTS.map((defItem) =>
             apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
           );
+          // Produtos que só existem na API (ids numéricos) também entram, como no Catálogo;
+          // sem isso o item adicionado no Catálogo some da lista.
+          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
+          prodsData.forEach((item) => {
+            if (!existingIds.has(String(item.id))) merged.push(item);
+          });
           setProducts(merged);
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);

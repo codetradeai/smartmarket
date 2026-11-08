@@ -1,0 +1,31 @@
+# Contexto de build do Docker (frontend/Dockerfile: COPY . .). Nada daqui entra na imagem.
+# O Dockerfile precisa de package*.json, nginx.conf, src, public, scripts, index.html e a config do Vite.
+
+# Dependências e saídas do host: o `npm ci` do estágio de build instala as do Alpine; copiar
+# as do host (Windows/macOS) por cima quebra binários nativos e infla o contexto.
+node_modules
+dist
+dist-ssr
+coverage
+
+# Catálogo gerado pelo prebuild (scripts/gerar-catalogo-json.mjs apaga e recria esta pasta)
+public/catalogo
+
+# Protótipos e pacotes de templates (não fazem parte do app)
+templates
+**/*.zip
+
+# Configuração local e segredos
+.env
+.env.*
+*.local
+
+# Ruído de desenvolvimento
+*.log
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+Dockerfile
+.dockerignore

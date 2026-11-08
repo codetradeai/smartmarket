@@ -54,7 +54,7 @@ Exit codes dos coletores: `0` sucesso, `2` sucesso parcial, `1` falha total (sa�
 `docker compose up --build` na raiz sobe postgres (5432), backend (8080) e frontend.
 
 ### CI
-`.github/workflows/ci.yml` roda `./mvnw clean test -B` e, no front, `npm ci` + testes + build (Node 24, JDK 17). `coleta_diaria.yml` executa a coleta às 04:00 BRT. Meta de cobertura: 70% em back e front.
+`.github/workflows/ci.yml` roda `./mvnw clean test -B` e, no front, `npm ci` + testes + build (Node 24, JDK 17). `deploy-pages.yml` publica o front no GitHub Pages a cada push na `main` que mexa em `frontend/`. `coleta_diaria.yml` executa a coleta às 04:00 BRT (só testes e arquivos: a carga em Postgres exige DSN local, ver `validar_dsn`). `bloqueia-arquivos-dev.yml` barra arquivos de dev pessoal (`.ai/`, `AGENTS.md`, `.neon`). Meta de cobertura: 70% em back e front.
 
 ## Arquitetura
 
@@ -73,14 +73,19 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 ### Frontend
 - `services/api.js`: instância axios única; injeta `Bearer` a partir de `localStorage["sm_token"]` e trata 401/403 no interceptor de resposta. Um arquivo de serviço por domínio (`produtoService`, `favoritoService`, ...), reexportados por `services/index.js`.
 - `contexts/AuthContext.jsx` + `hooks/useAuth.js` guardam a sessão; `components/ProtectedRoute.jsx` protege rotas; `components/Layout.jsx` é o shell (menu, navegação).
+- O catálogo local (`data.js`) usa ids `"p<id>"` e a API usa o `<id>` numérico; `utils/mesclarCatalogo.js` junta os dois (o id local é mantido, o da API fica em `apiId`). Não compare `String(id)` entre os dois formatos.
 - Páginas em `pages/` (Home, Catalog, Favorites, ShoppingList, Admin, Auth, Sobre). Visitantes veem a home com apresentação; busca e comparador direcionam ao cadastro. Componentes de UI base em `components/ui`; guia visual em `frontend/DESIGN-SYSTEM.md`.
 
 ## Convenções
 - Branches: `feature/nome-da-tarefa` a partir de `main` (também valem os prefixos `feat/`, `fix/`, `docs/`, `chore/`, `ci/` e `perf/`); PR com revisão antes do merge (template em `.github/pull_request_template.md`).
 - `login/`, `output/` e `frontend/templates/` não são código da aplicação (artefatos/protótipos).
-- Comentários de bots nas PRs (ECC Tools, Vercel): veja `docs/COMENTARIOS-DE-BOTS.md` para saber quais olhar e quais ignorar.
+- Comentários de bots nas PRs (ECC Tools; a Vercel foi desativada): veja `docs/COMENTARIOS-DE-BOTS.md` para saber quais olhar e quais ignorar.
 
 ## Agent skills
+
+### Agentes e skills do projeto (`.claude/`)
+
+`cacador-de-bugs` (agente só de leitura que devolve apenas bugs verificados) e `cacar-bugs` (skill que orquestra caçadores em paralelo, verificação adversarial e relatório), além de `code-review`, `tdd`, `diagnosing-bugs`, `pr` e `triage`. A skill `tdd` pede para combinar com o usuário os pontos de teste antes de escrever testes.
 
 ### Issue tracker
 

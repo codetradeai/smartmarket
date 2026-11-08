@@ -1,5 +1,7 @@
 # Status do Projeto SmartMarket — Onde Paramos & Histórico de Entregas
 
+> **Registro histórico de 17/10/2026**; não reflete o estado atual (a stack do backend hoje é Spring Boot 4 / Java 17, e o deploy é Pages + Render + Neon). Para o estado atual, veja o [`README.md`](../README.md) e o [`CLAUDE.md`](../CLAUDE.md).
+
 **Data do Registro:** 17 de Outubro de 2026  
 **Branch de Trabalho Atual:** `feature/endpoints-favoritos-alertas-admin`  
 **Branch Base:** `main` (rastreando `origin/feature/endpoints-favoritos-alertas-admin`)  

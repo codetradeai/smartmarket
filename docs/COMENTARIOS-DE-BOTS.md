@@ -28,7 +28,10 @@ Regras práticas:
   deve mover os resultados para a lista de checks e parar os comentários. Isso não foi testado aqui.
 - Ou restringir/desinstalar o app neste repositório, nas mesmas configurações.
 
-## Vercel (`vercel[bot]`)
+## Vercel (`vercel[bot]`) — desativada
+
+> O frontend não é mais publicado na Vercel (agora GitHub Pages). Se o projeto antigo ainda estiver conectado ao repositório, os comentários abaixo continuam valendo até ele ser apagado.
+
 Um comentário por PR, atualizado a cada deploy de Preview. É útil: tem o **link do Preview** e o estado
 do build. Os Previews só são gerados quando o último commit mexe em `frontend/` (ver `vercel.json`).
 

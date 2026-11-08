@@ -11,6 +11,7 @@ Aplicação web do **SmartMarket** desenvolvida com **React 19**, **Vite 8** e *
 * **Tailwind CSS v4**: Framework utilitário de estilização configurado via `@theme`.
 * **React Router DOM 7**: Roteamento client-side com layouts e navegação fluida.
 * **Lucide React**: Conjunto profissional e consistente de ícones vetoriais.
+* **Jest 30 + React Testing Library**: testes (`npm test`).
 * **clsx & tailwind-merge**: Gerenciador de classes dinâmicas sem conflitos de especificidade via utilitário `cn()`.
 
 ---
@@ -42,3 +43,34 @@ npm run dev
 # 3. Compilar para produção (validação de build)
 npm run build
 ```
+
+---
+
+## 4. Testes
+
+```bash
+npm test                # suíte inteira (Jest)
+npm run test:coverage   # falha abaixo de 70% de cobertura
+npm run lint
+```
+
+Testes que importam o `data.js` real (32 MB) devem usar a fixture: `jest.mock('../data', () => require('../test/dataFixture'))`. Detalhes em [`docs/TESTES.md`](../docs/TESTES.md).
+
+---
+
+## 5. Variáveis de build e deploy
+
+| Variável | Para quê | Padrão |
+|---|---|---|
+| `VITE_API_URL` | URL do backend (termina em `/api`) | `http://localhost:8080/api` (dev); `/api` relativo em produção |
+| `VITE_BASE` | Base do app (no GitHub Pages é `/smartmarket/`) | `/` |
+| `VITE_ASSETS_BASE_URL` | Fotos de produtos no bucket do Neon | vazio: fotos de `public/` |
+| `VITE_CATALOGO_URL` | Catálogo em JSON (gzip) no bucket | vazio: `src/data.js` por `import()` dinâmico |
+
+Sem as três últimas nada muda no dev local, no Docker e nos testes. Regras de código:
+
+* Caminhos de `public/` escritos à mão (`/images/...`, `/video/...`) passam por `urlPublica` (`src/utils/urlPublica.js`) para respeitar a base.
+* O catálogo local usa ids `"p<id>"`; a API usa o `<id>` numérico. `mesclarCatalogo` (`src/utils/mesclarCatalogo.js`) junta os dois sem duplicar, mantendo o id local.
+* `npm run build:estatico` faz o build e remove `dist/images/produtos` (as fotos ficam no bucket).
+
+Deploy: [`docs/DEPLOY-PAGES.md`](../docs/DEPLOY-PAGES.md) · fotos e catálogo: [`docs/ASSETS-NEON.md`](../docs/ASSETS-NEON.md).

@@ -20,7 +20,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        // Primeiro o e-mail exato; depois sem diferenciar caixa (contas antigas tem maiusculas).
         Usuario usuario = usuarioRepository.findByEmail(email)
+            .or(() -> usuarioRepository.findFirstByEmailIgnoreCaseOrderByIdAsc(email))
             .orElseThrow(() -> new UsernameNotFoundException("Usuario nao encontrado: " + email));
 
         return new User(

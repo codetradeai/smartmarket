@@ -15,4 +15,9 @@ public class LoginRequest {
 
     @NotBlank(message = "Senha e obrigatoria")
     private String senha;
+
+    // Tira os espacos das pontas antes da validacao: "  maria@x.com " passa a ser um e-mail valido.
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
 }

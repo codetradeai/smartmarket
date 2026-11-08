@@ -20,4 +20,9 @@ public class RegisterRequest {
     @NotBlank(message = "Senha e obrigatoria")
     @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
     private String senha;
+
+    // Tira os espacos das pontas antes da validacao: "  maria@x.com " passa a ser um e-mail valido.
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
 }

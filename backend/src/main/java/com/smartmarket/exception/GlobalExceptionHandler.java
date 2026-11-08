@@ -2,9 +2,12 @@ package com.smartmarket.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,6 +51,26 @@ public class GlobalExceptionHandler {
         corpo.put("campos", campos);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo);
+    }
+
+    // Entrada malformada do cliente e erro 4xx, nao falha do servidor: sem log ERROR com stack e
+    // sem expor o detalhe do parser. Antes caia no fallback e virava 500.
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> corpoIlegivel(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("erro", "Corpo da requisicao invalido"));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> parametroComTipoErrado(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("erro", "Parametro invalido: " + ex.getName()));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> restricaoViolada(ConstraintViolationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("erro", "Requisicao invalida"));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

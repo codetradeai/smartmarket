@@ -52,7 +52,11 @@ public class VinculoProdutoService {
 
         List<PrecoVinculado> saida = new ArrayList<>();
         Set<String> vistos = new HashSet<>();
-        for (Preco p : precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(origemPorProduto.keySet())) {
+        // Historico completo (mais recente primeiro, desempate por id): o par produto x mercado so
+        // entra se a linha mais recente estiver disponivel; filtrar disponivel = true na consulta
+        // traria de volta o preco antigo de quem deixou de vender o item (ver PrecosVigentes).
+        for (Preco p : PrecosVigentes.descartandoParesIndisponiveis(
+                precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(origemPorProduto.keySet()))) {
             // a lista vem do mais recente para o mais antigo: vale o primeiro de cada (produto, mercado)
             Long donoId = p.getProduto().getId();
             if (!vistos.add(donoId + ":" + p.getMercado().getId())) {

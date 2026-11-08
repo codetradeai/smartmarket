@@ -11,11 +11,9 @@ public interface PrecoRepository extends JpaRepository<Preco, Long> {
     List<Preco> findByMercadoId(Long mercadoId);
     List<Preco> findByDisponivelTrue();
     List<Preco> findByDisponivelTrueOrderByColetadoEmDescIdDesc();
-    List<Preco> findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(Long produtoId);
-    List<Preco> findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(Collection<Long> produtoIds);
 
-    // Variantes SEM filtro de disponivel: o servico precisa enxergar a linha mais
-    // recente do par produto x mercado mesmo quando ela esta indisponivel, para nao
+    // Consultas de preco vigente NAO filtram disponivel: o servico precisa enxergar a linha
+    // mais recente do par produto x mercado mesmo quando ela esta indisponivel, para nao
     // cair numa linha antiga ainda marcada como disponivel (ver PrecosVigentes).
     List<Preco> findByProdutoIdOrderByColetadoEmDescIdDesc(Long produtoId);
     List<Preco> findByProdutoIdInOrderByColetadoEmDescIdDesc(Collection<Long> produtoIds);

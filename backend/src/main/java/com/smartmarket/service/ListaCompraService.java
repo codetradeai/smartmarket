@@ -90,11 +90,21 @@ public class ListaCompraService {
             .filter(item -> item.getProduto().getId().equals(produto.getId()))
             .findFirst()
             .map(item -> {
-                item.setQuantidade(item.getQuantidade() + request.getQuantidade());
+                // Soma em long: com int, 2147483647 + 2 virava quantidade negativa.
+                long soma = (long) item.getQuantidade() + request.getQuantidade();
+                if (soma > ItemListaRequest.QUANTIDADE_MAXIMA) {
+                    throw new IllegalArgumentException(
+                        "Quantidade total do item nao pode passar de " + ItemListaRequest.QUANTIDADE_MAXIMA);
+                }
+                item.setQuantidade((int) soma);
                 itemListaRepository.save(item);
                 return ItemListaResponse.from(item, produto);
             })
             .orElseGet(() -> {
+                if (lista.getItens().size() >= ItemListaRequest.ITENS_MAXIMOS_POR_LISTA) {
+                    throw new IllegalArgumentException(
+                        "A lista aceita no maximo " + ItemListaRequest.ITENS_MAXIMOS_POR_LISTA + " itens");
+                }
                 ItemLista item = ItemLista.builder()
                     .listaCompra(lista)
                     .produto(produto)

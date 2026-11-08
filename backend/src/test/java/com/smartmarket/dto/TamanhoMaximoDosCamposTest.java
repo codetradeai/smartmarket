@@ -2,6 +2,7 @@ package com.smartmarket.dto;
 
 import com.smartmarket.dto.auth.LoginRequest;
 import com.smartmarket.dto.auth.RegisterRequest;
+import com.smartmarket.dto.lista.ItemListaRequest;
 import com.smartmarket.dto.lista.ListaCompraRequest;
 import com.smartmarket.dto.lista.ListaRequest;
 import com.smartmarket.dto.mercado.MercadoRequest;
@@ -136,5 +137,26 @@ class TamanhoMaximoDosCamposTest {
             TamanhoMaximoDosCamposTest::texto);
         verificarLimite("nome", 255, () -> ListaCompraRequest.builder().nome("Lista").build(),
             ListaCompraRequest::setNome, TamanhoMaximoDosCamposTest::texto);
+    }
+
+    @Test
+    void quantidadeDoItemTemTeto() {
+        Supplier<ItemListaRequest> valido = () -> new ItemListaRequest(1L, 1);
+        verificarLimite("quantidade", 999, valido, (item, q) -> item.setQuantidade(Integer.valueOf(q)),
+            n -> String.valueOf(n));
+    }
+
+    @Test
+    void listasLimitamAQuantidadeDeItens() {
+        verificarLimite("itens", 100, () -> ListaRequest.builder().nome("Lista").build(),
+            (lista, n) -> lista.setItens(itens(Integer.parseInt(n))), n -> String.valueOf(n));
+        verificarLimite("itens", 100, () -> ListaCompraRequest.builder().nome("Lista").build(),
+            (lista, n) -> lista.setItens(itens(Integer.parseInt(n))), n -> String.valueOf(n));
+    }
+
+    private static List<ItemListaRequest> itens(int quantidade) {
+        return java.util.stream.IntStream.range(0, quantidade)
+            .mapToObj(i -> new ItemListaRequest((long) i + 1, 1))
+            .toList();
     }
 }

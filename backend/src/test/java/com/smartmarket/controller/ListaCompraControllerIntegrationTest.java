@@ -391,4 +391,50 @@ class ListaCompraControllerIntegrationTest {
         mockMvc.perform(get("/api/listas/" + idLista + "/comparacao"))
             .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void adicionarItem_SomaAcimaDoTeto_DeveRetornar400EManterAQuantidade() throws Exception {
+        mockMvc.perform(post("/api/listas/" + idLista + "/itens")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ItemListaRequest(idArroz, 998))))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.quantidade").value(999));
+
+        mockMvc.perform(post("/api/listas/" + idLista + "/itens")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ItemListaRequest(idArroz, 1))))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.erro").value(org.hamcrest.Matchers.containsString("999")));
+
+        mockMvc.perform(get("/api/listas/" + idLista).header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.itens[?(@.produtoId == " + idArroz + ")].quantidade").value(999));
+    }
+
+    @Test
+    void adicionarItem_ComQuantidadeAcimaDoTeto_DeveRetornar400ApontandoOCampo() throws Exception {
+        mockMvc.perform(post("/api/listas/" + idLista + "/itens")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"produtoId\":" + idArroz + ",\"quantidade\":2147483647}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.campos.quantidade").isNotEmpty());
+    }
+
+    @Test
+    void criarLista_ComMaisDe100Itens_DeveRetornar400() throws Exception {
+        List<ItemListaRequest> itens = new java.util.ArrayList<>();
+        for (int i = 0; i < 101; i++) {
+            itens.add(new ItemListaRequest(idArroz, 1));
+        }
+
+        mockMvc.perform(post("/api/listas")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(new ListaRequest("Gigante", itens))))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.campos.itens").isNotEmpty());
+    }
 }

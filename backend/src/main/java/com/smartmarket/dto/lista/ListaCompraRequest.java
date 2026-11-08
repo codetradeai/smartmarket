@@ -19,6 +19,7 @@ public class ListaCompraRequest {
     @Size(max = 255, message = "O nome da lista deve ter no maximo 255 caracteres")
     private String nome;
 
+    @Size(max = ItemListaRequest.ITENS_MAXIMOS_POR_LISTA, message = "a lista aceita no maximo 100 itens")
     @Builder.Default
     private List<@Valid ItemListaRequest> itens = new ArrayList<>();
 }

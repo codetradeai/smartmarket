@@ -24,6 +24,7 @@ public class ListaRequest {
     private String nome;
 
     @Valid
+    @Size(max = ItemListaRequest.ITENS_MAXIMOS_POR_LISTA, message = "a lista aceita no maximo 100 itens")
     @Builder.Default
     private List<ItemListaRequest> itens = new ArrayList<>();
 }

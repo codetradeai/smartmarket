@@ -256,4 +256,79 @@ class ListaCompraServiceTest {
 
         verify(itemListaRepository, never()).delete(any(ItemLista.class));
     }
+
+    @Test
+    void adicionarItem_SomaAcimaDoTeto_DeveRecusarEManterAQuantidade() {
+        ItemLista existente = ItemLista.builder()
+            .id(5L).listaCompra(lista).produto(produto).quantidade(999).build();
+        lista.getItens().add(existente);
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        assertThatThrownBy(() -> listaCompraService.adicionarItem(EMAIL, 1L, new ItemListaRequest(1L, 1)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("999");
+
+        assertThat(existente.getQuantidade()).isEqualTo(999);
+        verify(itemListaRepository, never()).save(any(ItemLista.class));
+    }
+
+    @Test
+    void adicionarItem_SomaQueEstouraInteger_NaoDeveVirarNegativa() {
+        ItemLista existente = ItemLista.builder()
+            .id(5L).listaCompra(lista).produto(produto).quantidade(Integer.MAX_VALUE).build();
+        lista.getItens().add(existente);
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+
+        assertThatThrownBy(() -> listaCompraService
+                .adicionarItem(EMAIL, 1L, new ItemListaRequest(1L, Integer.MAX_VALUE)))
+            .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(existente.getQuantidade()).isEqualTo(Integer.MAX_VALUE);
+        verify(itemListaRepository, never()).save(any(ItemLista.class));
+    }
+
+    @Test
+    void adicionarItem_SomaExatamenteNoTeto_DeveAceitar() {
+        lista.getItens().add(ItemLista.builder()
+            .id(5L).listaCompra(lista).produto(produto).quantidade(500).build());
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(1L)).thenReturn(Optional.of(produto));
+        when(itemListaRepository.save(any(ItemLista.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ItemListaResponse response = listaCompraService
+            .adicionarItem(EMAIL, 1L, new ItemListaRequest(1L, 499));
+
+        assertThat(response.getQuantidade()).isEqualTo(999);
+    }
+
+    @Test
+    void adicionarItem_ListaCheia_DeveRecusarProdutoNovoMasAceitarSomaEmItemExistente() {
+        for (long i = 10; i < 10 + 100; i++) {
+            Produto outro = Produto.builder().id(i).nome("Produto " + i).categoria("mercearia").build();
+            lista.getItens().add(ItemLista.builder().id(i).listaCompra(lista).produto(outro).quantidade(1).build());
+        }
+        Produto novo = Produto.builder().id(500L).nome("Novo").categoria("mercearia").build();
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(produtoRepository.findById(500L)).thenReturn(Optional.of(novo));
+        when(produtoRepository.findById(10L)).thenReturn(Optional.of(lista.getItens().get(0).getProduto()));
+        when(itemListaRepository.save(any(ItemLista.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertThatThrownBy(() -> listaCompraService.adicionarItem(EMAIL, 1L, new ItemListaRequest(500L, 1)))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("100");
+        assertThat(lista.getItens()).hasSize(100);
+
+        ItemListaResponse somado = listaCompraService.adicionarItem(EMAIL, 1L, new ItemListaRequest(10L, 2));
+        assertThat(somado.getQuantidade()).isEqualTo(3);
+    }
 }

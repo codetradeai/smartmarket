@@ -115,6 +115,15 @@ function matchingProducts(products, query) {
   return picked
 }
 
+/** Miniatura do resultado; se a imagem falhar (CDN externo bloqueado), mostra o ícone do produto. */
+function MiniaturaProduto({ src, fallback }) {
+  const [falhou, setFalhou] = useState(false)
+  if (!src || falhou) {
+    return <span className="text-lg" aria-hidden="true">{fallback}</span>
+  }
+  return <img src={src} alt="" onError={() => setFalhou(true)} className="h-11 w-11 object-contain" />
+}
+
 export function SearchSuggest({
   id,
   value,
@@ -223,11 +232,7 @@ export function SearchSuggest({
                 return (
                   <li key={product.id} className="flex items-center gap-3 border-b border-slate-100 py-2.5 last:border-b-0">
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-50">
-                      {product.imageLocal ? (
-                        <img src={product.imageLocal} alt="" className="h-11 w-11 object-contain" />
-                      ) : (
-                        <span className="text-lg" aria-hidden="true">{product.image || "🛒"}</span>
-                      )}
+                      <MiniaturaProduto src={product.imageLocal} fallback={product.image || "🛒"} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="line-clamp-2 text-sm font-semibold leading-snug text-brand-navy">{product.name}</span>

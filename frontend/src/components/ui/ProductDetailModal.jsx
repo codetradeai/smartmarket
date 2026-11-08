@@ -235,9 +235,9 @@ export function ProductDetailModal({
   return (
     <>
       {/* Modal Principal de Detalhes */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="sm-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
         <div
-          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200"
+          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden sm-modal-dialog flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92dvh] animate-in zoom-in-95 duration-200"
           role="dialog"
           aria-modal="true"
         >
@@ -268,7 +268,8 @@ export function ProductDetailModal({
             <button
               type="button"
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-white hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors text-base font-bold border border-slate-200/70 shadow-xs cursor-pointer"
+              aria-label="Fechar"
+              className="w-10 h-10 sm:w-9 sm:h-9 shrink-0 rounded-full bg-white hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors text-base font-bold border border-slate-200/70 shadow-xs cursor-pointer"
               title="Fechar (Esc)"
             >
               ✕

@@ -44,6 +44,11 @@ updates:
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
+    ignore:
+      # O projeto fica no Java 17 (LTS, igual ao pom.xml e ao CI). Trocar de versão do JDK é uma
+      # decisão do grupo, não uma atualização automática; patches e minors do 17 continuam chegando.
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

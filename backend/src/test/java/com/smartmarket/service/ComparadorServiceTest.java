@@ -87,7 +87,7 @@ class ComparadorServiceTest {
         when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
         when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
         when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.copyOf(lista.getItens()));
-        when(precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(
                 preco(1L, 1L, "5.00"),
                 preco(2L, 1L, "4.00"),
@@ -119,7 +119,7 @@ class ComparadorServiceTest {
         when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
         when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
         when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.copyOf(lista.getItens()));
-        when(precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(
                 preco(1L, 1L, "5.00"),
                 preco(2L, 1L, "4.00")));
@@ -137,7 +137,7 @@ class ComparadorServiceTest {
         when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
         when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
         when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.copyOf(lista.getItens()));
-        when(precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(
                 preco(1L, 1L, "5.00"),
                 preco(2L, 1L, "4.00")));
@@ -155,7 +155,7 @@ class ComparadorServiceTest {
         when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
         when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
         when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.copyOf(lista.getItens()));
-        when(precoRepository.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(
                 preco(1L, 1L, "5.00"),
                 preco(2L, 1L, "4.00"),
@@ -188,6 +188,38 @@ class ComparadorServiceTest {
         assertThat(response.getMercadoMaisBarato()).isNull();
         assertThat(response.getTotalItens()).isZero();
         verifyNoInteractions(precoRepository, promocaoRepository, mercadoRepository);
+    }
+
+    @Test
+    void comparar_UltimaLinhaIndisponivel_NaoDeveCairParaPrecoAntigo() {
+        // Historico do Fort para o arroz: a coleta mais recente marcou o produto como
+        // indisponivel, mas a linha antiga (R$ 5,00) continua disponivel = true.
+        Preco recenteIndisponivel = preco(1L, 1L, "7.00");
+        recenteIndisponivel.setDisponivel(false);
+        recenteIndisponivel.setColetadoEm(LocalDateTime.now());
+        Preco antigaDisponivel = preco(1L, 1L, "5.00");
+        antigaDisponivel.setColetadoEm(LocalDateTime.now().minusDays(10));
+
+        when(usuarioRepository.findByEmail(EMAIL)).thenReturn(Optional.of(usuario));
+        when(listaCompraRepository.findByIdAndUsuarioId(1L, 1L)).thenReturn(Optional.of(lista));
+        when(itemListaRepository.findByListaCompraId(1L)).thenReturn(List.copyOf(lista.getItens()));
+        when(precoRepository.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
+            .thenReturn(List.of(
+                recenteIndisponivel,
+                antigaDisponivel,
+                preco(2L, 1L, "4.00"),
+                preco(1L, 2L, "6.00")));
+        when(promocaoRepository.findByProdutoIdInAndDataInicioLessThanEqualAndDataFimGreaterThanEqual(
+            any(), any(), any())).thenReturn(List.of());
+        when(mercadoRepository.findByAtivoTrue()).thenReturn(List.of(fort, carrefour));
+
+        ComparacaoResponse response = comparadorService.comparar(EMAIL, 1L);
+
+        // Fort perdeu o arroz (nao pode usar os R$ 5,00 antigos): fica incompleto, so com o feijao.
+        var fortResp = response.getComparacoes().stream()
+            .filter(c -> c.getMercadoNome().equals("Fort")).findFirst().orElseThrow();
+        assertThat(fortResp.getCompleto()).isFalse();
+        assertThat(fortResp.getValorTotal()).isEqualByComparingTo("4.00");
     }
 
     @Test

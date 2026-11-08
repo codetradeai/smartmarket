@@ -89,7 +89,7 @@ describe('listaService', () => {
     expect(api.post).toHaveBeenCalledWith('/listas/3/itens', { produtoId: 9, quantidade: 2 })
   })
 
-  it('removerItem exclui o produto da lista e devolve a lista atualizada', async () => {
+  it('removerItem exclui o item (itemId) da lista e devolve a lista atualizada', async () => {
     api.delete.mockResolvedValue({ data: { id: 3, itens: [] } })
 
     await expect(listaService.removerItem(3, 9)).resolves.toEqual({ id: 3, itens: [] })
@@ -108,6 +108,6 @@ describe('listaService', () => {
     api.get.mockResolvedValue({ data: comparacao })
 
     await expect(listaService.compararCesta(3)).resolves.toBe(comparacao)
-    expect(api.get).toHaveBeenCalledWith('/listas/3/comparar')
+    expect(api.get).toHaveBeenCalledWith('/listas/3/comparacao')
   })
 })

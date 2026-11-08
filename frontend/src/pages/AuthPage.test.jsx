@@ -171,7 +171,7 @@ describe('AuthPage', () => {
       fireEvent.click(screen.getByRole('button', { name: /Perfil Admin/ }))
 
       expect(screen.getByLabelText('E-mail')).toHaveValue('davi@smartmarket.com.br')
-      expect(screen.getByLabelText('Senha')).toHaveValue('admin')
+      expect(screen.getByLabelText('Senha')).toHaveValue('admin123')
     })
 
     it('preenche as credenciais de avaliacao do perfil usuario e volta para a aba de login', () => {
@@ -181,7 +181,7 @@ describe('AuthPage', () => {
       fireEvent.click(screen.getByRole('button', { name: /Perfil Usuário/ }))
 
       expect(screen.getByLabelText('E-mail')).toHaveValue('maria@email.com')
-      expect(screen.getByLabelText('Senha')).toHaveValue('user')
+      expect(screen.getByLabelText('Senha')).toHaveValue('user123')
     })
   })
 

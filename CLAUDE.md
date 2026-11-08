@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 SmartMarket é um comparador de preços de supermercados do RS (Grupo 40, Trilha Dev Full Stack 2026). Monorepo com três partes independentes que se comunicam via PostgreSQL e API REST:
 
 - `frontend/` — React 19 + Vite + Tailwind v4 (SPA, servida por Nginx em produção)
-- `backend/` — Spring Boot 3.4 / Java 17 (API REST, JPA, JWT)
+- `backend/` — Spring Boot 4.0 / Java 17 (API REST, JPA, JWT)
 - `scraper/` — Python: coletores por rede, normalização e carga no PostgreSQL
 - `docs/` — documentação técnica, modelagem ER, cenários de teste; `output/` guarda dados coletados
 
@@ -78,3 +78,18 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 ## Convenções
 - Branches: `feature/nome-da-tarefa` a partir de `main`; PR com revisão antes do merge (template em `.github/pull_request_template.md`).
 - `login/`, `output/` e `frontend/templates/` não são código da aplicação (artefatos/protótipos).
+- Comentários de bots nas PRs (ECC Tools, Vercel): veja `docs/COMENTARIOS-DE-BOTS.md` para saber quais olhar e quais ignorar.
+
+## Agent skills
+
+### Issue tracker
+
+As issues ficam no GitHub Issues de `codetradeai/smartmarket` (CLI `gh`). Veja `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Vocabulário padrão: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Veja `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` e `docs/adr/` na raiz, criados sob demanda. Veja `docs/agents/domain.md`.

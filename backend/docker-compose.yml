@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: smartmarket-db
+    container_name: smartmarket-db-dev
     environment:
       POSTGRES_DB: smartmarket
       POSTGRES_USER: smartmarket

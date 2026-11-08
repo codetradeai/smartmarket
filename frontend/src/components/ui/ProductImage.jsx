@@ -10,10 +10,13 @@ export function ProductImage({
   alt = "Produto",
   className = "",
   fallbackIcon = "🛒",
-  aspectRatio = "square", // 'square', 'video', 'auto'
 }) {
-  const [hasError, setHasError] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  // O estado de carga/erro pertence a um src específico: ao receber outro src (miniatura, produto
+  // relacionado) o resultado anterior deixa de valer e a imagem nova volta a ser tentada.
+  const [estado, setEstado] = useState({ src, falhou: false, carregada: false })
+  const estadoAtual = estado.src === src ? estado : { falhou: false, carregada: false }
+  const hasError = estadoAtual.falhou
+  const isLoading = !estadoAtual.carregada
 
   const isLocalOrRemote = src && typeof src === "string" && (
     src.startsWith("/") ||
@@ -45,11 +48,8 @@ export function ProductImage({
         src={src}
         alt={alt}
         loading="lazy"
-        onLoad={() => setIsLoading(false)}
-        onError={() => {
-          setIsLoading(false)
-          setHasError(true)
-        }}
+        onLoad={() => setEstado({ src, falhou: false, carregada: true })}
+        onError={() => setEstado({ src, falhou: true, carregada: true })}
         className={`w-full h-full object-contain p-2 transition-all duration-300 group-hover:scale-105 ${
           isLoading ? "opacity-0" : "opacity-100"
         }`}

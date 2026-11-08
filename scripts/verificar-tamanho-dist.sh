@@ -6,9 +6,11 @@
 # Limites (podem ser trocados por variável de ambiente):
 #   MAX_TOTAL_MB    tamanho total do dist           (padrão 100; ~85 sem as variáveis do bucket, ~5 com elas)
 #   MAX_ARQUIVO_MB  maior arquivo individual        (padrão 3)
-# O chunk do catálogo (assets/data-*.js, ~28 MB) é a única exceção: ele só existe no build sem
-# VITE_CATALOGO_URL (CI, dev, Docker). O deploy no Pages usa o catálogo do bucket e passa
-# MAX_TOTAL_MB=20 (ver .github/workflows/deploy-pages.yml e docs/ASSETS-NEON.md).
+# O catálogo em JSON (catalogo/produtos.<hash>.json, ~10 MB, gerado de src/data.js pelo prebuild)
+# é a única exceção ao limite por arquivo: ele É o catálogo, é baixado por fetch e tem o hash no nome
+# (cache imutável). Antes ele era o chunk assets/data-*.js (~28 MB); esse chunk não existe mais e,
+# se voltar, o guard o barra. O deploy no Pages usa o catálogo do bucket e passa MAX_TOTAL_MB=20
+# (ver .github/workflows/deploy-pages.yml e docs/ASSETS-NEON.md).
 set -euo pipefail
 
 DIST="${1:-frontend/dist}"
@@ -30,7 +32,7 @@ if [ "$total_mb" -gt "$MAX_TOTAL_MB" ]; then
   falhou=1
 fi
 
-grandes=$(find "$DIST" -type f -size +"${MAX_ARQUIVO_MB}"M ! -path '*/assets/data-*.js' -printf '%s %p\n' | sort -rn || true)
+grandes=$(find "$DIST" -type f -size +"${MAX_ARQUIVO_MB}"M ! -path '*/catalogo/produtos.*.json' -printf '%s %p\n' | sort -rn || true)
 if [ -n "$grandes" ]; then
   echo "ERRO: arquivos acima de ${MAX_ARQUIVO_MB} MB no dist (tamanho em bytes, caminho):" >&2
   echo "$grandes" >&2

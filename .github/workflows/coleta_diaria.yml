@@ -66,7 +66,7 @@ jobs:
           python scraper/gerar_catalogo_e_sql.py
 
       - name: Arquivar Relatórios de Coleta como Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: relatorio-coleta-diaria-${{ github.run_id }}

@@ -13,6 +13,8 @@ Sem `SMARTMARKET_JWT_SECRET` a aplicação recusa inicializar e exibe a mensagem
 ```
 SMARTMARKET_JWT_SECRET nao definido. Defina a variavel de ambiente antes de iniciar a aplicacao.
 ```
+A aplicação também recusa inicializar (com mensagem própria) se o segredo tiver menos de 32 bytes ou se for o
+valor de exemplo de `.env.example` (`gere-um-segredo-...`), que é público.
 
 ---
 

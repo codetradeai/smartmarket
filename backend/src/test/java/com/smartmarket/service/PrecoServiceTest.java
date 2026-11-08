@@ -42,7 +42,16 @@ class PrecoServiceTest {
         when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
         when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
-        assertThat(service.buscarPrecosPorProduto(1L)).isNotNull();
+
+        var resposta = service.buscarPrecosPorProduto(1L);
+
+        assertThat(resposta.getId()).isEqualTo(1L);
+        assertThat(resposta.getPrecos()).isEmpty();
+        assertThat(resposta.getPrecosDetalhados()).isEmpty();
+        assertThat(resposta.getMenorPreco()).isNull();
+        assertThat(resposta.getMercadoMenorPreco()).isNull();
+        assertThat(resposta.getPromo()).isFalse();
+        assertThat(resposta.getValorOriginal()).isNull();
     }
 
     @Test void buscarPrecosPorProduto_ConsideraUltimoPrecoPorMercado() {
@@ -50,7 +59,30 @@ class PrecoServiceTest {
         when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L))
             .thenReturn(List.of(preco(1L, 2L, "8.00"), preco(1L, 2L, "10.00")));
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
-        assertThat(service.buscarPrecosPorProduto(1L)).isNotNull();
+
+        var resposta = service.buscarPrecosPorProduto(1L);
+
+        // A lista vem do mais recente para o mais antigo: vale o primeiro (8.00), nao o ultimo (10.00).
+        assertThat(resposta.getPrecos()).containsOnlyKeys(2L);
+        assertThat(resposta.getPrecos().get(2L)).isEqualByComparingTo("8.00");
+        assertThat(resposta.getMenorPreco()).isEqualByComparingTo("8.00");
+        assertThat(resposta.getMercadoMenorPreco()).isEqualTo(2L);
+        // O detalhamento continua com o historico completo.
+        assertThat(resposta.getPrecosDetalhados()).hasSize(2);
+    }
+
+    @Test void buscarPrecosPorProduto_EscolheOMenorEntreMercadosComOUltimoPrecoDeCada() {
+        when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
+        when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L))
+            .thenReturn(List.of(preco(1L, 2L, "8.00"), preco(1L, 3L, "6.50"), preco(1L, 2L, "4.00")));
+        when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of());
+
+        var resposta = service.buscarPrecosPorProduto(1L);
+
+        assertThat(resposta.getPrecos()).containsOnlyKeys(2L, 3L);
+        assertThat(resposta.getPrecos().get(2L)).isEqualByComparingTo("8.00");
+        assertThat(resposta.getMenorPreco()).isEqualByComparingTo("6.50");
+        assertThat(resposta.getMercadoMenorPreco()).isEqualTo(3L);
     }
 
     @Test void buscarPrecosPorProduto_ComPromocao() {
@@ -59,7 +91,24 @@ class PrecoServiceTest {
         Promocao promocao = Promocao.builder().produto(produto(1L)).mercado(mercado(2L))
             .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("8")).build();
         when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of(promocao));
-        assertThat(service.buscarPrecosPorProduto(1L)).isNotNull();
+
+        var resposta = service.buscarPrecosPorProduto(1L);
+
+        assertThat(resposta.getPromo()).isTrue();
+        assertThat(resposta.getValorOriginal()).isEqualByComparingTo("10");
+    }
+
+    @Test void buscarPrecosPorProduto_PromocaoDeOutroProdutoNaoMarcaEste() {
+        when(produtos.findById(1L)).thenReturn(Optional.of(produto(1L)));
+        when(precos.findByProdutoIdOrderByColetadoEmDescIdDesc(1L)).thenReturn(List.of());
+        Promocao deOutro = Promocao.builder().produto(produto(7L)).mercado(mercado(2L))
+            .valorOriginal(new BigDecimal("10")).valorPromocional(new BigDecimal("8")).build();
+        when(promocoes.findByDataInicioLessThanEqualAndDataFimGreaterThanEqual(any(), any())).thenReturn(List.of(deOutro));
+
+        var resposta = service.buscarPrecosPorProduto(1L);
+
+        assertThat(resposta.getPromo()).isFalse();
+        assertThat(resposta.getValorOriginal()).isNull();
     }
 
     @Test void buscarPorProdutoEMercado_ConverteResultados() {

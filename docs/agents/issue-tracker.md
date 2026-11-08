@@ -51,6 +51,6 @@ Usadas pelo `/wayfinder`. O **mapa** é uma única issue, e os **filhos** são i
 
 ## Notas deste repositório
 
-- Repositório: `codetradeai/smartmarket`. O endereço antigo `opedromeireless/smartmarket` redireciona para ele.
-- Nas sessões do Claude Code na nuvem, `gh issue create`/`gh issue list` funcionam, mas comandos que usam GraphQL (como `gh repo view`) são bloqueados. Nesses casos, use `gh api repos/codetradeai/smartmarket/...`.
+- Repositório: `smartmarket-team/smartmarket`. Os endereços antigos `codetradeai/smartmarket` e `opedromeireless/smartmarket` redirecionam para ele.
+- Nas sessões do Claude Code na nuvem, `gh issue create`/`gh issue list` funcionam, mas comandos que usam GraphQL (como `gh repo view`) são bloqueados. Nesses casos, use `gh api repos/smartmarket-team/smartmarket/...`.
 - Antes de criar uma issue, confirme o repositório de destino com `gh repo view --json nameWithOwner` (ou pela API REST, se o GraphQL estiver bloqueado).

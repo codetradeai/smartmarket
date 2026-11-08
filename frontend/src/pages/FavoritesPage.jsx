@@ -13,6 +13,7 @@ import logoCarrefour from "../../logo/logo-carrefour.png"
 import logoRissul from "../../logo/logo-rissul,.png"
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png"
 import logoMaster from "../../logo/mastersupermercados-logo.png"
+import { urlPublica } from "../utils/urlAssets"
 
 const MARKET_LOGOS = {
   fort: logoFort,
@@ -37,21 +38,21 @@ const MARKET_LOGO_OPTICAL_CLASS = {
 }
 
 const SECTOR_BANNERS = [
-  { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
-  { id: "hortifruti", label: "Hortifrúti", img: "/images/categorias/master/hortifruti.png", icon: "🍎" },
-  { id: "carnes", label: "Carnes", img: "/images/categorias/master/carnes.png", icon: "🥩" },
-  { id: "padaria", label: "Padaria", img: "/images/categorias/master/padaria.png", icon: "🥖" },
-  { id: "leites", label: "Frios e Laticínios", img: "/images/categorias/master/leites.png", icon: "🥛" },
-  { id: "bebidas", label: "Bebidas", img: "/images/categorias/master/bebidas.png", icon: "🍺" },
-  { id: "congelados", label: "Congelados", img: "/images/categorias/master/congelados.png", icon: "🧊" },
-  { id: "graos", label: "Grãos e Arroz", img: "/images/categorias/master/graos.png", icon: "🌾" },
-  { id: "cafe", label: "Café e Matinais", img: "/images/categorias/master/cafe.png", icon: "☕" },
-  { id: "limpeza", label: "Limpeza", img: "/images/categorias/master/limpeza.png", icon: "🧹" },
-  { id: "higiene", label: "Higiene", img: "/images/categorias/master/higiene.png", icon: "🧴" },
-  { id: "oleos", label: "Óleos e Azeites", img: "/images/categorias/master/oleos.png", icon: "🫙" },
-  { id: "biscoitos", label: "Biscoitos", img: "/images/categorias/master/biscoitos.png", icon: "🍪" },
-  { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
-  { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
+  { id: "todos", label: "Todos", img: urlPublica("/images/categorias/master/todos.png"), icon: "🏪" },
+  { id: "hortifruti", label: "Hortifrúti", img: urlPublica("/images/categorias/master/hortifruti.png"), icon: "🍎" },
+  { id: "carnes", label: "Carnes", img: urlPublica("/images/categorias/master/carnes.png"), icon: "🥩" },
+  { id: "padaria", label: "Padaria", img: urlPublica("/images/categorias/master/padaria.png"), icon: "🥖" },
+  { id: "leites", label: "Frios e Laticínios", img: urlPublica("/images/categorias/master/leites.png"), icon: "🥛" },
+  { id: "bebidas", label: "Bebidas", img: urlPublica("/images/categorias/master/bebidas.png"), icon: "🍺" },
+  { id: "congelados", label: "Congelados", img: urlPublica("/images/categorias/master/congelados.png"), icon: "🧊" },
+  { id: "graos", label: "Grãos e Arroz", img: urlPublica("/images/categorias/master/graos.png"), icon: "🌾" },
+  { id: "cafe", label: "Café e Matinais", img: urlPublica("/images/categorias/master/cafe.png"), icon: "☕" },
+  { id: "limpeza", label: "Limpeza", img: urlPublica("/images/categorias/master/limpeza.png"), icon: "🧹" },
+  { id: "higiene", label: "Higiene", img: urlPublica("/images/categorias/master/higiene.png"), icon: "🧴" },
+  { id: "oleos", label: "Óleos e Azeites", img: urlPublica("/images/categorias/master/oleos.png"), icon: "🫙" },
+  { id: "biscoitos", label: "Biscoitos", img: urlPublica("/images/categorias/master/biscoitos.png"), icon: "🍪" },
+  { id: "mercearia", label: "Mercearia", img: urlPublica("/images/categorias/master/mercearia.png"), icon: "🛒" },
+  { id: "bazar", label: "Bazar", img: urlPublica("/images/categorias/master/bazar.png"), icon: "🍽️" },
 ]
 
 // Favoritos de demonstração: só para visitante (sem sessão) que ainda não tem favoritos

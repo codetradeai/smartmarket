@@ -164,21 +164,50 @@ describe('AuthPage', () => {
       const botao = screen.getByRole('button', { name: 'Carregando...' })
       expect(botao).toBeDisabled()
     })
+  })
 
-    it('preenche as credenciais de avaliacao do perfil admin', () => {
+  describe('atalhos de acesso rapido (credenciais de demonstracao)', () => {
+    afterEach(() => {
+      delete process.env.VITE_ENABLE_DEMO_LOGIN
+      delete process.env.DEV
+    })
+
+    it('ficam ocultos por padrao (build de producao): nem botoes nem titulo na tela de login', () => {
       renderizar()
 
-      fireEvent.click(screen.getByRole('button', { name: /Perfil Admin/ }))
+      expect(screen.queryByText(/Acesso Rápido/)).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Perfil Admin/ })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Perfil Usuário/ })).not.toBeInTheDocument()
+    })
+
+    it('aparecem em modo de desenvolvimento (import.meta.env.DEV)', () => {
+      process.env.DEV = '1'
+      renderizar()
+
+      expect(screen.getByRole('button', { name: /Perfil Admin/ })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Perfil Usuário/ })).toBeInTheDocument()
+    })
+
+    it('preenche as credenciais de avaliacao do perfil admin quando o modo demo esta habilitado', async () => {
+      process.env.VITE_ENABLE_DEMO_LOGIN = 'true'
+      renderizar()
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /Perfil Admin/ }))
+      })
 
       expect(screen.getByLabelText('E-mail')).toHaveValue('davi@smartmarket.com.br')
       expect(screen.getByLabelText('Senha')).toHaveValue('admin123')
     })
 
-    it('preenche as credenciais de avaliacao do perfil usuario e volta para a aba de login', () => {
+    it('preenche as credenciais de avaliacao do perfil usuario e volta para a aba de login', async () => {
+      process.env.VITE_ENABLE_DEMO_LOGIN = 'true'
       renderizar('/auth?mode=register')
 
       fireEvent.click(abaEntrar())
-      fireEvent.click(screen.getByRole('button', { name: /Perfil Usuário/ }))
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /Perfil Usuário/ }))
+      })
 
       expect(screen.getByLabelText('E-mail')).toHaveValue('maria@email.com')
       expect(screen.getByLabelText('Senha')).toHaveValue('user123')
@@ -197,29 +226,22 @@ describe('AuthPage', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
-    it('confirma o envio das instrucoes e fecha o modal sozinho', () => {
-      jest.useFakeTimers()
+    it('diz que a recuperacao por e-mail esta indisponivel, sem prometer envio', () => {
       renderizar()
       fireEvent.click(screen.getByRole('button', { name: 'Esqueceu a senha?' }))
 
-      fireEvent.change(screen.getByLabelText('E-mail cadastrado'), { target: { value: 'ana@email.com' } })
-      fireEvent.click(screen.getByRole('button', { name: 'Enviar Link' }))
-
-      expect(screen.getByText('Instruções de redefinição foram enviadas para ana@email.com!')).toBeInTheDocument()
-
-      act(() => {
-        jest.advanceTimersByTime(2500)
-      })
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      const dialogo = screen.getByRole('dialog')
+      expect(dialogo).toHaveTextContent(/indisponível por enquanto/i)
+      expect(dialogo).not.toHaveTextContent(/foram enviadas/i)
+      expect(dialogo).not.toHaveTextContent(/enviarmos o link/i)
     })
 
-    it('nao envia quando o e-mail esta vazio', () => {
+    it('nao oferece campo de e-mail nem botao de envio, ja que nenhuma chamada seria feita', () => {
       renderizar()
       fireEvent.click(screen.getByRole('button', { name: 'Esqueceu a senha?' }))
 
-      fireEvent.submit(screen.getByRole('dialog').querySelector('form'))
-
-      expect(screen.queryByText(/Instruções de redefinição/)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('E-mail cadastrado')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Enviar Link' })).not.toBeInTheDocument()
     })
   })
 

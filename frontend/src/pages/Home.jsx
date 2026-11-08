@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
   Button,
-  Input,
   Card,
   CardHeader,
   CardTitle,
@@ -86,7 +85,6 @@ export function Home() {
   const [selectedMarket, setSelectedMarket] = useState("todos")
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
-  const [alertTargetPrice, setAlertTargetPrice] = useState("")
   const [toastMessage, setToastMessage] = useState(null)
   const [visibleHomeLimit, setVisibleHomeLimit] = useState(32)
 
@@ -891,7 +889,8 @@ export function Home() {
         }}
       />
 
-      {/* 8. MODAL DE ALERTA DE PREÇO (PRESERVADO) */}
+      {/* 8. MODAL DE ALERTA DE PREÇO: só orienta. Os alertas reais são criados em Favoritos (aba
+          Alertas), com produto escolhido; este modal não grava nada e não confirma nada. */}
       <Modal
         isOpen={isAlertModalOpen}
         onClose={() => setIsAlertModalOpen(false)}
@@ -900,41 +899,34 @@ export function Home() {
         <ModalHeader>
           <ModalTitle>Criar Alerta de Preço</ModalTitle>
           <ModalDescription>
-            Receba notificações quando o produto atingir o valor desejado em qualquer uma das 8 redes do RS.
+            Os alertas de preço são criados na página de Favoritos, escolhendo o produto e o preço alvo.
           </ModalDescription>
         </ModalHeader>
 
         <ModalBody className="space-y-4">
           <div className="p-4 rounded-2xl bg-brand-green-light border border-brand-green/20">
-            <h4 className="text-sm font-bold text-brand-green">Dica de Economia do SmartMarket</h4>
+            <h4 className="text-sm font-bold text-brand-green">Como funciona</h4>
             <p className="text-xs text-brand-navy mt-1 leading-relaxed">
-              O robô de inteligência de preços verifica os encartes e canais de atacado diariamente. Você será alertado assim que o valor baixar.
+              Em Favoritos, aba “Configurar &amp; Ver Alertas de Preço”, você escolhe um produto e o preço
+              que quer pagar. O alerta fica salvo neste navegador e é conferido ao abrir a página de
+              Favoritos; ainda não enviamos e-mail nem notificação.
             </p>
-          </div>
-
-          <div className="space-y-2">
-            <Input
-              label="Preço Alvo Desejado (R$)"
-              placeholder="Ex: 22.90"
-              value={alertTargetPrice}
-              onChange={(e) => setAlertTargetPrice(e.target.value)}
-            />
           </div>
         </ModalBody>
 
         <ModalFooter>
           <Button variant="outline" size="sm" onClick={() => setIsAlertModalOpen(false)}>
-            Cancelar
+            Fechar
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={() => {
               setIsAlertModalOpen(false)
-              showToast("Alerta de preço configurado com sucesso!")
+              navigate("/favorites")
             }}
           >
-            Salvar Alerta
+            Ir para os alertas
           </Button>
         </ModalFooter>
       </Modal>

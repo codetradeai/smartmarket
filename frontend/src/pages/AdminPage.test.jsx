@@ -60,6 +60,17 @@ const PRODUTO_API = {
   prices: { fort: 7.5, carrefour: 8, big: null },
 }
 
+const USUARIOS_API = {
+  content: [
+    { id: 1, nome: 'Davi Souza', email: 'davi@smartmarket.com.br', papel: 'ADMIN', createdAt: '2026-10-10T08:00:00', lists: 3, ativo: true },
+    { id: 4, nome: 'Maria Santos', email: 'maria@email.com', papel: 'USER', createdAt: '2026-10-14T08:00:00', lists: 7, ativo: true },
+    { id: 5, nome: 'João Lima', email: 'joao@email.com', papel: 'USER', createdAt: '2026-10-15T08:00:00', lists: 2, ativo: true },
+  ],
+}
+
+// Erro do axios com a resposta do backend ({ erro, campos } do GlobalExceptionHandler)
+const erroHttp = (status, data) => Object.assign(new Error(`Request failed with status code ${status}`), { response: { status, data } })
+
 const MERCADO_API = {
   id: 1,
   name: 'Fort Atacadista',
@@ -81,7 +92,7 @@ async function renderizar({ painel = null, produtos = [], mercados = [], usuario
 }
 
 const kpi = (rotulo) => screen.getByText(rotulo).closest('div').querySelector('h3')
-const abrirAba = (nome) => fireEvent.click(screen.getByRole('button', { name: new RegExp(`${nome} \\(\\d+\\)`) }))
+const abrirAba = (nome) => fireEvent.click(screen.getByRole('button', { name: new RegExp(`${nome} \\(.+\\)`) }))
 const linhaDe = (texto) => screen.getByText(texto).closest('tr')
 const modal = () => screen.getByRole('dialog')
 const campo = (rotulo) => within(modal()).getByLabelText(rotulo)
@@ -105,14 +116,17 @@ describe('AdminPage', () => {
   })
 
   describe('carregamento', () => {
-    it('mostra os dados locais enquanto o backend nao responde com dados', async () => {
+    it('mostra os produtos locais, sem inventar usuarios, enquanto o backend nao responde com dados', async () => {
       await renderizar()
 
       expect(screen.getByRole('heading', { level: 1, name: 'Painel Administrativo' })).toBeInTheDocument()
       expect(kpi('Produtos no Catálogo')).toHaveTextContent(String(PRODUCTS.length))
       expect(kpi('Redes Monitoradas')).toHaveTextContent('3')
-      expect(kpi('Usuários Totais')).toHaveTextContent('5')
-      expect(screen.getByRole('button', { name: `📦 Produtos (${PRODUCTS.length})` })).toBeInTheDocument()
+      expect(kpi('Usuários Totais')).toHaveTextContent('0')
+      abrirAba('Usuários')
+      expect(screen.queryByText('Davi Souza')).not.toBeInTheDocument()
+      expect(screen.queryByText('Maria Santos')).not.toBeInTheDocument()
+      expect(screen.getByText('Nenhum usuário encontrado.')).toBeInTheDocument()
     })
 
     it('usa as metricas do painel quando o backend as informa', async () => {
@@ -159,7 +173,7 @@ describe('AdminPage', () => {
       expect(linha.getByText('ATIVO')).toBeInTheDocument()
     })
 
-    it('mantem os dados locais quando as chamadas ao backend falham', async () => {
+    it('mantem o catalogo local quando as chamadas ao backend falham, mas nao inventa usuarios', async () => {
       produtoService.buscarCatalogoComPrecos.mockRejectedValue(new Error('offline'))
       mercadoService.listar.mockRejectedValue(new Error('offline'))
       adminService.listarUsuarios.mockRejectedValue(new Error('offline'))
@@ -169,7 +183,7 @@ describe('AdminPage', () => {
       })
 
       expect(kpi('Produtos no Catálogo')).toHaveTextContent(String(PRODUCTS.length))
-      expect(kpi('Usuários Totais')).toHaveTextContent('5')
+      expect(kpi('Usuários Totais')).toHaveTextContent('—')
     })
 
     it('ignora a resposta do backend se o componente for desmontado antes dela chegar', async () => {
@@ -191,18 +205,43 @@ describe('AdminPage', () => {
   })
 
   describe('aba de produtos', () => {
-    it('mostra a tabela com precos formatados, traco para precos ausentes e selo de promocao', async () => {
+    it('mostra a tabela com menor preco, rede, preco medio, traco para precos ausentes e selo de promocao', async () => {
       await renderizar({ produtos: [PRODUTO_API] })
 
       const linha = within(linhaDe('Arroz Integral'))
       expect(linha.getByText('PROMO')).toBeInTheDocument()
       expect(linha.getByText('Camil')).toBeInTheDocument()
       expect(linha.getByText('Grãos')).toBeInTheDocument()
-      // A tabela mostra só o menor preço e a rede que o oferece (preço 8.00 do Carrefour não aparece).
+      // Menor preço (7.50, Fort) e média dos preços válidos (7.50 e 8.00 = 7.75); o 8.00 isolado não aparece.
       expect(linha.getByText('R$ 7.50')).toBeInTheDocument()
       expect(linha.getByText('no Fort Atacadista')).toBeInTheDocument()
+      expect(linha.getByText('R$ 7.75')).toBeInTheDocument()
       expect(linha.queryByText('R$ 8.00')).not.toBeInTheDocument()
       expect(linha.queryByText('—')).not.toBeInTheDocument()
+    })
+
+    it('cada linha tem uma celula para cada coluna do cabecalho, com Editar/Excluir sob "Ações"', async () => {
+      await renderizar({ produtos: [PRODUTO_API] })
+
+      const cabecalhos = within(screen.getAllByRole('row')[0]).getAllByRole('columnheader')
+      const celulas = within(linhaDe('Arroz Integral')).getAllByRole('cell')
+      expect(celulas).toHaveLength(cabecalhos.length)
+      const colunaAcoes = cabecalhos.findIndex((th) => th.textContent === 'Ações')
+      expect(within(celulas[colunaAcoes]).getByRole('button', { name: 'Editar' })).toBeInTheDocument()
+      expect(within(celulas[colunaAcoes]).getByRole('button', { name: 'Excluir' })).toBeInTheDocument()
+      const colunaMedio = cabecalhos.findIndex((th) => th.textContent === 'Preço Médio')
+      expect(celulas[colunaMedio]).toHaveTextContent('R$ 7.75')
+    })
+
+    it('mostra o nome da rede (nao o id) quando os precos vem da API com id numerico', async () => {
+      await renderizar({
+        produtos: [{ ...PRODUTO_API, prices: { 1: 7.5, 2: 8 } }],
+        mercados: [MERCADO_API, { ...MERCADO_API, id: 2, name: 'Carrefour Mercado' }],
+      })
+
+      const linha = within(linhaDe('Arroz Integral'))
+      expect(linha.getByText('no Fort Atacadista')).toBeInTheDocument()
+      expect(linha.queryByText('no 1')).not.toBeInTheDocument()
     })
 
     it('mostra a categoria bruta quando ela nao existe na lista e usa icone padrao sem imagem', async () => {
@@ -212,7 +251,8 @@ describe('AdminPage', () => {
       expect(linha.getByText('outra')).toBeInTheDocument()
       expect(linha.getByText('🛒')).toBeInTheDocument()
       expect(linha.queryByText('PROMO')).not.toBeInTheDocument()
-      expect(linha.getAllByText('—')).toHaveLength(1)
+      // Sem nenhum preço válido: "Melhor Oferta" e "Preço Médio" ficam em traço.
+      expect(linha.getAllByText('—')).toHaveLength(2)
     })
 
     it('filtra por nome ou marca e informa quantos registros exibe', async () => {
@@ -263,22 +303,26 @@ describe('AdminPage', () => {
         const linhas = screen.getAllByRole('row')
         expect(within(linhas[1]).getByText('Feijão Novo')).toBeInTheDocument()
         expect(within(linhas[1]).getByText('PROMO')).toBeInTheDocument()
-        expect(within(linhas[1]).getByText('R$ 9.50')).toBeInTheDocument()
+        expect(within(linhas[1]).getAllByText('R$ 9.50').length).toBeGreaterThan(0)
       })
 
-      it('cadastra localmente mesmo se o backend falhar', async () => {
-        produtoService.criar.mockRejectedValue(new Error('offline'))
+      it('se o backend recusar, mostra o erro real, nao cadastra, nao diz sucesso e mantem o formulario aberto', async () => {
+        produtoService.criar.mockRejectedValue(erroHttp(400, { erro: 'Dados invalidos', campos: { marca: 'obrigatória' } }))
         await renderizar({ produtos: [PRODUTO_API] })
         abrir()
 
-        fireEvent.change(campo('Nome do Produto'), { target: { value: 'Item Offline' } })
+        fireEvent.change(campo('Nome do Produto'), { target: { value: 'Item Recusado' } })
         fireEvent.change(campo('Marca'), { target: { value: 'Marca X' } })
         await act(async () => {
           fireEvent.submit(modal().querySelector('form'))
         })
 
-        expect(screen.getByText('Item Offline')).toBeInTheDocument()
-        expect(console.warn).toHaveBeenCalled()
+        expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível cadastrar o produto: Dados invalidos: obrigatória')
+        expect(screen.queryByText(/cadastrado!/)).not.toBeInTheDocument()
+        expect(screen.getByRole('dialog')).toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Item Recusado')).not.toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Produtos \(1\)/ })).toBeInTheDocument()
       })
 
       it('permite trocar categoria e unidade e cancelar sem salvar', async () => {
@@ -316,13 +360,13 @@ describe('AdminPage', () => {
         expect(produtoService.atualizar).toHaveBeenCalledWith(1, expect.objectContaining({ nome: 'Arroz Integral Premium' }))
         expect(screen.getByText("Produto 'Arroz Integral Premium' atualizado com sucesso!")).toBeInTheDocument()
         const linha = within(linhaDe('Arroz Integral Premium'))
-        // Sem o preço do Fort, o menor passa a ser o do Carrefour e a linha não mostra mais "—".
-        expect(linha.getByText('R$ 8.00')).toBeInTheDocument()
+        // Sem o preço do Fort, o único preço é o do Carrefour: menor preço e média coincidem em 8.00.
+        expect(linha.getAllByText('R$ 8.00')).toHaveLength(2)
         expect(linha.getByText('no Carrefour Mercado')).toBeInTheDocument()
         expect(linha.queryByText('—')).not.toBeInTheDocument()
       })
 
-      it('nao chama o backend para produtos locais (id textual), mas atualiza a tabela', async () => {
+      it('produto do catalogo local (id textual) nao pode ser salvo: avisa e nao altera a tabela', async () => {
         await renderizar()
 
         fireEvent.click(within(linhaDe('Arroz Branco Tipo 1')).getByRole('button', { name: 'Editar' }))
@@ -332,11 +376,15 @@ describe('AdminPage', () => {
         })
 
         expect(produtoService.atualizar).not.toHaveBeenCalled()
-        expect(screen.getByText('Arroz Local')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent(/catálogo local/)
+        expect(screen.queryByText(/atualizado com sucesso/)).not.toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Arroz Local')).not.toBeInTheDocument()
+        expect(screen.getByText('Arroz Branco Tipo 1')).toBeInTheDocument()
       })
 
-      it('atualiza a tabela mesmo se o backend falhar', async () => {
-        produtoService.atualizar.mockRejectedValue(new Error('offline'))
+      it('se o backend falhar, mostra o erro real, nao altera a tabela e nao diz sucesso', async () => {
+        produtoService.atualizar.mockRejectedValue(erroHttp(500, { erro: 'Erro interno do servidor' }))
         await renderizar({ produtos: [PRODUTO_API] })
 
         fireEvent.click(within(linhaDe('Arroz Integral')).getByRole('button', { name: 'Editar' }))
@@ -345,7 +393,27 @@ describe('AdminPage', () => {
           fireEvent.submit(modal().querySelector('form'))
         })
 
-        expect(screen.getByText('Arroz Alterado')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível atualizar o produto: Erro interno do servidor')
+        expect(screen.queryByText(/atualizado com sucesso/)).not.toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Arroz Alterado')).not.toBeInTheDocument()
+        expect(screen.getByText('Arroz Integral')).toBeInTheDocument()
+      })
+
+      it('mostra a mensagem de permissao do interceptor (403) em vez de sucesso', async () => {
+        produtoService.atualizar.mockRejectedValue(
+          Object.assign(erroHttp(403, { erro: 'Acesso negado. Permissao insuficiente.' }), {
+            userMessage: 'Você não tem permissão para acessar este recurso.',
+          })
+        )
+        await renderizar({ produtos: [PRODUTO_API] })
+
+        fireEvent.click(within(linhaDe('Arroz Integral')).getByRole('button', { name: 'Editar' }))
+        await act(async () => {
+          fireEvent.submit(modal().querySelector('form'))
+        })
+
+        expect(screen.getByRole('alert')).toHaveTextContent('Você não tem permissão para acessar este recurso.')
       })
 
       it('mantem as outras linhas intactas ao editar uma', async () => {
@@ -385,7 +453,7 @@ describe('AdminPage', () => {
         expect(screen.getByText("Produto 'Arroz Integral' removido do catálogo.")).toBeInTheDocument()
       })
 
-      it('remove localmente produtos de id textual sem chamar o backend', async () => {
+      it('produto do catalogo local (id textual) nao e removido: avisa que nao ha como excluir', async () => {
         await renderizar()
 
         await act(async () => {
@@ -393,18 +461,22 @@ describe('AdminPage', () => {
         })
 
         expect(produtoService.remover).not.toHaveBeenCalled()
-        expect(screen.queryByText('Arroz Branco Tipo 1')).not.toBeInTheDocument()
+        expect(screen.getByText('Arroz Branco Tipo 1')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent(/catálogo local/)
+        expect(screen.queryByText(/removido do catálogo/)).not.toBeInTheDocument()
       })
 
-      it('remove da tabela mesmo se o backend falhar', async () => {
-        produtoService.remover.mockRejectedValue(new Error('offline'))
+      it('se o backend falhar, mantem o produto na tabela e mostra o erro real', async () => {
+        produtoService.remover.mockRejectedValue(erroHttp(409, { erro: 'Violacao de integridade de dados' }))
         await renderizar({ produtos: [PRODUTO_API] })
 
         await act(async () => {
           fireEvent.click(within(linhaDe('Arroz Integral')).getByRole('button', { name: 'Excluir' }))
         })
 
-        expect(screen.queryByText('Arroz Integral')).not.toBeInTheDocument()
+        expect(screen.getByText('Arroz Integral')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível excluir o produto: Violacao de integridade de dados')
+        expect(screen.queryByText(/removido do catálogo/)).not.toBeInTheDocument()
       })
     })
   })
@@ -423,6 +495,15 @@ describe('AdminPage', () => {
       expect(inativo.getByText('—')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /Novo Mercado/ })).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: /Novo Produto/ })).not.toBeInTheDocument()
+    })
+
+    it('mercado vindo da API sem contagem nem data de coleta mostra traco, nao "undefined itens"', async () => {
+      await renderizar({ mercados: [{ id: 5, name: 'Rede da API', address: 'Rua A', active: true, color: '#000' }] })
+      abrirAba('Mercados')
+
+      const linha = within(linhaDe('Rede da API'))
+      expect(linha.queryByText(/undefined/)).not.toBeInTheDocument()
+      expect(linha.getAllByText('—').length).toBeGreaterThanOrEqual(3) // cidade, produtos e última sincronização
     })
 
     it('filtra por nome ou cidade e limpa o filtro ao trocar de aba', async () => {
@@ -472,17 +553,19 @@ describe('AdminPage', () => {
         expect(linha.getByText('0 itens')).toBeInTheDocument()
       })
 
-      it('gera um identificador a partir do nome se o backend falhar', async () => {
-        mercadoService.criar.mockRejectedValue(new Error('offline'))
+      it('se o backend recusar, mostra o erro real e nao cadastra a rede', async () => {
+        mercadoService.criar.mockRejectedValue(erroHttp(400, { erro: 'Mercado ja existe' }))
         await abrir({ mercados: [MERCADO_API] })
 
-        fireEvent.change(campo('Nome da Rede / Supermercado'), { target: { value: 'Rede Offline' } })
+        fireEvent.change(campo('Nome da Rede / Supermercado'), { target: { value: 'Rede Recusada' } })
         await act(async () => {
           fireEvent.submit(modal().querySelector('form'))
         })
 
-        expect(screen.getByText('Rede Offline')).toBeInTheDocument()
-        expect(console.warn).toHaveBeenCalled()
+        expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível cadastrar a rede: Mercado ja existe')
+        expect(screen.queryByText(/cadastrado!/)).not.toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Rede Recusada')).not.toBeInTheDocument()
       })
 
       it('permite cancelar', async () => {
@@ -515,7 +598,7 @@ describe('AdminPage', () => {
         expect(screen.getByText('Outra Rede')).toBeInTheDocument()
       })
 
-      it('nao chama o backend para mercados locais (id textual)', async () => {
+      it('mercado do catalogo local (id textual) nao pode ser salvo: avisa e nao altera a tabela', async () => {
         await renderizar()
         abrirAba('Mercados')
 
@@ -526,11 +609,14 @@ describe('AdminPage', () => {
         })
 
         expect(mercadoService.atualizar).not.toHaveBeenCalled()
-        expect(screen.getByText('Fort Local')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent(/catálogo local/)
+        expect(screen.queryByText(/atualizada com sucesso/)).not.toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Fort Local')).not.toBeInTheDocument()
       })
 
-      it('atualiza a tabela mesmo se o backend falhar', async () => {
-        mercadoService.atualizar.mockRejectedValue(new Error('offline'))
+      it('se o backend falhar, mostra o erro real, nao altera a tabela e nao diz sucesso', async () => {
+        mercadoService.atualizar.mockRejectedValue(erroHttp(500, { erro: 'Erro interno do servidor' }))
         await renderizar({ mercados: [MERCADO_API] })
         abrirAba('Mercados')
 
@@ -540,46 +626,46 @@ describe('AdminPage', () => {
           fireEvent.submit(modal().querySelector('form'))
         })
 
-        expect(screen.getByText('Fort Alterado')).toBeInTheDocument()
+        expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível atualizar a rede: Erro interno do servidor')
+        expect(screen.queryByText(/atualizada com sucesso/)).not.toBeInTheDocument()
+        fireEvent.click(within(modal()).getByRole('button', { name: 'Cancelar' }))
+        expect(screen.queryByText('Fort Alterado')).not.toBeInTheDocument()
+        expect(screen.getByText('Fort Atacadista')).toBeInTheDocument()
       })
     })
 
-    it('sincroniza um mercado, mostra carregamento e atualiza produtos e data', async () => {
-      await renderizar({ mercados: [{ ...MERCADO_API, products: 0 }] })
-      abrirAba('Mercados')
-      jest.useFakeTimers()
+    describe('botao Sincronizar', () => {
+      it('esta desabilitado e a tela diz que o disparo manual da coleta esta indisponivel', async () => {
+        await renderizar({ mercados: [{ ...MERCADO_API, products: 0 }] })
+        abrirAba('Mercados')
 
-      fireEvent.click(within(linhaDe('Fort Atacadista')).getByRole('button', { name: 'Sincronizar' }))
-      expect(within(linhaDe('Fort Atacadista')).getByRole('button', { name: 'Carregando...' })).toBeDisabled()
-
-      act(() => {
-        jest.advanceTimersByTime(1800)
+        const botao = within(linhaDe('Fort Atacadista')).getByRole('button', { name: 'Sincronizar' })
+        expect(botao).toBeDisabled()
+        expect(screen.getByText(/indisponível por enquanto/i)).toBeInTheDocument()
       })
 
-      expect(screen.getByText("Scraper executado com sucesso para 'Fort Atacadista'! Preços atualizados.")).toBeInTheDocument()
-      const linha = within(linhaDe('Fort Atacadista'))
-      expect(linha.getByText('40 itens')).toBeInTheDocument()
-      expect(linha.getByText(/^Hoje às /)).toBeInTheDocument()
-      expect(linha.getByRole('button', { name: 'Sincronizar' })).toBeEnabled()
-    })
+      it('nunca simula a execucao do scraper: nada muda e nenhum sucesso aparece', async () => {
+        await renderizar({ mercados: [{ ...MERCADO_API, products: 0 }] })
+        abrirAba('Mercados')
+        jest.useFakeTimers()
 
-    it('sincroniza apenas o mercado escolhido', async () => {
-      await renderizar({ mercados: [{ ...MERCADO_API, products: 0 }, { ...MERCADO_API, id: 2, name: 'Outra Rede', products: 3 }] })
-      abrirAba('Mercados')
-      jest.useFakeTimers()
+        fireEvent.click(within(linhaDe('Fort Atacadista')).getByRole('button', { name: 'Sincronizar' }))
+        act(() => {
+          jest.advanceTimersByTime(5000)
+        })
 
-      fireEvent.click(within(linhaDe('Fort Atacadista')).getByRole('button', { name: 'Sincronizar' }))
-      act(() => {
-        jest.advanceTimersByTime(1800)
+        expect(screen.queryByText(/Scraper executado/)).not.toBeInTheDocument()
+        const linha = within(linhaDe('Fort Atacadista'))
+        expect(linha.getByText('0 itens')).toBeInTheDocument()
+        expect(linha.getByText('Ontem')).toBeInTheDocument()
+        expect(linha.queryByText(/Hoje às/)).not.toBeInTheDocument()
       })
-
-      expect(within(linhaDe('Outra Rede')).getByText('3 itens')).toBeInTheDocument()
     })
   })
 
   describe('aba de usuarios', () => {
-    it('lista os usuarios locais com papel e status', async () => {
-      await renderizar()
+    it('lista os usuarios devolvidos pela API com papel e status', async () => {
+      await renderizar({ usuarios: USUARIOS_API })
       abrirAba('Usuários')
 
       const linha = within(linhaDe('Maria Santos'))
@@ -590,8 +676,51 @@ describe('AdminPage', () => {
       expect(screen.queryByRole('button', { name: /Novo/ })).not.toBeInTheDocument()
     })
 
+    it('nao mostra contagem de administradores inventada no cartao de usuarios', async () => {
+      await renderizar({ usuarios: USUARIOS_API })
+
+      expect(screen.queryByText(/\+3 administradores/)).not.toBeInTheDocument()
+      expect(kpi('Usuários Totais')).toHaveTextContent(String(USUARIOS_API.content.length))
+    })
+
+    it('se a listagem falhar, mostra o erro real e NAO exibe usuarios ficticios nem botoes de alterar papel', async () => {
+      adminService.listarUsuarios.mockRejectedValue(erroHttp(500, { erro: 'Erro interno do servidor' }))
+      produtoService.buscarCatalogoComPrecos.mockResolvedValue([])
+      mercadoService.listar.mockResolvedValue([])
+      adminService.obterPainel.mockResolvedValue(null)
+      await act(async () => {
+        render(<AdminPage />)
+      })
+      abrirAba('Usuários')
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível carregar os usuários: Erro interno do servidor')
+      expect(screen.queryByText('Davi Souza')).not.toBeInTheDocument()
+      expect(screen.queryByText('Gilbert Lima')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Alterar Papel' })).not.toBeInTheDocument()
+      expect(adminService.alterarPapel).not.toHaveBeenCalled()
+    })
+
+    it('"Tentar novamente" recarrega a listagem de usuarios', async () => {
+      adminService.listarUsuarios.mockRejectedValueOnce(erroHttp(429, { erro: 'Muitas requisicoes' }))
+      produtoService.buscarCatalogoComPrecos.mockResolvedValue([])
+      mercadoService.listar.mockResolvedValue([])
+      adminService.obterPainel.mockResolvedValue(null)
+      await act(async () => {
+        render(<AdminPage />)
+      })
+      abrirAba('Usuários')
+      adminService.listarUsuarios.mockResolvedValue(USUARIOS_API)
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }))
+      })
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(screen.getByText('Maria Santos')).toBeInTheDocument()
+    })
+
     it('filtra por nome ou e-mail', async () => {
-      await renderizar()
+      await renderizar({ usuarios: USUARIOS_API })
       abrirAba('Usuários')
       const filtro = screen.getByPlaceholderText('Filtrar usuarios...')
 
@@ -604,7 +733,7 @@ describe('AdminPage', () => {
     })
 
     it('alterna o papel no backend, na tabela e avisa', async () => {
-      await renderizar()
+      await renderizar({ usuarios: USUARIOS_API })
       abrirAba('Usuários')
 
       await act(async () => {
@@ -622,52 +751,49 @@ describe('AdminPage', () => {
       expect(within(linhaDe('Maria Santos')).getByText('USUÁRIO')).toBeInTheDocument()
     })
 
-    it('altera o papel na tabela mesmo se o backend falhar', async () => {
-      adminService.alterarPapel.mockRejectedValue(new Error('offline'))
-      await renderizar()
+    it('se o backend falhar, mantem o papel antigo na tabela e mostra o erro real, sem toast de sucesso', async () => {
+      adminService.alterarPapel.mockRejectedValue(erroHttp(400, { erro: 'Nao e possivel rebaixar o ultimo administrador' }))
+      await renderizar({ usuarios: USUARIOS_API })
       abrirAba('Usuários')
 
       await act(async () => {
         fireEvent.click(within(linhaDe('Davi Souza')).getByRole('button', { name: 'Alterar Papel' }))
       })
 
-      expect(within(linhaDe('Davi Souza')).getByText('USUÁRIO')).toBeInTheDocument()
+      expect(within(linhaDe('Davi Souza')).getByText('ADMINISTRADOR')).toBeInTheDocument()
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Não foi possível alterar o papel de Davi Souza: Nao e possivel rebaixar o ultimo administrador'
+      )
+      expect(screen.queryByText(/alterado para/)).not.toBeInTheDocument()
     })
 
-    it('suspende e reativa um usuario, avisando a cada mudanca', async () => {
-      await renderizar()
+    it('Suspender/Ativar nao tem endpoint: botoes desabilitados, aviso na tela e status inalterado', async () => {
+      await renderizar({ usuarios: USUARIOS_API })
       abrirAba('Usuários')
 
-      fireEvent.click(within(linhaDe('João Lima')).getByRole('button', { name: 'Suspender' }))
-      expect(within(linhaDe('João Lima')).getByText('SUSPENSO')).toBeInTheDocument()
-      expect(screen.getByText('Status do usuário João Lima alterado para SUSPENSO.')).toBeInTheDocument()
+      const botao = within(linhaDe('João Lima')).getByRole('button', { name: 'Suspender' })
+      expect(botao).toBeDisabled()
+      fireEvent.click(botao)
 
-      fireEvent.click(within(linhaDe('João Lima')).getByRole('button', { name: 'Ativar' }))
+      expect(screen.getByText(/Suspender ou ativar usuários está indisponível por enquanto/)).toBeInTheDocument()
       expect(within(linhaDe('João Lima')).getByText('ATIVO')).toBeInTheDocument()
-      expect(screen.getByText('Status do usuário João Lima alterado para ATIVO.')).toBeInTheDocument()
-    })
-
-    it('altera o status apenas do usuario escolhido', async () => {
-      await renderizar()
-      abrirAba('Usuários')
-
-      fireEvent.click(within(linhaDe('João Lima')).getByRole('button', { name: 'Suspender' }))
-
-      expect(within(linhaDe('Maria Santos')).getByText('ATIVO')).toBeInTheDocument()
+      expect(screen.queryByText(/Status do usuário/)).not.toBeInTheDocument()
     })
   })
 
-  it('o aviso some sozinho depois de 3,5 segundos', async () => {
-    await renderizar()
+  it('o aviso de sucesso some sozinho depois de 3,5 segundos', async () => {
+    await renderizar({ usuarios: USUARIOS_API })
     abrirAba('Usuários')
     jest.useFakeTimers()
 
-    fireEvent.click(within(linhaDe('João Lima')).getByRole('button', { name: 'Suspender' }))
-    expect(screen.getByText(/Status do usuário João Lima/)).toBeInTheDocument()
+    await act(async () => {
+      fireEvent.click(within(linhaDe('Maria Santos')).getByRole('button', { name: 'Alterar Papel' }))
+    })
+    expect(screen.getByText(/Papel do usuário Maria Santos/)).toBeInTheDocument()
 
     act(() => {
       jest.advanceTimersByTime(3500)
     })
-    expect(screen.queryByText(/Status do usuário João Lima/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Papel do usuário Maria Santos/)).not.toBeInTheDocument()
   })
 })

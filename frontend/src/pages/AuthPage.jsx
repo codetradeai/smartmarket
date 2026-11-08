@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
+import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService"
 import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
 import logoImg from "../assets/logo.png"
 
@@ -80,10 +81,8 @@ export default function AuthPage() {
   const [cadPassword, setCadPassword] = useState("")
   const [cadConfirm, setCadConfirm] = useState("")
 
-  // Modal Esqueceu a Senha
+  // Modal Esqueceu a Senha (informativo: o backend não tem endpoint de redefinição)
   const [forgotModalOpen, setForgotModalOpen] = useState(false)
-  const [forgotEmail, setForgotEmail] = useState("")
-  const [forgotFeedback, setForgotFeedback] = useState("")
 
   // Destino pós-login (ou padrão /catalog)
   const fromDestination = location.state?.from?.pathname || "/catalog"
@@ -94,15 +93,14 @@ export default function AuthPage() {
     setSuccessMessage("")
   }
 
-  // Atalhos de teste para avaliadores
-  const fillCredentials = (type) => {
-    if (type === "admin") {
-      setLoginEmail("davi@smartmarket.com.br")
-      setLoginPassword("admin123")
-    } else {
-      setLoginEmail("maria@email.com")
-      setLoginPassword("user123")
-    }
+  // Atalhos de teste para avaliadores: só em desenvolvimento ou com VITE_ENABLE_DEMO_LOGIN=true.
+  // As credenciais vêm de um import dinâmico, então não existem no bundle de produção.
+  const mostrarAtalhosDemo = atalhosDemoHabilitados()
+  const fillCredentials = async (type) => {
+    const credenciais = await credenciaisDemo(type)
+    if (!credenciais) return
+    setLoginEmail(credenciais.email)
+    setLoginPassword(credenciais.senha)
     setTab("login")
     setErrorMessage("")
   }
@@ -152,17 +150,6 @@ export default function AuthPage() {
     } else {
       setErrorMessage(result.error || "Falha ao criar conta.")
     }
-  }
-
-  const handleForgotSubmit = (e) => {
-    e.preventDefault()
-    if (!forgotEmail) return
-    setForgotFeedback(`Instruções de redefinição foram enviadas para ${forgotEmail}!`)
-    setTimeout(() => {
-      setForgotFeedback("")
-      setForgotModalOpen(false)
-      setForgotEmail("")
-    }, 2500)
   }
 
   return (
@@ -370,28 +357,30 @@ export default function AuthPage() {
                   </button>
                 </p>
 
-                {/* Atalhos Rápidos para Banca de Avaliação */}
-                <div className="pt-4 border-t border-slate-100">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center mb-2">
-                    Acesso Rápido para Avaliação
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("admin")}
-                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
-                    >
-                      🛡️ Perfil Administrador
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fillCredentials("user")}
-                      className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
-                    >
-                      👤 Perfil Usuário
-                    </button>
+                {/* Atalhos Rápidos para Banca de Avaliação (somente DEV / modo demo) */}
+                {mostrarAtalhosDemo && (
+                  <div className="pt-4 border-t border-slate-100">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center mb-2">
+                      Acesso Rápido para Avaliação
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fillCredentials("admin")}
+                        className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                      >
+                        🛡️ Perfil Administrador
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fillCredentials("user")}
+                        className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-bold text-brand-navy transition-colors text-center"
+                      >
+                        👤 Perfil Usuário
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </form>
             ) : (
               <form onSubmit={handleCadastroSubmit} className="space-y-4">
@@ -471,38 +460,25 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* Modal Esqueceu a Senha */}
+      {/* Modal Esqueceu a Senha: não existe fluxo de redefinição no backend, então não prometemos e-mail */}
       <Modal isOpen={forgotModalOpen} onClose={() => setForgotModalOpen(false)} size="sm">
-        <form onSubmit={handleForgotSubmit}>
-          <ModalHeader>
-            <ModalTitle>Recuperar Senha</ModalTitle>
-          </ModalHeader>
-          <ModalBody>
-            <p className="text-xs text-brand-muted mb-4 leading-relaxed">
-              Informe o e-mail cadastrado na sua conta para enviarmos o link de redefinição de
-              senha.
-            </p>
-            <Input
-              label="E-mail cadastrado"
-              type="email"
-              required
-              placeholder="seu@email.com"
-              value={forgotEmail}
-              onChange={(e) => setForgotEmail(e.target.value)}
-            />
-            {forgotFeedback && (
-              <p className="mt-3 text-xs font-semibold text-brand-green">{forgotFeedback}</p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" onClick={() => setForgotModalOpen(false)}>
-              Fechar
-            </Button>
-            <Button type="submit" variant="primary">
-              Enviar Link
-            </Button>
-          </ModalFooter>
-        </form>
+        <ModalHeader>
+          <ModalTitle>Recuperar Senha</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <p className="text-sm font-semibold text-brand-navy mb-2">
+            Redefinição de senha indisponível por enquanto.
+          </p>
+          <p className="text-xs text-brand-muted leading-relaxed">
+            Ainda não enviamos e-mails de recuperação. Se você não lembra da senha, crie uma nova
+            conta com outro e-mail ou fale com a equipe do projeto.
+          </p>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="outline" onClick={() => setForgotModalOpen(false)}>
+            Fechar
+          </Button>
+        </ModalFooter>
       </Modal>
     </div>
   )

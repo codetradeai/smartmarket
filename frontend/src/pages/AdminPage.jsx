@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { MARKETS, CATEGORIES } from "../catalogoResumo"
 import ComCatalogo from "../components/ComCatalogo"
 import { produtoService, mercadoService, adminService } from "../services"
+import { mensagemDeErro } from "../utils/mensagemDeErro"
 import {
   Button,
   Input,
@@ -14,13 +15,26 @@ import {
   ProductImage,
 } from "../components/ui"
 
-const INITIAL_USERS = [
-  { id: 1, name: "Davi Souza", email: "davi@smartmarket.com.br", role: "ADMIN", createdAt: "2026-10-10", lists: 3, status: "ATIVO" },
-  { id: 2, name: "Gilbert Lima", email: "gilbert@smartmarket.com.br", role: "ADMIN", createdAt: "2026-10-12", lists: 5, status: "ATIVO" },
-  { id: 3, name: "Rudinei Silva", email: "rudinei@smartmarket.com.br", role: "ADMIN", createdAt: "2026-10-12", lists: 4, status: "ATIVO" },
-  { id: 4, name: "Maria Santos", email: "maria@email.com", role: "USER", createdAt: "2026-10-14", lists: 7, status: "ATIVO" },
-  { id: 5, name: "João Lima", email: "joao@email.com", role: "USER", createdAt: "2026-10-15", lists: 2, status: "ATIVO" },
-]
+// Só dados que a API confirmou podem ser alterados: o catálogo/mercados locais (ids textuais, ex. "p1" e
+// "fort") existem apenas no front quando a API não responde, então não há o que gravar.
+const idDaApi = (id) => typeof id === "number"
+const MSG_CATALOGO_LOCAL =
+  "Este item vem do catálogo local (a API não o devolveu), então não existe no servidor e não pode ser alterado por aqui."
+
+// Converte a resposta de /admin/usuarios (lista simples ou página) no formato da tabela
+function converterUsuarios(usersData) {
+  const uList = usersData?.content || usersData
+  if (!Array.isArray(uList)) return []
+  return uList.map((u) => ({
+    id: u.id,
+    name: u.nome || u.name,
+    email: u.email,
+    role: u.papel || u.role || "USER",
+    createdAt: u.createdAt ? String(u.createdAt).substring(0, 10) : "2026-10-10",
+    lists: u.lists ?? 0,
+    status: u.ativo !== false ? "ATIVO" : "SUSPENSO",
+  }))
+}
 
 // O catálogo (data.js) é carregado sob demanda; a tela só monta com os produtos em mãos.
 export default function AdminPage() {
@@ -32,9 +46,12 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
   const [search, setSearch] = useState("")
   const [products, setProducts] = useState(PRODUCTS)
   const [markets, setMarkets] = useState(MARKETS)
-  const [users, setUsers] = useState(INITIAL_USERS)
+  // Usuários vêm só da API: nunca há lista fictícia (carregando | ok | erro)
+  const [users, setUsers] = useState([])
+  const [usersStatus, setUsersStatus] = useState("carregando")
+  const [usersError, setUsersError] = useState("")
   const [stats, setStats] = useState(null)
-  const [toastMessage, setToastMessage] = useState("")
+  const [toast, setToast] = useState(null)
 
   // Modais de Produto (Adicionar / Editar)
   const [productModalOpen, setProductModalOpen] = useState(false)
@@ -62,13 +79,12 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
     active: true,
   })
 
-  // Loading do botão de sincronização
-  const [syncingMarketId, setSyncingMarketId] = useState(null)
-
-  const showToast = (msg) => {
-    setToastMessage(msg)
-    setTimeout(() => setToastMessage(""), 3500)
+  // Avisos: sucesso só depois da API confirmar; erro (erro: true) fica mais tempo e usa role="alert"
+  const showToast = (msg, { erro = false } = {}) => {
+    setToast({ texto: msg, erro })
+    setTimeout(() => setToast(null), erro ? 7000 : 3500)
   }
+  const showErro = (acao, err) => showToast(`${acao}: ${mensagemDeErro(err)}`, { erro: true })
 
   // Carrega dados dinâmicos do backend com fallback
   useEffect(() => {
@@ -91,21 +107,13 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
         if (mktsData.status === "fulfilled" && Array.isArray(mktsData.value) && mktsData.value.length > 0) {
           setMarkets(mktsData.value)
         }
-        if (usersData.status === "fulfilled" && usersData.value) {
-          const uList = usersData.value.content || usersData.value
-          if (Array.isArray(uList) && uList.length > 0) {
-            setUsers(
-              uList.map((u) => ({
-                id: u.id,
-                name: u.nome || u.name,
-                email: u.email,
-                role: u.papel || u.role || "USER",
-                createdAt: u.createdAt ? String(u.createdAt).substring(0, 10) : "2026-10-10",
-                lists: u.lists ?? 0,
-                status: u.ativo !== false ? "ATIVO" : "SUSPENSO",
-              }))
-            )
-          }
+        if (usersData.status === "fulfilled") {
+          setUsers(converterUsuarios(usersData.value))
+          setUsersStatus("ok")
+        } else {
+          setUsers([])
+          setUsersError(mensagemDeErro(usersData.reason))
+          setUsersStatus("erro")
         }
         if (painelData.status === "fulfilled" && painelData.value) {
           setStats(painelData.value)
@@ -121,6 +129,18 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
       isMounted = false
     }
   }, [])
+
+  const recarregarUsuarios = async () => {
+    setUsersStatus("carregando")
+    try {
+      setUsers(converterUsuarios(await adminService.listarUsuarios()))
+      setUsersStatus("ok")
+    } catch (err) {
+      setUsers([])
+      setUsersError(mensagemDeErro(err))
+      setUsersStatus("erro")
+    }
+  }
 
   /* ── Ações de Produtos ────────────────────────────────────────── */
   const openNewProductModal = () => {
@@ -176,13 +196,16 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
     }
 
     if (editingProduct) {
-      // Atualização
+      // Atualização: só altera a tabela depois que a API confirmar
+      if (!idDaApi(editingProduct.id)) {
+        showToast(MSG_CATALOGO_LOCAL, { erro: true })
+        return
+      }
       try {
-        if (typeof editingProduct.id === "number") {
-          await produtoService.atualizar(editingProduct.id, payload)
-        }
+        await produtoService.atualizar(editingProduct.id, payload)
       } catch (err) {
-        console.warn("Aviso ao sincronizar produto com a API:", err)
+        showErro("Não foi possível atualizar o produto", err)
+        return
       }
 
       setProducts((prev) =>
@@ -208,17 +231,17 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
       )
       showToast(`Produto '${productForm.name}' atualizado com sucesso!`)
     } else {
-      // Criação
-      let newId = `p${Date.now()}`
+      // Criação: o produto só entra na tabela se a API o criou
+      let criado
       try {
-        const criado = await produtoService.criar(payload)
-        if (criado && criado.id) newId = criado.id
+        criado = await produtoService.criar(payload)
       } catch (err) {
-        console.warn("Aviso ao cadastrar produto na API:", err)
+        showErro("Não foi possível cadastrar o produto", err)
+        return
       }
 
       const newProduct = {
-        id: newId,
+        id: criado?.id ?? `p${Date.now()}`,
         name: productForm.name,
         brand: productForm.brand,
         category: productForm.category,
@@ -240,12 +263,15 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
 
   const handleDeleteProduct = async (id, name) => {
     if (window.confirm(`Tem certeza que deseja excluir o produto '${name}'?`)) {
+      if (!idDaApi(id)) {
+        showToast(MSG_CATALOGO_LOCAL, { erro: true })
+        return
+      }
       try {
-        if (typeof id === "number") {
-          await produtoService.remover(id)
-        }
+        await produtoService.remover(id)
       } catch (err) {
-        console.warn("Aviso ao excluir produto via API:", err)
+        showErro("Não foi possível excluir o produto", err)
+        return
       }
       setProducts((prev) => prev.filter((p) => p.id !== id))
       showToast(`Produto '${name}' removido do catálogo.`)
@@ -289,12 +315,15 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
     }
 
     if (editingMarket) {
+      if (!idDaApi(editingMarket.id)) {
+        showToast(MSG_CATALOGO_LOCAL, { erro: true })
+        return
+      }
       try {
-        if (typeof editingMarket.id === "number") {
-          await mercadoService.atualizar(editingMarket.id, payload)
-        }
+        await mercadoService.atualizar(editingMarket.id, payload)
       } catch (err) {
-        console.warn("Aviso ao atualizar mercado via API:", err)
+        showErro("Não foi possível atualizar a rede", err)
+        return
       }
 
       setMarkets((prev) =>
@@ -309,16 +338,16 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
       )
       showToast(`Rede '${marketForm.name}' atualizada com sucesso!`)
     } else {
-      let newId = marketForm.name.toLowerCase().replace(/\s+/g, "-")
+      let criado
       try {
-        const criado = await mercadoService.criar(payload)
-        if (criado && criado.id) newId = criado.id
+        criado = await mercadoService.criar(payload)
       } catch (err) {
-        console.warn("Aviso ao cadastrar mercado via API:", err)
+        showErro("Não foi possível cadastrar a rede", err)
+        return
       }
 
       const newMarket = {
-        id: newId,
+        id: criado?.id ?? marketForm.name.toLowerCase().replace(/\s+/g, "-"),
         ...marketForm,
         products: 0,
         lastSync: "Pendente primeira coleta",
@@ -330,17 +359,8 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
     setMarketModalOpen(false)
   }
 
-  const handleSyncMarket = (marketId, marketName) => {
-    setSyncingMarketId(marketId)
-    setTimeout(() => {
-      setSyncingMarketId(null)
-      const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      setMarkets((prev) =>
-        prev.map((m) => (m.id === marketId ? { ...m, lastSync: `Hoje às ${now}`, products: 40 } : m))
-      )
-      showToast(`Scraper executado com sucesso para '${marketName}'! Preços atualizados.`)
-    }, 1800)
-  }
+  // Não existe endpoint para disparar a coleta pelo painel (ela roda fora do app), então não há
+  // handleSyncMarket: o botão "Sincronizar" fica desabilitado e a aba explica o motivo.
 
   /* ── Ações de Usuários ────────────────────────────────────────── */
   const toggleUserRole = async (userId) => {
@@ -349,30 +369,16 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
     const newRole = user.role === "ADMIN" ? "USER" : "ADMIN"
 
     try {
-      if (typeof userId === "number") {
-        await adminService.alterarPapel(userId, newRole)
-      }
+      await adminService.alterarPapel(userId, newRole)
     } catch (err) {
-      console.warn("Aviso ao alterar papel do usuário via API:", err)
+      showErro(`Não foi possível alterar o papel de ${user.name}`, err)
+      return
     }
 
     setUsers((prev) =>
       prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
     )
     showToast(`Papel do usuário ${user.name} alterado para ${newRole}.`)
-  }
-
-  const toggleUserStatus = (userId) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id === userId) {
-          const newStatus = u.status === "ATIVO" ? "SUSPENSO" : "ATIVO"
-          showToast(`Status do usuário ${u.name} alterado para ${newStatus}.`)
-          return { ...u, status: newStatus }
-        }
-        return u
-      })
-    )
   }
 
   // Filtros
@@ -400,10 +406,15 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
   return (
     <div className="min-w-0 w-full max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-brand-navy text-white px-5 py-3 rounded-2xl shadow-xl border border-brand-green/40 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <span className="w-2.5 h-2.5 rounded-full bg-brand-green animate-pulse" />
-          <span className="text-sm font-semibold">{toastMessage}</span>
+      {toast && (
+        <div
+          role={toast.erro ? "alert" : "status"}
+          className={`fixed bottom-6 right-6 z-50 max-w-md bg-brand-navy text-white px-5 py-3 rounded-2xl shadow-xl border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-3 duration-200 ${
+            toast.erro ? "border-rose-400" : "border-brand-green/40"
+          }`}
+        >
+          <span className={`w-2.5 h-2.5 shrink-0 rounded-full animate-pulse ${toast.erro ? "bg-rose-400" : "bg-brand-green"}`} />
+          <span className="text-sm font-semibold">{toast.texto}</span>
         </div>
       )}
 
@@ -480,9 +491,9 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                 Usuários Totais
               </p>
               <h3 className="text-2xl font-extrabold text-brand-navy mt-0.5">
-                {stats?.usuarios ?? users.length}
+                {stats?.usuarios ?? (usersStatus === "ok" ? users.length : "—")}
               </h3>
-              <span className="text-xs text-brand-muted font-medium">+3 administradores</span>
+              <span className="text-xs text-brand-muted font-medium">contas cadastradas</span>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-slate-100 text-brand-navy flex items-center justify-center text-2xl shadow-xs">
               👥
@@ -553,7 +564,7 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
           }`}
         >
           <span>👥</span>
-          <span>Usuários ({users.length})</span>
+          <span>Usuários ({usersStatus === "ok" ? users.length : "—"})</span>
         </button>
       </div>
 
@@ -608,8 +619,9 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                     .sort((a, b) => a[1] - b[1])
 
                   const bestPrice = validPrices[0] ? validPrices[0][1] : null
+                  // As chaves de `prices` são texto ("fort", "1") e o id do mercado da API é número: compara como texto
                   const bestMarket = validPrices[0]
-                    ? markets.find((m) => m.id === validPrices[0][0])?.name || validPrices[0][0]
+                    ? markets.find((m) => String(m.id) === String(validPrices[0][0]))?.name || validPrices[0][0]
                     : "—"
 
                   const avgPrice =
@@ -660,6 +672,13 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                           <span className="text-slate-300">—</span>
                         )}
                       </td>
+                      <td className="py-3.5 px-4">
+                        {avgPrice != null ? (
+                          <span className="font-semibold text-brand-navy">R$ {avgPrice.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-slate-300">—</span>
+                        )}
+                      </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
@@ -691,6 +710,10 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
         {/* TABELA: MERCADOS */}
         {activeTab === "mercados" && (
           <div className="min-w-0 overflow-x-auto">
+            <p className="px-4 py-3 text-xs text-brand-muted border-b border-brand-border/60">
+              Disparar a coleta de uma rede por este painel está indisponível por enquanto: a coleta de
+              preços roda fora do app e ainda não existe endpoint para iniciá-la daqui.
+            </p>
             <table className="w-full min-w-[720px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
@@ -721,10 +744,10 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                     <td className="py-3.5 px-4 text-brand-muted">{m.address || "—"}</td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">
-                        {m.products} itens
+                        {m.products != null ? `${m.products} itens` : "—"}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-brand-muted font-medium">{m.lastSync}</td>
+                    <td className="py-3.5 px-4 text-brand-muted font-medium">{m.lastSync || "—"}</td>
                     <td className="py-3.5 px-4">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
@@ -748,8 +771,8 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                           variant="teal"
                           size="sm"
                           className="h-8 px-2.5 text-xs"
-                          isLoading={syncingMarketId === m.id}
-                          onClick={() => handleSyncMarket(m.id, m.name)}
+                          disabled
+                          aria-disabled="true"
                         >
                           Sincronizar
                         </Button>
@@ -763,8 +786,28 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
         )}
 
         {/* TABELA: USUÁRIOS */}
-        {activeTab === "usuarios" && (
+        {activeTab === "usuarios" && usersStatus === "carregando" && (
+          <p role="status" className="p-6 text-sm text-brand-muted">
+            Carregando usuários…
+          </p>
+        )}
+
+        {activeTab === "usuarios" && usersStatus === "erro" && (
+          <div role="alert" className="m-4 flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              <strong>Não foi possível carregar os usuários:</strong> {usersError}
+            </p>
+            <Button variant="outline" size="sm" className="shrink-0" onClick={recarregarUsuarios}>
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {activeTab === "usuarios" && usersStatus === "ok" && (
           <div className="min-w-0 overflow-x-auto">
+            <p className="px-4 py-3 text-xs text-brand-muted border-b border-brand-border/60">
+              Suspender ou ativar usuários está indisponível por enquanto: a API ainda não tem esse recurso.
+            </p>
             <table className="w-full min-w-[720px] text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-100/70 border-b border-brand-border/60 text-brand-muted font-bold uppercase tracking-wider text-[11px]">
@@ -823,7 +866,8 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                           variant="danger"
                           size="sm"
                           className="h-8 px-2.5 text-xs"
-                          onClick={() => toggleUserStatus(u.id)}
+                          disabled
+                          aria-disabled="true"
                         >
                           {u.status === "ATIVO" ? "Suspender" : "Ativar"}
                         </Button>
@@ -833,6 +877,9 @@ function AdminPageConteudo({ produtos: PRODUCTS }) {
                 ))}
               </tbody>
             </table>
+            {filteredUsers.length === 0 && (
+              <p className="p-6 text-sm text-brand-muted">Nenhum usuário encontrado.</p>
+            )}
           </div>
         )}
       </Card>

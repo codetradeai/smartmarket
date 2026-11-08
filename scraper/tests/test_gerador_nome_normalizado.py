@@ -27,13 +27,14 @@ class TestNomeNormalizadoDoGerador(unittest.TestCase):
             with mock.patch.object(gerador, "carregar_todos_produtos", return_value=itens), \
                  mock.patch.object(gerador, "SQL_DESTINO", sql), \
                  mock.patch.object(gerador, "DATA_JS_DESTINO", data_js), \
+                 mock.patch.object(gerador, "REGISTRO_IDS", Path(tmp) / "catalogo_ids.json"), \
                  mock.patch("builtins.print"):
                 gerador.gerar_sql_e_data()
             return sql.read_text(encoding="utf-8")
 
     def _item(self, nome):
         return {"nome_bruto": nome, "preco": 5.0, "preco_normal": 5.0,
-                "supermercado": "Zaffari", "id_produto_origem": "1"}
+                "supermercado": "Zaffari", "id_produto_origem": nome}
 
     def test_funcao_remove_acentos_caixa_e_espacos_como_o_java(self):
         casos = {

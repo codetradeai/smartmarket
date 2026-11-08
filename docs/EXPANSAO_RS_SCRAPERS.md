@@ -63,6 +63,19 @@ Para eliminar dependência de URLs externas instáveis e garantir carregamento o
   - Inserção dos 530 produtos com categorias, marcas, unidades e caminhos de imagens.
   - Inserção dos preços e das promoções com prazo de validade.
 
+Como o gerador (`scraper/gerar_catalogo_e_sql.py`) mantém a carga reexecutável:
+
+- **ids estáveis**: `produto.id` (e o `p<id>` do `data.js`) vem do registro `scraper/catalogo_ids.json`
+  (chave natural `rede:id:<id de origem>`, ou `rede:nome:<nome normalizado>` sem id de origem). Um produto
+  que some da coleta não desloca os outros nem libera o id; um que volta recupera o dele. Sem o registro,
+  o gerador o reconstrói a partir dos ids do `data.js` atual. Versione o registro junto com o `data.js`.
+- **`ON CONFLICT (id)`** atualiza nome, marca, unidade, categoria, imagem e descrição; `preco` e `promocao`
+  não duplicam a linha na reexecução no mesmo dia (`WHERE NOT EXISTS`), e o histórico entre dias é mantido.
+- **sequências**: o SQL termina com `setval` de `mercado`, `produto`, `preco` e `promocao`, então o
+  `INSERT` sem id da carga do pipeline não colide com a chave primária.
+- **entrada vazia**: sem nenhum produto válido o gerador sai com código 1 e não altera `data.js`, o SQL
+  nem o registro (a gravação dos três é atômica).
+
 Comando para aplicar a carga no PostgreSQL:
 ```bash
 psql -h localhost -p 5432 -U postgres -d smartmarket -f backend/database/carga_completa_530_produtos.sql

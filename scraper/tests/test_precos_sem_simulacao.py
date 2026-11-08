@@ -27,6 +27,7 @@ class TestGeradorSemFatores(unittest.TestCase):
             with mock.patch.object(gerador, "carregar_todos_produtos", return_value=itens), \
                  mock.patch.object(gerador, "SQL_DESTINO", sql), \
                  mock.patch.object(gerador, "DATA_JS_DESTINO", data_js), \
+                 mock.patch.object(gerador, "REGISTRO_IDS", Path(tmp) / "catalogo_ids.json"), \
                  mock.patch("builtins.print"):
                 gerador.gerar_sql_e_data()
             texto = data_js.read_text(encoding="utf-8")

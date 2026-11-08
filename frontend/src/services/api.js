@@ -1,6 +1,6 @@
 import axios from "axios"
 import { limparDadosPrivados } from "./storageKeys"
-import { urlPublica } from "../utils/urlAssets"
+import { urlPublica } from "../utils/urlPublica"
 
 // Base URL da API:
 // 1. VITE_API_URL, quando definida no build (backend em outro dominio).

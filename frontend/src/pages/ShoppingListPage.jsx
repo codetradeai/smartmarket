@@ -12,7 +12,7 @@ import logoCarrefour from "../../logo/logo-carrefour.png";
 import logoRissul from "../../logo/logo-rissul,.png";
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
 import logoMaster from "../../logo/mastersupermercados-logo.png";
-import { urlPublica } from "../utils/urlAssets"
+import { urlPublica } from "../utils/urlPublica"
 
 const MARKET_LOGOS = {
   fort: logoFort,

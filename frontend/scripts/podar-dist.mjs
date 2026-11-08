@@ -1,6 +1,6 @@
 // Remove do dist o que já está no Neon Object Storage (fotos dos produtos).
 // Rode depois do `vite build`, só quando VITE_ASSETS_BASE_URL estiver definida: sem ela o app
-// perderia as fotos. Uso: `npm run build:vercel`.
+// perderia as fotos. Uso: `npm run build:estatico` (build para hospedagem estática, como o GitHub Pages).
 import { rm } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import path from "node:path"

@@ -1,6 +1,45 @@
 # Deploy do backend SmartMarket
 
 > Pré-requisitos: conta no [Neon](https://neon.tech) e no [Render](https://render.com).
+>
+> **Situação atual (nov/2026):** o banco de produção do Neon **já está pronto** (schema, 8 mercados e 530 produtos/preços aplicados; nenhum usuário). Pule a seção 1 e vá direto ao [passo a passo rápido](#passo-a-passo-rápido-render--github-pages). A seção 1 só vale para criar um banco novo do zero.
+>
+> O frontend está no GitHub Pages (`docs/DEPLOY-PAGES.md`), não mais na Vercel.
+
+---
+
+## Passo a passo rápido (Render + GitHub Pages)
+
+**1. Pegar os dados do Neon** (console.neon.tech > projeto > **Connect**, branch `production`, conexão **direta**, sem `-pooler`):
+- Host: `ep-divine-dew-bchgu6dk.c-16.us-east-1.aws.neon.tech` · banco: `neondb`
+- Usuário e senha: copie do próprio console (não os cole em chat, issue ou arquivo versionado).
+- A URL JDBC fica: `jdbc:postgresql://ep-divine-dew-bchgu6dk.c-16.us-east-1.aws.neon.tech/neondb?sslmode=require`
+
+**2. Gerar um segredo novo do JWT** no seu terminal: `openssl rand -hex 32`. Use um valor novo, nunca um que já apareceu em outro lugar.
+
+**3. Criar o Web Service no Render** (seção 2.1): repositório `smartmarket-team/smartmarket`, Root Directory `backend`, Runtime Docker, Free, Health Check Path `/api/health`.
+
+**4. Variáveis de ambiente** (seção 2.2), com **CORS do Pages**:
+
+| Variável | Valor |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` |
+| `SPRING_DATASOURCE_URL` | a URL JDBC do passo 1 |
+| `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD` | do console do Neon (Secret) |
+| `SMARTMARKET_JWT_SECRET` | o segredo do passo 2 (Secret) |
+| `SMARTMARKET_CORS_ORIGINS` | `https://smartmarket-team.github.io` (só o domínio, sem `/smartmarket` e sem barra final) |
+
+**5. Conferir**: abra `https://<seu-servico>.onrender.com/api/health` (a primeira chamada pode levar ~1 min: o plano grátis hiberna). Deve responder `{"status":"UP"}`.
+
+**6. Ligar o frontend**: no GitHub, Settings > Secrets and variables > Actions > **Variables** > `VITE_API_URL` = `https://<seu-servico>.onrender.com/api`. Depois rode o workflow "Deploy do frontend no GitHub Pages" (Actions > Run workflow) para o site passar a usar o backend.
+
+**7. Primeiro usuário e ADMIN**: cadastre-se pelo site, depois promova no SQL Editor do Neon (seção 3.2).
+
+**Problemas comuns**
+- Login falha com erro de CORS no navegador: o valor de `SMARTMARKET_CORS_ORIGINS` está diferente do domínio do site (confira `https`, sem barra no fim).
+- O deploy no Render cai com erro de memória: o plano grátis tem 512 MB; o `Dockerfile` já limita o Java a 75% da RAM. Se persistir, acrescente `-Xmx300m` em `JAVA_OPTS`.
+- Backend não sobe e reclama de coluna/tabela: o `ddl-auto=validate` só valida; rode os scripts de `backend/deploy/` que faltarem (seção 1, passo 5).
+- A primeira consulta depois de um tempo parado demora: o Render hiberna e o Neon pausa o compute; é esperado no plano grátis.
 
 ---
 
@@ -130,7 +169,7 @@ Adicione em **Environment → Add Environment Variable**:
 | `SPRING_DATASOURCE_USERNAME` | `usuario_neon` | usuário do Neon |
 | `SPRING_DATASOURCE_PASSWORD` | `senha_neon` | senha do Neon — marque como **Secret** |
 | `SMARTMARKET_JWT_SECRET` | string aleatória longa (≥ 32 chars) | ex.: `openssl rand -hex 32` — marque como **Secret** |
-| `SMARTMARKET_CORS_ORIGINS` | URL do frontend no Vercel | ex.: `https://smartmarket.vercel.app` |
+| `SMARTMARKET_CORS_ORIGINS` | domínio do frontend | GitHub Pages: `https://smartmarket-team.github.io` (sem `/smartmarket`); várias origens, separe por vírgula |
 
 > **Nunca** grave esses valores em arquivos versionados.
 

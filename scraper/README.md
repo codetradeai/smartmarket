@@ -42,6 +42,10 @@ Para executar a coleta real acessando os servidores:
 # Instalação das dependências
 pip install -r scraper/requirements.txt
 
+# Contato que identifica o SmartMarketBot no User-Agent (obrigatório na coleta real;
+# o modo offline com --fixture não precisa). Ex.: a URL do repositório.
+export SMARTMARKET_CONTATO="https://github.com/smartmarket-team/smartmarket"
+
 # Execução Fort Atacadista
 python scraper/coleta_fort_atacadista.py --output-dir scraper/output/fort
 

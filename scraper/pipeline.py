@@ -1,7 +1,7 @@
 """Carga transacional restrita a PostgreSQL local descartável, sem coleta HTTP."""
 import argparse
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import hashlib
 import json
 import os
@@ -12,6 +12,26 @@ from normalizacao import normalizar_produto, texto_normalizado
 
 class ErroIngestao(ValueError):
     pass
+
+
+# Registros rejeitados vão para quarentena (relatório com o motivo) e os válidos são
+# carregados. O lote só falha quando a fração rejeitada passa deste limiar.
+LIMITE_REJEICAO_PADRAO = Decimal('0.2')
+
+# Regra de preço com mais de 2 casas (ex.: 12,345 por kg): arredonda para centavos
+# (ROUND_HALF_UP, a convenção comercial). Mais de 4 casas é suspeito demais para
+# arredondar em silêncio e o registro vai para a quarentena.
+CASAS_DECIMAIS_MAXIMAS_PRECO = 4
+
+# Conflitos de dados POR REGISTRO detectados durante a carga. Cada um exige revisão
+# humana daquele item, mas não deve impedir os demais preços da rede de entrar.
+MOTIVOS_QUARENTENA_BANCO = frozenset({
+    'cadastro_origem_alterado_exige_revisao',
+    'remapeamento_exige_revisao_explicita',
+    'ean_divergente_exige_revisao',
+    'evento_mesmo_instante_com_conteudo_diferente',
+    'produto_mapeado_nao_existe',
+})
 
 
 def hash_dados(dados):
@@ -47,64 +67,127 @@ def validar_dsn(dsn, *, permitir_banco_app=False):
     return config
 
 
+def _preparar_registro(row):
+    """Valida e normaliza um registro; levanta ValueError/TypeError/KeyError... se inválido."""
+    if not isinstance(row, dict):
+        raise ValueError('registro_nao_objeto')
+    externo = row.get('id_produto_origem')
+    if isinstance(externo, bool) or not isinstance(externo, (str, int)) or not str(externo).strip():
+        raise ValueError('id_produto_origem_obrigatorio')
+    if isinstance(row.get('preco'), bool):
+        raise ValueError('preco_invalido')
+    valor = Decimal(str(row['preco']))
+    if not valor.is_finite() or valor <= 0 or valor >= Decimal('100000000'):
+        raise ValueError('preco_fora_numeric_10_2')
+    if valor != valor.quantize(Decimal('0.01')):
+        if valor.as_tuple().exponent < -CASAS_DECIMAIS_MAXIMAS_PRECO:
+            raise ValueError('preco_casas_decimais_excessivas')
+        valor = valor.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        if valor <= 0:
+            raise ValueError('preco_arredondado_para_zero')
+    if row.get('moeda', 'BRL') != 'BRL':
+        raise ValueError('somente_moeda_BRL_sem_conversao')
+    data_coleta = row['data_coleta']
+    if isinstance(data_coleta, str) and data_coleta.endswith('Z'):
+        data_coleta = data_coleta[:-1] + '+00:00'
+    instante = datetime.fromisoformat(data_coleta)
+    if instante.tzinfo is None or instante.utcoffset() is None:
+        raise ValueError('timestamp_sem_fuso')
+    produto = normalizar_produto(row)
+    for campo in ['nome', 'nome_normalizado', 'marca', 'unidade', 'categoria']:
+        value = produto[campo]
+        if value is not None and (not isinstance(value, str) or len(value) > 255):
+            raise ValueError('campo_incompativel_com_ddl_' + campo)
+    # Mesmo instante e valor devem identificar o mesmo evento, mesmo
+    # quando JSON usa offset/zeros finais/tipo numérico diferentes.
+    canonico = dict(row)
+    canonico.update(id_produto_origem=str(externo), preco=chave_decimal(valor),
+                    moeda='BRL', data_coleta=instante.astimezone(timezone.utc).isoformat())
+    if row.get('preco_normal') is not None:
+        normal = Decimal(str(row['preco_normal']))
+        if not normal.is_finite() or normal <= 0:
+            raise ValueError('preco_normal_invalido')
+        canonico['preco_normal'] = chave_decimal(normal)
+    # O hash usa o EAN validado (não o texto bruto). Sem EAN, o campo some do
+    # payload canônico e o hash de cargas antigas continua idêntico.
+    canonico.pop('codigo_barras', None)
+    if produto['codigo_barras']:
+        canonico['codigo_barras'] = produto['codigo_barras']
+    return {'external_id': str(externo), 'valor': valor,
+            'instante': instante.astimezone(timezone.utc),
+            'produto': produto, 'hash': hash_dados(canonico),
+            'source_signature': hash_dados({
+                'nome': produto['nome_normalizado'],
+                'marca': texto_normalizado(produto['marca']) if produto['marca'] else None,
+                'quantidade': chave_decimal(produto['quantidade']) if produto['quantidade'] is not None else None,
+                'unidade': produto['unidade'],
+            })}
+
+
+_ERROS_DE_REGISTRO = (ValueError, TypeError, KeyError, InvalidOperation, OverflowError)
+
+
+def _motivo(exc):
+    return f'campo_ausente_{exc.args[0]}' if isinstance(exc, KeyError) and exc.args else str(exc)
+
+
 def preparar(registros):
+    """Estrito: o primeiro registro inválido aborta o lote (ErroIngestao)."""
     if not isinstance(registros, list) or not registros:
         raise ErroIngestao('lista_de_registros_vazia_ou_invalida')
     preparados = []
     for indice, row in enumerate(registros):
         try:
-            if not isinstance(row, dict):
-                raise ValueError('registro_nao_objeto')
-            externo = row.get('id_produto_origem')
-            if isinstance(externo, bool) or not isinstance(externo, (str, int)) or not str(externo).strip():
-                raise ValueError('id_produto_origem_obrigatorio')
-            if isinstance(row.get('preco'), bool):
-                raise ValueError('preco_invalido')
-            valor = Decimal(str(row['preco']))
-            if not valor.is_finite() or valor <= 0 or valor >= Decimal('100000000'):
-                raise ValueError('preco_fora_numeric_10_2')
-            if valor != valor.quantize(Decimal('0.01')):
-                raise ValueError('preco_exige_arredondamento_nao_definido')
-            if row.get('moeda', 'BRL') != 'BRL':
-                raise ValueError('somente_moeda_BRL_sem_conversao')
-            data_coleta = row['data_coleta']
-            if isinstance(data_coleta, str) and data_coleta.endswith('Z'):
-                data_coleta = data_coleta[:-1] + '+00:00'
-            instante = datetime.fromisoformat(data_coleta)
-            if instante.tzinfo is None or instante.utcoffset() is None:
-                raise ValueError('timestamp_sem_fuso')
-            produto = normalizar_produto(row)
-            for campo in ['nome', 'nome_normalizado', 'marca', 'unidade', 'categoria']:
-                value = produto[campo]
-                if value is not None and (not isinstance(value, str) or len(value) > 255):
-                    raise ValueError('campo_incompativel_com_ddl_' + campo)
-            # Mesmo instante e valor devem identificar o mesmo evento, mesmo
-            # quando JSON usa offset/zeros finais/tipo numérico diferentes.
-            canonico = dict(row)
-            canonico.update(id_produto_origem=str(externo), preco=chave_decimal(valor),
-                            moeda='BRL', data_coleta=instante.astimezone(timezone.utc).isoformat())
-            if row.get('preco_normal') is not None:
-                normal = Decimal(str(row['preco_normal']))
-                if not normal.is_finite() or normal <= 0:
-                    raise ValueError('preco_normal_invalido')
-                canonico['preco_normal'] = chave_decimal(normal)
-            # O hash usa o EAN validado (não o texto bruto). Sem EAN, o campo some do
-            # payload canônico e o hash de cargas antigas continua idêntico.
-            canonico.pop('codigo_barras', None)
-            if produto['codigo_barras']:
-                canonico['codigo_barras'] = produto['codigo_barras']
-            preparados.append({'external_id': str(externo), 'valor': valor,
-                               'instante': instante.astimezone(timezone.utc),
-                               'produto': produto, 'hash': hash_dados(canonico),
-                               'source_signature': hash_dados({
-                                   'nome': produto['nome_normalizado'],
-                                   'marca': texto_normalizado(produto['marca']) if produto['marca'] else None,
-                                   'quantidade': chave_decimal(produto['quantidade']) if produto['quantidade'] is not None else None,
-                                   'unidade': produto['unidade'],
-                               })})
-        except (ValueError, TypeError, KeyError, InvalidOperation, OverflowError) as exc:
-            raise ErroIngestao(f'registro_{indice}: {exc}') from exc
+            preparados.append(_preparar_registro(row))
+        except _ERROS_DE_REGISTRO as exc:
+            raise ErroIngestao(f'registro_{indice}: {_motivo(exc)}') from exc
     return preparados
+
+
+def _identificar(row):
+    row = row if isinstance(row, dict) else {}
+    return {'id_produto_origem': row.get('id_produto_origem'),
+            'nome_bruto': row.get('nome_bruto') or row.get('nome')}
+
+
+def preparar_com_quarentena(registros):
+    """Tolerante: separa (preparados, rejeitados) em vez de abortar no primeiro inválido.
+
+    Cada rejeitado traz indice, id_produto_origem, nome_bruto, motivo e etapa.
+    """
+    if not isinstance(registros, list) or not registros:
+        raise ErroIngestao('lista_de_registros_vazia_ou_invalida')
+    preparados, rejeitados = [], []
+    for indice, row in enumerate(registros):
+        try:
+            item = _preparar_registro(row)
+            item['indice'] = indice
+            preparados.append(item)
+        except _ERROS_DE_REGISTRO as exc:
+            rejeitados.append({'indice': indice, **_identificar(row),
+                               'motivo': _motivo(exc), 'etapa': 'validacao'})
+    return preparados, rejeitados
+
+
+def gravar_quarentena(diretorio, *, run_id, source, store, total, rejeitados, limite):
+    """Relatório de quarentena (gravação atômica) com o motivo de cada rejeição."""
+    destino = Path(diretorio)
+    destino.mkdir(parents=True, exist_ok=True)
+    relatorio = {'run_id': run_id, 'source': source, 'store': store,
+                 'total_registros': total, 'total_rejeitados': len(rejeitados),
+                 'limite_rejeicao': str(limite), 'rejeitados': rejeitados}
+    temporario = destino / ('.quarentena.json.tmp')
+    temporario.write_text(json.dumps(relatorio, ensure_ascii=False, indent=2, default=str), encoding='utf-8')
+    arquivo = destino / 'quarentena.json'
+    temporario.replace(arquivo)
+    return arquivo
+
+
+def _resumo_motivos(rejeitados):
+    contagem = {}
+    for r in rejeitados:
+        contagem[r['motivo']] = contagem.get(r['motivo'], 0) + 1
+    return ', '.join(f'{m}={n}' for m, n in sorted(contagem.items()))
 
 
 def sincronizar_codigo_barras(cur, produto_id, codigo):
@@ -126,7 +209,14 @@ def sincronizar_codigo_barras(cur, produto_id, codigo):
     return False
 
 
-def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=None, permitir_banco_app=False):
+def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=None, permitir_banco_app=False,
+             limite_rejeicao=LIMITE_REJEICAO_PADRAO, diretorio_quarentena=None):
+    """Carrega os registros válidos; os inválidos vão para a quarentena com o motivo.
+
+    O lote só falha (ErroIngestao, sem gravar nada) quando a fração de rejeitados passa de
+    ``limite_rejeicao`` ou quando nenhum registro é válido. Com ``diretorio_quarentena``,
+    grava ``quarentena.json`` ali, inclusive quando o lote falha pelo limiar.
+    """
     import psycopg
     config = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
     for nome, valor in [('source', source), ('store', store), ('run_id', run_id)]:
@@ -139,7 +229,21 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
     origem = f'{source}:{store}'
     if len(origem) > 255:
         raise ErroIngestao('origem_muito_longa')
-    preparados = preparar(registros)
+    preparados, rejeitados = preparar_com_quarentena(registros)
+    total = len(registros)
+    limite_rejeicao = Decimal(str(limite_rejeicao))
+
+    def verificar_limiar():
+        """Grava a quarentena e aborta o lote se a rejeição passou do limiar."""
+        if rejeitados and diretorio_quarentena is not None:
+            gravar_quarentena(diretorio_quarentena, run_id=run_id, source=source, store=store,
+                              total=total, rejeitados=rejeitados, limite=limite_rejeicao)
+        if rejeitados and (not preparados or Decimal(len(rejeitados)) / Decimal(total) > limite_rejeicao):
+            raise ErroIngestao(
+                f'taxa_rejeicao_acima_do_limite: {len(rejeitados)}/{total} registros rejeitados '
+                f'(limite {limite_rejeicao:.0%}); motivos: {_resumo_motivos(rejeitados)}')
+
+    verificar_limiar()  # falha rápido, antes de abrir o banco
     mapeamento = {} if mapeamento is None else mapeamento
     if not isinstance(mapeamento, dict) or any(
         not isinstance(k, str) or not k.strip() or not isinstance(v, int) or isinstance(v, bool) or v <= 0
@@ -151,6 +255,7 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                              'mapeamento': mapeamento})
     resumo = {'run_id': run_id, 'produtos_criados': 0, 'precos_inseridos': 0,
               'eventos_repetidos': 0, 'eans_gravados': 0, 'reexecucao': False, 'moeda': 'BRL',
+              'rejeitados': rejeitados,
               'pendencias': [{'external_id': row['external_id'], 'motivos': row['produto']['pendencias']}
                             for row in preparados if row['produto']['pendencias']]}
     with psycopg.connect(**config) as conn:
@@ -180,57 +285,71 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
             cur.execute('INSERT INTO smartmarket_ingest.run(run_id, source, store, mercado_id, payload_hash) VALUES(%s,%s,%s,%s,%s)',
                         (run_id, source, store, mercado_id, fingerprint))
             for row in preparados:
-                externo = row['external_id']
-                key = (source, store, externo)
-                cur.execute('SELECT produto_id, source_signature FROM smartmarket_ingest.source_product WHERE source=%s AND store=%s AND external_id=%s', key)
-                existente = cur.fetchone()
-                if existente and existente[1] != row['source_signature']:
-                    raise ErroIngestao('cadastro_origem_alterado_exige_revisao')
-                aprovado = mapeamento.get(externo)
-                if existente and aprovado and existente[0] != aprovado:
-                    raise ErroIngestao('remapeamento_exige_revisao_explicita')
-                if existente:
-                    produto_id = existente[0]
-                elif aprovado:
-                    cur.execute('SELECT id FROM produto WHERE id=%s', (aprovado,))
-                    if cur.fetchone() is None:
-                        raise ErroIngestao('produto_mapeado_nao_existe')
-                    produto_id = aprovado
-                else:
-                    p = row['produto']
-                    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='produto'")
-                    cols_produto = {r[0] for r in cur.fetchall()}
-                    campos = ['nome', 'nome_normalizado', 'marca', 'quantidade', 'unidade', 'codigo_barras', 'categoria']
-                    if 'imagem_url' in cols_produto and p.get('imagem_url') is not None:
-                        campos.append('imagem_url')
-                    if 'descricao' in cols_produto and p.get('descricao') is not None:
-                        campos.append('descricao')
-                    cols_str = ','.join(campos)
-                    placeholders = ','.join(['%s'] * len(campos))
-                    cur.execute(f'INSERT INTO produto({cols_str}) VALUES({placeholders}) RETURNING id',
-                                tuple(p[k] for k in campos))
-                    produto_id = cur.fetchone()[0]
-                    resumo['produtos_criados'] += 1
-                if existente or aprovado:
-                    if sincronizar_codigo_barras(cur, produto_id, row['produto']['codigo_barras']):
-                        resumo['eans_gravados'] += 1
-                if not existente:
-                    cur.execute('INSERT INTO smartmarket_ingest.source_product(source,store,external_id,produto_id,source_signature) VALUES(%s,%s,%s,%s,%s)', (*key, produto_id, row['source_signature']))
-                cur.execute('SELECT payload_hash FROM smartmarket_ingest.event WHERE source=%s AND store=%s AND external_id=%s AND collected_at=%s', (*key,row['instante']))
-                evento = cur.fetchone()
-                if evento:
-                    if evento[0] != row['hash']:
-                        raise ErroIngestao('evento_mesmo_instante_com_conteudo_diferente')
-                    resumo['eventos_repetidos'] += 1
-                    continue
-                # DDL da equipe usa TIMESTAMP sem fuso: armazenar UTC explícito
-                # por convenção documentada; metadado de ingestão usa TIMESTAMPTZ.
-                cur.execute('INSERT INTO preco(produto_id,mercado_id,valor,coletado_em,origem,nome_bruto,disponivel) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
-                            (produto_id,mercado_id,row['valor'],row['instante'].replace(tzinfo=None),origem,row['produto']['nome'],True))
-                preco_id = cur.fetchone()[0]
-                cur.execute('INSERT INTO smartmarket_ingest.event(source,store,external_id,collected_at,payload_hash,preco_id,run_id) VALUES(%s,%s,%s,%s,%s,%s,%s)',
-                            (*key,row['instante'],row['hash'],preco_id,run_id))
-                resumo['precos_inseridos'] += 1
+                contadores = {k: resumo[k] for k in ('produtos_criados', 'precos_inseridos', 'eventos_repetidos', 'eans_gravados')}
+                try:
+                    # Savepoint por registro: um conflito não desfaz os demais preços da rede.
+                    with conn.transaction():
+                        externo = row['external_id']
+                        key = (source, store, externo)
+                        cur.execute('SELECT produto_id, source_signature FROM smartmarket_ingest.source_product WHERE source=%s AND store=%s AND external_id=%s', key)
+                        existente = cur.fetchone()
+                        if existente and existente[1] != row['source_signature']:
+                            raise ErroIngestao('cadastro_origem_alterado_exige_revisao')
+                        aprovado = mapeamento.get(externo)
+                        if existente and aprovado and existente[0] != aprovado:
+                            raise ErroIngestao('remapeamento_exige_revisao_explicita')
+                        if existente:
+                            produto_id = existente[0]
+                        elif aprovado:
+                            cur.execute('SELECT id FROM produto WHERE id=%s', (aprovado,))
+                            if cur.fetchone() is None:
+                                raise ErroIngestao('produto_mapeado_nao_existe')
+                            produto_id = aprovado
+                        else:
+                            p = row['produto']
+                            cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='produto'")
+                            cols_produto = {r[0] for r in cur.fetchall()}
+                            campos = ['nome', 'nome_normalizado', 'marca', 'quantidade', 'unidade', 'codigo_barras', 'categoria']
+                            if 'imagem_url' in cols_produto and p.get('imagem_url') is not None:
+                                campos.append('imagem_url')
+                            if 'descricao' in cols_produto and p.get('descricao') is not None:
+                                campos.append('descricao')
+                            cols_str = ','.join(campos)
+                            placeholders = ','.join(['%s'] * len(campos))
+                            cur.execute(f'INSERT INTO produto({cols_str}) VALUES({placeholders}) RETURNING id',
+                                        tuple(p[k] for k in campos))
+                            produto_id = cur.fetchone()[0]
+                            resumo['produtos_criados'] += 1
+                        if existente or aprovado:
+                            if sincronizar_codigo_barras(cur, produto_id, row['produto']['codigo_barras']):
+                                resumo['eans_gravados'] += 1
+                        if not existente:
+                            cur.execute('INSERT INTO smartmarket_ingest.source_product(source,store,external_id,produto_id,source_signature) VALUES(%s,%s,%s,%s,%s)', (*key, produto_id, row['source_signature']))
+                        cur.execute('SELECT payload_hash FROM smartmarket_ingest.event WHERE source=%s AND store=%s AND external_id=%s AND collected_at=%s', (*key,row['instante']))
+                        evento = cur.fetchone()
+                        if evento:
+                            if evento[0] != row['hash']:
+                                raise ErroIngestao('evento_mesmo_instante_com_conteudo_diferente')
+                            resumo['eventos_repetidos'] += 1
+                            continue
+                        # DDL da equipe usa TIMESTAMP sem fuso: armazenar UTC explícito
+                        # por convenção documentada; metadado de ingestão usa TIMESTAMPTZ.
+                        cur.execute('INSERT INTO preco(produto_id,mercado_id,valor,coletado_em,origem,nome_bruto,disponivel) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
+                                    (produto_id,mercado_id,row['valor'],row['instante'].replace(tzinfo=None),origem,row['produto']['nome'],True))
+                        preco_id = cur.fetchone()[0]
+                        cur.execute('INSERT INTO smartmarket_ingest.event(source,store,external_id,collected_at,payload_hash,preco_id,run_id) VALUES(%s,%s,%s,%s,%s,%s,%s)',
+                                    (*key,row['instante'],row['hash'],preco_id,run_id))
+                        resumo['precos_inseridos'] += 1
+                except ErroIngestao as exc:
+                    if str(exc) not in MOTIVOS_QUARENTENA_BANCO:
+                        raise
+                    resumo.update(contadores)
+                    rejeitados.append({'indice': row['indice'], 'id_produto_origem': row['external_id'],
+                                       'nome_bruto': row['produto']['nome'], 'motivo': str(exc), 'etapa': 'banco'})
+            verificar_limiar()  # rejeição tardia acima do limiar: sai e reverte o lote todo
+    resumo['rejeitados'] = rejeitados
+    if rejeitados:
+        resumo['pendencias_revisao'] = [r for r in rejeitados if r['motivo'] in MOTIVOS_QUARENTENA_BANCO]
     return resumo
 
 

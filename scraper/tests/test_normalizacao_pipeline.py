@@ -54,8 +54,17 @@ class ContratoCargaTest(unittest.TestCase):
         self.assertEqual(row['valor'],Decimal('10.50'))
         self.assertEqual(row['instante'],datetime(2026,10,4,13,tzinfo=timezone.utc))
 
-    def test_rejeita_arredondamento_implicito(self):
-        with self.assertRaises(ErroIngestao): preparar([registro(preco='1.234')])
+    def test_preco_com_mais_de_2_casas_arredonda_half_up_para_centavos(self):
+        # Regra explícita: ROUND_HALF_UP para centavos (ex.: preço por kg 12,345).
+        for bruto, esperado in [('1.234', '1.23'), ('12.345', '12.35'), ('12.3449', '12.34'),
+                                (Decimal('7.005'), '7.01'), ('10.500', '10.50')]:
+            with self.subTest(preco=bruto):
+                self.assertEqual(preparar([registro(preco=bruto)])[0]['valor'], Decimal(esperado))
+
+    def test_preco_com_casas_excessivas_ou_que_zera_e_rejeitado(self):
+        for bruto in ['1.23456', '0.004', '0.00001']:
+            with self.subTest(preco=bruto), self.assertRaises(ErroIngestao):
+                preparar([registro(preco=bruto)])
 
     def test_rejeita_entrada_incompativel(self):
         for changes in [{'id_produto_origem':None},{'preco':False},{'preco':0},

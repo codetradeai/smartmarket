@@ -47,6 +47,11 @@ REDES_SUSPENSAS = {
     "rissul": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
 }
 
+# Chave opcional "coleta_exaustiva" (padrao False) em cada entrada de REDES_CONFIG: so
+# declare True quando o coletor percorre o catalogo INTEIRO da loja (sem limite por
+# categoria/pagina e sem amostra por ranking de vendas). Hoje todos os coletores
+# amostram (LIMITE_POR_CATEGORIA, top-N por vendas), entao ausencia na coleta NAO prova
+# que o produto saiu da loja e ninguem e marcado como indisponivel por ela.
 REDES_CONFIG = {
     "fort": {
         "nome": "Fort Atacadista",
@@ -115,22 +120,115 @@ REDES_CONFIG = {
 }
 
 
+# Lock sem pid legível (dono morreu entre criar e gravar, ou arquivo corrompido) só é
+# tratado como órfão depois deste tempo: um dono vivo pode estar prestes a gravar o pid.
+LOCK_SEM_PID_ORFAO_APOS_SEGUNDOS = 60
+
+
+def processo_existe(pid):
+    """True se há um processo vivo com este pid (conservador: na dúvida, True)."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        # os.kill(pid, 0) no Windows chama TerminateProcess: nunca usar para sondar.
+        import ctypes
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        STILL_ACTIVE = 259
+        ERROR_ACCESS_DENIED = 5
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if not handle:
+            return ctypes.GetLastError() == ERROR_ACCESS_DENIED
+        try:
+            codigo = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(codigo)):
+                return True
+            return codigo.value == STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # existe, mas é de outro usuário
+    except OSError:
+        return True
+    return True
+
+
 class LockProcesso:
-    """Controle de concorrência multiplataforma via arquivo de lock."""
+    """Controle de concorrência multiplataforma via arquivo de lock.
+
+    O arquivo guarda ``pid=<pid>``. Se o dono morrer sem liberar (SIGKILL, OOM, queda de
+    energia), o lock órfão é detectado pelo pid e recuperado na próxima execução em vez
+    de bloquear a coleta para sempre. Limite conhecido: se o SO reaproveitar o pid de um
+    processo morto para outro processo vivo, o lock continua parecendo ativo até esse
+    processo terminar.
+    """
     def __init__(self, lock_file: Path):
         self.lock_file = lock_file
         self.adquirido = False
 
+    def _criar(self):
+        # Criação exclusiva (O_CREAT | O_EXCL) funciona nativamente no Windows e Linux
+        self.fd = os.open(str(self.lock_file), os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        os.write(self.fd, f"pid={os.getpid()}\n".encode("utf-8"))
+        self.adquirido = True
+
+    def _ler_conteudo(self):
+        try:
+            return self.lock_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return None
+
+    @staticmethod
+    def _pid_do_conteudo(conteudo):
+        if conteudo:
+            for linha in conteudo.splitlines():
+                chave, _, valor = linha.strip().partition("=")
+                if chave == "pid" and valor.strip().isdigit():
+                    return int(valor.strip())
+        return None
+
+    def _lock_orfao(self, conteudo):
+        """True se o dono do lock existente já morreu."""
+        pid = self._pid_do_conteudo(conteudo)
+        if pid is not None:
+            return not processo_existe(pid)
+        try:
+            idade = time.time() - self.lock_file.stat().st_mtime
+        except OSError:
+            return False
+        return idade > LOCK_SEM_PID_ORFAO_APOS_SEGUNDOS
+
+    def _recuperar_orfao(self):
+        """Remove o lock se (e só se) o dono morreu. True quando removeu."""
+        conteudo = self._ler_conteudo()
+        if conteudo is None or not self._lock_orfao(conteudo):
+            return False
+        # O dono pode ter mudado desde a leitura: só apaga o lock que acabamos de julgar.
+        if self._ler_conteudo() != conteudo:
+            return False
+        LOGGER.warning("Lock órfão removido (%s): %s", self.lock_file, conteudo.strip() or "vazio")
+        try:
+            self.lock_file.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return False
+        return True
+
     def __enter__(self):
         self.lock_file.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            # Criação exclusiva (O_CREAT | O_EXCL) funciona nativamente no Windows e Linux
-            self.fd = os.open(str(self.lock_file), os.O_CREAT | os.O_EXCL | os.O_RDWR)
-            os.write(self.fd, f"pid={os.getpid()}\n".encode("utf-8"))
-            self.adquirido = True
-            return self
-        except FileExistsError:
-            raise ErroIngestao(f"rotina_ja_em_execucao_lock_ativo: {self.lock_file}")
+        for tentativa in (1, 2):
+            try:
+                self._criar()
+                return self
+            except FileExistsError:
+                if tentativa == 1 and self._recuperar_orfao():
+                    continue
+                raise ErroIngestao(f"rotina_ja_em_execucao_lock_ativo: {self.lock_file}")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.adquirido:
@@ -253,18 +351,35 @@ def executar_ciclo_rede(chave_rede, config_rede, *, dsn, diretorio_base,
         mercado_id=mercado_id,
         run_id=run_id,
         mapeamento=mapeamento,
-        permitir_banco_app=permitir_banco_app
+        permitir_banco_app=permitir_banco_app,
+        diretorio_quarentena=dir_saida,
     )
+    total_rejeitados = len(resumo_carga.get("rejeitados") or [])
 
-    # 3. Atualização de Indisponibilidade
-    config_db = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
-    with conectar_banco(config_db) as conn:
-        coletados_ids = {str(r.get("id_produto_origem")) for r in registros if r.get("id_produto_origem")}
-        atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, coletados_ids)
+    # 3. Atualização de Indisponibilidade: só com coleta completa (status 0) E exaustiva.
+    # Coleta parcial (status 2) ou amostral não prova que o produto saiu da loja.
+    if status_coleta != 0:
+        resumo_carga["indisponibilidade"] = "ignorada_coleta_parcial"
+        LOGGER.warning("Indisponibilidade NAO atualizada para %s: coleta parcial (status %s).",
+                       config_rede["nome"], status_coleta)
+    elif not config_rede.get("coleta_exaustiva", False):
+        resumo_carga["indisponibilidade"] = "ignorada_coleta_amostral"
+        LOGGER.info("Indisponibilidade NAO atualizada para %s: o coletor trabalha por amostra "
+                    "(coleta_exaustiva=False).", config_rede["nome"])
+    else:
+        config_db = validar_dsn(dsn, permitir_banco_app=permitir_banco_app)
+        with conectar_banco(config_db) as conn:
+            coletados_ids = {str(r.get("id_produto_origem")) for r in registros if r.get("id_produto_origem")}
+            atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, coletados_ids)
+        resumo_carga["indisponibilidade"] = "atualizada"
 
     resumo_carga["source"] = source
     resumo_carga["store"] = store
-    resumo_carga["status"] = "concluido" if status_coleta == 0 else "parcial"
+    resumo_carga["total_rejeitados"] = total_rejeitados
+    if total_rejeitados:
+        LOGGER.warning("%s: %d registro(s) em quarentena (ver %s/quarentena.json)",
+                       config_rede["nome"], total_rejeitados, dir_saida)
+    resumo_carga["status"] = "concluido" if status_coleta == 0 and not total_rejeitados else "parcial"
     resumo_carga["total_coletados"] = len(registros)
     resumo_carga["dir_saida"] = str(dir_saida)
     LOGGER.info(

@@ -32,7 +32,7 @@ class RevisaoOfflineTest(unittest.TestCase):
     def test_fixture_preserva_token_decimal_antes_de_validar(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'precisao.json'
-            path.write_text('{"1815215":[{"hits":[{"name":"Arroz", "pricing":{"price":1.0000000000000001}}]}]}')
+            path.write_text('{"1815215":[{"hits":[{"id":"a1","name":"Arroz", "pricing":{"price":1.0000000000000001}}]}]}')
             pagina = fort.carregar_fixture(path)('https://example.invalid/1815215', headers={}, params={'from':0}, timeout=10)
             item = pagina['hits'][0]
             self.assertEqual(item['pricing']['price'], Decimal('1.0000000000000001'))

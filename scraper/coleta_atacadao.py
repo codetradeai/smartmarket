@@ -200,6 +200,8 @@ def transformar_produto(produto_raw: dict, nome_categoria: str, instante: dateti
     externo = produto_raw.get("productId")
     if externo is not None and (isinstance(externo, bool) or not isinstance(externo, (str, int))):
         raise ValueError("id_produto_origem_invalido")
+    if externo is None or (isinstance(externo, str) and not externo.strip()):
+        raise ValueError("id_produto_origem_ausente")
 
     slug = produto_raw.get("linkText")
     link_direto = produto_raw.get("link")
@@ -337,13 +339,40 @@ def salvar_csv(produtos: List[dict], destino: Path) -> None:
     temp_path.replace(destino)
 
 
-def main() -> None:
+def carregar_fixture(caminho):
+    """Fixture offline: objeto filtro_fq -> lista de produtos da primeira página da API VTEX."""
+    dados = json.loads(Path(caminho).read_text(encoding="utf-8"), parse_float=Decimal)
+    if not isinstance(dados, dict):
+        raise ValueError("fixture_deve_ser_objeto")
+
+    def buscar(url, *, headers, params, timeout):
+        produtos = dados.get(params.get("fq"))
+        if not isinstance(produtos, list):
+            raise ErroColeta("categoria_ausente_na_fixture")
+        # A fixture guarda uma única página; as seguintes vêm vazias e encerram a categoria.
+        return produtos if params.get("_from", 0) == 0 else []
+
+    return buscar
+
+
+def salvar_saida_rotina(produtos: List[dict], diretorio: Path) -> None:
+    """Grava produtos_coletados.json/.csv, os nomes que a rotina de carga lê."""
+    diretorio = Path(diretorio)
+    salvar_json(produtos, diretorio / "produtos_coletados.json")
+    salvar_csv(produtos, diretorio / "produtos_coletados.csv")
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    """Ponto de entrada compatível com a rotina: 0 = completo, 2 = parcial, 1 = falha total."""
     parser = argparse.ArgumentParser(description="Coletor de dados Atacadão (SmartMarket RS)")
+    parser.add_argument("--fixture", type=Path, help="Resposta local: não acessa a rede")
+    parser.add_argument("--output-dir", type=Path,
+                        help="Grava produtos_coletados.json/.csv neste diretório (formato da rotina de carga)")
     parser.add_argument("--formato", choices=["json", "csv", "ambos"], default="ambos")
     parser.add_argument("--saida", default=str(Path(__file__).parent / "output" / "coleta_atacadao"))
     parser.add_argument("--limite", type=int, default=15, help="Limite de produtos por categoria")
     parser.add_argument("--apenas-categoria", help="Executa apenas a categoria informada")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -353,20 +382,39 @@ def main() -> None:
             parser.error(f"Categoria desconhecida. Disponíveis: {list(CATEGORIAS.keys())}")
         cats = {args.apenas_categoria: CATEGORIAS[args.apenas_categoria]}
 
-    produtos, falhas = executar_coleta(cats, limite_por_categoria=args.limite)
+    buscar = None
+    dormir = time.sleep
+    if args.fixture:
+        try:
+            buscar = carregar_fixture(args.fixture)
+        except (OSError, ValueError) as exc:
+            LOGGER.error("fixture_invalida: %s", type(exc).__name__)
+            return 1
+        dormir = lambda _: None  # noqa: E731 - fixture não precisa de pausa
+
+    produtos, falhas = executar_coleta(cats, buscar=buscar, limite_por_categoria=args.limite, dormir=dormir)
     print(f"\n[SUCESSO] Total de produtos coletados com sucesso: {len(produtos)}")
     print(f"[STATUS] Falhas registradas descartadas: {len(falhas)}")
 
-    base_saida = Path(args.saida)
-    if args.formato in ("json", "ambos"):
-        json_path = base_saida.with_suffix(".json")
-        salvar_json(produtos, json_path)
-        print(f"[EXPORT] JSON gerado: {json_path}")
-    if args.formato in ("csv", "ambos"):
-        csv_path = base_saida.with_suffix(".csv")
-        salvar_csv(produtos, csv_path)
-        print(f"[EXPORT] CSV gerado: {csv_path}")
+    # Falha total: preserva a última saída; nada é gravado nem marcado como indisponível.
+    if not produtos:
+        return 1
+
+    if args.output_dir:
+        salvar_saida_rotina(produtos, args.output_dir)
+        print(f"[EXPORT] Saída da rotina gravada em: {args.output_dir}")
+    else:
+        base_saida = Path(args.saida)
+        if args.formato in ("json", "ambos"):
+            json_path = base_saida.with_suffix(".json")
+            salvar_json(produtos, json_path)
+            print(f"[EXPORT] JSON gerado: {json_path}")
+        if args.formato in ("csv", "ambos"):
+            csv_path = base_saida.with_suffix(".csv")
+            salvar_csv(produtos, csv_path)
+            print(f"[EXPORT] CSV gerado: {csv_path}")
+    return 2 if falhas else 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

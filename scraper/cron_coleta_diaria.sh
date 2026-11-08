@@ -8,6 +8,12 @@
 
 set -euo pipefail
 
+# Contato que identifica o SmartMarketBot no User-Agent das requisições às redes. É
+# OBRIGATÓRIO para a coleta HTTP real (scraper/identificacao.py): sem ele Fort, Master e
+# Stok falham antes de requisitar. Para usar outro contato, exporte SMARTMARKET_CONTATO
+# antes de chamar este script (ou na linha do crontab).
+export SMARTMARKET_CONTATO="${SMARTMARKET_CONTATO:-https://github.com/smartmarket-team/smartmarket}"
+
 # Diretório base do script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"

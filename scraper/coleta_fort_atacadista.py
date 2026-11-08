@@ -163,6 +163,8 @@ def transformar_item(item, nome_categoria, instante):
     externo = item.get("id")
     if externo is not None and (isinstance(externo, bool) or not isinstance(externo, (str, int))):
         raise ValueError("id_produto_origem_invalido")
+    if externo is None or (isinstance(externo, str) and not externo.strip()):
+        raise ValueError("id_produto_origem_ausente")
     if pricing.get("promotion") is not None and not isinstance(pricing["promotion"], bool):
         raise ValueError("promotion_invalido")
     promocional = pricing.get("promotionalPrice")

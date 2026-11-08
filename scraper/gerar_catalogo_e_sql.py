@@ -9,6 +9,7 @@ do frontend (data.js) para pesquisa completa com fotos em alta resolução.
 import json
 import os
 import re
+import unicodedata
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,6 +82,15 @@ def extrair_unidade(nome: str) -> str:
     if match:
         return match.group(1).lower().strip()
     return "1 un"
+
+
+def nome_normalizado(nome: str) -> str:
+    """Mesma regra do backend (NormalizadorTexto.normalizar): minúsculo, NFD sem marcas de
+    acento e espaços colapsados. A busca por nome compara o termo digitado, já normalizado
+    assim, apenas com produto.nome_normalizado; gravar nome.lower() deixava os acentos."""
+    decomposto = unicodedata.normalize("NFD", nome.lower())
+    sem_marcas = "".join(c for c in decomposto if unicodedata.category(c) != "Mn")
+    return " ".join(sem_marcas.split())
 
 
 def escape_sql(val) -> str:
@@ -270,9 +280,10 @@ def gerar_sql_e_data():
         # Adiciona ao SQL
         linhas_sql.append(
             f"INSERT INTO produto (id, nome, nome_normalizado, marca, quantidade, unidade, categoria, imagem_url, descricao) "
-            f"VALUES ({prod_id}, {escape_sql(nome)}, {escape_sql(nome.lower())}, {escape_sql(marca)}, 1.0, {escape_sql(unidade)}, "
+            f"VALUES ({prod_id}, {escape_sql(nome)}, {escape_sql(nome_normalizado(nome))}, {escape_sql(marca)}, 1.0, {escape_sql(unidade)}, "
             f"{escape_sql(cat)}, {escape_sql(img_local)}, {escape_sql(desc)}) "
-            f"ON CONFLICT (id) DO UPDATE SET imagem_url = EXCLUDED.imagem_url, descricao = EXCLUDED.descricao;"
+            f"ON CONFLICT (id) DO UPDATE SET imagem_url = EXCLUDED.imagem_url, descricao = EXCLUDED.descricao, "
+            f"nome_normalizado = EXCLUDED.nome_normalizado;"
         )
 
         linhas_sql.append(

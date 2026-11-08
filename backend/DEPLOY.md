@@ -79,8 +79,23 @@
 
    -- Passo 4: adiciona coluna ativa na tabela promocao
    \i backend/deploy/04_adiciona_ativa_promocao.sql
+
+   -- Passo 5: corrige produto.nome_normalizado (sem acento) — ver aviso abaixo
+   \i backend/deploy/05_corrige_nome_normalizado.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
+
+   > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
+   > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em
+   > minúsculas, com acento (350 dos 530 produtos), e a busca por nome (`GET /api/produtos?nome=`)
+   > compara o termo digitado **sem acento** apenas com essa coluna: `feijao` e `feijão` não
+   > encontravam "Feijão ...". O script é só um `UPDATE` de `nome_normalizado` (não toca em nome,
+   > preço ou outras colunas), idempotente (`WHERE ... IS DISTINCT FROM`; a 2ª execução faz
+   > `UPDATE 0`) e aplica a mesma regra do backend (minúsculas, sem acento, espaços colapsados).
+   > Depois do deploy do backend, produtos criados ou renomeados já gravam o valor correto sozinhos
+   > (`@PrePersist`/`@PreUpdate`); o script só corrige o que já está no banco. Em banco novo,
+   > rode-o depois do `03_carga.sql`. Conferência: `SELECT count(*) FROM produto WHERE nome_normalizado ~ '[^ -~]';`
+   > deve retornar 0.
 
    > ⚠️ **Atenção — PR `feat/c3-coleta-segura`**: aplique o script `04_adiciona_ativa_promocao.sql`
    > **antes** de qualquer deploy que inclua esse PR. O Hibernate sobe com `ddl-auto=validate` e
@@ -92,10 +107,12 @@
    > unitário, mas nenhuma rotina as invoca: nem o `rotina_carga.py`, nem o backend
    > (não há `@Scheduled`, controller ou endpoint que as use). O scraper também não consegue
    > chamá-las hoje, porque grava direto no PostgreSQL e o backend não expõe esse método via REST.
-   > Consequência: `ativa` permanece `TRUE` em todas as promoções, e o comportamento em produção
-   > é idêntico ao anterior a este PR. O chamador (que informará `mercado_id` e o início da
-   > coleta) será feito em uma próxima entrega. Enquanto isso, a inativação só ocorre
-   > manualmente pelo SQL abaixo:
+   > Consequência: `ativa` permanece `TRUE` em todas as promoções até alguém inativá-las. O chamador
+   > (que informará `mercado_id` e o início da coleta) será feito em uma próxima entrega. Enquanto
+   > isso, a inativação só ocorre manualmente pelo SQL abaixo. As consultas de vigência
+   > (`PromocaoRepository`: comparador de lista, catálogo de preços, painel admin) **já filtram
+   > `ativa = true`**, então esse `UPDATE` tira a promoção do ar de verdade (antes a flag era
+   > ignorada e uma promoção sem `data_fim` valia para sempre):
    > ```sql
    > UPDATE promocao SET ativa = FALSE
    > WHERE mercado_id = <id> AND data_fim IS NULL AND coletado_em < '<inicio_coleta>';

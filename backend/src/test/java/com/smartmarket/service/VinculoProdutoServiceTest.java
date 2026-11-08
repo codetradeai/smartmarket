@@ -57,7 +57,7 @@ class VinculoProdutoServiceTest {
         Produto a = produto(1, "Lã de Aço 45g");
         when(produtos.findById(1L)).thenReturn(Optional.of(a));
         when(vinculos.findDoProdutoComStatus(eq(1L), eq("confirmado"))).thenReturn(List.of());
-        when(precos.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any())).thenReturn(List.of());
+        when(precos.findByProdutoIdInOrderByColetadoEmDescIdDesc(any())).thenReturn(List.of());
 
         service.precosVinculados(1L);
 
@@ -71,7 +71,7 @@ class VinculoProdutoServiceTest {
         when(produtos.findById(2L)).thenReturn(Optional.of(b));
         // o produto consultado (2) é o lado B do vínculo
         when(vinculos.findDoProdutoComStatus(2L, "confirmado")).thenReturn(List.of(vinculo(a, b, "ean")));
-        when(precos.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precos.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(preco(b, m2, "6.50", 0), preco(a, m1, "5.90", 0)));
 
         PrecosVinculadosResponse r = service.precosVinculados(2L);
@@ -88,7 +88,7 @@ class VinculoProdutoServiceTest {
         Mercado m = mercado(10, "Atacadão");
         when(produtos.findById(1L)).thenReturn(Optional.of(a));
         when(vinculos.findDoProdutoComStatus(1L, "confirmado")).thenReturn(List.of());
-        when(precos.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any()))
+        when(precos.findByProdutoIdInOrderByColetadoEmDescIdDesc(any()))
             .thenReturn(List.of(preco(a, m, "5.00", 0), preco(a, m, "9.99", 60)));
 
         PrecosVinculadosResponse r = service.precosVinculados(1L);
@@ -102,7 +102,7 @@ class VinculoProdutoServiceTest {
         Produto a = produto(1, "Arroz");
         when(produtos.findById(1L)).thenReturn(Optional.of(a));
         when(vinculos.findDoProdutoComStatus(1L, "confirmado")).thenReturn(List.of());
-        when(precos.findByProdutoIdInAndDisponivelTrueOrderByColetadoEmDesc(any())).thenReturn(List.of());
+        when(precos.findByProdutoIdInOrderByColetadoEmDescIdDesc(any())).thenReturn(List.of());
 
         assertThat(service.precosVinculados(1L).getPrecos()).isEmpty();
     }

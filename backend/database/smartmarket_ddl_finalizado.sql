@@ -102,6 +102,7 @@ CREATE TABLE promocao (
     valor_promocional NUMERIC(10, 2) NOT NULL,
     data_inicio DATE NOT NULL,
     data_fim DATE, -- opcional: rede pode não informar validade
+    ativa BOOLEAN NOT NULL DEFAULT TRUE, -- false quando a coleta deixou de encontrar a promoção (só data_fim nulo)
     coletado_em TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

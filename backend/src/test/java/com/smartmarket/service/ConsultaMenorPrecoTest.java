@@ -2,6 +2,7 @@ package com.smartmarket.service;
 
 import com.smartmarket.model.Mercado;
 import com.smartmarket.model.Preco;
+import com.smartmarket.model.Produto;
 import com.smartmarket.repository.PrecoRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,14 @@ class ConsultaMenorPrecoTest {
 
     private static final Mercado A = Mercado.builder().id(11L).nome("A").build();
     private static final Mercado B = Mercado.builder().id(12L).nome("B").build();
+    private static final Produto PRODUTO = Produto.builder().id(9L).nome("Arroz").build();
 
     private static Preco preco(Mercado mercado, String valor) {
-        return Preco.builder().mercado(mercado).valor(new BigDecimal(valor)).build();
+        return Preco.builder().produto(PRODUTO).mercado(mercado).valor(new BigDecimal(valor)).disponivel(true).build();
     }
 
     private void precosDoProduto(Preco... precos) {
-        when(precoRepository.findByProdutoIdAndDisponivelTrueOrderByColetadoEmDescIdDesc(9L))
+        when(precoRepository.findByProdutoIdOrderByColetadoEmDescIdDesc(9L))
             .thenReturn(List.of(precos));
     }
 
@@ -69,5 +71,19 @@ class ConsultaMenorPrecoTest {
         precosDoProduto(preco(A, "5"), preco(B, "5"));
 
         assertThat(consulta.menorDisponivel(9L)).map(Preco::getMercado).contains(A);
+    }
+
+    @Test
+    @DisplayName("Par cuja linha mais recente esta indisponivel nao entra, mesmo com linha antiga disponivel")
+    void descartaParQueSumiuDaRede() {
+        Preco sumiu = preco(A, "4");
+        sumiu.setDisponivel(false);
+        // do mais recente para o mais antigo: A sumiu (4, indisponivel); o 3 antigo do A segue "disponivel"
+        precosDoProduto(sumiu, preco(B, "6"), preco(A, "3"));
+
+        var menor = consulta.menorDisponivel(9L);
+
+        assertThat(menor).map(Preco::getMercado).contains(B);
+        assertThat(menor).map(Preco::getValor).hasValueSatisfying(v -> assertThat(v).isEqualByComparingTo("6"));
     }
 }

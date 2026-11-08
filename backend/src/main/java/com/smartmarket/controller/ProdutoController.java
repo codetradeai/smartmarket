@@ -64,7 +64,7 @@ public class ProdutoController {
 
     private Sort parseSort(String sort) {
         if (sort == null || sort.isBlank()) {
-            return Sort.by(Sort.Direction.ASC, "nome");
+            return comDesempatePorId(List.of(new Sort.Order(Sort.Direction.ASC, "nome")));
         }
 
         String[] partes = sort.split(",");
@@ -86,10 +86,25 @@ public class ProdutoController {
         }
 
         if (ordenacoes.isEmpty()) {
-            return Sort.by(Sort.Direction.ASC, "nome");
+            return comDesempatePorId(List.of(new Sort.Order(Sort.Direction.ASC, "nome")));
         }
 
-        return Sort.by(ordenacoes);
+        return comDesempatePorId(ordenacoes);
+    }
+
+    /**
+     * LIMIT/OFFSET so e estavel com ordenacao total. Nomes, marcas e categorias se repetem entre
+     * produtos; sem desempate por id o banco pode ordenar os empatados diferente a cada pagina,
+     * repetindo um produto em duas paginas e sumindo com outro.
+     */
+    private Sort comDesempatePorId(List<Sort.Order> ordenacoes) {
+        boolean ordenaPorId = ordenacoes.stream().anyMatch(o -> "id".equals(o.getProperty()));
+        if (ordenaPorId) {
+            return Sort.by(ordenacoes);
+        }
+        List<Sort.Order> total = new ArrayList<>(ordenacoes);
+        total.add(Sort.Order.asc("id"));
+        return Sort.by(total);
     }
 
     private Sort.Direction parseDirecao(String direcao) {

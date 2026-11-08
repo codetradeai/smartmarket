@@ -9,7 +9,7 @@ const pkg = JSON.parse(readFileSync(path.join(raiz, 'frontend/package.json'), 'u
 const jestConfig = require('../jest.config.cjs')
 
 // Trecho do job do frontend, do nome do job até o próximo job.
-const jobFrontend = ci.split(/\n  frontend-test:/)[1]?.split(/\n  [a-z-]+:\n/)[0] || ''
+const jobFrontend = ci.split(/\n {2}frontend-test:/)[1]?.split(/\n {2}[a-z-]+:\n/)[0] || ''
 
 describe('CI do frontend aplica o limiar de cobertura', () => {
   it('o script test:coverage roda o jest com --coverage', () => {

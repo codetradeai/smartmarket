@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+/* Fontes: hospedadas no próprio site via @fontsource (src/fontes.js), sem @import de terceiros. */
 @import "tailwindcss";
 
 @theme {
@@ -791,6 +791,16 @@ html, body, #root {
 }
 
 @media (max-width: 1279px) {
+  /* Modal de produto dentro do shell: começa abaixo da barra fixa (4rem, z-index 60), para o botão
+     de fechar não ficar escondido, e nunca passa da altura visível (dvh acompanha a barra do navegador). */
+  .sm-shell .sm-modal-overlay {
+    padding-top: calc(4rem + 0.75rem);
+  }
+
+  .sm-shell .sm-modal-dialog {
+    max-height: calc(100dvh - 4rem - 1.5rem);
+  }
+
   .sm-shell {
     flex-direction: column;
     height: 100dvh;

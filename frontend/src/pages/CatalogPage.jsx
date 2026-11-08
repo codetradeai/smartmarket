@@ -11,6 +11,8 @@ import logoCarrefour from "../../logo/logo-carrefour.png";
 import logoRissul from "../../logo/logo-rissul,.png";
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
 import logoMaster from "../../logo/mastersupermercados-logo.png";
+import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
+import { urlPublica } from "../utils/urlPublica"
 
 const MARKET_LOGOS = {
   fort: logoFort,
@@ -57,77 +59,77 @@ const C = {
 // Mapeamento visual autêntico das categorias com banners verticais temáticos (253x453 do Asun e Fort)
 const CATEGORY_META = {
   graos: {
-    bannerVertical: "/images/categorias/banner_vertical_graos.jpg",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_graos.jpg"),
     subtitulo: "Arroz gaúcho, feijões nobres, farinhas e grãos essenciais",
     cor: "#00863F",
   },
   leites: {
-    bannerVertical: "/images/categorias/banner_vertical_laticinios.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_laticinios.webp"),
     subtitulo: "Leites UHT integrais e desnatados, queijos e derivados",
     cor: "#1A63B9",
   },
   oleos: {
-    bannerVertical: "/images/categorias/banner_vertical_oleos.jpg",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_oleos.jpg"),
     subtitulo: "Óleos de soja, azeites de oliva extravirgem e vinagres",
     cor: "#D97706",
   },
   cafe: {
-    bannerVertical: "/images/categorias/banner_vertical_matinais.png",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_matinais.png"),
     subtitulo: "Cafés tradicionais e torrados, chás e achocolatados",
     cor: "#78350F",
   },
   bebidas: {
-    bannerVertical: "/images/categorias/banner_vertical_bebidas.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_bebidas.webp"),
     subtitulo: "Refrigerantes, sucos, cervejas e águas minerais",
     cor: "#2563EB",
   },
   carnes: {
-    bannerVertical: "/images/categorias/banner_vertical_carnes.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_carnes.webp"),
     subtitulo: "Cortes bovinos nobres, aves e linguiças selecionadas",
     cor: "#DC2626",
   },
   higiene: {
-    bannerVertical: "/images/categorias/banner_vertical_higiene.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_higiene.webp"),
     subtitulo: "Itens de higiene pessoal, sabonetes, xampus e cremes dentais",
     cor: "#0D9488",
   },
   biscoitos: {
-    bannerVertical: "/images/categorias/banner_vertical_biscoitos.png",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_biscoitos.png"),
     subtitulo: "Biscoitos doces, salgados, wafers e chocolates",
     cor: "#EA580C",
   },
   mercearia: {
-    bannerVertical: "/images/categorias/banner_vertical_mercearia.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_mercearia.webp"),
     subtitulo: "Molhos, massas, condimentos, conservas e itens de despensa",
     cor: "#4B5563",
   },
   hortifruti: {
-    bannerVertical: "/images/categorias/banner_vertical_hortifruti.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_hortifruti.webp"),
     subtitulo: "Frutas frescas, legumes, verduras e produtos da horta",
     cor: "#16A34A",
   },
   limpeza: {
-    bannerVertical: "/images/categorias/banner_vertical_limpeza.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_limpeza.webp"),
     subtitulo: "Detergentes, sabão em pó, desinfetantes e alvejantes",
     cor: "#0284C7",
   },
   padaria: {
-    bannerVertical: "/images/categorias/banner_vertical_padaria.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_padaria.webp"),
     subtitulo: "Pães frescos, bolos, tortas, doces e salgados",
     cor: "#D97706",
   },
   congelados: {
-    bannerVertical: "/images/categorias/banner_vertical_congelados.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_congelados.webp"),
     subtitulo: "Pizzas, hambúrgueres e pratos prontos congelados",
     cor: "#0284C7",
   },
   petshop: {
-    bannerVertical: "/images/categorias/banner_vertical_petshop.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_petshop.webp"),
     subtitulo: "Rações balanceadas, petiscos e cuidados para pets",
     cor: "#059669",
   },
   bazar: {
-    bannerVertical: "/images/categorias/banner_vertical_bazar.webp",
+    bannerVertical: urlPublica("/images/categorias/banner_vertical_bazar.webp"),
     subtitulo: "Panelas, utilidades domésticas e descartáveis",
     cor: "#475569",
   },
@@ -267,23 +269,6 @@ function IconChevronRight() {
 // -----------------------------------------------------------------------------
 // Mapeamento visual estilo Master Supermercados (Badges circulares verdes + composição fotográfica)
 // -----------------------------------------------------------------------------
-const MASTER_CATEGORY_CAROUSEL = [
-  { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
-  { id: "hortifruti", label: "Hortifrúti", img: "/images/categorias/master/hortifruti.png", icon: "🍎" },
-  { id: "carnes", label: "Carnes", img: "/images/categorias/master/carnes.png", icon: "🥩" },
-  { id: "padaria", label: "Padaria", img: "/images/categorias/master/padaria.png", icon: "🥖" },
-  { id: "leites", label: "Frios e Laticínios", img: "/images/categorias/master/leites.png", icon: "🥛" },
-  { id: "bebidas", label: "Bebidas", img: "/images/categorias/master/bebidas.png", icon: "🍺" },
-  { id: "congelados", label: "Congelados", img: "/images/categorias/master/congelados.png", icon: "🧊" },
-  { id: "graos", label: "Grãos e Arroz", img: "/images/categorias/master/graos.png", icon: "🌾" },
-  { id: "cafe", label: "Café e Matinais", img: "/images/categorias/master/cafe.png", icon: "☕" },
-  { id: "limpeza", label: "Limpeza", img: "/images/categorias/master/limpeza.png", icon: "🧹" },
-  { id: "higiene", label: "Higiene", img: "/images/categorias/master/higiene.png", icon: "🧴" },
-  { id: "oleos", label: "Óleos e Azeites", img: "/images/categorias/master/oleos.png", icon: "🫙" },
-  { id: "biscoitos", label: "Biscoitos", img: "/images/categorias/master/biscoitos.png", icon: "🍪" },
-  { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
-  { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
-];
 
 function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
   const scrollRef = useRef(null);
@@ -336,7 +321,7 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
         ref={scrollRef}
         className="flex items-start justify-between gap-4 sm:gap-6 md:gap-7 overflow-x-auto no-scrollbar scroll-smooth py-1.5 px-3"
       >
-        {MASTER_CATEGORY_CAROUSEL.map((cat) => {
+        {CATEGORIAS_VISUAIS.map((cat) => {
           const isActive = selectedCat === cat.id;
           return (
             <button
@@ -482,7 +467,6 @@ function ProductCard({
   onOpenDetail,
   isShelf = false,
 }) {
-  const [justAdded, setJustAdded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
 
@@ -498,8 +482,6 @@ function ProductCard({
   function handleAddClick(e) {
     e.stopPropagation();
     onAdd(product);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1200);
   }
 
   function handleIncrement(e) {
@@ -650,13 +632,9 @@ function ProductCard({
               <button
                 type="button"
                 onClick={handleAddClick}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
-                  justAdded
-                    ? "bg-emerald-600 text-white"
-                    : "bg-brand-green text-white hover:bg-brand-green-hover hover:shadow-md active:scale-98"
-                }`}
+                className="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer bg-brand-green text-white hover:bg-brand-green-hover hover:shadow-md active:scale-98"
               >
-                {justAdded ? <>✓ Adicionado à Lista!</> : <>+ Adicionar à Minha Lista</>}
+                + Adicionar à Minha Lista
               </button>
             )}
           </div>
@@ -824,19 +802,9 @@ function ProductCard({
             <button
               type="button"
               onClick={handleAddClick}
-              className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
-                justAdded
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gradient-to-r from-brand-green to-brand-teal text-white hover:opacity-95 hover:shadow-md active:scale-98"
-              }`}
+              className="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer bg-gradient-to-r from-brand-green to-brand-teal text-white hover:opacity-95 hover:shadow-md active:scale-98"
             >
-              {justAdded ? (
-                <>✓ Adicionado!</>
-              ) : (
-                <>
-                  <IconCart /> Adicionar
-                </>
-              )}
+              <IconCart /> Adicionar
             </button>
           )}
         </div>
@@ -1351,7 +1319,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
               </div>
 
               <a
-                href="/list"
+                href={urlPublica("/list")}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-green to-brand-teal text-white text-xs font-bold shadow-sm hover:shadow-md transition-all shrink-0"
               >
                 <IconCart />

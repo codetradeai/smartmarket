@@ -302,6 +302,24 @@ describe('FavoritesPage', () => {
       expect(campoPrecoAlvo()).toHaveValue(20.61)
     })
 
+    it('o configurador da aba de alertas sugere o mesmo preco alvo do modal (10% abaixo do menor preco)', async () => {
+      await renderizar()
+      fireEvent.click(abaAlertas())
+
+      // Arroz Branco Tipo 1: menor preco 22,90 -> 20,61 (antes o configurador sugeria 21,07, 8%).
+      expect(screen.getByPlaceholderText('Ex: 15.90')).toHaveValue(20.61)
+    })
+
+    it('ao trocar de produto no configurador, o preco alvo sugerido tambem e 10% abaixo', async () => {
+      await renderizar()
+      fireEvent.click(abaAlertas())
+
+      fireEvent.click(screen.getByRole('button', { name: /Feijão Carioca/ }))
+
+      // Feijão Carioca: menor preço 7,89 -> 7,10 (antes da correção a troca sugeria 8%: 7,26).
+      expect(screen.getByPlaceholderText('Ex: 15.90')).toHaveValue(7.1)
+    })
+
     it('salva o alerta, mostra no cartao, conta na aba de alertas e grava no navegador', async () => {
       await renderizar()
       abrirModalDeAlerta()

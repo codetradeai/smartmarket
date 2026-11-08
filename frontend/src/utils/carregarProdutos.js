@@ -1,7 +1,10 @@
+import { reescreverUrlsDeAssets } from "./urlAssets"
+
 /**
  * Carrega o catálogo como arquivo estático (public/catalogo/produtos.<hash>.json, gerado de src/data.js por
- * scripts/gerar-catalogo-json.mjs) via fetch(). Os frames do 360° ficam fora dele, em um JSON por produto,
- * e só são baixados quando alguém abre ou passa o mouse num produto 360° (carregarFrames).
+ * scripts/gerar-catalogo-json.mjs) via fetch(), ou de VITE_CATALOGO_URL quando definida.
+ * Os frames do 360° ficam fora dele, em um JSON por produto, e só são baixados quando alguém abre ou passa o mouse
+ * num produto 360° (carregarFrames).
  * As promessas ficam em cache; se a carga falhar, o cache é limpo e uma nova chamada tenta de novo.
  */
 // __CATALOGO_VERSAO__ é injetado pelo Vite (vite.config.js) a partir do manifesto gerado no prebuild.
@@ -19,15 +22,27 @@ function buscarJson(url) {
   })
 }
 
+function obterUrlCatalogo() {
+  if (typeof process !== "undefined" && process.env?.VITE_CATALOGO_URL) {
+    return process.env.VITE_CATALOGO_URL
+  }
+  if (typeof import.meta !== "undefined" && import.meta.env?.VITE_CATALOGO_URL) {
+    return import.meta.env.VITE_CATALOGO_URL
+  }
+  return URL_PRODUTOS
+}
+
 let promessaProdutos = null
 const promessasFrames = new Map()
 
 export function carregarProdutos() {
   if (!promessaProdutos) {
-    promessaProdutos = buscarJson(URL_PRODUTOS).catch((erro) => {
-      promessaProdutos = null
-      throw erro
-    })
+    promessaProdutos = buscarJson(obterUrlCatalogo())
+      .then(reescreverUrlsDeAssets)
+      .catch((erro) => {
+        promessaProdutos = null
+        throw erro
+      })
   }
   return promessaProdutos
 }

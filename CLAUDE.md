@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 SmartMarket é um comparador de preços de supermercados do RS (Grupo 40, Trilha Dev Full Stack 2026). Monorepo com três partes independentes que se comunicam via PostgreSQL e API REST:
 
 - `frontend/` — React 19 + Vite + Tailwind v4 (SPA, servida por Nginx em produção)
-- `backend/` — Spring Boot 3.4 / Java 17 (API REST, JPA, JWT)
+- `backend/` — Spring Boot 4.0 / Java 17 (API REST, JPA, JWT)
 - `scraper/` — Python: coletores por rede, normalização e carga no PostgreSQL
 - `docs/` — documentação técnica, modelagem ER, cenários de teste; `output/` guarda dados coletados
 
@@ -26,7 +26,7 @@ npm test -- -t "nome do teste"                  # um único teste
 npm run test:watch
 npm run test:coverage  # falha se a cobertura global ficar abaixo de 70%
 ```
-A URL da API vem de `VITE_API_URL` (padrão `http://localhost:8080/api`).
+A URL da API vem de `VITE_API_URL` (padrão `http://localhost:8080/api`). Outras variáveis de build (todas opcionais; sem elas nada muda no dev local, Docker e testes): `VITE_BASE` (base do app, `/smartmarket/` no GitHub Pages), `VITE_ASSETS_BASE_URL` (fotos de produtos no bucket do Neon) e `VITE_CATALOGO_URL` (catálogo em JSON no bucket). Caminhos de `frontend/public` escritos à mão (`/images/...`, `/video/...`) devem passar por `urlPublica` (`src/utils/urlPublica.js`) para respeitar a base. Deploy do front: `docs/DEPLOY-PAGES.md`; fotos e catálogo: `docs/ASSETS-NEON.md`.
 
 Testes: o runner único é **Jest + React Testing Library** (decisão do grupo, ver `docs/TESTES.md`). Configuração em `jest.config.cjs` (jsdom, setup em `jest/setupTests.cjs`) e `babel.config.cjs`. Use as globais do Jest (`describe`/`it`/`expect`) e `jest.fn`/`jest.mock`/`jest.useFakeTimers`; não importe de `vitest`. Testes que importam o `data.js` real (32 MB) devem usar a fixture: `jest.mock('../data', () => require('../test/dataFixture'))`. No Windows, se o caminho tiver `&`, rode `node node_modules/jest/bin/jest.js` em vez de `npm test`.
 
@@ -76,5 +76,20 @@ Camadas clássicas: `controller` → `service` → `repository` (Spring Data JPA
 - Páginas em `pages/` (Home, Catalog, Favorites, ShoppingList, Admin, Auth, Sobre). Visitantes veem a home com apresentação; busca e comparador direcionam ao cadastro. Componentes de UI base em `components/ui`; guia visual em `frontend/DESIGN-SYSTEM.md`.
 
 ## Convenções
-- Branches: `feature/nome-da-tarefa` a partir de `main`; PR com revisão antes do merge (template em `.github/pull_request_template.md`).
+- Branches: `feature/nome-da-tarefa` a partir de `main` (também valem os prefixos `feat/`, `fix/`, `docs/`, `chore/`, `ci/` e `perf/`); PR com revisão antes do merge (template em `.github/pull_request_template.md`).
 - `login/`, `output/` e `frontend/templates/` não são código da aplicação (artefatos/protótipos).
+- Comentários de bots nas PRs (ECC Tools, Vercel): veja `docs/COMENTARIOS-DE-BOTS.md` para saber quais olhar e quais ignorar.
+
+## Agent skills
+
+### Issue tracker
+
+As issues ficam no GitHub Issues de `smartmarket-team/smartmarket` (CLI `gh`). Veja `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Vocabulário padrão: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. Veja `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` e `docs/adr/` na raiz, criados sob demanda. Veja `docs/agents/domain.md`.

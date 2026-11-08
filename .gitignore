@@ -68,6 +68,9 @@ web_modules/
 # dotenv environment variable files
 .env
 .env.*
+.env.local
+.env.*.local
+.env.production
 !.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -155,3 +158,8 @@ frontend/templates/**/*.zip
 docs/auditoria-interna.md
 .claude/settings.local.json
 graphify-out/
+
+.neon
+
+# Material de dev pessoal (fica so na maquina de cada pessoa)
+.ai/

@@ -34,7 +34,7 @@ function parseJwt(token) {
 function isTokenValid(token) {
   if (!token) return false
   const payload = parseJwt(token)
-  if (!payload || !payload.exp) return true
+  if (!payload || !payload.exp) return false
   return payload.exp * 1000 > Date.now()
 }
 
@@ -97,7 +97,9 @@ export function AuthProvider({ children }) {
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
       let message = "Falha ao realizar login. Verifique seu e-mail e senha."
-      if (error.response?.data) {
+      if (error.userMessage) {
+        message = error.userMessage
+      } else if (error.response?.data) {
         const data = error.response.data
         if (typeof data.erro === "string") {
           message = data.erro
@@ -144,7 +146,9 @@ export function AuthProvider({ children }) {
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
       let message = "Falha ao cadastrar. Tente novamente com outro e-mail."
-      if (error.response?.data) {
+      if (error.userMessage) {
+        message = error.userMessage
+      } else if (error.response?.data) {
         const data = error.response.data
         if (typeof data.erro === "string") {
           message = data.erro

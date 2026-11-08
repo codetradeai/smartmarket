@@ -28,6 +28,8 @@ export function Product360HoverPreview({
   const has360 = Boolean(product?.recursosVisuais?.has360)
 
   const [currentFrame, setCurrentFrame] = useState(0)
+  // Quadro externo bloqueado ou fora do ar: volta para a imagem estática (que tem placeholder próprio).
+  const [frameFalhou, setFrameFalhou] = useState(false)
   const [isInternalHover, setIsInternalHover] = useState(false)
   const isHovered = isCardHovered || isInternalHover
   const frames = useFramesDoProduto(product, isHovered)
@@ -83,7 +85,7 @@ export function Product360HoverPreview({
   }, [isHovered, has360, totalFrames, fps])
 
   // Se o produto não possuir 360° autêntico, exibe a imagem convencional da galeria
-  if (!has360) {
+  if (!has360 || frameFalhou) {
     return (
       <ProductImage
         src={staticSrc}
@@ -109,6 +111,7 @@ export function Product360HoverPreview({
         src={activeSrc}
         alt={alt}
         draggable={false}
+        onError={() => setFrameFalhou(true)}
         className="w-full h-full object-contain p-2 transition-transform duration-200 group-hover:scale-105 pointer-events-none"
       />
 

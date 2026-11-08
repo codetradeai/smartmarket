@@ -1,5 +1,6 @@
 import axios from "axios"
 import { limparDadosPrivados } from "./storageKeys"
+import { urlPublica } from "../utils/urlPublica"
 
 // Base URL da API:
 // 1. VITE_API_URL, quando definida no build (backend em outro dominio).
@@ -51,9 +52,15 @@ api.interceptors.response.use(
       limparDadosPrivados()
 
       // Redireciona para o login apenas se não estiver já na página de autenticação
-      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
-        window.location.href = "/auth?mode=login&expired=true"
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith(urlPublica("/auth"))) {
+        window.location.href = urlPublica("/auth?mode=login&expired=true")
       }
+    }
+
+    if (status === 403) {
+      // Sem permissao para o recurso: a sessao continua valida, entao nao desloga.
+      // A mensagem fica disponivel para quem exibir o erro.
+      error.userMessage = "Você não tem permissão para acessar este recurso."
     }
 
     return Promise.reject(error)

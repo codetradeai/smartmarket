@@ -26,26 +26,11 @@ import {
 import { MARKETS, TOTAIS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
+import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
+import { urlPublica } from "../utils/urlPublica"
 
 const SEM_PRODUTOS = []
 
-const SECTOR_BANNERS = [
-  { id: "todos", label: "Todos", img: "/images/categorias/master/todos.png", icon: "🏪" },
-  { id: "hortifruti", label: "Hortifrúti", img: "/images/categorias/master/hortifruti.png", icon: "🍎" },
-  { id: "carnes", label: "Carnes", img: "/images/categorias/master/carnes.png", icon: "🥩" },
-  { id: "padaria", label: "Padaria", img: "/images/categorias/master/padaria.png", icon: "🥖" },
-  { id: "leites", label: "Frios e Laticínios", img: "/images/categorias/master/leites.png", icon: "🥛" },
-  { id: "bebidas", label: "Bebidas", img: "/images/categorias/master/bebidas.png", icon: "🍺" },
-  { id: "congelados", label: "Congelados", img: "/images/categorias/master/congelados.png", icon: "🧊" },
-  { id: "graos", label: "Grãos e Arroz", img: "/images/categorias/master/graos.png", icon: "🌾" },
-  { id: "cafe", label: "Café e Matinais", img: "/images/categorias/master/cafe.png", icon: "☕" },
-  { id: "limpeza", label: "Limpeza", img: "/images/categorias/master/limpeza.png", icon: "🧹" },
-  { id: "higiene", label: "Higiene", img: "/images/categorias/master/higiene.png", icon: "🧴" },
-  { id: "oleos", label: "Óleos e Azeites", img: "/images/categorias/master/oleos.png", icon: "🫙" },
-  { id: "biscoitos", label: "Biscoitos", img: "/images/categorias/master/biscoitos.png", icon: "🍪" },
-  { id: "mercearia", label: "Mercearia", img: "/images/categorias/master/mercearia.png", icon: "🛒" },
-  { id: "bazar", label: "Bazar", img: "/images/categorias/master/bazar.png", icon: "🍽️" },
-]
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
 // Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por produto distinto (rede + id de origem).
@@ -199,11 +184,44 @@ export function Home() {
   }, [PRODUCTS, searchTerm, selectedCategory, selectedMarket])
 
   const heroVideoRef = useRef(null)
+  // O vídeo do hero (1,8 MB) só é pedido depois da primeira renderização e com a janela ociosa:
+  // até lá a página mostra o poster. Quem prefere menos movimento ou usa economia de dados não baixa.
+  const [heroVideoSrc, setHeroVideoSrc] = useState(undefined)
 
   useEffect(() => {
-    const video = heroVideoRef.current
-    if (!video) return undefined
     if (typeof window === "undefined" || !window.matchMedia) return undefined
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)")
+    if (media?.matches || navigator.connection?.saveData) return undefined
+
+    let cancelado = false
+    let idle
+    const liberar = () => {
+      if (!cancelado) setHeroVideoSrc(urlPublica("/video/hero.mp4"))
+    }
+    const agendar = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idle = window.requestIdleCallback(liberar, { timeout: 3000 })
+      } else {
+        idle = window.setTimeout(liberar, 1500)
+      }
+    }
+    if (document.readyState === "complete") agendar()
+    else window.addEventListener("load", agendar, { once: true })
+
+    return () => {
+      cancelado = true
+      window.removeEventListener("load", agendar)
+      if (idle !== undefined) {
+        if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idle)
+        else window.clearTimeout(idle)
+      }
+    }
+  }, [])
+
+  // Pausa/retoma o vídeo se a preferência de movimento mudar com a página aberta.
+  useEffect(() => {
+    const video = heroVideoRef.current
+    if (!video || !heroVideoSrc || typeof window === "undefined" || !window.matchMedia) return undefined
     const media = window.matchMedia("(prefers-reduced-motion: reduce)")
     const apply = () => {
       if (media?.matches) {
@@ -215,7 +233,7 @@ export function Home() {
     apply()
     media?.addEventListener?.("change", apply)
     return () => media?.removeEventListener?.("change", apply)
-  }, [])
+  }, [heroVideoSrc])
 
   // Sugestões de busca rápida
   const quickSearchTags = ["Café Melitta", "Arroz", "Azeite", "Leite", "Cerveja"]
@@ -364,13 +382,13 @@ export function Home() {
             <video
               ref={heroVideoRef}
               className="sm-hero-video"
-              src="/video/hero.mp4"
-              poster="/video/hero-poster.jpg"
+              src={heroVideoSrc}
+              poster={urlPublica("/video/hero-poster.jpg")}
               muted
               autoPlay
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               aria-label="No caixa, o cupom assusta. Em seguida, a lista é comparada no SmartMarket."
             />
           </div>
@@ -506,7 +524,7 @@ export function Home() {
           {/* Banners Visuais dos Setores (Sem "Todos" aberto de cara para incentivar o clique no setor) */}
           <div className="bg-white rounded-2xl border border-brand-border/80 p-3 sm:p-4 shadow-2xs">
             <div className="flex items-start justify-between gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2">
-              {SECTOR_BANNERS.filter((cat) => cat.id !== "todos").map((cat) => {
+              {CATEGORIAS_VISUAIS.filter((cat) => cat.id !== "todos").map((cat) => {
                 const isActive = selectedCategory === cat.id
                 return (
                   <button

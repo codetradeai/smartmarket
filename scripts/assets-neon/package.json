@@ -1,0 +1,16 @@
+{
+  "name": "smartmarket-assets-neon",
+  "private": true,
+  "type": "module",
+  "description": "Gera o catálogo em JSON e envia fotos + catálogo ao Object Storage da Neon",
+  "scripts": {
+    "catalogo": "node gerar-catalogo.mjs",
+    "enviar": "node enviar.mjs",
+    "simular": "node enviar.mjs --simular"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1164.0",
+    "@smithy/node-http-handler": "^4.14.2",
+    "https-proxy-agent": "^9.1.0"
+  }
+}

@@ -131,6 +131,70 @@ describe('FavoritesPage', () => {
       expect(lerLocal('sm_fav_markets')).toEqual(['big'])
     })
 
+    // Achado 40: a resposta do servidor (que pode demorar com a API fria) trazia a foto antiga dos
+    // favoritos e sobrescrevia o que o usuario fez enquanto esperava.
+    describe('acoes feitas enquanto a carga do servidor esta pendente', () => {
+      const pendente = () => {
+        let resolver
+        const promessa = new Promise((resolve) => {
+          resolver = resolve
+        })
+        return { promessa, resolver }
+      }
+
+      it('nao desfaz um produto removido durante a carga', async () => {
+        const { promessa, resolver } = pendente()
+        favoritoService.listarProdutos.mockReturnValue(promessa)
+        await renderizar()
+
+        fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos'))
+        expect(lerLocal('sm_fav_products')).toEqual(['p3', 'p9', 'p17'])
+
+        // O servidor responde com a lista antiga, ainda contendo p1.
+        await act(async () => {
+          resolver(['p1', 'p3', 'p9', 'p17'])
+        })
+
+        expect(screen.queryByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).not.toBeInTheDocument()
+        expect(resumo()).toHaveTextContent('3 produtos · 0 alertas ativos')
+        expect(lerLocal('sm_fav_products')).toEqual(['p3', 'p9', 'p17'])
+      })
+
+      it('mantem um mercado favoritado durante a carga mesmo que o servidor nao o conheca', async () => {
+        const { promessa, resolver } = pendente()
+        favoritoService.listarMercados.mockReturnValue(promessa)
+        await renderizar()
+        fireEvent.click(abaMercados())
+
+        fireEvent.click(screen.getByTitle('Favoritar mercado'))
+        expect(lerLocal('sm_fav_markets')).toEqual(['fort', 'carrefour', 'big'])
+
+        await act(async () => {
+          resolver([{ mercadoId: 'fort' }, { mercadoId: 'carrefour' }])
+        })
+
+        expect(lerLocal('sm_fav_markets')).toEqual(['fort', 'carrefour', 'big'])
+        expect(screen.getAllByRole('button', { name: '★ Favoritado' })).toHaveLength(3)
+      })
+
+      it('nao desfaz um mercado desfavoritado durante a carga', async () => {
+        const { promessa, resolver } = pendente()
+        favoritoService.listarMercados.mockReturnValue(promessa)
+        await renderizar()
+        fireEvent.click(abaMercados())
+
+        fireEvent.click(screen.getAllByRole('button', { name: '★ Favoritado' })[0])
+        expect(lerLocal('sm_fav_markets')).toEqual(['carrefour'])
+
+        await act(async () => {
+          resolver([{ mercadoId: 'fort' }, { mercadoId: 'carrefour' }])
+        })
+
+        expect(lerLocal('sm_fav_markets')).toEqual(['carrefour'])
+        expect(screen.getAllByRole('button', { name: '★ Favoritado' })).toHaveLength(1)
+      })
+    })
+
     it.each([
       ['devolve listas vazias', () => {}],
       ['falha', () => favoritoService.listarMercados.mockRejectedValue(new Error('offline'))],

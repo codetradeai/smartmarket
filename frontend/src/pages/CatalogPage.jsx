@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { CATEGORIES, MARKETS as DEFAULT_MARKETS } from "../catalogoResumo";
 import ComCatalogo from "../components/ComCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
-import { ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui";
+import { ProductDetailModal, Product360HoverPreview } from "../components/ui";
 import logoFort from "../../logo/logo-fort.png";
 import logoAsun from "../../logo/logo-asun.png";
 import logoStok from "../../logo/logo-stok.png";
@@ -14,6 +14,7 @@ import logoMaster from "../../logo/mastersupermercados-logo.png";
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { mesclarCatalogo } from "../utils/mesclarCatalogo"
 import { urlPublica } from "../utils/urlPublica"
+import { aplicarAlteracoes, criarRegistroDeAlteracoes, registrarAlteracao } from "../utils/alteracoesFavoritos"
 
 const MARKET_LOGOS = {
   fort: logoFort,
@@ -1009,6 +1010,9 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
       return [];
     }
   });
+  // Ações de favoritar feitas enquanto a carga inicial dos favoritos ainda não respondeu
+  const alteracoesProdutosRef = useRef(criarRegistroDeAlteracoes());
+  const alteracoesMercadosRef = useRef(criarRegistroDeAlteracoes());
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [visibleLimit, setVisibleLimit] = useState(48);
 
@@ -1038,15 +1042,27 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           setProducts(mesclarCatalogo(DEFAULT_PRODUCTS, prodsData));
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
+        // A resposta pode demorar (API fria): o que o usuário favoritou/desfavoritou nesse
+        // intervalo é reaplicado por cima dela, em vez de ser desfeito.
         if (Array.isArray(favMktsData)) {
           // Favoritos de mercado sempre como texto: o favoritoService devolve "1" e a API de
           // mercados devolve id numérico (1).
-          setFavMarkets(favMktsData.map((f) => String(f.mercadoId || f.id || f)));
+          setFavMarkets(
+            aplicarAlteracoes(
+              favMktsData.map((f) => String(f.mercadoId || f.id || f)),
+              alteracoesMercadosRef.current
+            )
+          );
         }
         if (Array.isArray(favProdsData)) {
           // Favoritos de produto sempre como texto (igual ao localStorage e a toggleFavProduct):
           // ids da API são numéricos e "10" !== 10.
-          setFavProducts(favProdsData.map((f) => String(f.produtoId || f.id || f)));
+          setFavProducts(
+            aplicarAlteracoes(
+              favProdsData.map((f) => String(f.produtoId || f.id || f)),
+              alteracoesProdutosRef.current
+            )
+          );
         }
       } catch {
         // Fallback mantém DEFAULT_PRODUCTS e DEFAULT_MARKETS
@@ -1062,6 +1078,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     const idStr = String(id);
     const isFav = favProducts.includes(idStr);
     const next = isFav ? favProducts.filter((f) => f !== idStr) : [...favProducts, idStr];
+    registrarAlteracao(alteracoesProdutosRef.current, idStr, !isFav);
     setFavProducts(next);
     try {
       localStorage.setItem("sm_fav_products", JSON.stringify(next));
@@ -1080,6 +1097,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     const idStr = String(id);
     const isFav = favMarkets.includes(idStr);
     const next = isFav ? favMarkets.filter((f) => f !== idStr) : [...favMarkets, idStr];
+    registrarAlteracao(alteracoesMercadosRef.current, idStr, !isFav);
     setFavMarkets(next);
     try {
       if (isFav) await favoritoService.desfavoritarMercado(id);

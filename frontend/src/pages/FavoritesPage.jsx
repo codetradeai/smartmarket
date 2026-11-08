@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useContext } from "react"
 import { Link } from "react-router-dom"
 import { AuthContext } from "../contexts/AuthContext"
-import { MARKETS, CATEGORIES } from "../catalogoResumo"
+import { MARKETS } from "../catalogoResumo"
 import ComCatalogo from "../components/ComCatalogo"
 import { Button, Input, Card, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter, ProductImage, ProductDetailModal, Product360HoverPreview } from "../components/ui"
 import { favoritoService } from "../services"
+import { aplicarAlteracoes, criarRegistroDeAlteracoes, registrarAlteracao } from "../utils/alteracoesFavoritos"
 import logoFort from "../../logo/logo-fort.png"
 import logoAsun from "../../logo/logo-asun.png"
 import logoStok from "../../logo/logo-stok.png"
@@ -233,6 +234,10 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
   const [toastMessage, setToastMessage] = useState("")
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const sectorScrollRef = useRef(null)
+  // O que o usuário favoritou/desfavoritou enquanto a carga do servidor ainda não respondeu;
+  // reaplicado por cima da resposta para ela não desfazer essas ações.
+  const alteracoesProdutosRef = useRef(criarRegistroDeAlteracoes())
+  const alteracoesMercadosRef = useRef(criarRegistroDeAlteracoes())
 
   // Estados do Configurador Inline de Alertas de Preço (na aba Alertas)
   const [alertSearchQuery, setAlertSearchQuery] = useState("")
@@ -259,12 +264,18 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
           favoritoService.listarProdutos(),
         ])
         if (Array.isArray(mkts) && mkts.length > 0) {
-          const normMkts = mkts.map((m) => String(m.mercadoId || m.id || m))
+          const normMkts = aplicarAlteracoes(
+            mkts.map((m) => String(m.mercadoId || m.id || m)),
+            alteracoesMercadosRef.current
+          )
           setFavMarketIds(normMkts)
           saveFavMarkets(normMkts)
         }
         if (Array.isArray(prods) && prods.length > 0) {
-          const normalized = prods.map((p) => String(p.produtoId || p.id || p))
+          const normalized = aplicarAlteracoes(
+            prods.map((p) => String(p.produtoId || p.id || p)),
+            alteracoesProdutosRef.current
+          )
           setFavProductIds(normalized)
           saveFavProducts(normalized)
         }
@@ -297,6 +308,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
       updated = [...favProductIds, idStr]
       showToast("Produto adicionado aos favoritos!")
     }
+    registrarAlteracao(alteracoesProdutosRef.current, idStr, !isFav)
     setFavProductIds(updated)
     saveFavProducts(updated)
 
@@ -314,6 +326,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
     const updated = isFav
       ? favMarketIds.filter((mId) => mId !== idStr)
       : [...favMarketIds, idStr]
+    registrarAlteracao(alteracoesMercadosRef.current, idStr, !isFav)
     setFavMarketIds(updated)
     saveFavMarkets(updated)
     showToast(isFav ? "Mercado removido dos favoritos." : "Mercado adicionado aos seus favoritos!")
@@ -359,6 +372,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
 
     if (!favProductIds.includes(prodId)) {
       const nextFavs = [...favProductIds, prodId]
+      registrarAlteracao(alteracoesProdutosRef.current, prodId, true)
       setFavProductIds(nextFavs)
       saveFavProducts(nextFavs)
       favoritoService.favoritarProduto(prodId).catch(() => {})

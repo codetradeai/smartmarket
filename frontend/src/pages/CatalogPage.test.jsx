@@ -345,6 +345,70 @@ describe('CatalogPage', () => {
       expect(favoritoService.desfavoritarProduto).toHaveBeenCalledWith('p1')
     })
 
+    // Achado 40: a resposta do servidor (lenta com a API fria) sobrescrevia os favoritos que o
+    // usuario mexeu enquanto esperava.
+    describe('acoes feitas enquanto a carga dos favoritos esta pendente', () => {
+      async function renderizarComFavoritosPendentes() {
+        // mercados: [] mantem as redes padrao (ids em texto, como "fort"), que nao mudam ao fim da carga
+        configurarServicos({ mercados: [] })
+        let resolverProdutos
+        let resolverMercados
+        favoritoService.listarProdutos.mockReturnValue(new Promise((r) => { resolverProdutos = r }))
+        favoritoService.listarMercados.mockReturnValue(new Promise((r) => { resolverMercados = r }))
+        render(<CatalogPage />)
+        fireEvent.click(await screen.findByRole('button', { name: 'Grade' }))
+        return { resolverProdutos, resolverMercados }
+      }
+
+      it('nao desfaz um produto desfavoritado durante a carga', async () => {
+        localStorage.setItem('sm_fav_products', JSON.stringify(['p1']))
+        const { resolverProdutos, resolverMercados } = await renderizarComFavoritosPendentes()
+        await act(async () => {
+          fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos'))
+        })
+        // p1 ja estava salvo no navegador (coracao marcado) e o clique o removeu
+        expect(within(cartaoDe('Arroz Branco Tipo 1')).queryByTitle('Remover dos favoritos')).toBeNull()
+
+        await act(async () => {
+          resolverProdutos(['p1', 'p3'])
+          resolverMercados([])
+        })
+
+        expect(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Salvar nos favoritos')).toBeInTheDocument()
+        expect(within(cartaoDe('Feijão Carioca')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+      })
+
+      it('nao desfaz um produto favoritado durante a carga mesmo que o servidor nao o conheca', async () => {
+        const { resolverProdutos, resolverMercados } = await renderizarComFavoritosPendentes()
+        await act(async () => {
+          fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Salvar nos favoritos'))
+        })
+
+        await act(async () => {
+          resolverProdutos(['p3'])
+          resolverMercados([])
+        })
+
+        expect(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+        expect(within(cartaoDe('Feijão Carioca')).getByTitle('Remover dos favoritos')).toBeInTheDocument()
+      })
+
+      it('nao desfaz uma rede favoritada durante a carga', async () => {
+        const { resolverProdutos, resolverMercados } = await renderizarComFavoritosPendentes()
+        await act(async () => {
+          fireEvent.click(screen.getByTitle('Favoritar rede Fort Atacadista'))
+        })
+
+        await act(async () => {
+          resolverProdutos([])
+          resolverMercados(['carrefour'])
+        })
+
+        expect(screen.getByTitle('Fort Atacadista favoritado (clique para remover)')).toBeInTheDocument()
+        expect(screen.getByTitle('Carrefour favoritado (clique para remover)')).toBeInTheDocument()
+      })
+    })
+
     it('mostra como favorito o produto que ja veio favoritado do servidor', async () => {
       await renderizar({ favProdutos: ['p9'] }, { grade: true })
 

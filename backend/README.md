@@ -1,6 +1,6 @@
 # SmartMarket Backend
 
-API REST em Spring Boot 3 / Java 17.
+API REST em Spring Boot 4 / Java 17. Publicação em produção (Render + Neon): [`DEPLOY.md`](DEPLOY.md).
 
 ## Variáveis de ambiente obrigatórias
 

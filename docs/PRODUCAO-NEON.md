@@ -1,7 +1,7 @@
-# Produção: Neon (banco) + backend + Vercel (frontend)
+# Produção: Neon (banco) + backend (Render) + frontend (GitHub Pages)
 
 Passo a passo curto. Detalhes e justificativas em `backend/DEPLOY.md` e
-`docs/PLANO-DEPLOY-VERCEL.md`. **Nunca** cole valores reais (senhas, tokens,
+`docs/DEPLOY-PAGES.md`. **Nunca** cole valores reais (senhas, tokens,
 connection strings) em arquivos versionados, issues ou PRs: abaixo só há
 placeholders.
 
@@ -49,7 +49,7 @@ que `application.properties` e `application-prod.properties` realmente leem:
 | `SPRING_DATASOURCE_USERNAME` | `<USUARIO>` | Secret |
 | `SPRING_DATASOURCE_PASSWORD` | `<SENHA>` | Secret |
 | `SMARTMARKET_JWT_SECRET` | 32+ caracteres aleatórios | Gere com `openssl rand -base64 48`; guarde **só** no painel do provedor |
-| `SMARTMARKET_CORS_ORIGINS` | `https://<seu-dominio-vercel>` | Origem(ns) do frontend, separadas por vírgula |
+| `SMARTMARKET_CORS_ORIGINS` | `https://smartmarket-team.github.io` | Origem(ns) do frontend, separadas por vírgula; só o domínio, sem `/smartmarket` |
 
 Opcionais, com default seguro: `SPRING_JPA_HIBERNATE_DDL_AUTO` (`validate`),
 `SPRING_SQL_INIT_MODE` (`never`; mantenha assim, pois o `data.sql` cria um ADMIN
@@ -57,18 +57,9 @@ com senha em claro), `SMARTMARKET_JWT_EXPIRATION` (86400000 ms) e `PORT` (8080).
 
 Para o backend, use a URL direta do Neon por simplicidade.
 
-## 3. O que trocar no `vercel.json`
+## 3. Ligar o frontend ao backend
 
-Em `rewrites`, substitua o placeholder pela URL pública real do backend:
-
-```json
-"destination": "https://BACKEND-SMARTMARKET-URL-AQUI/api/$1"
-```
-
-por, por exemplo, `https://<backend>.onrender.com/api/$1`. Mantenha o `/api/$1`
-no fim. Não defina `VITE_API_URL` na Vercel: o frontend usa `/api` (mesmo
-domínio) e a Vercel faz o proxy. Depois do deploy, ajuste
-`SMARTMARKET_CORS_ORIGINS` no backend para o domínio final do frontend.
+O GitHub Pages não faz proxy de `/api`. No GitHub, em *Settings > Secrets and variables > Actions > Variables*, crie `VITE_API_URL` com a URL pública do backend terminada em `/api` (ex.: `https://<backend>.onrender.com/api`) e rode o workflow "Deploy do frontend no GitHub Pages". Sem a variável o site abre, mas login, favoritos e lista falham. Detalhes em `docs/DEPLOY-PAGES.md`.
 
 ## 4. Primeiro usuário e promoção a ADMIN
 
@@ -88,8 +79,8 @@ SELECT id, nome, email, papel FROM usuario WHERE email = '<email-do-admin>';
 
 - [ ] `GET https://<backend>/api/health` retorna HTTP 200 com `{"status":"UP"}`
       (`HealthController`; o projeto não usa Actuator).
-- [ ] O mesmo pelo domínio do frontend, `GET https://<frontend>/api/health`
-      (confirma o rewrite do `vercel.json`).
+- [ ] O site `https://smartmarket-team.github.io/smartmarket/` abre e o catálogo carrega
+      (confirma `VITE_API_URL` e o bucket de fotos/catálogo).
 - [ ] `POST https://<backend>/api/auth/login` com `{"email":"...","senha":"..."}`
       retorna 200 e um token.
 - [ ] A listagem de produtos/mercados carrega no frontend (8 mercados).

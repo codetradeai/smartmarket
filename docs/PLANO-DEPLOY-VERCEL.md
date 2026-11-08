@@ -1,5 +1,7 @@
 # Plano de deploy na Vercel (proposta para validação)
 
+> **Substituído (nov/2026).** O frontend foi para o GitHub Pages e o backend para o Render; este plano fica como histórico da decisão original. Estado atual: [`DEPLOY-PAGES.md`](DEPLOY-PAGES.md), [`PRODUCAO-NEON.md`](PRODUCAO-NEON.md) e [`../backend/DEPLOY.md`](../backend/DEPLOY.md).
+
 Status: **aprovado em 01/11/2026** (João). Decisões: Vercel só com o service
 `frontend`; `/api/*` em proxy no mesmo domínio; backend ainda sem host
 (placeholder em `vercel.json`); scraper fora da Vercel; sem bindings.

@@ -120,22 +120,115 @@ REDES_CONFIG = {
 }
 
 
+# Lock sem pid legível (dono morreu entre criar e gravar, ou arquivo corrompido) só é
+# tratado como órfão depois deste tempo: um dono vivo pode estar prestes a gravar o pid.
+LOCK_SEM_PID_ORFAO_APOS_SEGUNDOS = 60
+
+
+def processo_existe(pid):
+    """True se há um processo vivo com este pid (conservador: na dúvida, True)."""
+    if pid <= 0:
+        return False
+    if os.name == "nt":
+        # os.kill(pid, 0) no Windows chama TerminateProcess: nunca usar para sondar.
+        import ctypes
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        STILL_ACTIVE = 259
+        ERROR_ACCESS_DENIED = 5
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+        if not handle:
+            return ctypes.GetLastError() == ERROR_ACCESS_DENIED
+        try:
+            codigo = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(codigo)):
+                return True
+            return codigo.value == STILL_ACTIVE
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # existe, mas é de outro usuário
+    except OSError:
+        return True
+    return True
+
+
 class LockProcesso:
-    """Controle de concorrência multiplataforma via arquivo de lock."""
+    """Controle de concorrência multiplataforma via arquivo de lock.
+
+    O arquivo guarda ``pid=<pid>``. Se o dono morrer sem liberar (SIGKILL, OOM, queda de
+    energia), o lock órfão é detectado pelo pid e recuperado na próxima execução em vez
+    de bloquear a coleta para sempre. Limite conhecido: se o SO reaproveitar o pid de um
+    processo morto para outro processo vivo, o lock continua parecendo ativo até esse
+    processo terminar.
+    """
     def __init__(self, lock_file: Path):
         self.lock_file = lock_file
         self.adquirido = False
 
+    def _criar(self):
+        # Criação exclusiva (O_CREAT | O_EXCL) funciona nativamente no Windows e Linux
+        self.fd = os.open(str(self.lock_file), os.O_CREAT | os.O_EXCL | os.O_RDWR)
+        os.write(self.fd, f"pid={os.getpid()}\n".encode("utf-8"))
+        self.adquirido = True
+
+    def _ler_conteudo(self):
+        try:
+            return self.lock_file.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return None
+
+    @staticmethod
+    def _pid_do_conteudo(conteudo):
+        if conteudo:
+            for linha in conteudo.splitlines():
+                chave, _, valor = linha.strip().partition("=")
+                if chave == "pid" and valor.strip().isdigit():
+                    return int(valor.strip())
+        return None
+
+    def _lock_orfao(self, conteudo):
+        """True se o dono do lock existente já morreu."""
+        pid = self._pid_do_conteudo(conteudo)
+        if pid is not None:
+            return not processo_existe(pid)
+        try:
+            idade = time.time() - self.lock_file.stat().st_mtime
+        except OSError:
+            return False
+        return idade > LOCK_SEM_PID_ORFAO_APOS_SEGUNDOS
+
+    def _recuperar_orfao(self):
+        """Remove o lock se (e só se) o dono morreu. True quando removeu."""
+        conteudo = self._ler_conteudo()
+        if conteudo is None or not self._lock_orfao(conteudo):
+            return False
+        # O dono pode ter mudado desde a leitura: só apaga o lock que acabamos de julgar.
+        if self._ler_conteudo() != conteudo:
+            return False
+        LOGGER.warning("Lock órfão removido (%s): %s", self.lock_file, conteudo.strip() or "vazio")
+        try:
+            self.lock_file.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return False
+        return True
+
     def __enter__(self):
         self.lock_file.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            # Criação exclusiva (O_CREAT | O_EXCL) funciona nativamente no Windows e Linux
-            self.fd = os.open(str(self.lock_file), os.O_CREAT | os.O_EXCL | os.O_RDWR)
-            os.write(self.fd, f"pid={os.getpid()}\n".encode("utf-8"))
-            self.adquirido = True
-            return self
-        except FileExistsError:
-            raise ErroIngestao(f"rotina_ja_em_execucao_lock_ativo: {self.lock_file}")
+        for tentativa in (1, 2):
+            try:
+                self._criar()
+                return self
+            except FileExistsError:
+                if tentativa == 1 and self._recuperar_orfao():
+                    continue
+                raise ErroIngestao(f"rotina_ja_em_execucao_lock_ativo: {self.lock_file}")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.adquirido:

@@ -302,6 +302,14 @@ describe('FavoritesPage', () => {
       expect(campoPrecoAlvo()).toHaveValue(20.61)
     })
 
+    it('o configurador da aba de alertas sugere o mesmo preco alvo do modal (10% abaixo do menor preco)', async () => {
+      await renderizar()
+      fireEvent.click(abaAlertas())
+
+      // Arroz Branco Tipo 1: menor preco 22,90 -> 20,61 (antes o configurador sugeria 21,07, 8%).
+      expect(screen.getByPlaceholderText('Ex: 15.90')).toHaveValue(20.61)
+    })
+
     it('salva o alerta, mostra no cartao, conta na aba de alertas e grava no navegador', async () => {
       await renderizar()
       abrirModalDeAlerta()

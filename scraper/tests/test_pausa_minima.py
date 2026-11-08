@@ -1,4 +1,4 @@
-"""Verifica que Master e Stok respeitam a pausa mínima de 2 s entre requisições."""
+"""Verifica que os 8 coletores respeitam a pausa mínima de 2 s entre requisições."""
 import sys
 import unittest
 from pathlib import Path
@@ -6,8 +6,14 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import coleta_asun
+import coleta_atacadao
+import coleta_carrefour
+import coleta_fort_atacadista
 import coleta_master
+import coleta_rissul
 import coleta_stok
+import coleta_zaffari
 
 
 def _pagina_completa(modulo, primeiro_id=1):
@@ -49,6 +55,19 @@ class PausaMinimaConstanteTest(unittest.TestCase):
             coleta_stok.PAUSA_ENTRE_REQUISICOES, 2.0,
             "PAUSA_ENTRE_REQUISICOES do Stok abaixo de 2 s — risco de bloqueio por rate-limit",
         )
+
+
+class PausaMinimaTodosColetoresTest(unittest.TestCase):
+    """A constante de cada uma das 8 redes não pode ficar abaixo de 2 s."""
+
+    def test_todos_os_coletores_minimo_2s(self):
+        modulos = (
+            coleta_asun, coleta_atacadao, coleta_carrefour, coleta_fort_atacadista,
+            coleta_master, coleta_rissul, coleta_stok, coleta_zaffari,
+        )
+        for modulo in modulos:
+            with self.subTest(modulo=modulo.__name__):
+                self.assertGreaterEqual(modulo.PAUSA_ENTRE_REQUISICOES, 2.0)
 
 
 class PausaMinimaRelogioFalsoTest(unittest.TestCase):

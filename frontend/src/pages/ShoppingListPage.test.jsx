@@ -103,6 +103,14 @@ describe('ShoppingListPage', () => {
       expect(listaNaSessao()).toEqual({})
     })
 
+    it('mantem na lista produtos que so existem na API (id numerico)', async () => {
+      const SO_NA_API = { id: 10, name: 'Leite da API', brand: 'Marca X', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 4.5, 2: 5 } }
+      await renderizar({ produtos: [ARROZ, SO_NA_API], lista: { 10: 2 } })
+
+      expect(screen.getByRole('heading', { name: 'Itens da Lista (1)' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 3, name: 'Leite da API' })).toBeInTheDocument()
+    })
+
     it('ignora itens da lista que nao existem mais no catalogo', async () => {
       await renderizar({ lista: { p1: 1, p999: 4 } })
 

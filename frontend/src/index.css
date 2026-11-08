@@ -791,6 +791,16 @@ html, body, #root {
 }
 
 @media (max-width: 1279px) {
+  /* Modal de produto dentro do shell: começa abaixo da barra fixa (4rem, z-index 60), para o botão
+     de fechar não ficar escondido, e nunca passa da altura visível (dvh acompanha a barra do navegador). */
+  .sm-shell .sm-modal-overlay {
+    padding-top: calc(4rem + 0.75rem);
+  }
+
+  .sm-shell .sm-modal-dialog {
+    max-height: calc(100dvh - 4rem - 1.5rem);
+  }
+
   .sm-shell {
     flex-direction: column;
     height: 100dvh;

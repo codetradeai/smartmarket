@@ -158,4 +158,13 @@ describe('Product360HoverPreview (Fase 3D)', () => {
     // O clique foi propagado para o card pai abrir o modal
     expect(handleCardClick).toHaveBeenCalledTimes(1)
   })
+  it('se o quadro 360 externo falhar, volta para a imagem estática com placeholder', () => {
+    render(<Product360HoverPreview product={mockProduct360} alt="Café" />)
+    const frame = screen.getByTestId('product-360-hover-preview').querySelector('img')
+
+    fireEvent.error(frame)
+
+    expect(screen.queryByTestId('product-360-hover-preview')).not.toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Café' })).toHaveAttribute('src', mockProduct360.imageLocal)
+  })
 })

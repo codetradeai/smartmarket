@@ -1,8 +1,11 @@
 package com.smartmarket.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,9 +14,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ResourceNotFoundException e lancada por Favorito/Alerta/Mercado/Preco/
     // Promocao/AdminService. Sem este mapeamento ela sobe como 500 (e, no
@@ -66,5 +72,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> conflito(DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(Map.of("erro", "Violacao de integridade de dados"));
+    }
+
+    // Fallback: qualquer erro nao mapeado vira 500 com corpo generico. O detalhe
+    // fica apenas no log, ligado ao identificador devolvido ao cliente.
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> erroInesperado(Exception ex) {
+        // Excecoes do proprio Spring MVC (405, 404, 400 de corpo ilegivel...) ja carregam
+        // o status correto; preserva-o no mesmo formato {"erro": ...}.
+        if (ex instanceof ErrorResponse er && er.getStatusCode().is4xxClientError()) {
+            return ResponseEntity.status(er.getStatusCode())
+                .body(Map.of("erro", "Requisicao invalida"));
+        }
+        String id = UUID.randomUUID().toString();
+        log.error("Erro interno nao tratado [id={}]", id, ex);
+        Map<String, Object> corpo = new LinkedHashMap<>();
+        corpo.put("erro", "Erro interno do servidor");
+        corpo.put("id", id);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(corpo);
     }
 }

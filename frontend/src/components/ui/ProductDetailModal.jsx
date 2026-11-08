@@ -30,7 +30,7 @@ function descobrirClube(produto, m) {
  * 1. Exibição de metadados reais: Nome, Marca, Unidade, Categoria e Código/SKU de origem.
  * 2. Galeria com imagens reais disponíveis e seleção de miniaturas.
  * 3. Modo de ampliação/zoom (LightBox modal) em alta resolução com tecla ESC.
- * 4. Comparativo de preços ordenado pelo menor preço válido, com identificação clara das 8 redes do RS.
+ * 4. Comparativo de preços ordenado pelo menor preço válido, com a rede de cada preço; o preço de outras redes vem dos equivalentes (utils/equivalentes), só os confirmados contam para o menor preço.
  * 5. Comprovação real de condição promocional (preço normal vs efetivo).
  * 6. Acesso à página oficial da loja de origem com URL validada.
  * 7. Ponto de integração e visualizador 360° nativo (Fase 3B) sob demanda com rotação real autenticada.

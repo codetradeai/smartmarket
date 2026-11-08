@@ -26,6 +26,48 @@ updates:
           - "minor"
           - "patch"
 
+  # Scripts de upload ao bucket do Neon (SDK AWS S3; roda onde estão as chaves de escrita do bucket).
+  - package-ecosystem: "npm"
+    directory: "/scripts/assets-neon"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "America/Campo_Grande"
+    open-pull-requests-limit: 3
+    groups:
+      npm-assets-neon-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Demo de realtime.
+  - package-ecosystem: "npm"
+    directory: "/realtime-demo"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "America/Campo_Grande"
+    open-pull-requests-limit: 3
+    groups:
+      npm-realtime-demo-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # package.json da raiz (@neon/config, @neon/env).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      timezone: "America/Campo_Grande"
+    open-pull-requests-limit: 3
+    groups:
+      npm-raiz-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
   - package-ecosystem: "pip"
     directory: "/scraper"
     schedule:
@@ -48,6 +90,17 @@ updates:
       # O projeto fica no Java 17 (LTS, igual ao pom.xml e ao CI). Trocar de versão do JDK é uma
       # decisão do grupo, não uma atualização automática; patches e minors do 17 continuam chegando.
       - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    ignore:
+      # O build usa Node 24 (igual ao CI). Trocar de major é decisão do grupo, não atualização
+      # automática (e o Docker Hub publica majors ímpares, que não são LTS).
+      - dependency-name: "node"
         update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"

@@ -54,7 +54,7 @@ Exit codes dos coletores: `0` sucesso, `2` sucesso parcial, `1` falha total (sa�
 `docker compose up --build` na raiz sobe postgres (5432), backend (8080) e frontend.
 
 ### CI
-`.github/workflows/ci.yml` roda `./mvnw clean test -B` e, no front, `npm ci` + testes + build (Node 24, JDK 17). `deploy-pages.yml` publica o front no GitHub Pages a cada push na `main` que mexa em `frontend/`. `coleta_diaria.yml` executa a coleta às 04:00 BRT (só testes e arquivos: a carga em Postgres exige DSN local, ver `validar_dsn`). `bloqueia-arquivos-dev.yml` barra arquivos de dev pessoal (`.ai/`, `AGENTS.md`, `.neon`). Meta de cobertura: 70% em back e front.
+`.github/workflows/ci.yml` roda `./mvnw clean test -B` e, no front, `npm ci` + `npm run lint` (teto de 4 avisos) + testes com cobertura mínima de 70% + build (Node 24, JDK 17). `deploy-pages.yml` publica o front no GitHub Pages a cada push na `main` que mexa em `frontend/`. `coleta_diaria.yml` executa a coleta às 04:00 BRT (só testes e arquivos: a carga em Postgres exige DSN local, ver `validar_dsn`). `bloqueia-arquivos-dev.yml` barra arquivos de dev pessoal (`.ai/`, `AGENTS.md`, `.neon`). Meta de cobertura: 70% em back e front.
 
 ## Arquitetura
 

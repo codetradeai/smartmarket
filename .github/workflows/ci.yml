@@ -59,6 +59,13 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
+      # Erros de lint (variável morta, import sem uso) quebram o CI. Os 4 avisos que restam (set-state-in-effect em
+      # Layout, Product360HoverPreview e ProductViewer360; exhaustive-deps em CarrosselRedes) exigem redesenho dos
+      # efeitos e ficam como dívida: o teto abaixo impede novos avisos. Ao corrigir um, reduza o número.
+      - name: Lint (ESLint, máximo de 4 avisos)
+        working-directory: ./frontend
+        run: npm run lint -- --max-warnings 4
+
       # Roda com cobertura: o limiar mínimo de 70% (jest.config.cjs) só é avaliado com --coverage.
       - name: Run Frontend Unit Tests with Coverage (Jest, minimum 70%)
         timeout-minutes: 15

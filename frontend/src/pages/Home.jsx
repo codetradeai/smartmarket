@@ -86,7 +86,6 @@ export function Home() {
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
-  const [visibleHomeLimit, setVisibleHomeLimit] = useState(32)
 
   // Mostra um feedback sutil quando o usuário adiciona um item à lista
   const showToast = (msg) => {

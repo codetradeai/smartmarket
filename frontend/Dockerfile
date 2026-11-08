@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # Estagio 2: Servidor web de producao ultraleve com Nginx Alpine
-FROM nginx:1.27-alpine AS runner
+FROM nginx:1.29-alpine AS runner
 
 # Copia os artefatos estaticos gerados
 COPY --from=builder /app/dist /usr/share/nginx/html

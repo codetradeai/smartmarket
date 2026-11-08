@@ -14,6 +14,7 @@ describe('carregarProdutos / carregarFrames', () => {
   beforeEach(() => {
     delete process.env.VITE_CATALOGO_URL
     delete process.env.VITE_ASSETS_BASE_URL
+    delete process.env.BASE_URL
     jest.resetModules()
     fetchOriginal = global.fetch
   })
@@ -27,6 +28,7 @@ describe('carregarProdutos / carregarFrames', () => {
       else process.env[chave] = valor
     }
     global.fetch = fetchOriginal
+    delete process.env.BASE_URL
   })
 
   it('carrega produtos.json por fetch e reaproveita a mesma promessa', async () => {
@@ -94,6 +96,43 @@ describe('carregarProdutos / carregarFrames', () => {
     } finally {
       delete global.__CATALOGO_VERSAO__
     }
+  })
+
+  it('com base de subpasta (GitHub Pages) o catálogo e os frames respeitam a base', async () => {
+    process.env.BASE_URL = '/smartmarket/'
+    global.fetch = jest.fn(async () => resposta([]))
+    const { carregarProdutos, carregarFrames, URL_PRODUTOS, urlFrames } = require('./carregarProdutos')
+
+    expect(URL_PRODUTOS).toBe('/smartmarket/catalogo/produtos.json')
+    expect(urlFrames('p1')).toBe('/smartmarket/catalogo/frames/p1.json')
+    await carregarProdutos()
+    await carregarFrames('p1')
+    expect(global.fetch.mock.calls.map(([u]) => u)).toEqual([
+      '/smartmarket/catalogo/produtos.json',
+      '/smartmarket/catalogo/frames/p1.json',
+    ])
+  })
+
+  it('com base de subpasta e versão injetada, o hash vem depois da base', () => {
+    process.env.BASE_URL = '/smartmarket/'
+    global.__CATALOGO_VERSAO__ = 'abc123def4'
+    try {
+      const { URL_PRODUTOS, urlFrames } = require('./carregarProdutos')
+      expect(URL_PRODUTOS).toBe('/smartmarket/catalogo/produtos.abc123def4.json')
+      expect(urlFrames('p5')).toBe('/smartmarket/catalogo/frames/abc123def4/p5.json')
+    } finally {
+      delete global.__CATALOGO_VERSAO__
+    }
+  })
+
+  it('VITE_CATALOGO_URL absoluta não recebe a base do app', async () => {
+    process.env.BASE_URL = '/smartmarket/'
+    process.env.VITE_CATALOGO_URL = 'https://bucket.exemplo/catalogo/produtos.json'
+    global.fetch = jest.fn().mockResolvedValue(resposta([{ id: 'p1' }]))
+    const { carregarProdutos } = require('./carregarProdutos')
+
+    await carregarProdutos()
+    expect(global.fetch).toHaveBeenCalledWith('https://bucket.exemplo/catalogo/produtos.json')
   })
 
   it('com VITE_CATALOGO_URL baixa o JSON do bucket e não usa o data.js', async () => {

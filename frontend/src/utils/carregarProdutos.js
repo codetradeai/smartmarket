@@ -1,4 +1,5 @@
 import { reescreverUrlsDeAssets } from "./urlAssets"
+import { urlPublica } from "./urlPublica"
 
 /**
  * Carrega o catálogo como arquivo estático (public/catalogo/produtos.<hash>.json, gerado de src/data.js por
@@ -11,9 +12,12 @@ import { reescreverUrlsDeAssets } from "./urlAssets"
 // O hash entra no nome do arquivo, então cada versão do catálogo tem URL própria e pode ser cacheada
 // para sempre. Sem versão (testes, ou sem prebuild), cai nos nomes sem hash.
 const VERSAO = typeof __CATALOGO_VERSAO__ !== "undefined" ? __CATALOGO_VERSAO__ : null
-export const URL_PRODUTOS = VERSAO ? `/catalogo/produtos.${VERSAO}.json` : "/catalogo/produtos.json"
+// urlPublica prefixa a base do app (VITE_BASE, ex.: /smartmarket/ no GitHub Pages); na raiz não muda nada.
+export const URL_PRODUTOS = urlPublica(
+  VERSAO ? `/catalogo/produtos.${VERSAO}.json` : "/catalogo/produtos.json",
+)
 export const urlFrames = (id) =>
-  VERSAO ? `/catalogo/frames/${VERSAO}/${id}.json` : `/catalogo/frames/${id}.json`
+  urlPublica(VERSAO ? `/catalogo/frames/${VERSAO}/${id}.json` : `/catalogo/frames/${id}.json`)
 
 function buscarJson(url) {
   return fetch(url).then((resposta) => {

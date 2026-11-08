@@ -19,6 +19,9 @@ class BackendStartupTest {
             ConfigurableApplicationContext ctx = new SpringApplicationBuilder(SmartMarketApplication.class)
                     .run(
                             "--spring.profiles.active=test",
+                            // H2 proprio: com create-drop, a falha da subida derruba as tabelas do banco
+                            // compartilhado (smartmarket_test) sob os contextos de teste ja em cache.
+                            "--spring.datasource.url=jdbc:h2:mem:startup_sem_jwt;DB_CLOSE_DELAY=-1",
                             "--jwt.secret=   ",
                             "--spring.main.web-application-type=none",
                             "--security.rate-limit.enabled=false"

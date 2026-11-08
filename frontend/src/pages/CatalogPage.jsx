@@ -483,7 +483,6 @@ function ProductCard({
   onOpenDetail,
   isShelf = false,
 }) {
-  const [justAdded, setJustAdded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
 
@@ -499,8 +498,6 @@ function ProductCard({
   function handleAddClick(e) {
     e.stopPropagation();
     onAdd(product);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 1200);
   }
 
   function handleIncrement(e) {
@@ -651,13 +648,9 @@ function ProductCard({
               <button
                 type="button"
                 onClick={handleAddClick}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
-                  justAdded
-                    ? "bg-emerald-600 text-white"
-                    : "bg-brand-green text-white hover:bg-brand-green-hover hover:shadow-md active:scale-98"
-                }`}
+                className="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer bg-brand-green text-white hover:bg-brand-green-hover hover:shadow-md active:scale-98"
               >
-                {justAdded ? <>✓ Adicionado à Lista!</> : <>+ Adicionar à Minha Lista</>}
+                + Adicionar à Minha Lista
               </button>
             )}
           </div>
@@ -825,19 +818,9 @@ function ProductCard({
             <button
               type="button"
               onClick={handleAddClick}
-              className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer ${
-                justAdded
-                  ? "bg-emerald-600 text-white"
-                  : "bg-gradient-to-r from-brand-green to-brand-teal text-white hover:opacity-95 hover:shadow-md active:scale-98"
-              }`}
+              className="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs cursor-pointer bg-gradient-to-r from-brand-green to-brand-teal text-white hover:opacity-95 hover:shadow-md active:scale-98"
             >
-              {justAdded ? (
-                <>✓ Adicionado!</>
-              ) : (
-                <>
-                  <IconCart /> Adicionar
-                </>
-              )}
+              <IconCart /> Adicionar
             </button>
           )}
         </div>

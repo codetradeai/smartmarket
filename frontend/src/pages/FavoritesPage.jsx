@@ -15,6 +15,10 @@ import logoZaffari from "../../logo/zaffari-bourbon-logo.png"
 import logoMaster from "../../logo/mastersupermercados-logo.png"
 import { urlPublica } from "../utils/urlAssets"
 
+// Preço alvo sugerido ao criar um alerta: 10% abaixo do menor preço. Um único valor para o modal,
+// o configurador e o atalho "-10% de desconto" (antes o configurador sugeria 8%).
+const FATOR_PRECO_ALVO_SUGERIDO = 0.9
+
 const MARKET_LOGOS = {
   fort: logoFort,
   asun: logoAsun,
@@ -261,7 +265,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
     const existing = normalizeAlertEntry(getPriceAlerts()[firstProd.id])
     if (existing) return String(existing.targetPrice)
     const ch = getCheapestPrice(firstProd)
-    return ch ? (Number(ch[1]) * 0.92).toFixed(2) : ""
+    return ch ? (Number(ch[1]) * FATOR_PRECO_ALVO_SUGERIDO).toFixed(2) : ""
   })
 
   useEffect(() => {
@@ -349,7 +353,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
       currentAlert
         ? String(currentAlert.targetPrice)
         : cheapest
-          ? (Number(cheapest[1]) * 0.92).toFixed(2)
+          ? (Number(cheapest[1]) * FATOR_PRECO_ALVO_SUGERIDO).toFixed(2)
           : ""
     )
   }
@@ -403,7 +407,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
       currentAlert
         ? String(currentAlert.targetPrice)
         : cheapest
-          ? (Number(cheapest[1]) * 0.9).toFixed(2)
+          ? (Number(cheapest[1]) * FATOR_PRECO_ALVO_SUGERIDO).toFixed(2)
           : ""
     )
     setAlertModalOpen(true)
@@ -1131,7 +1135,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                               <div className="flex flex-wrap gap-2">
                                 {[
                                   { label: "-5% de desconto", factor: 0.95 },
-                                  { label: "-10% de desconto", factor: 0.9 },
+                                  { label: "-10% de desconto", factor: FATOR_PRECO_ALVO_SUGERIDO },
                                   { label: "-15% de desconto", factor: 0.85 },
                                 ].map((preset) => {
                                   const baseRefPrice =

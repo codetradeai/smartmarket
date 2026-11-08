@@ -34,7 +34,8 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long> {
     /**
      * Marca como inativas as promoções sem data_fim do mercado informado
      * que não foram encontradas na coleta iniciada em {@code inicioColeta}.
-     * Chamado após cada coleta bem-sucedida de uma rede.
+     * Ainda sem chamador: nenhuma rotina de coleta, tarefa agendada ou endpoint invoca este
+     * método (ver backend/DEPLOY.md); por enquanto a inativação é manual, por SQL.
      */
     @Modifying
     @Query("update Promocao p set p.ativa = false "

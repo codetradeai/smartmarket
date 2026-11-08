@@ -64,7 +64,8 @@ public class PromocaoService {
 
     /**
      * Marca como inativas as promoções sem data_fim do mercado que não foram
-     * encontradas na coleta que iniciou em {@code inicioColeta}.
+     * encontradas na coleta que iniciou em {@code inicioColeta}. Ainda sem chamador em produção
+     * (ver backend/DEPLOY.md).
      *
      * @return número de promoções inativadas
      */

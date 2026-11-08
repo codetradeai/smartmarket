@@ -226,29 +226,22 @@ describe('AuthPage', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
-    it('confirma o envio das instrucoes e fecha o modal sozinho', () => {
-      jest.useFakeTimers()
+    it('diz que a recuperacao por e-mail esta indisponivel, sem prometer envio', () => {
       renderizar()
       fireEvent.click(screen.getByRole('button', { name: 'Esqueceu a senha?' }))
 
-      fireEvent.change(screen.getByLabelText('E-mail cadastrado'), { target: { value: 'ana@email.com' } })
-      fireEvent.click(screen.getByRole('button', { name: 'Enviar Link' }))
-
-      expect(screen.getByText('Instruções de redefinição foram enviadas para ana@email.com!')).toBeInTheDocument()
-
-      act(() => {
-        jest.advanceTimersByTime(2500)
-      })
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      const dialogo = screen.getByRole('dialog')
+      expect(dialogo).toHaveTextContent(/indisponível por enquanto/i)
+      expect(dialogo).not.toHaveTextContent(/foram enviadas/i)
+      expect(dialogo).not.toHaveTextContent(/enviarmos o link/i)
     })
 
-    it('nao envia quando o e-mail esta vazio', () => {
+    it('nao oferece campo de e-mail nem botao de envio, ja que nenhuma chamada seria feita', () => {
       renderizar()
       fireEvent.click(screen.getByRole('button', { name: 'Esqueceu a senha?' }))
 
-      fireEvent.submit(screen.getByRole('dialog').querySelector('form'))
-
-      expect(screen.queryByText(/Instruções de redefinição/)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('E-mail cadastrado')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Enviar Link' })).not.toBeInTheDocument()
     })
   })
 

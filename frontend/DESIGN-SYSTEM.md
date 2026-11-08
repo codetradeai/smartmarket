@@ -117,7 +117,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, 
 ```
 
 ### 4.4. `Modal`
-Janela modal acessível renderizada via React Portal, com backdrop-blur suave, suporte a fechamento com tecla `ESC`, clique fora do diálogo e botão `X` acessível.
+Janela modal acessível renderizada via React Portal, com backdrop-blur suave, suporte a fechamento com tecla `ESC`, clique fora do diálogo e botão `X` acessível. O diálogo ganha nome acessível pelo `ModalTitle` (ou pela prop `ariaLabel`, quando não há título), recebe o foco ao abrir, prende o `Tab` dentro dele e devolve o foco ao elemento de origem ao fechar (hook `useFocoNoDialogo`).
 
 ```jsx
 import { useState } from "react"

@@ -90,4 +90,70 @@ describe('Modal', () => {
       fireEvent.click(screen.getByRole('dialog'))
     }).not.toThrow()
   })
+
+  describe('acessibilidade do dialogo', () => {
+    it('o dialogo ganha nome acessivel pelo ModalTitle', () => {
+      render(
+        <Modal isOpen onClose={() => {}}>
+          <ModalHeader>
+            <ModalTitle>Recuperar Senha</ModalTitle>
+          </ModalHeader>
+        </Modal>
+      )
+
+      expect(screen.getByRole('dialog', { name: 'Recuperar Senha' })).toBeInTheDocument()
+    })
+
+    it('aceita ariaLabel quando nao ha ModalTitle', () => {
+      render(<Modal isOpen onClose={() => {}} ariaLabel="Filtros">Conteudo</Modal>)
+
+      expect(screen.getByRole('dialog', { name: 'Filtros' })).toBeInTheDocument()
+    })
+
+    it('move o foco para o dialogo ao abrir e devolve ao elemento de origem ao fechar', () => {
+      const { rerender } = render(
+        <div>
+          <button type="button">Abrir</button>
+          <Modal isOpen={false} onClose={() => {}}>Conteudo</Modal>
+        </div>
+      )
+      const origem = screen.getByRole('button', { name: 'Abrir' })
+      origem.focus()
+      expect(origem).toHaveFocus()
+
+      rerender(
+        <div>
+          <button type="button">Abrir</button>
+          <Modal isOpen onClose={() => {}}>Conteudo</Modal>
+        </div>
+      )
+      expect(screen.getByRole('dialog')).toHaveFocus()
+
+      rerender(
+        <div>
+          <button type="button">Abrir</button>
+          <Modal isOpen={false} onClose={() => {}}>Conteudo</Modal>
+        </div>
+      )
+      expect(origem).toHaveFocus()
+    })
+
+    it('prende o Tab dentro do dialogo', () => {
+      render(
+        <Modal isOpen onClose={() => {}}>
+          <input aria-label="Primeiro" />
+          <input aria-label="Ultimo" />
+        </Modal>
+      )
+      const fechar = screen.getByRole('button', { name: 'Fechar modal' })
+      const ultimo = screen.getByLabelText('Ultimo')
+
+      ultimo.focus()
+      fireEvent.keyDown(ultimo, { key: 'Tab' })
+      expect(fechar).toHaveFocus()
+
+      fireEvent.keyDown(fechar, { key: 'Tab', shiftKey: true })
+      expect(ultimo).toHaveFocus()
+    })
+  })
 })

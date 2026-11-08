@@ -207,6 +207,42 @@ describe('ShoppingListPage', () => {
       expect(vencedor.getByText('até R$ 5.00')).toBeInTheDocument()
     })
 
+    it('colore o grafico pelo preco entre redes com a lista inteira: verde, amarelo e vermelho', async () => {
+      const MERCADO_C = { id: 3, name: 'Mercado C', color: '#333' }
+      await renderizar({
+        produtos: [{ ...ARROZ, prices: { 1: 10, 2: 11, 3: 14 } }],
+        mercados: [MERCADO_A, MERCADO_B, MERCADO_C],
+        lista: { p1: 1 },
+      })
+      const barra = (nome) => linhaDoMercado(nome).querySelector('[class*="bg-gradient-to-r"]')
+
+      expect(barra('Mercado A').className).toContain('from-emerald')
+      expect(barra('Mercado B').className).toContain('from-amber')
+      expect(barra('Mercado C').className).toContain('from-rose')
+    })
+
+    it('nao pinta de vermelho (mais caro) a rede de menor total que so tem parte da lista', async () => {
+      // A tem os 3 itens (R$ 35), B tem 2 (R$ 19) e C tem so o arroz (R$ 1, o menor total).
+      // A lista fica ordenada por cobertura [A, B, C]: C vem por ultimo, mas e a mais barata.
+      const MERCADO_C = { id: 3, name: 'Mercado C', color: '#333' }
+      await renderizar({
+        produtos: [
+          { ...ARROZ, prices: { 1: 10, 2: 12, 3: 1 } },
+          { ...FEIJAO, prices: { 1: 5, 2: 7 } },
+          { id: 'p9', name: 'Leite', brand: 'X', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 20 } },
+        ],
+        mercados: [MERCADO_A, MERCADO_B, MERCADO_C],
+        lista: { p1: 1, p3: 1, p9: 1 },
+      })
+      const barra = (nome) => linhaDoMercado(nome).querySelector('[class*="bg-gradient-to-r"]')
+
+      expect(totalDoMercado('Mercado C')).toHaveTextContent('R$ 1.00')
+      expect(barra('Mercado C').className).not.toContain('from-rose')
+      expect(barra('Mercado B').className).not.toContain('from-rose')
+      expect(barra('Mercado A').className).toContain('from-emerald')
+      expect(within(linhaDoMercado('Mercado C')).queryByText(/mais caro/)).not.toBeInTheDocument()
+    })
+
     it('lista o total de cada mercado e quantos itens estao sem cotacao', async () => {
       // A: Arroz 2x10 + Feijão 1x5 = 25. B: Arroz 2x12 = 24, sem Feijão.
       await renderizar({ lista: { p1: 2, p3: 1 } })

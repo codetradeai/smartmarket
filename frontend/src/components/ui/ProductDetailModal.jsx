@@ -1,10 +1,11 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useMemo, useEffect, useId, useRef } from "react"
 import { ProductImage } from "./ProductImage"
 import { Button } from "./Button"
 import { ProductViewer360 } from "./ProductViewer360"
 import { CestaDemoPrecos } from "./CestaDemoPrecos"
 import { getRelatedProducts } from "../../utils/relatedProducts"
 import { useFramesDoProduto } from "../../hooks/useFramesDoProduto"
+import { useFocoNoDialogo } from "../../hooks/useFocoNoDialogo"
 
 /**
  * ProductDetailModal - Fase 2, 3 & 4: Detalhes do Produto Reutilizável Multi-rede com 360° e Produtos Relacionados
@@ -41,32 +42,45 @@ export function ProductDetailModal({
   const [chartDisplayMode, setChartDisplayMode] = useState("preco") // 'preco' | 'diferenca'
   const photoDragStartRef = useRef({ x: 0, y: 0, initialX: 0, initialY: 0 })
   const relatedScrollRef = useRef(null)
+  const dialogRef = useRef(null)
+  const tituloId = useId()
 
   // Reseta seleção interna quando o produto externo mudar ou modal reabrir
-  useEffect(() => {
+  // (ajuste de estado durante a renderização, em vez de setState dentro de efeito)
+  const chaveSelecao = `${product?.id ?? ""}|${Boolean(isOpen)}`
+  const [chaveSelecaoAnterior, setChaveSelecaoAnterior] = useState(chaveSelecao)
+  if (chaveSelecao !== chaveSelecaoAnterior) {
+    setChaveSelecaoAnterior(chaveSelecao)
     setInternalProduct(null)
-  }, [product?.id, isOpen])
+  }
 
   const currentProduct = internalProduct || product
 
-  useEffect(() => {
-    if (!isOpen) {
-      setAnimateChart(false)
-      return
-    }
+  // O gráfico recomeça "recolhido" a cada abertura, troca de produto ou de modo de exibição
+  const chaveGrafico = `${Boolean(isOpen)}|${currentProduct?.id ?? ""}|${chartDisplayMode}`
+  const [chaveGraficoAnterior, setChaveGraficoAnterior] = useState(chaveGrafico)
+  if (chaveGrafico !== chaveGraficoAnterior) {
+    setChaveGraficoAnterior(chaveGrafico)
     setAnimateChart(false)
+  }
+
+  useEffect(() => {
+    if (!isOpen) return undefined
     const t = setTimeout(() => setAnimateChart(true), 60)
     return () => clearTimeout(t)
   }, [isOpen, currentProduct?.id, chartDisplayMode])
 
   // Reseta estado da galeria, modo e posição ao trocar de produto
-  useEffect(() => {
+  const idProdutoAtual = currentProduct?.id
+  const [idProdutoAnterior, setIdProdutoAnterior] = useState(idProdutoAtual)
+  if (idProdutoAtual !== idProdutoAnterior) {
+    setIdProdutoAnterior(idProdutoAtual)
     setActiveImageIndex(0)
     setViewMode("photo")
     setPhotoOffset({ x: 0, y: 0 })
     setIsPhotoDragging(false)
     setRelatedTab("other_brands")
-  }, [currentProduct?.id])
+  }
 
   // Fecha o modal com tecla Escape
   useEffect(() => {
@@ -81,6 +95,19 @@ export function ProductDetailModal({
     }
   }, [isOpen, onClose])
 
+  // Bloqueia o scroll da página atrás do modal e restaura o valor anterior ao fechar
+  useEffect(() => {
+    if (!isOpen) return undefined
+    const overflowAnterior = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = overflowAnterior
+    }
+  }, [isOpen])
+
+  // Foco: entra no diálogo ao abrir, fica preso nele e volta ao elemento de origem ao fechar
+  useFocoNoDialogo(Boolean(isOpen && currentProduct), dialogRef)
+
   // Manipuladores de Arraste da Foto (Move livremente ao clicar e volta ao centro sozinho ao soltar)
   const handlePhotoPointerDown = (e) => {
     if (e.button !== undefined && e.button !== 0) return
@@ -94,7 +121,9 @@ export function ProductDetailModal({
     if (e.currentTarget.setPointerCapture) {
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
-      } catch {}
+      } catch {
+        // setPointerCapture pode falhar se o ponteiro já foi liberado; o arraste segue sem captura
+      }
     }
   }
 
@@ -116,7 +145,9 @@ export function ProductDetailModal({
     if (e.currentTarget.releasePointerCapture) {
       try {
         e.currentTarget.releasePointerCapture(e.pointerId)
-      } catch {}
+      } catch {
+        // releasePointerCapture lança se o ponteiro já não está capturado; nada a fazer
+      }
     }
   }
 
@@ -237,9 +268,12 @@ export function ProductDetailModal({
       {/* Modal Principal de Detalhes */}
       <div className="sm-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
         <div
-          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden sm-modal-dialog flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92dvh] animate-in zoom-in-95 duration-200"
+          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden sm-modal-dialog flex flex-col max-h-[calc(100dvh-1.5rem)] sm:max-h-[92dvh] animate-in zoom-in-95 duration-200 outline-none"
+          ref={dialogRef}
           role="dialog"
           aria-modal="true"
+          aria-labelledby={tituloId}
+          tabIndex={-1}
         >
           {/* Cabeçalho Superior com Metadados e Ações */}
           <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50">
@@ -413,7 +447,7 @@ export function ProductDetailModal({
               {/* COLUNA DIREITA: Informações Principais, Melhor Preço e Ações Rápidas (Estilo Asun/OSuper da Foto 2) */}
               <div className="md:col-span-6 space-y-5">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                  <h2 id={tituloId} className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
                     {currentProduct.name || currentProduct.nome_bruto}
                   </h2>
                   <div className="flex items-center gap-2 text-xs text-slate-500 font-medium mt-1.5 flex-wrap">
@@ -508,9 +542,10 @@ export function ProductDetailModal({
                   </button>
 
                   <div className="flex items-center gap-4 text-xs font-bold text-slate-700 pt-1 flex-wrap">
+                    {onToggleFavorite && (
                     <button
                       type="button"
-                      onClick={() => onToggleFavorite && onToggleFavorite(currentProduct.id)}
+                      onClick={() => onToggleFavorite(currentProduct.id)}
                       className="inline-flex items-center gap-1.5 hover:text-slate-950 transition-colors cursor-pointer"
                       title={isFavorite ? "Remover dos favoritos" : "Salvar nos favoritos"}
                     >
@@ -522,8 +557,9 @@ export function ProductDetailModal({
                         <line x1="3" y1="12" x2="3.01" y2="12" strokeLinecap="round" strokeWidth="3" />
                         <line x1="3" y1="18" x2="3.01" y2="18" strokeLinecap="round" strokeWidth="3" />
                       </svg>
-                      <span>{isFavorite ? "Salvo na lista" : "Adicionar à lista"}</span>
+                      <span>{isFavorite ? "Salvo nos favoritos" : "Favoritar"}</span>
                     </button>
+                    )}
 
                     {urlOficialValida && (
                       <>
@@ -767,18 +803,6 @@ export function ProductDetailModal({
             {/* Cesta de demonstração: preços reais por rede, com data da coleta (cesta-demo.json) */}
             <CestaDemoPrecos produtoId={currentProduct.id} markets={markets} />
 
-            {/* SEÇÃO INFORMAÇÕES DO PRODUTO (Dobra de Baixo - Idêntico à Foto 2) */}
-            {currentProduct.descricao && (
-              <div className="pt-6 border-t border-slate-200/90 space-y-2">
-                <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center justify-between">
-                  <span>Informações do produto</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl">
-                  {currentProduct.descricao}
-                </p>
-              </div>
-            )}
-
             {/* SEÇÃO DA MESMA CATEGORIA / RELACIONADOS - LARGURA COMPLETA (Fase 4 - UX Refinada idêntica à referência) */}
             {(directAlternatives.length > 0 || brandAlternatives.length > 0) && (
               <div className="pt-6 border-t border-slate-200/90 space-y-4">
@@ -976,17 +1000,19 @@ export function ProductDetailModal({
 
           {/* Rodapé Fixo de Ações */}
           <div className="p-4 bg-slate-50 border-t border-slate-200/80 flex items-center gap-3">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer"
-              onClick={() => onToggleFavorite && onToggleFavorite(currentProduct.id)}
-              title={isFavorite ? "Remover dos favoritos" : "Salvar nos favoritos"}
-            >
-              <span>{isFavorite ? "❤️" : "🤍"}</span>
-              <span className="hidden sm:inline font-bold text-xs text-slate-700">
-                {isFavorite ? "Salvo" : "Favoritar"}
-              </span>
-            </Button>
+            {onToggleFavorite && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer"
+                onClick={() => onToggleFavorite(currentProduct.id)}
+                title={isFavorite ? "Remover dos favoritos" : "Salvar nos favoritos"}
+              >
+                <span>{isFavorite ? "❤️" : "🤍"}</span>
+                <span className="hidden sm:inline font-bold text-xs text-slate-700">
+                  {isFavorite ? "Salvo" : "Favoritar"}
+                </span>
+              </Button>
+            )}
 
             <Button
               variant="primary"

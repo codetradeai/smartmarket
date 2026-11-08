@@ -20,7 +20,7 @@ INSTANTE = datetime(2026, 10, 4, 10, 30, tzinfo=timezone(timedelta(hours=-3)))
 
 
 def item(**pricing):
-    return {'name': 'Arroz exemplo', 'pricing': pricing}
+    return {'id': 'sku-1', 'name': 'Arroz exemplo', 'pricing': pricing}
 
 
 class TransformacaoTest(unittest.TestCase):

@@ -351,8 +351,10 @@ def executar_ciclo_rede(chave_rede, config_rede, *, dsn, diretorio_base,
         mercado_id=mercado_id,
         run_id=run_id,
         mapeamento=mapeamento,
-        permitir_banco_app=permitir_banco_app
+        permitir_banco_app=permitir_banco_app,
+        diretorio_quarentena=dir_saida,
     )
+    total_rejeitados = len(resumo_carga.get("rejeitados") or [])
 
     # 3. Atualização de Indisponibilidade: só com coleta completa (status 0) E exaustiva.
     # Coleta parcial (status 2) ou amostral não prova que o produto saiu da loja.
@@ -373,7 +375,11 @@ def executar_ciclo_rede(chave_rede, config_rede, *, dsn, diretorio_base,
 
     resumo_carga["source"] = source
     resumo_carga["store"] = store
-    resumo_carga["status"] = "concluido" if status_coleta == 0 else "parcial"
+    resumo_carga["total_rejeitados"] = total_rejeitados
+    if total_rejeitados:
+        LOGGER.warning("%s: %d registro(s) em quarentena (ver %s/quarentena.json)",
+                       config_rede["nome"], total_rejeitados, dir_saida)
+    resumo_carga["status"] = "concluido" if status_coleta == 0 and not total_rejeitados else "parcial"
     resumo_carga["total_coletados"] = len(registros)
     resumo_carga["dir_saida"] = str(dir_saida)
     LOGGER.info(

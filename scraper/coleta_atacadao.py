@@ -200,6 +200,8 @@ def transformar_produto(produto_raw: dict, nome_categoria: str, instante: dateti
     externo = produto_raw.get("productId")
     if externo is not None and (isinstance(externo, bool) or not isinstance(externo, (str, int))):
         raise ValueError("id_produto_origem_invalido")
+    if externo is None or (isinstance(externo, str) and not externo.strip()):
+        raise ValueError("id_produto_origem_ausente")
 
     slug = produto_raw.get("linkText")
     link_direto = produto_raw.get("link")

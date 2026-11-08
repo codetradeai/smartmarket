@@ -178,6 +178,8 @@ def transformar_item(item, nome_categoria, instante):
     externo = item.get("productId")
     if externo is not None and (isinstance(externo, bool) or not isinstance(externo, (str, int))):
         raise ValueError("id_produto_origem_invalido")
+    if externo is None or (isinstance(externo, str) and not externo.strip()):
+        raise ValueError("id_produto_origem_ausente")
 
     items = item.get("items")
     if not isinstance(items, list) or not items:

@@ -93,5 +93,36 @@ class TestIndisponibilidadeSoComColetaExaustiva(unittest.TestCase):
         self.assertFalse(any("UPDATE preco" in s for s in sqls))
 
 
+class TestRotinaRepassaQuarentena(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="smartmarket_test_rotina_quar_"))
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _ciclo(self, resumo_carga):
+        config = {"nome": "Rede Falsa", "modulo": coletor_falso(0), "source": "falsa", "store": "loja",
+                  "mercado_id_default": 99, "fixture_padrao": "x.json"}
+        with patch("rotina_carga.carregar", return_value=resumo_carga) as carregar, \
+                patch("rotina_carga.conectar_banco"), \
+                patch("rotina_carga.validar_dsn", return_value={"dbname": "smartmarket"}):
+            resumo = executar_ciclo_rede("falsa", config, dsn=DSN, diretorio_base=self.tmp,
+                                         permitir_banco_app=True)
+        return resumo, carregar
+
+    def test_carga_recebe_o_diretorio_da_execucao_para_gravar_a_quarentena(self):
+        resumo, carregar = self._ciclo({"precos_inseridos": 2, "rejeitados": []})
+        self.assertEqual(Path(carregar.call_args.kwargs["diretorio_quarentena"]), Path(resumo["dir_saida"]))
+        self.assertEqual(resumo["status"], "concluido")
+        self.assertEqual(resumo["total_rejeitados"], 0)
+
+    def test_rejeitados_deixam_o_ciclo_parcial_mas_nao_falho(self):
+        rej = [{"indice": 1, "id_produto_origem": "B", "motivo": "preco_fora_numeric_10_2", "etapa": "validacao"}]
+        resumo, _ = self._ciclo({"precos_inseridos": 1, "rejeitados": rej})
+        self.assertEqual(resumo["status"], "parcial")
+        self.assertEqual(resumo["total_rejeitados"], 1)
+        self.assertEqual(resumo["rejeitados"], rej)
+
+
 if __name__ == "__main__":
     unittest.main()

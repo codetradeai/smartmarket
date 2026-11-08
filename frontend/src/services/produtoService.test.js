@@ -2,6 +2,9 @@ import api from './api'
 import produtoService from './produtoService'
 import { PRODUCTS } from '../data'
 
+// O data.js real tem ~32 MB; os testes usam a fixture (regra do CLAUDE.md).
+jest.mock('../data', () => require('../test/dataFixture'))
+
 jest.mock('./api', () => ({
   __esModule: true,
   default: { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() },
@@ -10,6 +13,12 @@ jest.mock('./api', () => ({
 describe('produtoService', () => {
   beforeEach(() => {
     jest.resetAllMocks()
+  })
+
+  it('usa a fixture pequena no lugar do data.js real de 32 MB', () => {
+    // Sem o jest.mock('../data') acima, PRODUCTS seria o catálogo real (milhares de produtos).
+    expect(PRODUCTS.length).toBeGreaterThan(0)
+    expect(PRODUCTS.length).toBeLessThan(100)
   })
 
   describe('buscarCatalogoComPrecos', () => {

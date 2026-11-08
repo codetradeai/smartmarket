@@ -59,10 +59,11 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: Run Frontend Unit Tests (Jest)
+      # Roda com cobertura: o limiar mínimo de 70% (jest.config.cjs) só é avaliado com --coverage.
+      - name: Run Frontend Unit Tests with Coverage (Jest, minimum 70%)
         timeout-minutes: 15
         working-directory: ./frontend
-        run: npm test
+        run: npm run test:coverage
 
       - name: Build Production Bundle
         working-directory: ./frontend

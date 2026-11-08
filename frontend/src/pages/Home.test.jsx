@@ -102,6 +102,6 @@ describe('Home (visitante)', () => {
 
     const valorDe = (rotulo) => screen.getByText(rotulo).closest('div').querySelector('dd')
     expect(valorDe('Redes no catálogo')).toHaveTextContent(new RegExp(`^${MARKETS.length}$`))
-    expect(valorDe('Produtos com preço coletado')).toHaveTextContent(new RegExp(`^${PRODUCTS.length}$`))
+    expect(valorDe('Anúncios com preço coletado')).toHaveTextContent(new RegExp(`^${PRODUCTS.length}$`))
   })
 })

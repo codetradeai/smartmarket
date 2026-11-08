@@ -2,7 +2,14 @@ import fs from 'fs'
 import path from 'path'
 import { CATALOGO, GRUPOS } from '../test/equivalentesFixture'
 import dados from '../data/equivalentes.json'
-import { indexarGrupos, equivalentesDe, precosPorRede, entradaDaRede } from './equivalentes'
+import {
+  indexarGrupos,
+  equivalentesDe,
+  precosPorRede,
+  entradaDaRede,
+  redesComEquivalenteConfirmado,
+  contarGruposConfirmados,
+} from './equivalentes'
 
 const prod = (id) => CATALOGO.find((p) => p.id === id)
 
@@ -120,6 +127,34 @@ describe('entradaDaRede', () => {
   it('devolve null quando não há entrada', () => {
     expect(entradaDaRede(porRede, { id: 'stok', name: 'Stok Center' })).toBeNull()
     expect(entradaDaRede(null, { id: 'stok' })).toBeNull()
+  })
+})
+
+describe('redesComEquivalenteConfirmado', () => {
+  it('lista as redes (ids) em que há equivalente confirmado, fora a do próprio item', () => {
+    expect(redesComEquivalenteConfirmado(prod('p10'), CATALOGO, GRUPOS)).toEqual(['fort'])
+    expect(redesComEquivalenteConfirmado(prod('p20'), CATALOGO, GRUPOS)).toEqual(['rissul'])
+  })
+
+  it('equivalente provável não entra na lista', () => {
+    expect(redesComEquivalenteConfirmado(prod('p12'), CATALOGO, GRUPOS)).toEqual([])
+  })
+
+  it('sem equivalentes devolve lista vazia', () => {
+    expect(redesComEquivalenteConfirmado(prod('p30'), CATALOGO, GRUPOS)).toEqual([])
+    expect(redesComEquivalenteConfirmado(prod('p10'), CATALOGO)).toEqual([])
+  })
+})
+
+describe('contarGruposConfirmados', () => {
+  it('conta só os grupos confirmados (cada um é um produto em 2+ redes)', () => {
+    expect(contarGruposConfirmados(GRUPOS)).toBe(4)
+    expect(contarGruposConfirmados([])).toBe(0)
+    expect(contarGruposConfirmados(undefined)).toBe(0)
+  })
+
+  it('o arquivo inicial vazio dá zero', () => {
+    expect(contarGruposConfirmados()).toBe(dados.grupos.filter((g) => g.confianca === 'confirmado').length)
   })
 })
 

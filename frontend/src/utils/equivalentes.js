@@ -116,3 +116,15 @@ export function entradaDaRede(porRede, mercado) {
   if (!porRede || !mercado) return null
   return porRede[mercado.id] ?? porRede[mercado.id?.toString()] ?? porRede[mercado.name?.toLowerCase()] ?? null
 }
+
+/** Ids das redes (chaves de `prices`) onde há equivalente confirmado, sem repetir as redes do próprio item. */
+export function redesComEquivalenteConfirmado(produto, catalogo, grupos = GRUPOS_EQUIVALENTES) {
+  return Object.entries(precosPorRede(produto, catalogo, grupos))
+    .filter(([, entrada]) => entrada.confianca === CONFIANCA_CONFIRMADO)
+    .map(([rede]) => rede)
+}
+
+/** Quantos produtos já estão em 2+ redes por casamento confirmado (um grupo confirmado = um produto). */
+export function contarGruposConfirmados(grupos = GRUPOS_EQUIVALENTES) {
+  return Array.isArray(grupos) ? grupos.filter((g) => g?.confianca === CONFIANCA_CONFIRMADO).length : 0
+}

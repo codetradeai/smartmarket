@@ -4,6 +4,11 @@ import { useAuth } from "../hooks/useAuth"
 import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService"
 import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
 import logoImg from "../assets/logo.png"
+import { MARKETS, REDES_COM_PRODUTOS } from "../catalogoResumo"
+import { listarNomes, nomeCurtoRede, redesComProdutos } from "../utils/redesDoCatalogo"
+
+// Só as redes que têm produtos no catálogo (o Carrefour, por exemplo, tem 0 hoje).
+const NOMES_DAS_REDES = listarNomes(redesComProdutos(MARKETS, REDES_COM_PRODUTOS).map(nomeCurtoRede))
 
 /**
  * Medidor de Força de Senha conforme especificação do Figma
@@ -200,7 +205,7 @@ export default function AuthPage() {
               <div>
                 <h4 className="text-sm font-bold text-white">Compare preços</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Veja o total em cada supermercado da sua região (Fort, Carrefour e mais).
+                  Veja o total em cada supermercado da sua região ({NOMES_DAS_REDES}).
                 </p>
               </div>
             </div>
@@ -406,7 +411,7 @@ export default function AuthPage() {
                     label="Senha"
                     type="password"
                     required
-                    placeholder="Mínimo 8 caracteres"
+                    placeholder="Mínimo 6 caracteres"
                     value={cadPassword}
                     onChange={(e) => setCadPassword(e.target.value)}
                   />

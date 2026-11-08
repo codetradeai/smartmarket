@@ -103,9 +103,18 @@ describe('ShoppingListPage', () => {
       expect(listaNaSessao()).toEqual({})
     })
 
+    it('produto da API com id numerico de um produto local enriquece o item da lista, sem duplicar', async () => {
+      // O catalogo local usa "p1"; a API devolve o mesmo produto como 1 (Long).
+      const arrozDaApi = { id: 1, name: 'Arroz da API', brand: 'Tio João', category: 'graos', unit: '5 kg', image: '🌾', prices: { 1: 10, 2: 12 } }
+      await renderizar({ produtos: [arrozDaApi], lista: { p1: 2 } })
+
+      expect(screen.getByRole('heading', { name: 'Itens da Lista (1)' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 3, name: 'Arroz da API' })).toBeInTheDocument()
+    })
+
     it('mantem na lista produtos que so existem na API (id numerico)', async () => {
-      const SO_NA_API = { id: 10, name: 'Leite da API', brand: 'Marca X', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 4.5, 2: 5 } }
-      await renderizar({ produtos: [ARROZ, SO_NA_API], lista: { 10: 2 } })
+      const SO_NA_API = { id: 910, name: 'Leite da API', brand: 'Marca X', category: 'leites', unit: '1 L', image: '🥛', prices: { 1: 4.5, 2: 5 } }
+      await renderizar({ produtos: [ARROZ, SO_NA_API], lista: { 910: 2 } })
 
       expect(screen.getByRole('heading', { name: 'Itens da Lista (1)' })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 3, name: 'Leite da API' })).toBeInTheDocument()

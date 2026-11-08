@@ -12,6 +12,7 @@ import logoRissul from "../../logo/logo-rissul,.png";
 import logoZaffari from "../../logo/zaffari-bourbon-logo.png";
 import logoMaster from "../../logo/mastersupermercados-logo.png";
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
+import { mesclarCatalogo } from "../utils/mesclarCatalogo"
 import { urlPublica } from "../utils/urlPublica"
 
 const MARKET_LOGOS = {
@@ -1034,15 +1035,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           favoritoService.listarProdutos().catch(() => []),
         ]);
         if (prodsData && prodsData.length > 0) {
-          const apiMap = new Map(prodsData.map((item) => [String(item.id), item]));
-          const merged = DEFAULT_PRODUCTS.map((defItem) =>
-            apiMap.has(String(defItem.id)) ? { ...defItem, ...apiMap.get(String(defItem.id)) } : defItem
-          );
-          const existingIds = new Set(DEFAULT_PRODUCTS.map((d) => String(d.id)));
-          prodsData.forEach((item) => {
-            if (!existingIds.has(String(item.id))) merged.push(item);
-          });
-          setProducts(merged);
+          setProducts(mesclarCatalogo(DEFAULT_PRODUCTS, prodsData));
         }
         if (mktsData && mktsData.length > 0) setMarkets(mktsData);
         if (Array.isArray(favMktsData)) {

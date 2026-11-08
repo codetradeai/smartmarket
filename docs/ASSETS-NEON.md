@@ -9,8 +9,8 @@ Para o deploy não carregar ~50 MB de fotos e ~28 MB de catálogo (`data.js`) a 
 | Fotos (`/images/produtos/**`) | `images/produtos/<arquivo>` | `VITE_ASSETS_BASE_URL` |
 | Catálogo (9.406 produtos, JSON em gzip, ~3,5 MB) | `catalogo/produtos.json` | `VITE_CATALOGO_URL` |
 
-- Sem as variáveis, nada muda: dev local, Docker e testes continuam usando `frontend/public` e `src/data.js`.
-- Com `VITE_CATALOGO_URL`, o Vite descarta o `import("../data")` e o chunk de ~28 MB nem é gerado (`src/utils/carregarProdutos.js`).
+- Sem as variáveis, nada muda: dev local, Docker e testes continuam usando `frontend/public` para as fotos e, para o catálogo, o JSON estático `/catalogo/produtos.<hash>.json`, que `predev`/`prebuild` geram a partir de `src/data.js` (`frontend/scripts/gerar-catalogo-json.mjs`; os arquivos gerados não são versionados). Nenhum código de produção importa `data.js`: o app só faz `fetch()` do JSON.
+- Com `VITE_CATALOGO_URL`, o `fetch()` vai para o JSON do bucket em vez do arquivo estático (`src/utils/carregarProdutos.js`). O `npm run build:estatico` não dispara o `prebuild`, então sem essa variável o `dist` fica sem catálogo, a menos que o `public/catalogo/` já tenha sido gerado.
 - Com `VITE_ASSETS_BASE_URL`, os caminhos `/images/produtos/...` são reescritos para o bucket na carga do catálogo (`src/utils/urlAssets.js`).
 
 ## Configurar o deploy
@@ -42,5 +42,5 @@ Flags de `enviar.mjs`: `--so-imagens`, `--so-catalogo`, `--cors` (reaplica CORS 
 - Plano gratuito do Neon: 5 GB de armazenamento e 5 GB de transferência por mês. Hoje são ~53 MB de fotos e ~3,5 MB de catálogo por visita (as fotos têm `Cache-Control: immutable`; o catálogo, 5 min).
 - O bucket não tem CDN. Se o tráfego crescer, coloque a Cloudflare na frente (origem = endpoint do bucket) e troque o valor das duas variáveis.
 - O bucket acompanha a branch do Neon (`production`). Branches de preview herdam uma cópia; só a de produção é a origem das URLs acima.
-- **O catálogo do bucket é estático.** A coleta diária (`coleta_diaria.yml`) regenera o `data.js` mas **não** republica `catalogo/produtos.json`; depois de mudar o catálogo, rode `npm run catalogo && npm run enviar` (seção acima). Alterações aparecem no site em até 5 min (cache do catálogo).
+- **O catálogo do bucket é estático e nenhum workflow o atualiza.** O `coleta_diaria.yml` roda os testes do scraper e, só se houver Postgres local (secret `SMARTMARKET_DSN` + `validar_dsn`), a coleta; o runner é descartado ao fim e nada comita nem publica o `data.js` nem o `catalogo/produtos.json`. Depois de mudar o catálogo (por exemplo, rodar `scraper/gerar_catalogo_e_sql.py` na sua máquina), rode `npm run catalogo && npm run enviar` (seção acima). Alterações aparecem no site em até 5 min (cache do catálogo).
 - **Cache das fotos:** só nomes com hash de conteúdo (`<id>_<12 hex>.<ext>`) recebem `immutable` de 1 ano; galeria e frames 360 têm cache de 1 dia. Fotos enviadas antes dessa regra continuam com `immutable`: se regerar um arquivo sem hash, mude o nome ou a pasta.

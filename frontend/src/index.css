@@ -10,10 +10,12 @@
   --color-brand-navy-light: #16324F;
   --color-brand-navy-dark: #081524;
 
-  --color-brand-green: #22A95E;
-  --color-brand-green-hover: #1B8C4D;
+  /* Verde primário escurecido para contraste AA: texto branco no botão e o verde como texto passam de 4,5:1
+     (antes #22A95E = 3,04:1 com branco). Hover e dark seguem mais escuros que a base. */
+  --color-brand-green: #1A8047;
+  --color-brand-green-hover: #146B3A;
   --color-brand-green-light: #E8F8F0;
-  --color-brand-green-dark: #17864A;
+  --color-brand-green-dark: #115C33;
 
   --color-brand-emerald: #00C853;
   --color-brand-teal: #1DB4A3;
@@ -25,7 +27,8 @@
   --color-brand-border-hover: #A8D1BC;
 
   --color-brand-text: #0D2137;
-  --color-brand-muted: #6B8A7A;
+  /* Texto secundário: #6B8A7A dava 3,79:1 no branco e 3,58:1 no bg da marca; este passa de 4,5:1 nos três fundos */
+  --color-brand-muted: #5C7668;
   --color-brand-muted-light: #9BB8AA;
 
   --color-brand-error: #D63B3B;
@@ -33,6 +36,10 @@
   --color-brand-amber: #F59E0B;
   --color-brand-amber-light: #FEF3C7;
   --color-brand-coral: #FF6B4A;
+
+  /* Cinza-claro de texto pequeno (9-12 px) usado em avisos e legendas: o slate-400 padrão dá 2,56:1 no branco.
+     Sobrescreve a paleta do Tailwind para que todo text-slate-400 passe de 4,5:1, sem editar cada tela. */
+  --color-slate-400: #617188;
 
   /* Raios de borda suaves do Figma */
   --radius-xs: 6px;

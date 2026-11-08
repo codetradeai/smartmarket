@@ -256,7 +256,7 @@ export function SearchSuggest({
                     <button
                       type="button"
                       onClick={() => onAdd?.(product)}
-                      className="shrink-0 whitespace-nowrap rounded-md bg-brand-green px-3 py-2 text-xs font-extrabold text-white hover:bg-[#1b8c4d]"
+                      className="shrink-0 whitespace-nowrap rounded-md bg-brand-green px-3 py-2 text-xs font-extrabold text-white hover:bg-brand-green-hover"
                     >
                       + Adicionar
                     </button>

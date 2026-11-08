@@ -46,3 +46,6 @@ docker-compose.override.yml
 .env
 .env.*
 !.env.example
+
+# Ajuste local de JVM do Maven (ex.: java.io.tmpdir no Windows); cada máquina tem o seu
+.mvn/jvm.config

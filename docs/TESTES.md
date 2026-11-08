@@ -1,6 +1,15 @@
 # Guia de testes unitarios — SmartMarket
 
-Meta do grupo: **manter pelo menos 70% de cobertura** no back-end (JaCoCo) e no front-end (Jest). Os comandos abaixo falham se a cobertura global ficar abaixo desse valor.
+Meta do grupo: **manter pelo menos 70% de cobertura** no back-end (JaCoCo) e no front-end (Jest). O que é imposto de fato:
+
+| Parte | Comando que checa | O que reprova |
+|---|---|---|
+| Back-end | `./mvnw test` (o `check` do JaCoCo roda na fase `test`) | cobertura do projeto inteiro (BUNDLE) abaixo de 70% em **linhas** ou em **branches** (`coverage.minimum` no `pom.xml`); funções e statements não são medidos; `SmartMarketApplication` fica fora da conta |
+| Front-end | `npm run test:coverage` (é o que o CI roda) | qualquer um dos quatro contadores globais (branches, functions, lines, statements) abaixo de 70% (`coverageThreshold` do `jest.config.cjs`) |
+| Front-end | `npm test` | **só os testes**: não avalia cobertura, então não falha por ela |
+| Scraper | `python -m unittest discover -s scraper/tests` | só a suíte; não há limiar de cobertura |
+
+O `ci.yml` roda `./mvnw clean test -B` no back e `npm run test:coverage` no front; `src/ciCobertura.test.js` trava o workflow e o limiar para ninguém voltar a `npm test` sem notar.
 
 ## Comandos
 
@@ -28,8 +37,8 @@ Jest + React Testing Library.
 
 ```bash
 cd frontend
-npm test
-npm run test:coverage
+npm test                 # só os testes, sem checar cobertura
+npm run test:coverage    # com cobertura: falha abaixo de 70% (é o que o CI roda)
 npm run test:watch
 ```
 
@@ -140,5 +149,6 @@ render(
 2. Antes do PR: rode `./mvnw test` e `npm run test:coverage`.
 3. Abra o HTML de cobertura e procure vermelho (linhas sem teste).
 4. Nao baixe o limiar no `pom.xml` (`coverage.minimum`) nem no `jest.config.cjs` (`coverageThreshold`) sem acordo do grupo.
+5. Cenarios de negocio e quais deles tem teste automatizado: `docs/CENARIOS-DE-TESTE.md`.
 
 Se o build falhar por cobertura, o relatorio mostra o percentual atual. Escreva testes para o codigo novo; nao comente o plugin para “passar o CI”.

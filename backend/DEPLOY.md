@@ -104,7 +104,7 @@
 ### 2.1 Criar o Web Service
 
 1. No painel do Render, clique em **New → Web Service**.
-2. Conecte o repositório `codetradeai/smartmarket`.
+2. Conecte o repositório `smartmarket-team/smartmarket`.
 3. Configure:
 
    | Campo | Valor |

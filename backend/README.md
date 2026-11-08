@@ -31,9 +31,16 @@ valor de exemplo de `.env.example` (`gere-um-segredo-...`), que é público.
    ```
 3. O arquivo `.env` está no `.gitignore` — nunca é commitado.
 
-Localização dos arquivos `.env`:
-- **Raiz do monorepo** (`smartmarket/.env`) — lido pelo `docker-compose.yml` da raiz e pelo `backend/docker-compose.yml`
-- Não há `.env` dentro de `backend/` — tudo vem da raiz
+Quem lê o `.env` e quem não lê:
+- **`docker-compose.yml` da raiz**: lê o `.env` da raiz sozinho (o Compose procura o `.env` na pasta do próprio compose).
+- **`backend/docker-compose.yml`** (Postgres de dev, porta 5436): **não** lê o `.env` da raiz, porque o Compose resolve o `.env`
+  a partir da pasta do arquivo de compose, e não há `.env` em `backend/`. Sem a senha, ele aborta com
+  `required variable POSTGRES_PASSWORD is missing a value`. Passe o arquivo explicitamente (a partir da raiz):
+  `docker compose -f backend/docker-compose.yml --env-file .env up -d postgres`
+  (ou `cd backend && docker compose --env-file ../.env up -d postgres`), ou exporte `POSTGRES_PASSWORD` no shell.
+- **Spring Boot** (`./mvnw spring-boot:run`): **não** lê `.env`. As variáveis precisam estar exportadas no shell ou na IDE
+  (seções abaixo). Use a **mesma** `POSTGRES_PASSWORD` do banco: se ela não estiver exportada, o perfil `dev` cai no
+  valor padrão de `application-dev.properties` e a conexão com o banco criado com outra senha falha.
 
 ---
 
@@ -79,7 +86,7 @@ O arquivo `.vscode/launch.json` está no `.gitignore`.
 
 ## Perfil dev e como é ativado
 
-O perfil `dev` ativa o `DataSeeder` (cria contas de teste) e usa H2 / PostgreSQL local.
+O perfil `dev` ativa o `DataSeeder` (cria contas de teste) e usa o PostgreSQL local de `backend/docker-compose.yml` (porta 5436). O H2 em memória é só do perfil `test`.
 
 | Forma de execução | Perfil ativado |
 |-------------------|---------------|
@@ -92,11 +99,28 @@ O perfil padrão foi removido do `application.properties` intencionalmente: um d
 
 ---
 
+## Regras da API que o código impõe
+
+- **Papel do usuário**: o `PapelDoBancoJwtConverter` lê o papel no banco a cada requisição autenticada; a claim `papel` do token
+  não decide nada. Rebaixar ou promover alguém vale na hora, e token de usuário apagado dá 401.
+- **E-mail**: no cadastro vai para minúsculas e sem espaços nas pontas; duplicata por caixa é recusada. O login ignora espaços e
+  caixa, e continua valendo para contas antigas gravadas com maiúsculas.
+- **Senha**: de 6 a 72 caracteres (o limite superior é do bcrypt).
+- **Entrada inválida é 400, não 500**: JSON malformado, parâmetro com tipo errado (id ou página não numéricos) e violações de
+  validação respondem 400. Os campos dos DTOs têm o tamanho máximo das colunas.
+- **Lista de compras**: quantidade de 1 a 999 por item (a soma de adições repetidas também respeita o teto) e no máximo 100 itens
+  distintos por lista; acima disso a API responde 400.
+- **Busca por nome** (`GET /api/produtos?nome=`): compara o termo, sem acento e em minúsculas, só com `produto.nome_normalizado`.
+  Produtos criados ou renomeados gravam o valor sozinhos; bancos que já receberam o `03_carga.sql` precisam rodar uma vez o passo
+  manual `backend/deploy/05_corrige_nome_normalizado.sql` (ver `DEPLOY.md`).
+
+---
+
 ## Comandos rápidos
 
 ```bash
-# Subir banco de dev
-docker compose -f backend/docker-compose.yml up -d postgres
+# Subir banco de dev (a partir da raiz; o compose de backend/ não lê o .env da raiz sozinho)
+docker compose -f backend/docker-compose.yml --env-file .env up -d postgres
 
 # Rodar o backend em modo dev
 ./mvnw spring-boot:run          # perfil dev, porta 8080

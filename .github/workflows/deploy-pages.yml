@@ -1,0 +1,67 @@
+# Publica o frontend (React/Vite) no GitHub Pages: https://smartmarket-team.github.io/smartmarket/
+# Pré-requisito (uma vez): Settings > Pages > Source = "GitHub Actions".
+# Fotos e catálogo vêm do Neon Object Storage (ver docs/ASSETS-NEON.md); o backend fica em outro host
+# e a URL dele vai na variável do repositório VITE_API_URL (Settings > Secrets and variables > Actions > Variables).
+name: Deploy do frontend no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      VITE_BASE: /smartmarket/
+      # URLs públicas do bucket (não são segredo).
+      VITE_ASSETS_BASE_URL: https://br-rough-pond-bcbjyd79.storage.c-16.us-east-1.aws.neon.tech/smartmarket-assets
+      VITE_CATALOGO_URL: https://br-rough-pond-bcbjyd79.storage.c-16.us-east-1.aws.neon.tech/smartmarket-assets/catalogo/produtos.json
+      # URL do backend em produção, sem barra no fim (ex.: https://smartmarket-api.onrender.com/api).
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # As fotos estão no bucket: não precisam ir no artefato do Pages.
+      - run: node scripts/podar-dist.mjs
+      # O Pages não tem fallback de SPA: rotas como /catalog caem no 404.html, que é o próprio app.
+      - run: cp dist/index.html dist/404.html
+      - name: Tamanho do dist
+        working-directory: .
+        run: MAX_TOTAL_MB=20 bash scripts/verificar-tamanho-dist.sh frontend/dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -135,6 +135,32 @@ describe('ProductViewer360 (Fase 3B)', () => {
     expect(img).toHaveAttribute('src', mockFrames[2])
   })
 
+  it('o cursor vira "grabbing" durante o arraste e volta a "grab" ao soltar (também em pointercancel)', () => {
+    render(<ProductViewer360 frames={mockFrames} alt="Café Melitta 360" sensitivity={10} />)
+
+    act(() => {
+      jest.advanceTimersByTime(50)
+    })
+
+    const regiao = screen.getByRole('region')
+    expect(regiao).toHaveClass('cursor-grab')
+    expect(regiao).not.toHaveClass('cursor-grabbing')
+
+    fireEvent.pointerDown(regiao, { clientX: 200, pointerId: 1 })
+    fireEvent.pointerMove(regiao, { clientX: 180, pointerId: 1 })
+    expect(regiao).toHaveClass('cursor-grabbing')
+
+    // Soltar não muda o quadro, então só um estado explícito faz o cursor voltar.
+    fireEvent.pointerUp(regiao, { pointerId: 1 })
+    expect(regiao).toHaveClass('cursor-grab')
+    expect(regiao).not.toHaveClass('cursor-grabbing')
+
+    fireEvent.pointerDown(regiao, { clientX: 200, pointerId: 1 })
+    expect(regiao).toHaveClass('cursor-grabbing')
+    fireEvent.pointerCancel(regiao, { pointerId: 1 })
+    expect(regiao).not.toHaveClass('cursor-grabbing')
+  })
+
   it('desmonta com segurança sem estourar erros de timers pendentes', async () => {
     const { unmount } = render(
       <ProductViewer360 frames={mockFrames} alt="Café Melitta 360" />

@@ -13,7 +13,7 @@ export const favoritoService = {
    * Lista os mercados favoritados pelo usuário
    */
   async listarMercados() {
-    let localFavs = []
+    let localFavs
     try {
       localFavs = JSON.parse(localStorage.getItem("sm_fav_markets") || "[]")
       if (!Array.isArray(localFavs)) localFavs = []
@@ -92,7 +92,7 @@ export const favoritoService = {
    * Lista os produtos favoritados pelo usuário (sempre sincronizado com sm_fav_products)
    */
   async listarProdutos() {
-    let localFavs = []
+    let localFavs
     try {
       localFavs = JSON.parse(localStorage.getItem("sm_fav_products") || "[]")
       if (!Array.isArray(localFavs)) localFavs = []

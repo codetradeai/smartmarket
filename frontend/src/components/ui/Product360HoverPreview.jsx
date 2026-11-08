@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ProductImage } from "./ProductImage"
 import { useFramesDoProduto } from "../../hooks/useFramesDoProduto"
 

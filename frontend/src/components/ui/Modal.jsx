@@ -1,6 +1,10 @@
-import { useEffect } from "react"
+import { createContext, useContext, useEffect, useId, useRef } from "react"
 import { createPortal } from "react-dom"
 import { cn } from "../../lib/utils"
+import { useFocoNoDialogo } from "../../hooks/useFocoNoDialogo"
+
+// Id do ModalTitle do diálogo aberto, usado como aria-labelledby (nome acessível do dialog).
+const ModalTitleIdContext = createContext(undefined)
 
 const sizeStyles = {
   sm: "max-w-md",
@@ -18,7 +22,12 @@ export function Modal({
   closeOnOverlayClick = true,
   showCloseButton = true,
   className,
+  ariaLabel,
 }) {
+  const titleId = useId()
+  const dialogRef = useRef(null)
+  useFocoNoDialogo(Boolean(isOpen), dialogRef)
+
   // Fecha ao pressionar ESC
   useEffect(() => {
     if (!isOpen) return
@@ -49,10 +58,14 @@ export function Modal({
 
   return createPortal(
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabel ? undefined : titleId}
+      tabIndex={-1}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-xs animate-in fade-in duration-200 outline-none"
     >
       <div
         className={cn(
@@ -83,7 +96,7 @@ export function Modal({
           </button>
         )}
 
-        {children}
+        <ModalTitleIdContext.Provider value={titleId}>{children}</ModalTitleIdContext.Provider>
       </div>
     </div>,
     document.body
@@ -99,8 +112,10 @@ export function ModalHeader({ children, className, ...props }) {
 }
 
 export function ModalTitle({ children, className, ...props }) {
+  const titleId = useContext(ModalTitleIdContext)
   return (
     <h3
+      id={titleId}
       className={cn("text-xl font-bold text-brand-navy tracking-tight", className)}
       {...props}
     >

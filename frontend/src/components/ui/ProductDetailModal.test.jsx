@@ -427,8 +427,136 @@ describe('ProductDetailModal (Fase 2)', () => {
     expect(dialogo.className).toMatch(/max-h-\[calc\(100dvh-1\.5rem\)\]/)
     expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument()
   })
+
+  describe('acessibilidade e conteudo do dialogo', () => {
+    it('o dialogo tem o nome do produto como nome acessivel', () => {
+      render(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+      )
+
+      expect(
+        screen.getByRole('dialog', { name: 'Café em pó Melitta Tradicional 500g' })
+      ).toBeInTheDocument()
+    })
+
+    it('move o foco para o dialogo ao abrir e devolve ao elemento de origem ao fechar', () => {
+      const { rerender } = render(
+        <div>
+          <button type="button">Card de origem</button>
+          <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={false} onClose={() => {}} />
+        </div>
+      )
+      const origem = screen.getByRole('button', { name: 'Card de origem' })
+      origem.focus()
+
+      rerender(
+        <div>
+          <button type="button">Card de origem</button>
+          <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+        </div>
+      )
+      expect(screen.getByRole('dialog')).toHaveFocus()
+
+      rerender(
+        <div>
+          <button type="button">Card de origem</button>
+          <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={false} onClose={() => {}} />
+        </div>
+      )
+      expect(origem).toHaveFocus()
+    })
+
+    it('prende o Tab dentro do dialogo (do ultimo volta ao primeiro e vice-versa)', () => {
+      render(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+      )
+      const dialogo = screen.getByRole('dialog')
+      const focaveis = Array.from(
+        dialogo.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      )
+      const primeiro = focaveis[0]
+      const ultimo = focaveis[focaveis.length - 1]
+
+      ultimo.focus()
+      fireEvent.keyDown(ultimo, { key: 'Tab' })
+      expect(primeiro).toHaveFocus()
+
+      fireEvent.keyDown(primeiro, { key: 'Tab', shiftKey: true })
+      expect(ultimo).toHaveFocus()
+    })
+
+    it('bloqueia o scroll da pagina enquanto aberto e restaura ao fechar', () => {
+      document.body.style.overflow = 'auto'
+      const { rerender } = render(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+      )
+      expect(document.body.style.overflow).toBe('hidden')
+
+      rerender(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={false} onClose={() => {}} />
+      )
+      expect(document.body.style.overflow).toBe('auto')
+      document.body.style.overflow = ''
+    })
+
+    it('mostra a secao "Informações do produto" uma unica vez', () => {
+      render(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+      )
+
+      expect(screen.getAllByRole('heading', { name: 'Informações do produto' })).toHaveLength(1)
+      expect(screen.getAllByText('Café torrado e moído tradicional de 500g.')).toHaveLength(1)
+      expect(document.getElementById('informacoes-produto')).not.toBeNull()
+    })
+
+    it('o botao de favoritar diz "Favoritar" e chama onToggleFavorite com o id do produto', () => {
+      const onToggleFavorite = jest.fn()
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={() => {}}
+          onToggleFavorite={onToggleFavorite}
+        />
+      )
+
+      expect(screen.queryByText('Adicionar à lista')).not.toBeInTheDocument()
+      expect(screen.queryByText('Salvo na lista')).not.toBeInTheDocument()
+
+      // Ha dois atalhos de favoritar (acao rapida e rodape): ambos precisam funcionar
+      const botoes = screen.getAllByTitle('Salvar nos favoritos')
+      expect(botoes).toHaveLength(2)
+      botoes.forEach((botao) => fireEvent.click(botao))
+      expect(onToggleFavorite).toHaveBeenCalledTimes(2)
+      expect(onToggleFavorite).toHaveBeenCalledWith('p1')
+    })
+
+    it('rotula o botao como remocao quando o produto ja e favorito', () => {
+      render(
+        <ProductDetailModal
+          product={mockProductComprovado}
+          markets={mockMarkets}
+          isOpen={true}
+          onClose={() => {}}
+          isFavorite
+          onToggleFavorite={() => {}}
+        />
+      )
+
+      expect(screen.getAllByTitle('Remover dos favoritos').length).toBeGreaterThanOrEqual(1)
+      expect(screen.queryByText('Salvo na lista')).not.toBeInTheDocument()
+    })
+
+    it('nao exibe botoes de favoritar quando onToggleFavorite nao foi informado', () => {
+      render(
+        <ProductDetailModal product={mockProductComprovado} markets={mockMarkets} isOpen={true} onClose={() => {}} />
+      )
+
+      expect(screen.queryByTitle('Salvar nos favoritos')).not.toBeInTheDocument()
+      expect(screen.queryByTitle('Remover dos favoritos')).not.toBeInTheDocument()
+      expect(screen.queryByText('Adicionar à lista')).not.toBeInTheDocument()
+    })
+  })
 })
-
-
-
 

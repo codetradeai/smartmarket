@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { CATEGORIES, MARKETS as DEFAULT_MARKETS } from "../catalogoResumo";
+import { CATEGORIES, MARKETS as DEFAULT_MARKETS, REDES_COM_PRODUTOS } from "../catalogoResumo";
 import ComCatalogo from "../components/ComCatalogo";
+import { redesComEquivalenteConfirmado } from "../utils/equivalentes";
+import { nomeCurtoRede, listarNomes, redesComProdutos } from "../utils/redesDoCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductDetailModal, Product360HoverPreview } from "../components/ui";
 import logoFort from "../../logo/logo-fort.png";
@@ -460,6 +462,14 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
   );
 }
 
+// Nomes curtos das outras redes onde há equivalente CONFIRMADO do produto ("Fort", "Asun"); provável não entra.
+function nomesDasRedesEquivalentes(product, catalogo) {
+  return redesComEquivalenteConfirmado(product, catalogo)
+    .map((rede) => DEFAULT_MARKETS.find((m) => String(m.id) === String(rede)))
+    .filter(Boolean)
+    .map(nomeCurtoRede);
+}
+
 // -----------------------------------------------------------------------------
 // Componente: Card de Produto (Compacto, Rico e Ergonômico)
 function ProductCard({
@@ -472,9 +482,11 @@ function ProductCard({
   quantity = 0,
   onOpenDetail,
   isShelf = false,
+  catalogo,
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
+  const tambemEm = useMemo(() => nomesDasRedesEquivalentes(product, catalogo), [product, catalogo]);
 
   function handleAddClick(e) {
     e.stopPropagation();
@@ -599,6 +611,9 @@ function ProductCard({
                   Ver comparativo &rarr;
                 </span>
               </div>
+              {tambemEm.length > 0 && (
+                <p className="text-[11px] text-brand-muted px-1">também em {listarNomes(tambemEm)}</p>
+              )}
             </>
           ) : (
             <div className="p-3 text-center text-xs text-brand-muted bg-slate-50 rounded-2xl">
@@ -773,6 +788,9 @@ function ProductCard({
                 </span>
               )}
             </div>
+            {tambemEm.length > 0 && (
+              <p className="text-[10px] text-brand-muted pt-1">também em {listarNomes(tambemEm)}</p>
+            )}
           </div>
         ) : (
           <div className="text-xs text-brand-muted font-medium py-1">
@@ -836,6 +854,7 @@ function CategoryShelf({
   listQuantities,
   onOpenDetail,
   onSelectCategory,
+  catalogo,
 }) {
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -984,6 +1003,7 @@ function CategoryShelf({
             quantity={listQuantities[prod.id] || 0}
             onOpenDetail={onOpenDetail}
             isShelf={true}
+            catalogo={catalogo}
           />
         ))}
       </div>
@@ -998,6 +1018,9 @@ function CategoryShelf({
 export default function CatalogPage() {
   return <ComCatalogo>{(produtos) => <CatalogPageConteudo produtos={produtos} />}</ComCatalogo>;
 }
+
+// Só as redes com anúncios com preço (o Carrefour, por exemplo, tem 0 hoje).
+const REDES_ATIVAS = redesComProdutos(DEFAULT_MARKETS, REDES_COM_PRODUTOS);
 
 function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
@@ -1255,7 +1278,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
               <p className="text-xs text-brand-muted mt-0.5">
                 {loading
                   ? "Sincronizando prateleiras..."
-                  : `8 Redes do RS integradas · ${filteredProducts.length} produtos disponíveis`}
+                  : `${REDES_ATIVAS.length} redes com produtos · ${filteredProducts.length} produtos disponíveis`}
               </p>
             </div>
 
@@ -1409,6 +1432,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                   onUpdateQty={handleUpdateQty}
                   listQuantities={listQuantities}
                   onOpenDetail={setSelectedProductDetail}
+                  catalogo={products}
                   onSelectCategory={(id) => {
                     setSelectedCat(id);
                     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1502,6 +1526,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                       quantity={listQuantities[prod.id] || 0}
                       onOpenDetail={setSelectedProductDetail}
                       isShelf={false}
+                      catalogo={products}
                     />
                   ))}
                 </div>

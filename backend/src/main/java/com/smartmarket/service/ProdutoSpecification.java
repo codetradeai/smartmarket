@@ -1,6 +1,7 @@
 package com.smartmarket.service;
 
 import com.smartmarket.model.Produto;
+import com.smartmarket.util.NormalizadorTexto;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ProdutoSpecification {
@@ -8,10 +9,9 @@ public class ProdutoSpecification {
     public static Specification<Produto> withNome(String nome) {
         return (root, query, cb) -> {
             String normalizado = "%" + escapar(normalizar(nome)) + "%";
-            return cb.or(
-                cb.like(cb.lower(root.get("nome")), normalizado),
-                cb.like(cb.lower(root.get("nomeNormalizado")), normalizado)
-            );
+            // nome_normalizado (sem acento, minúsculo) é a única fonte da busca por nome;
+            // comparar também com o nome acentuado nunca casaria com o termo normalizado.
+            return cb.like(root.get("nomeNormalizado"), normalizado);
         };
     }
 
@@ -34,15 +34,7 @@ public class ProdutoSpecification {
     }
 
     public static String normalizar(String texto) {
-        return texto.toLowerCase()
-            .replaceAll("[àáâãäå]", "a")
-            .replaceAll("[èéêë]", "e")
-            .replaceAll("[ìíîï]", "i")
-            .replaceAll("[òóôõö]", "o")
-            .replaceAll("[ùúûü]", "u")
-            .replaceAll("[ç]", "c")
-            .replaceAll("\\s+", " ")
-            .trim();
+        return NormalizadorTexto.normalizar(texto);
     }
 
     private static String escapar(String texto) {

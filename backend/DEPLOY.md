@@ -79,8 +79,23 @@
 
    -- Passo 4: adiciona coluna ativa na tabela promocao
    \i backend/deploy/04_adiciona_ativa_promocao.sql
+
+   -- Passo 5: corrige produto.nome_normalizado (sem acento) — ver aviso abaixo
+   \i backend/deploy/05_corrige_nome_normalizado.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
+
+   > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
+   > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em
+   > minúsculas, com acento (350 dos 530 produtos), e a busca por nome (`GET /api/produtos?nome=`)
+   > compara o termo digitado **sem acento** apenas com essa coluna: `feijao` e `feijão` não
+   > encontravam "Feijão ...". O script é só um `UPDATE` de `nome_normalizado` (não toca em nome,
+   > preço ou outras colunas), idempotente (`WHERE ... IS DISTINCT FROM`; a 2ª execução faz
+   > `UPDATE 0`) e aplica a mesma regra do backend (minúsculas, sem acento, espaços colapsados).
+   > Depois do deploy do backend, produtos criados ou renomeados já gravam o valor correto sozinhos
+   > (`@PrePersist`/`@PreUpdate`); o script só corrige o que já está no banco. Em banco novo,
+   > rode-o depois do `03_carga.sql`. Conferência: `SELECT count(*) FROM produto WHERE nome_normalizado ~ '[^ -~]';`
+   > deve retornar 0.
 
    > ⚠️ **Atenção — PR `feat/c3-coleta-segura`**: aplique o script `04_adiciona_ativa_promocao.sql`
    > **antes** de qualquer deploy que inclua esse PR. O Hibernate sobe com `ddl-auto=validate` e

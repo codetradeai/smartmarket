@@ -112,7 +112,7 @@ class ProdutoServiceTest {
         Root<Produto> root = mock(Root.class);
         spec.toPredicate(root, mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
 
-        verify(root).get("nome");
+        verify(root).get("nomeNormalizado");
         verify(root, never()).get("categoria");
     }
 
@@ -125,7 +125,7 @@ class ProdutoServiceTest {
         spec.toPredicate(root, mock(CriteriaQuery.class), mock(CriteriaBuilder.class));
 
         verify(root, atLeastOnce()).get("categoria");
-        verify(root, never()).get("nome");
+        verify(root, never()).get("nomeNormalizado");
     }
 
     @SuppressWarnings("unchecked")

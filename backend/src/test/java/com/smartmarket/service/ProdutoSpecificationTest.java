@@ -29,16 +29,14 @@ class ProdutoSpecificationTest {
         @SuppressWarnings("unchecked") CriteriaQuery<?> query = mock(CriteriaQuery.class);
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         @SuppressWarnings("unchecked") Path<String> path = mock(Path.class);
-        @SuppressWarnings("unchecked") Expression<String> lower = mock(Expression.class);
         Predicate predicate = mock(Predicate.class);
-        when(root.<String>get("nome")).thenReturn(path);
         when(root.<String>get("nomeNormalizado")).thenReturn(path);
-        when(cb.lower(path)).thenReturn(lower);
-        when(cb.like(eq(lower), anyString())).thenReturn(predicate);
-        when(cb.or(any(Predicate.class), any(Predicate.class))).thenReturn(predicate);
+        when(cb.like(eq(path), anyString())).thenReturn(predicate);
         assertThat(ProdutoSpecification.withNome("  CAFÉ%_\\  ").toPredicate(root, query, cb))
             .isSameAs(predicate);
-        verify(cb, times(2)).like(lower, "%cafe\\%\\_\\\\%");
+        // compara só com nome_normalizado (a única fonte da busca), com o termo já normalizado
+        verify(cb).like(path, "%cafe\\%\\_\\\\%");
+        verify(root, never()).get("nome");
     }
 
     @ParameterizedTest

@@ -9,7 +9,7 @@
 ## 1. Contexto e Objetivos
 
 Esta entrega soluciona as pendências levantadas na entrega parcial da carga (PR #10 / commit `0efd7b4`):
-1. **Coletor da Segunda Rede Integrado**: Coletor oficial do **Carrefour Mercado** (`mercado.carrefour.com.br`) integrado ao lado do **Fort Atacadista** (`fortatacadista.com.br`).
+1. **Redes integradas**: a entrega original ligou o **Carrefour Mercado** (`mercado.carrefour.com.br`) ao lado do **Fort Atacadista** (`fortatacadista.com.br`). Hoje `REDES_CONFIG` tem as **8 redes** (Fort, Carrefour, Asun, Atacadão, Master, Zaffari, Rissul, Stok), mas Zaffari e Rissul estão **suspensas** (`REDES_SUSPENSAS`: o `robots.txt` delas proíbe `/api/`): a rotina as pula e registra `status: suspensa` no relatório. Na prática **6 redes** coletam e carregam por dia; os preços de Zaffari e Rissul no banco são históricos.
 2. **Rotina de Carga Automática e Contínua**: Orquestrador unificado (`scraper/rotina_carga.py`) que executa a extração, normalização estrita (Contrato v1), persistência com histórico e idempotência na tabela `preco`.
 3. **Agendamento e Multiplataforma**: Suporte nativo a execução em lote (*one-shot*) ou modo contínuo (*daemon* agendado), com controle de concorrência via arquivo de lock multiplataforma (sem dependência do `fcntl` exclusivo de Unix/Linux).
 4. **Regras de Negócio na Tabela `preco`**:
@@ -20,7 +20,7 @@ Esta entrega soluciona as pendências levantadas na entrega parcial da carga (PR
    - **Preço com mais de 2 casas** (ex.: 12,345 por kg): arredondado para centavos com `ROUND_HALF_UP` (12,35). Mais de 4 casas decimais, ou um valor que arredonda para zero, vai para a quarentena.
    - **Lock órfão**: se o processo dono do `.rotina.lock` morreu (kill -9, OOM, queda de energia), a próxima execução detecta o pid inexistente, remove o lock e segue. Lock sem pid legível só é recuperado depois de 60 s.
    - **`SMARTMARKET_CONTATO` (obrigatória na coleta real)**: contato que identifica o SmartMarketBot no User-Agent (`identificacao.py`). Sem ela, Fort, Master e Stok terminam com `ErroConfiguracao` antes de requisitar. `cron_coleta_diaria.sh` e `smartmarket-scraper.service` já definem um valor padrão (URL do repositório); para outro contato, exporte a variável antes do script ou use `systemctl edit smartmarket-scraper`. O modo `--fixture` não precisa dela. O workflow `coleta_diaria.yml` só roda testes e arquivos, sem coleta HTTP.
-   - **Inicialização Automática de Mercados**: Garante a integridade referencial inserindo as redes na tabela `mercado` (`id=1`: Fort Atacadista, `id=2`: Carrefour).
+   - **Inicialização Automática de Mercados**: Garante a integridade referencial inserindo as redes na tabela `mercado` (`id=1` Fort, `2` Carrefour, `3` Asun, `4` Atacadão, `5` Master, `6` Zaffari, `7` Rissul, `8` Stok), ids iguais aos de `backend/deploy/02_mercados.sql`.
 
 ---
 
@@ -34,17 +34,14 @@ O fluxo de execução do script `scraper/rotina_carga.py` opera nas seguintes ca
        ▼
 [ LockProcesso (.rotina.lock) ] ── (Garante processo único)
        │
-       ├──► Rede 1: Fort Atacadista (Loja 1585 - Mercado ID 1)
-       │       ├─► Coleta (API GraphQL) -> JSON Canônico (10 campos)
+       ├──► Para cada rede de REDES_CONFIG (Zaffari e Rissul: puladas, status 'suspensa')
+       │       ├─► Coleta (Fort/Asun: Sense/OSuper; Carrefour: stream SSR; Atacadão: VTEX;
+       │       │   Master/Stok: VipCommerce) -> JSON Canônico (10 campos)
        │       ├─► Normalização de Medidas e Decimal estrito (BRL)
-       │       ├─► Inserção/Atualização na tabela 'preco' (via pipeline.py)
-       │       └─► Atualização de Indisponibilidade (disponivel = FALSE)
+       │       ├─► Inserção/Atualização na tabela 'preco' (via pipeline.py); inválidos -> quarentena.json
+       │       └─► Indisponibilidade (disponivel = FALSE) só se a coleta for completa e exaustiva
        │
-       ├──► Rede 2: Carrefour Mercado (Storefront Headless - Mercado ID 2)
-       │       ├─► Coleta (SSR Stream Controller) -> JSON Canônico (10 campos)
-       │       ├─► Normalização de Medidas e Decimal estrito (BRL)
-       │       ├─► Inserção/Atualização na tabela 'preco' (via pipeline.py)
-       │       └─► Atualização de Indisponibilidade (disponivel = FALSE)
+       ├──► Casamento entre redes e gravação de vínculos (vinculo_produto)
        │
        ▼
 [ Relatório Operacional Atômico ] (relatorio_rotina.json)
@@ -54,14 +51,18 @@ O fluxo de execução do script `scraper/rotina_carga.py` opera nas seguintes ca
 
 ## 3. Redes Configuradas
 
-| Parâmetro | Rede 1: Fort Atacadista | Rede 2: Carrefour Mercado |
-|---|---|---|
-| **Módulo** | `scraper/coleta_fort_atacadista.py` | `scraper/coleta_carrefour.py` |
-| **Source** | `fort` | `carrefour` |
-| **Store** | `1585` (Kobrasol / SC) | `mercado` (Storefront Headless Food) |
-| **Mercado ID** | `1` | `2` |
-| **URL Base** | `https://fortatacadista.com.br/` | `https://mercado.carrefour.com.br/` |
-| **Fixture Offline** | `fort_valido.json` | `carrefour_valido.json` |
+| Mercado ID | Source | Módulo | Store | API | Fixture offline | Na rotina |
+|:---:|---|---|---|---|---|---|
+| 1 | `fort` | `coleta_fort_atacadista.py` | `1585` | Sense / OSuper | `fort_valido.json` | sim |
+| 2 | `carrefour` | `coleta_carrefour.py` | `mercado` | stream SSR (headless) | `carrefour_valido.json` | sim |
+| 3 | `asun` | `coleta_asun.py` | `1560` | Sense / OSuper | `asun_valido.json` | sim |
+| 4 | `atacadao` | `coleta_atacadao.py` | `online` | VTEX | `atacadao_valido.json` | sim |
+| 5 | `master` | `coleta_master.py` | `filial_1` | VipCommerce | `master_valido.json` | sim |
+| 6 | `zaffari` | `coleta_zaffari.py` | `online` | VTEX | `zaffari_valido.json` | **suspensa** |
+| 7 | `rissul` | `coleta_rissul.py` | `online` | VTEX | `rissul_valido.json` | **suspensa** |
+| 8 | `stok` | `coleta_stok.py` | `filial_1` | VipCommerce | `stok_valido.json` | sim |
+
+Fonte da verdade: `REDES_CONFIG` e `REDES_SUSPENSAS` em `scraper/rotina_carga.py`. Nenhuma rede real declara `coleta_exaustiva` hoje (todos os coletores amostram), então a rotina não marca produto algum como indisponível.
 
 ---
 
@@ -108,12 +109,14 @@ scraper/output/rotina/
 ├── fort/
 │   └── fort_1585_YYYYMMDD_HHMMSS/
 │       ├── produtos_coletados.json
+│       ├── quarentena.json                <-- só existe se algum registro foi rejeitado
 │       └── checkpoint_carga.json
+├── (asun/, atacadao/, master/, stok/ no mesmo formato; zaffari/ e rissul/ não são gerados)
 └── relatorios/
     └── relatorio_rotina.json              <-- Relatório operacional consolidado
 ```
 
-### Exemplo de `relatorio_rotina.json`:
+### Exemplo de `relatorio_rotina.json` (reduzido a duas redes; o real traz uma entrada por rede de `REDES_CONFIG`, com `status: suspensa` e `motivo` para Zaffari e Rissul):
 ```json
 {
   "executado_em": "2026-10-14T20:49:20Z",
@@ -149,9 +152,9 @@ scraper/output/rotina/
 
 ## 6. Validação e Qualidade (Testes Automatizados)
 
-A suíte completa de testes contém **94 testes unitários e de integração offline**, cobrindo:
+A suíte completa do scraper tem hoje **367 testes** (32 pulados sem Postgres de teste ou sem rede); os principais grupos são:
 1. `test_coleta_carrefour.py`: Extração e parser do stream React Router, extração de preços, marcas, unidades de medida e tratamento de falhas.
-2. `test_coleta_fort_atacadista.py`: Extração via GraphQL e tratamento de payload.
+2. `test_coleta_fort_atacadista.py`: Extração via Sense/OSuper e tratamento de payload. Há um `test_coleta_<rede>.py` para cada uma das outras redes.
 3. `test_normalizacao_pipeline.py`: Conversão de medidas, tipagem monetária estrita com `Decimal` e semântica UTC.
 4. `test_rotina_carga.py`:
    - Aquisição e liberação do `LockProcesso`.
@@ -167,4 +170,4 @@ Para rodar toda a suíte:
 ```bash
 python -m unittest discover -s scraper/tests -v
 ```
-Resultado: **94 testes executados, 100% de sucesso**.
+Resultado esperado: `OK`, com os testes que exigem `SMARTMARKET_TEST_DSN` pulados quando a variável não existe.

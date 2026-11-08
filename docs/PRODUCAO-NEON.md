@@ -20,12 +20,14 @@ psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/01_schema.sql
 psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/02_mercados.sql
 psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/03_carga.sql   # opcional: seed de 530 produtos
 psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/04_adiciona_ativa_promocao.sql
+psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/05_corrige_nome_normalizado.sql   # passo manual: só se rodou o 03
 ```
 
-Respeite a ordem 01 a 04 (o `02` define os IDs dos mercados que o `03` usa por
+Respeite a ordem 01 a 05 (o `02` define os IDs dos mercados que o `03` usa por
 nome; o `04` é obrigatório porque o backend sobe com `ddl-auto=validate` e exige
-a coluna `promocao.ativa`). Todos são idempotentes. O `03` é opcional se os
-dados vierem só do scraper.
+a coluna `promocao.ativa`; o `05` corrige `produto.nome_normalizado` depois do `03`,
+sem o que a busca por nome sem acento não acha 350 dos 530 produtos). Todos são
+idempotentes. O `03` é opcional se os dados vierem só do scraper.
 
 Antes, rode o teste de integridade local (ver `backend/DEPLOY.md`, item 4):
 `DOCKER_CONTAINER=smartmarket-db-dev bash backend/deploy/test_seed_integridade.sh`.
@@ -48,7 +50,7 @@ que `application.properties` e `application-prod.properties` realmente leem:
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://<HOST>.neon.tech/<BANCO>?sslmode=require` | Formato JDBC, com `sslmode=require`; sem usuário/senha na URL |
 | `SPRING_DATASOURCE_USERNAME` | `<USUARIO>` | Secret |
 | `SPRING_DATASOURCE_PASSWORD` | `<SENHA>` | Secret |
-| `SMARTMARKET_JWT_SECRET` | 32+ caracteres aleatórios | Gere com `openssl rand -base64 48`; guarde **só** no painel do provedor |
+| `SMARTMARKET_JWT_SECRET` | no mínimo 32 bytes aleatórios | Gere com `openssl rand -base64 48`; guarde **só** no painel do provedor. O backend não sobe com segredo curto nem com o valor de exemplo do `.env.example` |
 | `SMARTMARKET_CORS_ORIGINS` | `https://smartmarket-team.github.io` | Origem(ns) do frontend, separadas por vírgula; só o domínio, sem `/smartmarket` |
 
 Opcionais, com default seguro: `SPRING_JPA_HIBERNATE_DDL_AUTO` (`validate`),

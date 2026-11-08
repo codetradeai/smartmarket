@@ -4,6 +4,43 @@ Este documento descreve os cenários de teste essenciais do sistema, no formato 
 
 Organizado por módulo, seguindo o MVP definido no documento de planejamento (seção 3).
 
+## Situação de cada cenário (conferida contra o código)
+
+Os cenários abaixo são a especificação; **nem todos têm teste automatizado e dois descrevem funcionalidades que não existem**. A coluna "Teste automatizado" aponta a classe/arquivo que cobre o cenário; "sem teste" significa que nenhum teste o exercita hoje (o comportamento pode existir no código).
+
+| Cenário | Situação | Teste automatizado |
+|---|---|---|
+| 1.1 E-mail duplicado | implementado | `AuthServiceTest`, `AuthControllerIntegrationTest` (duplicata inclusive por caixa) |
+| 1.2 Senha fora do critério | implementado (6 a 72 caracteres) | front: `AuthPage.test.jsx` (mínimo); back: só o máximo de 72 em `TamanhoMaximoDosCamposTest`; **sem teste do mínimo no back** |
+| 1.3 Cadastro válido | implementado | `AuthServiceTest` (senha codificada), `AuthControllerIntegrationTest` |
+| 1.4 Login válido | implementado | `AuthControllerIntegrationTest`, `AuthServiceTest` |
+| 1.5 Senha incorreta | implementado | `AuthControllerIntegrationTest` (401), `AuthServiceTest` |
+| 1.6 Sem token | implementado | `AuthControllerIntegrationTest`, `JwtAutenticacaoIntegrationTest` |
+| 1.7 Usuário comum em rota admin | implementado | `ProdutoControllerIntegrationTest`, `MercadoPrecoAutorizacaoIntegrationTest`, `FavoritoAlertaAdminIntegrationTest` |
+| 1.8 Token expirado | implementado (401; a orientação para novo login é do front) | `JwtAutenticacaoIntegrationTest#tokenExpiradoRecebe401`; o tratamento de 401 no front fica em `api.test.js` |
+| 2.1 a 2.3 Produto: cadastro, sem nome, edição | implementado | `ProdutoControllerIntegrationTest`, `ProdutoServiceTest` |
+| 2.4 Exclusão de produto em lista | **decisão pendente** do grupo | sem teste |
+| 2.5 Coordenadas de mercado | **não implementado**: `Mercado` não tem latitude/longitude (geolocalização é diferencial fora do MVP) | sem teste |
+| 3.1 Produto não coletado fica indisponível | implementado só em coleta completa e exaustiva | `scraper/tests/test_rotina_indisponibilidade.py` |
+| 3.2 Histórico de preço | implementado | `scraper/tests/test_pipeline_postgres.py` (exige `SMARTMARKET_TEST_DSN`; pulado sem ele) |
+| 3.3 Erro pontual não derruba o pipeline | implementado (registro inválido vai para a quarentena) | `scraper/tests/test_pipeline_quarentena.py` |
+| 3.4 Normalização de equivalentes | implementado | `scraper/tests/test_casamento.py`, `test_normalizacao_pipeline.py` |
+| 3.5 Preço zero ou negativo | implementado (`@Positive` na API, rejeição no pipeline) | **sem teste dedicado** |
+| 3.6 Produto nunca coletado | parcial: o front mostra "sem preço nesta rede"; não existe a frase "sem dados disponíveis" | `CestaDemoPrecos.test.jsx`, `ShoppingListPage.precoAusente.test.jsx` |
+| 4.1 Menor total | implementado | `ComparadorServiceTest`, `ListaCompraControllerIntegrationTest` |
+| 4.2 Produto indisponível no mercado | implementado (mercado marcado incompleto) | `ComparadorServiceTest` |
+| 4.3 Lista vazia | implementado | `ComparadorServiceTest`, `ListaCompraControllerIntegrationTest` |
+| 4.4 Empate | implementado (desempata por id do mercado) | `ComparadorServicePrecificacaoTest` |
+| 4.5 Idade do preço na comparação | **não implementado**: `MercadoComparacaoResponse` não traz data e a lista de compras não mostra a data de coleta (só `PrecoResponse` e a cesta de demonstração têm `coletadoEm`) | sem teste |
+| 4.6 Produto repetido na lista | implementado (soma a quantidade, com teto) | `ListaCompraControllerIntegrationTest`, `ListaCompraServiceTest` |
+| 5.1 Busca parcial | implementado (por `nome_normalizado`, sem acento) | `ProdutoControllerIntegrationTest`, `ProdutoNomeNormalizadoIntegrationTest` |
+| 5.2 Busca sem resultado | implementado no front (a mensagem varia por tela); a API devolve página vazia | `ProdutoControllerIntegrationTest` (página vazia), `CatalogPage.test.jsx` |
+| 5.3 a 5.5 Favoritar mercado | implementado | `FavoritoAlertaAdminIntegrationTest`, `FavoritoServiceTest` |
+| 6.1 a 6.2 Painel admin | implementado | `FavoritoAlertaAdminIntegrationTest`, `AdminServiceTest`, `AdminPage.test.jsx` |
+| 6.3 a 6.4 Promoção | implementado | `FavoritoAlertaAdminIntegrationTest`, `PromocaoServiceTest` |
+
+Os cenários 2.5 e 4.5 ficam abaixo apenas como histórico da especificação original.
+
 ---
 
 ## 1. Autenticação
@@ -21,7 +58,7 @@ Cenário: Rejeitar cadastro com e-mail já existente
 ```gherkin
 Cenário: Rejeitar cadastro com senha abaixo do critério mínimo
   Dado que um usuário está se cadastrando
-  Quando ele informa uma senha com menos de 8 caracteres
+  Quando ele informa uma senha com menos de 6 caracteres (o limite superior é 72)
   Então o sistema deve rejeitar o cadastro
   E deve explicar o critério mínimo de senha
 ```
@@ -118,6 +155,8 @@ Cenário: Tratar exclusão de produto presente em listas de compras
 ```
 
 ### 2.5 Cadastro de mercado com coordenadas inválidas
+> **Não implementado** (fora do MVP): o modelo `Mercado` não tem latitude/longitude. Mantido como especificação futura.
+
 ```gherkin
 Cenário: Tratar coordenadas geográficas inválidas no cadastro de mercado
   Dado que o admin está cadastrando um mercado
@@ -222,6 +261,8 @@ Cenário: Aplicar critério de desempate consistente
 ```
 
 ### 4.5 Preço desatualizado
+> **Não implementado**: a resposta da comparação (`MercadoComparacaoResponse`) não traz a data da coleta e a tela da lista de compras não a exibe. Mantido como especificação futura.
+
 ```gherkin
 Cenário: Exibir a idade do dado de preço ao usuário
   Dado que um produto possui preço coletado há mais tempo que o padrão de atualização

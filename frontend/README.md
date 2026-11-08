@@ -65,12 +65,13 @@ Testes que importam o `data.js` real (32 MB) devem usar a fixture: `jest.mock('.
 | `VITE_API_URL` | URL do backend (termina em `/api`) | `http://localhost:8080/api` (dev); `/api` relativo em produção |
 | `VITE_BASE` | Base do app (no GitHub Pages é `/smartmarket/`) | `/` |
 | `VITE_ASSETS_BASE_URL` | Fotos de produtos no bucket do Neon | vazio: fotos de `public/` |
-| `VITE_CATALOGO_URL` | Catálogo em JSON (gzip) no bucket | vazio: `src/data.js` por `import()` dinâmico |
+| `VITE_CATALOGO_URL` | Catálogo em JSON (gzip) no bucket | vazio: JSON estático `/catalogo/produtos.<hash>.json`, gerado de `src/data.js` por `predev`/`prebuild` |
 
 Sem as três últimas nada muda no dev local, no Docker e nos testes. Regras de código:
 
 * Caminhos de `public/` escritos à mão (`/images/...`, `/video/...`) passam por `urlPublica` (`src/utils/urlPublica.js`) para respeitar a base.
 * O catálogo local usa ids `"p<id>"`; a API usa o `<id>` numérico. `mesclarCatalogo` (`src/utils/mesclarCatalogo.js`) junta os dois sem duplicar, mantendo o id local.
-* `npm run build:estatico` faz o build e remove `dist/images/produtos` (as fotos ficam no bucket).
+* `npm run build:estatico` faz o build e remove `dist/images/produtos` (as fotos ficam no bucket). Ele não roda o `prebuild`: sem `VITE_CATALOGO_URL`, gere antes o catálogo estático (`npm run prebuild`).
+* A CSP do build vem de `vite-plugins/csp.js`; origem externa nova precisa entrar pelas variáveis acima (ver `docs/DEPLOY-PAGES.md`).
 
 Deploy: [`docs/DEPLOY-PAGES.md`](../docs/DEPLOY-PAGES.md) · fotos e catálogo: [`docs/ASSETS-NEON.md`](../docs/ASSETS-NEON.md).

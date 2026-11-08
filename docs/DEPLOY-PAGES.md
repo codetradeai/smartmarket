@@ -11,7 +11,7 @@ O frontend é publicado em **https://smartmarket-team.github.io/smartmarket/** p
 
 ## Como funciona
 
-- **Base `/smartmarket/`**: o workflow define `VITE_BASE`; o Vite prefixa os assets e o `BrowserRouter` usa `basename`. Caminhos escritos à mão no código (`/images/categorias/...`, `/video/...`) passam por `urlPublica` (`src/utils/urlAssets.js`). Ao criar um caminho novo para `frontend/public`, use `urlPublica("/...")`. Fora do Pages a base é `/` e nada muda.
+- **Base `/smartmarket/`**: o workflow define `VITE_BASE`; o Vite prefixa os assets e o `BrowserRouter` usa `basename`. Caminhos escritos à mão no código (`/images/categorias/...`, `/video/...`) passam por `urlPublica` (`src/utils/urlPublica.js`; o `urlAssets.js` é outra coisa: reescreve as fotos para o bucket). Ao criar um caminho novo para `frontend/public`, use `urlPublica("/...")`. Fora do Pages a base é `/` e nada muda.
 - **Rotas (SPA)**: o Pages não tem fallback; o workflow copia `index.html` para `404.html`, então abrir `/smartmarket/catalog` direto carrega o app. A resposta técnica é 404, o que não afeta o uso, mas crawlers não indexam essas rotas.
 - **Tamanho**: o `dist` publicado tem ~5 MB (fotos e catálogo vêm do bucket); o workflow falha acima de 20 MB.
 
@@ -26,6 +26,8 @@ Como o Pages não aceita cabeçalhos, a política vai numa `<meta http-equiv="Co
 | `media-src` | `'self'` e a origem de `VITE_ASSETS_BASE_URL` |
 
 Ao trocar o host da API, do catálogo ou do bucket, basta atualizar a variável do workflow: a política acompanha no próximo build. Um `fetch` para um host fora da lista aparece no console como violação de `connect-src`.
+
+**Regra para quem mexe no front:** origem externa nova (outra API, CDN, fonte, script, iframe) não funciona só por aparecer no código; ela precisa entrar na política. Se for uma das três já previstas, entra pela variável do build (`VITE_API_URL`, `VITE_CATALOGO_URL`, `VITE_ASSETS_BASE_URL`); se for outro tipo de origem, é preciso ampliar `montarCsp` em `frontend/vite-plugins/csp.js` (e o teste `csp.test.js`). Sem isso, o navegador bloqueia script externo, `eval` e `fetch`/WebSocket para host fora da lista (imagens https continuam liberadas).
 
 Limites de uma `<meta>`: `frame-ancestors` é ignorado, então o site pode ser embutido em iframe (clickjacking) até que o host envie `X-Frame-Options`/`frame-ancestors` por cabeçalho. O JWT continua em `localStorage` (`sm_token`); a CSP reduz o impacto de um XSS futuro, mas não o elimina.
 

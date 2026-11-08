@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Filtro de Rate Limiting em memória para proteção contra ataques de força bruta
  * em endpoints sensíveis de autenticação (/api/auth/login e /api/auth/register).
  *
- * Limite: 10 requisições por minuto por endereço IP cliente.
+ * Limite: 15 requisições por minuto por endereço IP cliente (MAX_REQUESTS_PER_MINUTE).
  */
 @Slf4j
 @Component

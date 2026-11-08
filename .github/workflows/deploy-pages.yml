@@ -12,10 +12,10 @@ on:
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
+# O workflow todo só lê; as permissões de publicação ficam no job `deploy`. O job `build` roda
+# `npm ci` (código de terceiros) e não precisa de token OIDC nem de escrita no Pages.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -25,6 +25,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # `configure-pages` só consulta o site do Pages (GET), então basta leitura aqui.
+    permissions:
+      contents: read
+      pages: read
     defaults:
       run:
         working-directory: frontend
@@ -63,6 +67,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

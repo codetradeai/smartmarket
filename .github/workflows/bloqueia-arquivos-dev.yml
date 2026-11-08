@@ -4,6 +4,9 @@ name: Bloqueia arquivos de dev
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   verifica:
     name: Sem arquivos de dev na PR

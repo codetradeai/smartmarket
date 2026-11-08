@@ -187,7 +187,7 @@ Adicione em **Environment → Add Environment Variable**:
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://host.neon.tech/smartmarket?sslmode=require` | URL JDBC do Neon (veja seção 1) |
 | `SPRING_DATASOURCE_USERNAME` | `usuario_neon` | usuário do Neon |
 | `SPRING_DATASOURCE_PASSWORD` | `senha_neon` | senha do Neon — marque como **Secret** |
-| `SMARTMARKET_JWT_SECRET` | string aleatória longa (≥ 32 chars) | ex.: `openssl rand -hex 32` — marque como **Secret** |
+| `SMARTMARKET_JWT_SECRET` | string aleatória longa (≥ 32 bytes; o backend recusa subir com menos) | ex.: `openssl rand -hex 32` — marque como **Secret** |
 | `SMARTMARKET_CORS_ORIGINS` | domínio do frontend | GitHub Pages: `https://smartmarket-team.github.io` (sem `/smartmarket`); várias origens, separe por vírgula |
 
 > **Nunca** grave esses valores em arquivos versionados.

@@ -1,5 +1,7 @@
 # SmartMarket · Relatório Técnico de Entregas & Estado do Projeto
 
+> **Registro histórico de 16/10/2026**; não reflete o estado atual. Os "próximos passos" e a seção "Como retomar os trabalhos" falam de um backend Node.js / Express com rotas em inglês (`/api/products`, `/api/markets`, `/api/prices`, `/api/lists`) e de Vitest/Supertest, **stack que não existe**: o backend é Spring Boot 4 / Java 17, as rotas são `/api/produtos`, `/api/mercados`, `/api/precos` e `/api/listas`, e o runner de testes é Jest. Para o estado atual, veja o [`README.md`](../README.md) e o [`CLAUDE.md`](../CLAUDE.md).
+
 > **Data de Consolidação:** 16/10/2026  
 > **Papel:** Arquiteto de Software & Engenheiro Full Stack Lead  
 > **Status Geral:** 6 Features / PRs entregues, testadas e sincronizadas com a branch remota.

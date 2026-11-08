@@ -488,5 +488,68 @@ class TestLinhaDeComando(unittest.TestCase):
         self.assertNotIn(b"\r\r", self.data_js.read_bytes())
 
 
+class TestDataJsReal(unittest.TestCase):
+    """Invariantes do frontend/src/data.js versionado: se alguém regenerar o catálogo sem passar
+    por limpar_catalogo.py, estes testes falham e apontam o que rodar."""
+
+    @classmethod
+    def setUpClass(cls):
+        texto = DATA_JS_REAL.read_text(encoding="utf-8")
+        cls.prefixo, cls.produtos, _ = lc.ler_data_js(texto)
+        cls.por_id = {p["id"]: p for p in cls.produtos}
+        cls.categorias = set(re.findall(r"\{ id: '([a-z]+)', label:", texto[: texto.index("export const MARKETS")])) - {"todos"}
+
+    def test_nao_ha_copias_exatas_nem_linhas_hibridas(self):
+        chaves = [lc.chave_de_origem(p) for p in self.produtos]
+        repetidas = [c for c, n in Counter(chaves).items() if n > 1]
+        self.assertEqual(repetidas, [], "rode: python scraper/limpar_catalogo.py")
+        for pid in ("p232", "p233", "p338", "p349", "p392", "p393", "p396", "p432", "p433"):
+            self.assertNotIn(pid, self.por_id, f"{pid} é linha híbrida com preço simulado")
+
+    def test_as_linhas_reais_das_hibridas_continuam_no_catalogo(self):
+        for pid in ("p131", "p154", "p155", "p171", "p178", "p179", "p304"):
+            self.assertIn(pid, self.por_id)
+
+    def test_ids_continuam_unicos_e_nao_foram_renumerados(self):
+        ids = [p["id"] for p in self.produtos]
+        self.assertEqual(len(ids), len(set(ids)))
+        numeros = [int(i[1:]) for i in ids]
+        self.assertEqual(numeros, sorted(numeros))
+        self.assertGreater(max(numeros), len(ids), "ids têm buracos onde as cópias foram removidas")
+        self.assertIn("p9406", self.por_id)
+
+    def test_categoria_dos_casos_da_auditoria(self):
+        esperado = {
+            "p4437": "mercearia", "p5815": "mercearia", "p1589": "higiene", "p1634": "higiene",
+            "p1726": "limpeza", "p1866": "higiene", "p3995": "oleos", "p3671": "oleos",
+            "p3240": "higiene", "p3875": "limpeza", "p4105": "bazar", "p3295": "bazar",
+        }
+        for pid, categoria in esperado.items():
+            self.assertEqual(self.por_id[pid]["category"], categoria, pid)
+
+    def test_so_usa_categorias_que_existem(self):
+        usadas = {p["category"] for p in self.produtos}
+        self.assertTrue(usadas <= self.categorias, usadas - self.categorias)
+
+    def test_unidade_1000x_dos_casos_da_auditoria(self):
+        self.assertEqual(self.por_id["p877"]["unit"], "1,25kg")
+        self.assertEqual(self.por_id["p909"]["unit"], "1,15kg")
+        self.assertEqual(self.por_id["p328"]["unit"], "500g")
+        self.assertEqual(self.por_id["p5303"]["unit"], "1,175kg")
+
+    def test_nomes_sem_encoding_quebrado(self):
+        for pid, nome in {"p4329": "Queijo Parmesão Ralado Gran Mestri 40g", "p4725": "Refresco em Pó Zero Açucar Apti Sabor Limão 8g Envelope",
+                          "p2960": "Café L'OR Gourmet Intenso Torrado e Moído Sachê 250g", "p7087": "Linguiça Suína D'Talia Pernil Spaleta 600g",
+                          "p2998": "Café L'OR Solúvel Intense Liofilizado 40g"}.items():
+            self.assertEqual(self.por_id[pid]["name"], nome)
+        quebrados = [p["id"] for p in self.produtos if re.search("Ã[\u0080-¿]|¿", p["name"])]
+        self.assertEqual(quebrados, [])
+
+    def test_o_catalogo_ja_esta_limpo_e_o_cabecalho_confere(self):
+        _, rel = lc.limpar(self.produtos)
+        self.assertFalse(lc.ha_mudancas(rel), "data.js tem pendências para limpar_catalogo.py")
+        self.assertIn(f": {len(self.produtos)} produtos,", self.prefixo.splitlines()[0])
+
+
 if __name__ == "__main__":
     unittest.main()

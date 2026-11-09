@@ -521,7 +521,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
-                Acompanhe seus produtos favoritos e receba alertas quando o preço cair em qualquer mercado do RS.
+                Acompanhe seus produtos favoritos. Os alertas de preço ficam salvos neste navegador e são conferidos quando você abre esta página.
               </p>
             </div>
 
@@ -959,7 +959,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                     Configurar Novo Alerta de Preço
                   </h2>
                   <p className="text-xs sm:text-sm text-brand-muted">
-                    Escolha qualquer produto abaixo, defina quanto quer pagar e nós monitoramos nas 8 redes para você!
+                    Escolha um produto abaixo e defina quanto quer pagar. O alerta fica salvo neste navegador e o preço é conferido quando você abre Favoritos; não enviamos e-mail nem notificação.
                   </p>
                 </div>
               </div>
@@ -1097,7 +1097,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                           {/* Escolha de Onde Monitorar (Qualquer mercado, Favoritos ou Mercado Específico) */}
                           <div className="space-y-1.5">
                             <label className="block text-xs font-extrabold text-brand-navy">
-                              Onde você quer monitorar este preço?
+                              Em quais mercados conferir este preço?
                             </label>
                             <select
                               value={inlineMarketScope}
@@ -1170,10 +1170,10 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                               className="bg-white text-base font-extrabold"
                               helperText={
                                 inlineMarketScope === "todos"
-                                  ? "Você será avisado assim que qualquer uma das 8 redes atingir esse valor."
+                                  ? "Conferimos ao abrir Favoritos se alguma rede com preço deste produto chegou a esse valor."
                                   : inlineMarketScope === "favoritos"
-                                    ? "Você será avisado somente quando um dos seus mercados favoritos atingir esse valor."
-                                    : `Você será avisado somente quando o ${MARKETS.find((m) => m.id === inlineMarketScope)?.name || "mercado escolhido"} atingir esse valor.`
+                                    ? "Conferimos ao abrir Favoritos se um dos seus mercados favoritos chegou a esse valor."
+                                    : `Conferimos ao abrir Favoritos se o ${MARKETS.find((m) => m.id === inlineMarketScope)?.name || "mercado escolhido"} chegou a esse valor.`
                               }
                             />
                           </div>
@@ -1467,7 +1467,7 @@ function FavoritesPageConteudo({ produtos: PRODUCTS }) {
                   placeholder="Ex: 19.90"
                   value={targetPrice}
                   onChange={(e) => setTargetPrice(e.target.value)}
-                  helperText="Você será avisado quando o produto estiver igual ou abaixo deste valor no mercado escolhido."
+                  helperText="O alerta fica salvo neste navegador; conferimos ao abrir Favoritos se o produto chegou a esse valor ou menos no mercado escolhido."
                 />
               </div>
             </ModalBody>

@@ -32,3 +32,13 @@ export function calcularTotais(produtos, equivalentes = null) {
     produtosEm2Redes: contarGruposConfirmados(equivalentes),
   }
 }
+
+/** Anúncios com preço, por rede: [{ id, anuncios }]. Quem tem 0 não pode aparecer em textos como "compare em ...". */
+export function anunciosPorRede(produtos, redes) {
+  return redes.map((rede) => ({
+    id: rede.id,
+    anuncios: new Set(
+      produtos.filter((p) => typeof p.prices?.[rede.id] === 'number' && p.prices[rede.id] > 0).map(chaveDeAnuncio),
+    ).size,
+  }))
+}

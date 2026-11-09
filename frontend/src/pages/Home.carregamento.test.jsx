@@ -25,7 +25,7 @@ describe('Home: catálogo sob demanda', () => {
     carregarProdutos.mockResolvedValue(PRODUCTS)
     renderizar()
 
-    expect(screen.getByText('Produtos com preço coletado')).toBeInTheDocument()
+    expect(screen.getByText('Anúncios com preço coletado')).toBeInTheDocument()
     expect(carregarProdutos).not.toHaveBeenCalled()
   })
 

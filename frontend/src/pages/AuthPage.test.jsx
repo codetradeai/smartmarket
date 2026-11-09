@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import AuthPage from './AuthPage'
 import { useAuth } from '../hooks/useAuth'
+import { MARKETS, REDES_COM_PRODUTOS } from '../catalogoResumo'
+import { listarNomes, nomeCurtoRede, redesComProdutos } from '../utils/redesDoCatalogo'
 
 jest.mock('../hooks/useAuth', () => ({ useAuth: jest.fn() }))
 
@@ -350,6 +352,27 @@ describe('AuthPage', () => {
       fireEvent.change(screen.getByLabelText('Senha'), { target: { value: senha } })
 
       expect(screen.getByText(`Segurança da Senha: ${nivel}`)).toBeInTheDocument()
+    })
+  })
+
+  describe('textos que não prometem o que o sistema não faz', () => {
+    it('o campo de senha do cadastro anuncia o mínimo que o código aceita (6), não 8', () => {
+      renderizar('/auth?mode=register')
+
+      expect(screen.getByLabelText('Senha')).toHaveAttribute('placeholder', 'Mínimo 6 caracteres')
+      expect(screen.queryByPlaceholderText(/Mínimo 8/)).not.toBeInTheDocument()
+    })
+
+    it('a lista de redes do benefício "Compare preços" traz só as que têm produtos no catálogo', () => {
+      renderizar()
+
+      const texto = screen.getByText(/Veja o total em cada supermercado da sua região/).textContent
+      const ativas = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
+      expect(ativas.length).toBeLessThan(MARKETS.length)
+      expect(texto).toContain(`(${listarNomes(ativas.map(nomeCurtoRede))})`)
+      expect(texto).toMatch(/Fort/)
+      expect(texto).not.toMatch(/Carrefour/)
+      expect(texto).not.toMatch(/e mais/)
     })
   })
 })

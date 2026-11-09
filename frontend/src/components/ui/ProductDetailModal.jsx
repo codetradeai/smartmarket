@@ -6,6 +6,22 @@ import { CestaDemoPrecos } from "./CestaDemoPrecos"
 import { getRelatedProducts } from "../../utils/relatedProducts"
 import { useFramesDoProduto } from "../../hooks/useFramesDoProduto"
 import { useFocoNoDialogo } from "../../hooks/useFocoNoDialogo"
+import { GRUPOS_EQUIVALENTES, precosPorRede, entradaDaRede } from "../../utils/equivalentes"
+
+// Selo e aviso dos equivalentes "prováveis": em texto, não só em cor, para leitores de tela e daltonismo.
+const SELO_PROVAVEL = "Provável mesmo produto"
+const AVISO_PROVAVEL = "Pode não ser idêntico: confira marca e tamanho. Fora do cálculo do menor preço."
+
+// Preço de clube: vem do próprio item (clubPrices, isClube) ou da regra do Stok em promoção.
+function descobrirClube(produto, m) {
+  const isClube = Boolean(
+    produto.clubPrices?.[m.id] ||
+    (produto.isClube && (produto.mercadoMenorPreco === m.id || produto.supermercadoOrigem?.toLowerCase().includes(m.name?.toLowerCase().split(" ")[0]))) ||
+    (m.id === "stok" && produto.supermercadoOrigem === "Stok Center" && produto.promo)
+  )
+  const clubeNome = produto.clubPrices?.[m.id] || m.clube || `Clube ${m.name.split(" ")[0]}`
+  return { isClube, clubeNome }
+}
 
 /**
  * ProductDetailModal - Fase 2, 3 & 4: Detalhes do Produto Reutilizável Multi-rede com 360° e Produtos Relacionados
@@ -14,7 +30,7 @@ import { useFocoNoDialogo } from "../../hooks/useFocoNoDialogo"
  * 1. Exibição de metadados reais: Nome, Marca, Unidade, Categoria e Código/SKU de origem.
  * 2. Galeria com imagens reais disponíveis e seleção de miniaturas.
  * 3. Modo de ampliação/zoom (LightBox modal) em alta resolução com tecla ESC.
- * 4. Comparativo de preços ordenado pelo menor preço válido, com identificação clara das 8 redes do RS.
+ * 4. Comparativo de preços ordenado pelo menor preço válido, com a rede de cada preço; o preço de outras redes vem dos equivalentes (utils/equivalentes), só os confirmados contam para o menor preço.
  * 5. Comprovação real de condição promocional (preço normal vs efetivo).
  * 6. Acesso à página oficial da loja de origem com URL validada.
  * 7. Ponto de integração e visualizador 360° nativo (Fase 3B) sob demanda com rotação real autenticada.
@@ -31,6 +47,7 @@ export function ProductDetailModal({
   onAddToList,
   isFavorite = false,
   onToggleFavorite,
+  equivalentes = GRUPOS_EQUIVALENTES,
 }) {
   const [internalProduct, setInternalProduct] = useState(null)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
@@ -181,37 +198,40 @@ export function ProductDetailModal({
     currentProduct?.recursosVisuais?.has360 && frames360.length >= 2
   )
 
-  // 2. Preços ordenados estritamente pelo menor preço válido
-  const { validPrices, unavailableMarkets, bestOffer, highestOffer, maxEconomy } = useMemo(() => {
+  // 2. Preços ordenados estritamente pelo menor preço válido. Cada item do catálogo tem preço de uma rede
+  // só; os equivalentes (src/data/equivalentes.json) trazem o preço das outras redes. Só o equivalente
+  // "confirmado" entra no ranking e no menor preço; o "provável" é listado à parte, com selo.
+  const { validPrices, probablePrices, unavailableMarkets, bestOffer, highestOffer, maxEconomy, ownOffer } = useMemo(() => {
     if (!currentProduct || !markets.length) {
-      return { validPrices: [], unavailableMarkets: [], bestOffer: null, highestOffer: null, maxEconomy: 0 }
+      return { validPrices: [], probablePrices: [], unavailableMarkets: [], bestOffer: null, highestOffer: null, maxEconomy: 0, ownOffer: null }
     }
 
+    const porRede = precosPorRede(currentProduct, allProducts, equivalentes)
     const valids = []
+    const probables = []
     const unavails = []
 
     markets.forEach((m) => {
-      const p =
-        currentProduct.prices?.[m.id] ??
-        currentProduct.prices?.[m.id?.toString()] ??
-        currentProduct.prices?.[m.name?.toLowerCase()] ??
-        null
-
-      if (p !== null && p !== undefined && Number(p) > 0) {
-        const isClube = Boolean(
-          currentProduct.clubPrices?.[m.id] ||
-          (currentProduct.isClube && (currentProduct.mercadoMenorPreco === m.id || currentProduct.supermercadoOrigem?.toLowerCase().includes(m.name?.toLowerCase().split(" ")[0]))) ||
-          (m.id === "stok" && currentProduct.supermercadoOrigem === "Stok Center" && currentProduct.promo)
-        )
-        const clubeNome = currentProduct.clubPrices?.[m.id] || m.clube || `Clube ${m.name.split(" ")[0]}`
-        valids.push({ market: m, price: Number(p), isClube, clubeNome })
-      } else {
+      const entrada = entradaDaRede(porRede, m)
+      if (!entrada) {
         unavails.push(m)
+        return
       }
+      const { isClube, clubeNome } = descobrirClube(entrada.produto, m)
+      const item = {
+        market: m,
+        price: entrada.preco,
+        isClube,
+        clubeNome,
+        equivalente: entrada.confianca === "proprio" ? null : { produto: entrada.produto, confianca: entrada.confianca, camada: entrada.camada },
+      }
+      if (entrada.contaParaMenorPreco) valids.push(item)
+      else probables.push(item)
     })
 
     // Ordenação estrita pelo menor preço
     valids.sort((a, b) => a.price - b.price)
+    probables.sort((a, b) => a.price - b.price)
 
     const best = valids.length > 0 ? valids[0] : null
     const highest = valids.length > 1 ? valids[valids.length - 1] : null
@@ -219,18 +239,20 @@ export function ProductDetailModal({
 
     return {
       validPrices: valids,
+      probablePrices: probables,
       unavailableMarkets: unavails,
       bestOffer: best,
       highestOffer: highest,
       maxEconomy: economy,
+      ownOffer: valids.find((v) => !v.equivalente) || null,
     }
-  }, [currentProduct, markets])
+  }, [currentProduct, markets, allProducts, equivalentes])
 
-  // 3. Comprovação real da condição promocional
+  // 3. Comprovação real da condição promocional (sempre contra o preço do próprio item, nunca de um equivalente)
   const promoVerification = useMemo(() => {
-    if (!currentProduct || !bestOffer) return null
+    if (!currentProduct || !ownOffer) return null
     const precoNormal = Number(currentProduct.precoNormal || currentProduct.preco_normal || 0)
-    const precoAtual = bestOffer.price
+    const precoAtual = ownOffer.price
 
     // Só é promoção comprovada se o preço normal for maior que o preço atual
     if (currentProduct.promo && precoNormal > precoAtual) {
@@ -246,7 +268,7 @@ export function ProductDetailModal({
     }
 
     return { comprovada: false }
-  }, [currentProduct, bestOffer])
+  }, [currentProduct, ownOffer])
 
   // 4. Produtos relacionados e alternativas de preço (Fase 4 - Carrossel da Mesma Categoria)
   const { directAlternatives, brandAlternatives } = useMemo(() => {
@@ -488,7 +510,7 @@ export function ProductDetailModal({
                 {/* Preço em Destaque & Economia Comprovada (Estilo Foto 2) */}
                 {bestOffer ? (
                   <div className="space-y-2 pt-1">
-                    {promoVerification?.comprovada && (
+                    {promoVerification?.comprovada && !bestOffer.equivalente && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 uppercase tracking-wider">
                           -{promoVerification.descontoPerc}% OFF
@@ -516,6 +538,12 @@ export function ProductDetailModal({
                         </span>
                       )}
                     </div>
+
+                    {bestOffer.equivalente && (
+                      <p className="text-xs text-slate-600 pt-0.5">
+                        Este é o preço do equivalente no {bestOffer.market.name}: <strong className="font-semibold">{bestOffer.equivalente.produto.name}</strong>.
+                      </p>
+                    )}
 
                     {maxEconomy > 0 && highestOffer && (
                       <p className="text-xs text-slate-600 pt-0.5">
@@ -706,6 +734,12 @@ export function ProductDetailModal({
                           </div>
                         </div>
 
+                        {item.equivalente && (
+                          <p className="text-[11px] text-slate-600 mb-1.5 truncate" title={item.equivalente.produto.name}>
+                            Equivalente nesta rede: <span className="font-semibold text-slate-800">{item.equivalente.produto.name}</span>
+                          </p>
+                        )}
+
                         <div className="w-full h-6 bg-slate-100 rounded-lg overflow-hidden p-0.5 border border-slate-200/60">
                           <div
                             style={{
@@ -727,6 +761,36 @@ export function ProductDetailModal({
                       </div>
                     )
                   })}
+                </div>
+              )}
+
+              {/* Equivalentes prováveis: só informativos, nunca entram no menor preço */}
+              {probablePrices.length > 0 && (
+                <div
+                  role="group"
+                  aria-label="Prováveis equivalentes em outras redes"
+                  className="rounded-2xl border border-dashed border-amber-400 bg-amber-50/60 p-3 space-y-2"
+                >
+                  <p className="text-xs font-bold text-amber-900">Prováveis equivalentes em outras redes</p>
+                  {probablePrices.map((item) => (
+                    <div
+                      key={`prov-${item.market.id}`}
+                      className="flex items-start justify-between gap-3 rounded-xl bg-white border border-amber-200 p-2.5"
+                    >
+                      <div className="min-w-0 space-y-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.market.color || "#0D2137" }} aria-hidden="true" />
+                          <span className="text-xs font-bold text-slate-900">{item.market.name}</span>
+                          <span className="text-[10px] font-black text-amber-950 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
+                            {SELO_PROVAVEL}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 break-words">{item.equivalente.produto.name}</p>
+                        <p className="text-[11px] text-amber-900">{AVISO_PROVAVEL}</p>
+                      </div>
+                      <span className="text-sm font-black text-slate-800 whitespace-nowrap">R$ {item.price.toFixed(2)}</span>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -759,6 +823,11 @@ export function ProductDetailModal({
                               </span>
                             )}
                           </div>
+                          {item.equivalente && (
+                            <span className="text-[10px] text-slate-600 block truncate" title={item.equivalente.produto.name}>
+                              {item.equivalente.produto.name}
+                            </span>
+                          )}
                           {isBest ? (
                             <span className="text-[9px] font-black text-emerald-800 uppercase tracking-wider block">
                               ★ Menor Preço

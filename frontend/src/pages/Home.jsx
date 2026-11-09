@@ -22,21 +22,23 @@ import {
   SmartMarketLogo,
   CarrosselRedes,
 } from "../components/ui"
-import { MARKETS, TOTAIS } from "../catalogoResumo"
+import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { urlPublica } from "../utils/urlPublica"
+import { redesComProdutos } from "../utils/redesDoCatalogo"
 
 const SEM_PRODUTOS = []
 
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
-// Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por anúncio (rede + id de origem);
-// "em 2+ redes" vem dos grupos confirmados de data/equivalentes.json (0 sem o arquivo).
-const TOTAL_PRODUTOS = TOTAIS.anuncios
-const PRODUTOS_COM_PRECO = TOTAIS.anunciosComPreco
-const PRODUTOS_EM_2_REDES = TOTAIS.produtosEm2Redes
+// Totais gerados do data.js e do equivalentes.json (scripts/gerar-catalogo-resumo.mjs). Cada item tem preço de uma
+// rede só: o resumo conta "anúncios" (rede + id de origem); "produtos em 2+ redes" são os grupos de equivalentes
+// confirmados (0 sem o arquivo).
+const { anuncios: TOTAL_ANUNCIOS, anunciosComPreco: ANUNCIOS_COM_PRECO, produtosEm2Redes: PRODUTOS_EM_2_REDES } = TOTAIS
+// Só as redes que têm anúncios com preço: o Carrefour, por exemplo, tem 0 hoje e não conta como "rede no catálogo".
+const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -87,7 +89,6 @@ export function Home() {
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
-  const [visibleHomeLimit, setVisibleHomeLimit] = useState(32)
 
   // Mostra um feedback sutil quando o usuário adiciona um item à lista
   const showToast = (msg) => {
@@ -363,14 +364,14 @@ export function Home() {
             <dl className="sm-rise sm-rise-5 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
               <div>
                 <dt className="text-[11px] uppercase tracking-wider text-white/45">Redes no catálogo</dt>
-                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{MARKETS.length}</dd>
+                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{REDES_ATIVAS.length}</dd>
               </div>
               <div>
-                <dt className="text-[11px] uppercase tracking-wider text-white/45">Produtos com preço coletado</dt>
-                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{PRODUTOS_COM_PRECO.toLocaleString("pt-BR")}</dd>
+                <dt className="text-[11px] uppercase tracking-wider text-white/45">Anúncios com preço coletado</dt>
+                <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{ANUNCIOS_COM_PRECO.toLocaleString("pt-BR")}</dd>
                 <p className="mt-0.5 text-[11px] text-white/55">
                   {PRODUTOS_EM_2_REDES > 0
-                    ? `${PRODUTOS_EM_2_REDES.toLocaleString("pt-BR")} com preço em 2+ redes`
+                    ? `${PRODUTOS_EM_2_REDES.toLocaleString("pt-BR")} ${PRODUTOS_EM_2_REDES === 1 ? "produto" : "produtos"} em 2+ redes, com preço comparável`
                     : "cada um com o preço da rede onde foi coletado"}
                 </p>
               </div>
@@ -424,7 +425,7 @@ export function Home() {
               )}
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
                 <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
-                  {String(MARKETS.length).padStart(2, "0")}
+                  {String(REDES_ATIVAS.length).padStart(2, "0")}
                 </span>
                 <span className="font-medium text-brand-muted">redes disponíveis</span>
               </p>
@@ -490,7 +491,7 @@ export function Home() {
                   Explore por Setor do Supermercado
                 </h2>
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green">
-                  {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos monitorados
+                  {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios monitorados
                 </span>
               </div>
               <p className="text-xs text-brand-muted mt-0.5">
@@ -574,7 +575,7 @@ export function Home() {
                 👆 Escolha um setor acima para espiar
               </span>
               <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
-                Quer ver todos os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo?
+                Quer ver todo o catálogo, com {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios?
               </h3>
               <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
                 Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.
@@ -776,7 +777,7 @@ export function Home() {
                   Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens deste setor!
                 </h3>
                 <p className="text-xs sm:text-sm text-white/75 max-w-2xl">
-                  Com a sua conta gratuita, você libera os {TOTAL_PRODUTOS.toLocaleString("pt-BR")} produtos do catálogo, pesquisa qualquer marca e descobre em qual dos 8 supermercados sua lista sai mais barata.
+                  Com a sua conta gratuita, você libera os {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios do catálogo, pesquisa qualquer marca e vê os preços em {REDES_ATIVAS.length} supermercados.
                 </p>
               </div>
 
@@ -978,7 +979,7 @@ export function Home() {
               Redes no RS
             </h4>
             <p className="text-xs text-brand-muted">
-              Fort Atacadista • Stok Center • Asun Supermercados • Zaffari / Bourbon • Rissul • Atacadão • Master • Carrefour.
+              {REDES_ATIVAS.map((m) => m.name).join(" • ")}.
             </p>
           </div>
 

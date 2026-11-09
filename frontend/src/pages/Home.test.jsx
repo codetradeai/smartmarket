@@ -47,7 +47,7 @@ describe('Home (visitante)', () => {
   it('sem grupos de equivalentes, não afirma produtos em 2+ redes (a fixture tem 2 preços no mesmo objeto)', () => {
     renderizar()
 
-    const contador = screen.getByText('Produtos com preço coletado').closest('div')
+    const contador = screen.getByText('Anúncios com preço coletado').closest('div')
     expect(contador).toHaveTextContent('cada um com o preço da rede onde foi coletado')
     expect(contador).not.toHaveTextContent('2+ redes')
   })
@@ -110,6 +110,6 @@ describe('Home (visitante)', () => {
 
     const valorDe = (rotulo) => screen.getByText(rotulo).closest('div').querySelector('dd')
     expect(valorDe('Redes no catálogo')).toHaveTextContent(new RegExp(`^${MARKETS.length}$`))
-    expect(valorDe('Produtos com preço coletado')).toHaveTextContent(new RegExp(`^${PRODUCTS.length}$`))
+    expect(valorDe('Anúncios com preço coletado')).toHaveTextContent(new RegExp(`^${PRODUCTS.length}$`))
   })
 })

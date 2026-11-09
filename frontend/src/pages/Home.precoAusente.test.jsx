@@ -40,7 +40,7 @@ async function renderizar() {
 const cartaoDe = (nome) => screen.getByText(nome).closest('.group')
 
 describe('Home: contador do catálogo', () => {
-  const contador = () => screen.getByText('Produtos com preço coletado').closest('div')
+  const contador = () => screen.getByText('Anúncios com preço coletado').closest('div')
 
   it('conta só produtos com preço e diz em quantas redes, em vez de "Produtos com preço: total do catálogo"', () => {
     render(
@@ -51,7 +51,7 @@ describe('Home: contador do catálogo', () => {
 
     expect(screen.queryByText('Produtos com preço')).not.toBeInTheDocument()
     expect(contador().querySelector('dd')).toHaveTextContent(/^2$/)
-    expect(contador()).toHaveTextContent('1 com preço em 2+ redes')
+    expect(contador()).toHaveTextContent('1 produto em 2+ redes, com preço comparável')
   })
 
   it('não convida a "comparar todos os produtos nas 8 redes"', () => {
@@ -62,7 +62,7 @@ describe('Home: contador do catálogo', () => {
     )
 
     expect(screen.queryByText(/nas 8 redes do RS\?/)).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Quer ver todos os 3 produtos do catálogo?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Quer ver todo o catálogo, com 3 anúncios?' })).toBeInTheDocument()
   })
 })
 

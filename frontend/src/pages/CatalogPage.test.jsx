@@ -53,7 +53,7 @@ function configurarServicos({ produtos = PRODUTOS, mercados = MERCADOS, favMerca
 }
 
 // Fim do carregamento: o subtítulo troca "Sincronizando prateleiras..." por
-// "8 Redes do RS integradas · N produtos disponíveis".
+// "3 redes com produtos · N produtos disponíveis" (as 3 redes da fixture têm anúncios).
 // Prazo maior que o padrão (1 s): com a suíte inteira em paralelo a página leva mais para sair de "Sincronizando".
 const esperarCarregamento = () => screen.findByText(/produtos disponíveis/, undefined, { timeout: 4000 })
 
@@ -91,7 +91,7 @@ describe('CatalogPage', () => {
       // O catálogo (data.js) agora chega por import dinâmico: antes aparece "Carregando o catálogo…".
       expect(screen.getByRole('status')).toHaveTextContent('Carregando o catálogo')
       expect(await screen.findByText('Sincronizando prateleiras...')).toBeInTheDocument()
-      expect(await screen.findByText(`8 Redes do RS integradas · ${TOTAL_COM_API} produtos disponíveis`, undefined, { timeout: 4000 })).toBeInTheDocument()
+      expect(await screen.findByText(`3 redes com produtos · ${TOTAL_COM_API} produtos disponíveis`, undefined, { timeout: 4000 })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 1, name: 'Catálogo SmartMarket' })).toBeInTheDocument()
     })
 
@@ -100,14 +100,14 @@ describe('CatalogPage', () => {
       const arrozDaApi = { id: 1, name: 'Arroz Branco Tipo 1', brand: 'Tio João', category: 'graos', unit: '5 kg', image: '🌾', prices: { 1: 21.9, 2: 24.5 } }
       await renderizar({ produtos: [arrozDaApi] }, { grade: true })
 
-      expect(subtitulo()).toHaveTextContent(`8 Redes do RS integradas · ${PRODUCTS.length} produtos disponíveis`)
+      expect(subtitulo()).toHaveTextContent(`3 redes com produtos · ${PRODUCTS.length} produtos disponíveis`)
       expect(screen.getAllByRole('heading', { level: 3, name: 'Arroz Branco Tipo 1' })).toHaveLength(1)
     })
 
     it('mantem os dados de exemplo quando a API devolve listas vazias', async () => {
       await renderizar({ produtos: [], mercados: [] })
 
-      expect(subtitulo()).toHaveTextContent(`8 Redes do RS integradas · ${PRODUCTS.length} produtos disponíveis`)
+      expect(subtitulo()).toHaveTextContent(`3 redes com produtos · ${PRODUCTS.length} produtos disponíveis`)
       expect(screen.getByRole('option', { name: 'Big Bompreço' })).toBeInTheDocument()
     })
 
@@ -117,7 +117,7 @@ describe('CatalogPage', () => {
       render(<CatalogPage />)
       await esperarCarregamento()
 
-      expect(subtitulo()).toHaveTextContent(`8 Redes do RS integradas · ${PRODUCTS.length} produtos disponíveis`)
+      expect(subtitulo()).toHaveTextContent(`3 redes com produtos · ${PRODUCTS.length} produtos disponíveis`)
     })
 
     it('ignora favoritos que nao vieram como lista', async () => {

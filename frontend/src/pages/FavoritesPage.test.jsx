@@ -471,4 +471,43 @@ describe('FavoritesPage', () => {
       expect(lerLocal('sm_price_alerts')).toEqual({})
     })
   })
+
+  describe('texto honesto dos alertas (ficam no navegador; conferidos ao abrir a página)', () => {
+    const PROMESSAS_ATIVAS = [/será avisado/i, /monitoramos/i, /receba alertas/i, /8 redes/i]
+
+    it('o cabeçalho não promete alerta ativo e diz onde o alerta fica salvo', async () => {
+      await renderizar()
+
+      expect(screen.getByText(/ficam salvos neste navegador e são conferidos quando você abre esta página/)).toBeInTheDocument()
+      for (const promessa of PROMESSAS_ATIVAS) expect(screen.queryByText(promessa)).not.toBeInTheDocument()
+    })
+
+    it('o configurador da aba de alertas não diz que monitora nem que avisará, e explica a conferência', async () => {
+      await renderizar()
+      fireEvent.click(abaAlertas())
+
+      expect(screen.getByText(/não enviamos e-mail nem notificação/)).toBeInTheDocument()
+      expect(screen.getByText(/Conferimos ao abrir Favoritos se alguma rede com preço deste produto chegou a esse valor/)).toBeInTheDocument()
+      for (const promessa of PROMESSAS_ATIVAS) expect(screen.queryByText(promessa)).not.toBeInTheDocument()
+    })
+
+    it('o texto de apoio acompanha o escopo escolhido sem prometer aviso', async () => {
+      await renderizar()
+      fireEvent.click(abaAlertas())
+
+      fireEvent.change(screen.getByDisplayValue(/Em qualquer mercado do RS/), { target: { value: 'favoritos' } })
+
+      expect(screen.getByText(/Conferimos ao abrir Favoritos se um dos seus mercados favoritos chegou a esse valor/)).toBeInTheDocument()
+      for (const promessa of PROMESSAS_ATIVAS) expect(screen.queryByText(promessa)).not.toBeInTheDocument()
+    })
+
+    it('o modal de alerta diz que fica salvo neste navegador e é conferido ao abrir Favoritos', async () => {
+      await renderizar()
+
+      fireEvent.click(within(cartaoDe('Arroz Branco Tipo 1')).getByTitle('Definir alerta de preço'))
+
+      expect(within(dialogo()).getByText(/fica salvo neste navegador/)).toBeInTheDocument()
+      expect(within(dialogo()).queryByText(/será avisado/i)).not.toBeInTheDocument()
+    })
+  })
 })

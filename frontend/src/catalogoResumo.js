@@ -151,5 +151,5 @@ export const TOTAIS = {
   "idsDeCatalogo": 9277,
   "anuncios": 9277,
   "anunciosComPreco": 9277,
-  "produtosEm2Redes": 0
+  "produtosEm2Redes": 191
 }

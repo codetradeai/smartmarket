@@ -32,9 +32,10 @@ const SEM_PRODUTOS = []
 
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
-// Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por produto distinto (rede + id de origem).
-const TOTAL_PRODUTOS = TOTAIS.produtosDistintos
-const PRODUTOS_COM_PRECO = TOTAIS.produtosComPreco
+// Totais gerados do data.js (scripts/gerar-catalogo-resumo.mjs), por anúncio (rede + id de origem);
+// "em 2+ redes" vem dos grupos confirmados de data/equivalentes.json (0 sem o arquivo).
+const TOTAL_PRODUTOS = TOTAIS.anuncios
+const PRODUTOS_COM_PRECO = TOTAIS.anunciosComPreco
 const PRODUTOS_EM_2_REDES = TOTAIS.produtosEm2Redes
 
 function contarItensDaLista(lista) {

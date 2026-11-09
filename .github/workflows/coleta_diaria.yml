@@ -15,6 +15,30 @@ jobs:
     name: Raspagem e Ingestão Diária - 8 Redes RS
     runs-on: ubuntu-latest
 
+    # PostgreSQL descartável dentro do runner: nasce e morre com o job. Fica em localhost e o
+    # nome do banco segue o padrão aceito por scraper/pipeline.py::validar_dsn (trava mantida).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: smartmarket
+          POSTGRES_PASSWORD: smartmarket_ci
+          POSTGRES_DB: smartmarket_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U smartmarket -d smartmarket_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Credencial do banco descartável acima (não é segredo: o banco não sai do runner).
+      SMARTMARKET_DSN: host=127.0.0.1 port=5432 dbname=smartmarket_test user=smartmarket password=smartmarket_ci
+      # Contato do projeto no User-Agent do coletor. Sem ele Fort, Atacadão, Master e Stok falham
+      # antes de requisitar. Mesmo padrão de scraper/cron_coleta_diaria.sh.
+      SMARTMARKET_CONTATO: https://github.com/smartmarket-team/smartmarket
+
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v7
@@ -39,40 +63,17 @@ jobs:
         run: |
           python -m unittest discover -s scraper/tests -v
 
-      # LIMITE CONHECIDO (decisao pendente do grupo): scraper/pipeline.py::validar_dsn
-      # so aceita PostgreSQL LOCAL (localhost/127.0.0.1/socket) e banco descartavel
-      # ou de desenvolvimento. Um runner hospedado do GitHub Actions nao enxerga o
-      # banco de producao e essa trava NAO deve ser contornada. Por isso:
-      #   - sem o secret SMARTMARKET_DSN, este passo e pulado e o workflow fica
-      #     como "teste do scraper" (instala dependencias + roda a suite offline);
-      #   - com o secret apontando para host remoto, validar_dsn recusa a carga.
-      # Para gravar de verdade, o grupo precisa escolher entre (a) rodar a coleta
-      # em um servidor/runner self-hosted que tenha o PostgreSQL local
-      # (scraper/cron_coleta_diaria.sh ou smartmarket-scraper.service) ou
-      # (b) manter o Actions apenas como teste. A variavel lida por
-      # scraper/rotina_carga.py e SMARTMARKET_DSN (ou SMARTMARKET_LOCAL_DSN).
-      #
-      # Sem coleta nao ha o que consolidar: os passos seguintes (imagens, catalogo/SQL e
-      # artifact) so rodam quando a rotina de fato rodou e deixou saida em scraper/output.
-      # Antes eles rodavam sempre, saiam com exit 0 sobre entrada vazia e arquivavam um SQL
-      # esvaziado como se fosse o relatorio do dia.
-      - name: Detectar se há DSN configurado
-        id: dsn
+      # A carga usa as tabelas da aplicação (produto, mercado, preco); o banco descartável
+      # nasce vazio, então o DDL do backend é aplicado antes da rotina.
+      - name: Criar schema no PostgreSQL do runner
         env:
-          SMARTMARKET_DSN: ${{ secrets.SMARTMARKET_DSN }}
+          PGPASSWORD: smartmarket_ci
         run: |
-          if [ -n "$SMARTMARKET_DSN" ]; then
-            echo "coletar=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "coletar=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Coleta NÃO executada::O secret SMARTMARKET_DSN não está configurado: este workflow rodou só os testes offline do scraper. Nenhum preço foi coletado e nenhum relatório foi gerado."
-          fi
+          psql -h 127.0.0.1 -U smartmarket -d smartmarket_test -v ON_ERROR_STOP=1             -f backend/database/smartmarket_ddl_finalizado.sql
 
-      # O secret fica no env só deste passo (não no job): pip, testes e demais scripts não o enxergam.
+      # O banco é descartável: a carga valida a coleta de ponta a ponta (transação, idempotência
+      # por hash, schema), mas NÃO alimenta a produção. O que sai do job é o artifact abaixo.
       - name: Executar Rotina de Coleta e Carga Diária
-        if: ${{ steps.dsn.outputs.coletar == 'true' }}
-        env:
-          SMARTMARKET_DSN: ${{ secrets.SMARTMARKET_DSN }}
         run: |
           python scraper/rotina_carga.py
 
@@ -82,7 +83,6 @@ jobs:
       # eles são pulados com aviso em vez de gerar catálogo e SQL vazios.
       - name: Verificar saída da coleta
         id: verificar
-        if: ${{ steps.dsn.outputs.coletar == 'true' }}
         run: |
           if [ -z "$(find scraper/output -name 'produtos_coletados.json' -print -quit 2>/dev/null)" ]; then
             echo "::error title=Coleta vazia::A rotina terminou sem gerar nenhum produtos_coletados.json em scraper/output."

@@ -40,16 +40,26 @@ describe('Home: vídeo do hero adiado', () => {
 
     expect(video(container)).not.toHaveAttribute('src')
     expect(video(container)).toHaveAttribute('preload', 'none')
-    expect(video(container)).toHaveAttribute('poster', '/video/hero-poster.jpg')
+    expect(video(container)).toHaveAttribute('poster', '/video/hero-bg-poster.jpg')
   })
 
-  it('depois da renderização ociosa o src é definido e o vídeo toca', () => {
+  it('em tela larga, depois da renderização ociosa, o src é o 1080p e o vídeo toca', () => {
     movimentoReduzido(false)
+    window.innerWidth = 1280
     const { container } = renderizar()
     act(() => jest.advanceTimersByTime(1600))
 
-    expect(video(container)).toHaveAttribute('src', '/video/hero.mp4')
+    expect(video(container)).toHaveAttribute('src', '/video/hero-bg-1080.mp4')
     expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalled()
+  })
+
+  it('em tela estreita o src é a versão 720p, mais leve', () => {
+    movimentoReduzido(false)
+    window.innerWidth = 390
+    const { container } = renderizar()
+    act(() => jest.advanceTimersByTime(1600))
+
+    expect(video(container)).toHaveAttribute('src', '/video/hero-bg-720.mp4')
   })
 
   it('com movimento reduzido o vídeo nunca é baixado', () => {

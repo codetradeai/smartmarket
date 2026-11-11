@@ -184,7 +184,7 @@ export function Home() {
   }, [PRODUCTS, searchTerm, selectedCategory, selectedMarket])
 
   const heroVideoRef = useRef(null)
-  // O vídeo do hero (1,8 MB) só é pedido depois da primeira renderização e com a janela ociosa:
+  // O vídeo do hero (2 a 4 MB, conforme a tela) só é pedido depois da primeira renderização e com a janela ociosa:
   // até lá a página mostra o poster. Quem prefere menos movimento ou usa economia de dados não baixa.
   const [heroVideoSrc, setHeroVideoSrc] = useState(undefined)
 
@@ -196,7 +196,9 @@ export function Home() {
     let cancelado = false
     let idle
     const liberar = () => {
-      if (!cancelado) setHeroVideoSrc(urlPublica("/video/hero.mp4"))
+      // 1080p (~3,8 MB) em telas largas, 720p (~1,9 MB) no celular e no tablet.
+      const arquivo = window.innerWidth >= 1024 ? "hero-bg-1080.mp4" : "hero-bg-720.mp4"
+      if (!cancelado) setHeroVideoSrc(urlPublica(`/video/${arquivo}`))
     }
     const agendar = () => {
       if (typeof window.requestIdleCallback === "function") {
@@ -264,8 +266,23 @@ export function Home() {
       />
 
       {/* 2. PRIMEIRA DOBRA — blocos chapados no espírito do Desco, cores do SmartMarket */}
-      <section className="relative bg-white" aria-label="Compare sua lista de compras">
-        <div className="grid grid-cols-1 lg:grid-cols-12 lg:min-h-[calc(100svh-5rem)]">
+      <section className="relative isolate overflow-hidden bg-[#0D2137]" aria-label="Compare sua lista de compras">
+        <video
+          ref={heroVideoRef}
+          className="sm-hero-video"
+          src={heroVideoSrc}
+          poster={urlPublica("/video/hero-bg-poster.jpg")}
+          muted
+          autoPlay
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          disableRemotePlayback
+          aria-label="No caixa, o cupom assusta. Em seguida, a lista é comparada no SmartMarket."
+        />
+        <div className="sm-hero-scrim" aria-hidden="true" />
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 lg:min-h-[calc(100svh-5rem)]">
           <div className="sm-hero-copy relative lg:col-span-5 xl:col-span-5 text-white flex flex-col justify-center px-6 sm:px-10 lg:px-10 xl:px-16 py-10 sm:py-12">
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
@@ -376,21 +393,6 @@ export function Home() {
                 </p>
               </div>
             </dl>
-          </div>
-
-          <div className="sm-hero-panel lg:col-span-7 xl:col-span-7 relative min-h-[24rem] overflow-hidden sm:min-h-[30rem] lg:min-h-0">
-            <video
-              ref={heroVideoRef}
-              className="sm-hero-video"
-              src={heroVideoSrc}
-              poster={urlPublica("/video/hero-poster.jpg")}
-              muted
-              autoPlay
-              loop
-              playsInline
-              preload="none"
-              aria-label="No caixa, o cupom assusta. Em seguida, a lista é comparada no SmartMarket."
-            />
           </div>
         </div>
       </section>

@@ -1,8 +1,10 @@
+import { urlPublica } from "../../utils/urlPublica"
 import { MERCADOS_DEMO, PRODUTOS_DEMO, brl, economiaDemo, indiceMenor, totaisDemo } from "./comoFuncionaDados"
 
 const TOTAIS = totaisDemo()
 const VENCEDOR = indiceMenor(TOTAIS)
 const ECONOMIA = economiaDemo()
+const MAIOR = Math.max(...TOTAIS)
 
 // Cada elemento anima por --a/--b: trecho do progresso (0 a 1) em que ele entra. O CSS calcula --t.
 const janela = (a, b) => ({ "--a": a, "--b": b })
@@ -45,10 +47,13 @@ export function PalcoComparacao({ contagem, calculo, passo }) {
             return (
               <div key={produto.id} className="sm-stage__row sm-story-rise" style={janela(0.03 + i * 0.09, 0.11 + i * 0.09)}>
                 <span className="sm-stage__item">
-                  <span className="sm-stage__check sm-story-fade" style={janela(0.1 + i * 0.09, 0.2 + i * 0.09)} />
-                  <span>
+                  <span className="sm-stage__photo">
+                    <img src={urlPublica(produto.foto)} alt="" width="44" height="44" loading="lazy" decoding="async" />
+                    <span className="sm-stage__check sm-story-fade" style={janela(0.1 + i * 0.09, 0.2 + i * 0.09)} />
+                  </span>
+                  <span className="sm-stage__name">
                     <strong>{produto.nome}</strong>
-                    <small>{produto.detalhe}</small>
+                    <small>{produto.categoria} · {produto.detalhe}</small>
                   </span>
                 </span>
                 {produto.precos.map((preco, m) => (
@@ -81,6 +86,18 @@ export function PalcoComparacao({ contagem, calculo, passo }) {
             </span>
           ))}
         </div>
+      </div>
+
+      <div className="sm-stage__chart sm-story-rise" style={janela(0.66, 0.8)} aria-hidden="true">
+        {TOTAIS.map((total, m) => (
+          <div key={m} className={`sm-stage__bar-row${m === VENCEDOR ? " is-win" : ""}`}>
+            <span>{MERCADOS_DEMO[m]}</span>
+            <span className="sm-stage__track">
+              <i style={{ transform: `scaleX(${(total / MAIOR).toFixed(4)})` }} />
+            </span>
+            <b>{brl(total)}</b>
+          </div>
+        ))}
       </div>
 
       <p className="sm-stage__result sm-story-rise" style={janela(0.72, 0.84)} aria-hidden="true">

@@ -1,10 +1,11 @@
 // Dados ILUSTRATIVOS da demonstração "Como funciona". Não vêm do catálogo e não representam preços reais.
 // Os nomes dos mercados são genéricos de propósito (Mercado A/B/C).
 
+// Produtos e fotos são os mesmos da lista real do app (fotos em /images/produtos); só os PREÇOS são ilustrativos.
 export const PRODUTOS_DEMO = [
-  { id: "arroz", nome: "Arroz 5 kg", detalhe: "1 un", precos: [27.9, 25.9, 26.5] },
-  { id: "cafe", nome: "Café 500 g", detalhe: "1 un", precos: [21.4, 22.9, 19.9] },
-  { id: "leite", nome: "Leite 1 L", detalhe: "1 un", precos: [5.49, 4.99, 5.19] },
+  { id: "arroz", nome: "Arroz Blue Ville Branco Tipo 1 5kg", categoria: "Grãos", detalhe: "Geral · 5kg", foto: "/images/produtos/2414_05d74396657f.jpg", precos: [27.9, 25.9, 26.5] },
+  { id: "cafe", nome: "Café Torrado e Moído Melitta Tradicional 500g", categoria: "Café", detalhe: "Geral · 500g", foto: "/images/produtos/12380_4809dd2e7cd1.jpg", precos: [21.4, 22.9, 19.9] },
+  { id: "leite", nome: "Leite UHT Integral Parmalat 1 Litro", categoria: "Leites", detalhe: "Parmalat · 1 L", foto: "/images/produtos/1087590_1deb1bf03c1e.jpg", precos: [5.49, 4.99, 5.19] },
 ]
 
 export const MERCADOS_DEMO = ["Mercado A", "Mercado B", "Mercado C"]

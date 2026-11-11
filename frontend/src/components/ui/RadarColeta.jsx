@@ -1,4 +1,4 @@
-import { Radar } from "lucide-react"
+import { SmartMarketLogo } from "./SmartMarketLogo"
 import { LOGOS_REDES } from "./logosRedes"
 
 const LARGURA_SVG = 1000
@@ -27,10 +27,10 @@ export function RadarColeta({ markets, redesResumo, selectedMarket, onSelect }) 
   return (
     <div className="sm-radar mx-auto w-full max-w-5xl">
       <div className="sm-radar__hub">
-        <span className="sm-radar__hub-icon" aria-hidden="true">
-          <Radar size={18} strokeWidth={2.2} />
+        <span className="sm-radar__hub-logo">
+          <SmartMarketLogo size="sm" className="h-7" />
         </span>
-        <span className="sm-radar__hub-title">Motor de Coleta SmartMarket</span>
+        <span className="sm-radar__hub-title">Motor de Coleta</span>
         {total > 0 && <span className="sm-radar__hub-badge">{numero(total)} preços sincronizados</span>}
       </div>
 

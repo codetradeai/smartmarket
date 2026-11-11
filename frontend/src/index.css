@@ -793,7 +793,7 @@ html, body, #root {
 /* ===== Radar de coleta (segunda dobra): hub + fios com feixe + um card por rede ===== */
 .sm-radar { --verde: #0e7a46; position: relative; }
 .sm-radar__hub { position: relative; z-index: 1; width: max-content; max-width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 0.75rem; background: #0b192c; color: #fff; border-radius: 999px; padding: 0.7rem 0.8rem 0.7rem 0.75rem; box-shadow: 0 14px 30px -16px rgba(11, 25, 44, 0.6); }
-.sm-radar__hub-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: rgba(125, 255, 224, 0.14); color: #7dffe0; }
+.sm-radar__hub-logo { display: grid; place-items: center; background: #fff; border-radius: 999px; padding: 0.3rem 0.85rem; }
 .sm-radar__hub-title { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; letter-spacing: -0.01em; }
 .sm-radar__hub-badge { font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #7dffe0; background: rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 0.3rem 0.65rem; }
 .sm-radar__wires { display: none; width: 100%; height: 84px; margin-top: -1px; overflow: visible; }

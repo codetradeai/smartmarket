@@ -1,9 +1,12 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { ArrowRight, ListChecks, Mail, MapPin, Scale } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { Button, Input } from "./ui"
 import CampoSenha from "./CampoSenha"
+
+// Mesmo destino padrão da página /auth: quem entra pelo card vai direto para o catálogo.
+const DESTINO_APOS_LOGIN = "/catalog"
 
 // Só o que o app faz de verdade; a busca por loja próxima (CEP) ainda não está no ar.
 const BENEFICIOS = [
@@ -18,6 +21,7 @@ const BENEFICIOS = [
  */
 export default function CartaoLogin({ onFechar }) {
   const { login, isLoading } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [erro, setErro] = useState("")
@@ -34,6 +38,7 @@ export default function CartaoLogin({ onFechar }) {
     const resultado = await login(email, senha)
     if (resultado.success) {
       onFechar()
+      navigate(DESTINO_APOS_LOGIN)
     } else {
       setErro(resultado.error || "Credenciais inválidas.")
     }

@@ -164,3 +164,19 @@ graphify-out/
 # Material de dev pessoal (fica so na maquina de cada pessoa)
 .ai/
 AGENTS.md
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sessões de Scraping, Cookies e Credenciais (Playwright Storage State)
+scripts/*sessao*.json
+*sessao*.json
+*session*.json
+*cookies*.json
+storage_state*.json
+*.env
+*.env.*
+!*.env.example
+

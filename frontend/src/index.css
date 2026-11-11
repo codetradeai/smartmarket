@@ -422,109 +422,6 @@ html, body, #root {
 .sm-rise-4 { animation-delay: 0.24s; }
 .sm-rise-5 { animation-delay: 0.32s; }
 
-/* Marquee de redes: faixa infinita movida por JS (translate3d), arrastável, com bordas em fade */
-.sm-marquee {
-  overflow: hidden;
-  padding: 1rem 0 1.25rem;
-  cursor: grab;
-  touch-action: pan-y;
-  overscroll-behavior-x: contain;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-}
-
-.sm-marquee.is-dragging {
-  cursor: grabbing;
-}
-
-.sm-marquee__track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
-.sm-marquee__set {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 4.5rem;
-  padding-right: 4.5rem; /* o respiro final iguala o espaço entre conjuntos e fecha a emenda do loop */
-  margin: 0;
-  list-style: none;
-}
-
-.sm-marquee__item {
-  flex-shrink: 0;
-}
-
-/* Só o logo: sem cartão, borda nem sombra. O padding vertical dá área de toque e espaço ao sublinhado. */
-.sm-marquee__logo {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 0;
-  border: 0;
-  background: none;
-  cursor: inherit;
-  transition:
-    opacity 240ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sm-marquee__logo img {
-  display: block;
-  max-width: none;
-  pointer-events: none;
-  -webkit-user-drag: none;
-}
-
-.sm-marquee__logo::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--color-brand-green);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sm-marquee__logo:hover {
-  transform: translateY(-2px);
-}
-
-.sm-marquee__logo.is-selected::after {
-  transform: scaleX(1);
-}
-
-/* Com uma rede escolhida, as outras recuam: o logo ativo fica evidente sem precisar de moldura. */
-.sm-marquee.has-selection .sm-marquee__logo:not(.is-selected) {
-  opacity: 0.42;
-}
-
-.sm-marquee__logo:focus-visible {
-  outline: 2px solid var(--color-brand-green);
-  outline-offset: 6px;
-  border-radius: 6px;
-}
-
-@media (max-width: 640px) {
-  .sm-marquee__set {
-    gap: 3rem;
-    padding-right: 3rem;
-  }
-
-  .sm-marquee__logo {
-    zoom: 0.82;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sm-rise,
   .sm-rise-2,
@@ -892,3 +789,38 @@ html, body, #root {
 .sm-stage__track i { display: block; height: 100%; border-radius: 999px; background: #A8D1BC; transform-origin: left; }
 .sm-stage__bar-row.is-win .sm-stage__track i { background: #1A8047; }
 @media (max-width: 1023px) { .sm-stage__photo { width: 2.25rem; height: 2.25rem; border-radius: 0.6rem; } .sm-stage__photo img { width: 1.85rem; height: 1.85rem; } .sm-stage__name small { display: none; } }
+
+/* ===== Radar de coleta (segunda dobra): hub + fios com feixe + um card por rede ===== */
+.sm-radar { --verde: #0e7a46; position: relative; }
+.sm-radar__hub { position: relative; z-index: 1; width: max-content; max-width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 0.75rem; background: #0b192c; color: #fff; border-radius: 999px; padding: 0.7rem 0.8rem 0.7rem 0.75rem; box-shadow: 0 14px 30px -16px rgba(11, 25, 44, 0.6); }
+.sm-radar__hub-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: rgba(125, 255, 224, 0.14); color: #7dffe0; }
+.sm-radar__hub-title { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; letter-spacing: -0.01em; }
+.sm-radar__hub-badge { font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #7dffe0; background: rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 0.3rem 0.65rem; }
+.sm-radar__wires { display: none; width: 100%; height: 84px; margin-top: -1px; overflow: visible; }
+.sm-radar__stem { display: block; width: 2px; height: 1.75rem; margin: 0 auto; background: repeating-linear-gradient(to bottom, #9bb8aa 0 4px, transparent 4px 9px); }
+.sm-radar__wire { fill: none; stroke: #9bb8aa; stroke-width: 1.5; stroke-dasharray: 4 6; }
+.sm-radar__beam { fill: none; stroke: #00c853; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 12 88; stroke-dashoffset: 12; filter: drop-shadow(0 0 4px rgba(0, 200, 83, 0.7)); animation: sm-beam 2.6s linear infinite; }
+@keyframes sm-beam { to { stroke-dashoffset: -88; } }
+.sm-radar__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; list-style: none; padding: 0; margin: 0; }
+.sm-radar__card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #D4E8DC; border-radius: 1.1rem; padding: 1.4rem 1rem 1rem; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(13, 33, 55, 0.04); transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
+.sm-radar__card:hover { border-color: #A8D1BC; box-shadow: 0 14px 28px -18px rgba(13, 33, 55, 0.35); transform: translateY(-2px); }
+.sm-radar__card:focus-visible { outline: 2px solid var(--verde); outline-offset: 3px; }
+.sm-radar__card.is-selected { border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde), 0 14px 28px -18px rgba(14, 122, 70, 0.5); background: #F4FAF7; }
+.sm-radar__node { position: absolute; top: -5px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: #fff; border: 2px solid var(--verde); }
+.sm-radar__logo { display: grid; place-items: center; height: 3rem; }
+.sm-radar__logo img { max-width: 8rem; max-height: 2.75rem; width: auto; height: auto; object-fit: contain; }
+.sm-radar__status { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; color: var(--verde); }
+.sm-radar__dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: #00c853; animation: sm-radar-pulse 1.8s ease-out infinite; }
+@keyframes sm-radar-pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.55); } 100% { box-shadow: 0 0 0 7px rgba(0, 200, 83, 0); } }
+.sm-radar__count { font-size: 0.72rem; font-variant-numeric: tabular-nums; color: #5C7668; }
+@media (min-width: 1024px) {
+  .sm-radar__wires { display: block; }
+  .sm-radar__stem { display: none; }
+  .sm-radar__cards { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; }
+  .sm-radar__cards > li { padding: 0 0.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-radar__beam { animation: none; stroke-dasharray: none; stroke: #00c853; opacity: 0.45; }
+  .sm-radar__dot, .sm-tag-pulse, .sm-ping { animation: none; }
+  .sm-radar__card { transition: none; }
+}

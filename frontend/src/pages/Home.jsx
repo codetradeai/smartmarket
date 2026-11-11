@@ -21,7 +21,7 @@ import {
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
-  MarqueeRedes,
+  RadarColeta,
 } from "../components/ui"
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
@@ -401,15 +401,20 @@ export function Home() {
         </div>
       </section>
 
-      <section id="redes" className="scroll-mt-24 w-full py-12 sm:py-16">
+      <section
+        id="redes"
+        aria-labelledby="redes-titulo"
+        className="scroll-mt-24 w-full py-12 sm:py-16"
+        style={{ backgroundColor: "#f8faf8", backgroundImage: "radial-gradient(#d3dbd5 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <header className="mb-8 flex flex-col gap-5 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-green">
-                <span className="h-1.5 w-1.5 rounded-[2px] bg-brand-green" aria-hidden="true" />
+              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0e7a46]">
+                <span className="h-2 w-2 rounded-[2px] bg-[#0e7a46] motion-safe:animate-pulse" aria-hidden="true" />
                 Ecossistema de varejo
               </p>
-              <h2 className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-brand-navy sm:text-[2rem] text-balance">
+              <h2 id="redes-titulo" className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-[#0b192c] sm:text-[2rem] text-balance">
                 Redes que fazem parte da sua economia.
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
@@ -430,6 +435,10 @@ export function Home() {
                 </button>
               )}
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
+                <span className="relative flex h-2 w-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-60 motion-safe:animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-emerald" />
+                </span>
                 <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
                   {String(REDES_DA_FAIXA.length).padStart(2, "0")}
                 </span>
@@ -439,15 +448,17 @@ export function Home() {
           </header>
         </div>
 
-        {/* Fora do contêiner de largura máxima: a faixa vai de borda a borda da tela. */}
-        <MarqueeRedes
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <RadarColeta
           markets={REDES_DA_FAIXA}
+          redesResumo={REDES_COM_PRODUTOS}
           selectedMarket={selectedMarket}
           onSelect={(id) => {
             setSelectedMarket((current) => (current === id ? "todos" : id))
             document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
           }}
         />
+        </div>
       </section>
 
       {/* 4. COMO FUNCIONA: scrollytelling, uma interface que evolui com o scroll */}

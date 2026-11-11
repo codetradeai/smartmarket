@@ -422,109 +422,6 @@ html, body, #root {
 .sm-rise-4 { animation-delay: 0.24s; }
 .sm-rise-5 { animation-delay: 0.32s; }
 
-/* Marquee de redes: faixa infinita movida por JS (translate3d), arrastável, com bordas em fade */
-.sm-marquee {
-  overflow: hidden;
-  padding: 1rem 0 1.25rem;
-  cursor: grab;
-  touch-action: pan-y;
-  overscroll-behavior-x: contain;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-}
-
-.sm-marquee.is-dragging {
-  cursor: grabbing;
-}
-
-.sm-marquee__track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
-}
-
-.sm-marquee__set {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 4.5rem;
-  padding-right: 4.5rem; /* o respiro final iguala o espaço entre conjuntos e fecha a emenda do loop */
-  margin: 0;
-  list-style: none;
-}
-
-.sm-marquee__item {
-  flex-shrink: 0;
-}
-
-/* Só o logo: sem cartão, borda nem sombra. O padding vertical dá área de toque e espaço ao sublinhado. */
-.sm-marquee__logo {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 0;
-  border: 0;
-  background: none;
-  cursor: inherit;
-  transition:
-    opacity 240ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sm-marquee__logo img {
-  display: block;
-  max-width: none;
-  pointer-events: none;
-  -webkit-user-drag: none;
-}
-
-.sm-marquee__logo::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--color-brand-green);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sm-marquee__logo:hover {
-  transform: translateY(-2px);
-}
-
-.sm-marquee__logo.is-selected::after {
-  transform: scaleX(1);
-}
-
-/* Com uma rede escolhida, as outras recuam: o logo ativo fica evidente sem precisar de moldura. */
-.sm-marquee.has-selection .sm-marquee__logo:not(.is-selected) {
-  opacity: 0.42;
-}
-
-.sm-marquee__logo:focus-visible {
-  outline: 2px solid var(--color-brand-green);
-  outline-offset: 6px;
-  border-radius: 6px;
-}
-
-@media (max-width: 640px) {
-  .sm-marquee__set {
-    gap: 3rem;
-    padding-right: 3rem;
-  }
-
-  .sm-marquee__logo {
-    zoom: 0.82;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .sm-rise,
   .sm-rise-2,
@@ -739,4 +636,207 @@ html, body, #root {
     min-height: 0;
     overflow: auto;
   }
+}
+
+/* ===== Radar de coleta (segunda dobra): hub + fios com feixe + um card por rede ===== */
+.sm-radar { --verde: #0e7a46; position: relative; }
+.sm-radar__hub { position: relative; z-index: 1; width: max-content; max-width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 0.75rem; background: #0b192c; color: #fff; border-radius: 999px; padding: 0.7rem 0.8rem 0.7rem 0.75rem; box-shadow: 0 14px 30px -16px rgba(11, 25, 44, 0.6); }
+.sm-radar__hub-logo { display: grid; place-items: center; background: #fff; border-radius: 999px; padding: 0.3rem 0.85rem; }
+.sm-radar__hub-title { font-family: var(--font-display); font-weight: 800; font-size: 0.95rem; letter-spacing: -0.01em; }
+.sm-radar__hub-badge { font-size: 0.72rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #7dffe0; background: rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 0.3rem 0.65rem; }
+.sm-radar__wires { display: none; width: 100%; height: 84px; margin-top: -1px; overflow: visible; }
+.sm-radar__stem { display: block; width: 2px; height: 1.75rem; margin: 0 auto; background: repeating-linear-gradient(to bottom, #9bb8aa 0 4px, transparent 4px 9px); }
+.sm-radar__wire { fill: none; stroke: #9bb8aa; stroke-width: 1.5; stroke-dasharray: 4 6; }
+.sm-radar__beam { fill: none; stroke: #00c853; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 12 88; stroke-dashoffset: 12; filter: drop-shadow(0 0 4px rgba(0, 200, 83, 0.7)); animation: sm-beam 2.6s linear infinite; }
+@keyframes sm-beam { to { stroke-dashoffset: -88; } }
+.sm-radar__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; list-style: none; padding: 0; margin: 0; }
+.sm-radar__card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #D4E8DC; border-radius: 1.1rem; padding: 1.4rem 1rem 1rem; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(13, 33, 55, 0.04); transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
+.sm-radar__card:hover { border-color: #A8D1BC; box-shadow: 0 14px 28px -18px rgba(13, 33, 55, 0.35); transform: translateY(-2px); }
+.sm-radar__card:focus-visible { outline: 2px solid var(--verde); outline-offset: 3px; }
+.sm-radar__card.is-selected { border-color: var(--verde); box-shadow: 0 0 0 2px var(--verde), 0 14px 28px -18px rgba(14, 122, 70, 0.5); background: #F4FAF7; }
+.sm-radar__node { position: absolute; top: -5px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: #fff; border: 2px solid var(--verde); }
+.sm-radar__logo { display: grid; place-items: center; height: 3rem; }
+.sm-radar__logo img { max-width: 8rem; max-height: 2.75rem; width: auto; height: auto; object-fit: contain; }
+.sm-radar__status { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; color: var(--verde); }
+.sm-radar__dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: #00c853; animation: sm-radar-pulse 1.8s ease-out infinite; }
+@keyframes sm-radar-pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 200, 83, 0.55); } 100% { box-shadow: 0 0 0 7px rgba(0, 200, 83, 0); } }
+.sm-radar__count { font-size: 0.72rem; font-variant-numeric: tabular-nums; color: #5C7668; }
+@media (min-width: 1024px) {
+  .sm-radar__wires { display: block; }
+  .sm-radar__stem { display: none; }
+  .sm-radar__cards { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 0; }
+  .sm-radar__cards > li { padding: 0 0.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-radar__beam { animation: none; stroke-dasharray: none; stroke: #00c853; opacity: 0.45; }
+  .sm-radar__dot, .sm-tag-pulse, .sm-ping { animation: none; }
+  .sm-radar__card { transition: none; }
+}
+
+/* Marquee de redes: faixa infinita movida por JS (translate3d), arrastável, com bordas em fade */
+.sm-marquee {
+  overflow: hidden;
+  padding: 1rem 0 1.25rem;
+  cursor: grab;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+.sm-marquee.is-dragging {
+  cursor: grabbing;
+}
+
+.sm-marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.sm-marquee__set {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4.5rem;
+  padding-right: 4.5rem; /* o respiro final iguala o espaço entre conjuntos e fecha a emenda do loop */
+  margin: 0;
+  list-style: none;
+}
+
+.sm-marquee__item {
+  flex-shrink: 0;
+}
+
+/* Só o logo: sem cartão, borda nem sombra. O padding vertical dá área de toque e espaço ao sublinhado. */
+.sm-marquee__logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0;
+  border: 0;
+  background: none;
+  cursor: inherit;
+  transition:
+    opacity 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sm-marquee__logo img {
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.sm-marquee__logo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-brand-green);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sm-marquee__logo:hover {
+  transform: translateY(-2px);
+}
+
+.sm-marquee__logo.is-selected::after {
+  transform: scaleX(1);
+}
+
+/* Com uma rede escolhida, as outras recuam: o logo ativo fica evidente sem precisar de moldura. */
+.sm-marquee.has-selection .sm-marquee__logo:not(.is-selected) {
+  opacity: 0.42;
+}
+
+.sm-marquee__logo:focus-visible {
+  outline: 2px solid var(--color-brand-green);
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+@media (max-width: 640px) {
+  .sm-marquee__set {
+    gap: 3rem;
+    padding-right: 3rem;
+  }
+
+  .sm-marquee__logo {
+    zoom: 0.82;
+  }
+}
+
+/* ===== Cupom fiscal vivo (dobra 3, variante cupom): passos clicáveis + cupom que muda ===== */
+.sm-cupom { background: #fff; }
+.sm-cupom--scroll { height: 300vh; }
+.sm-cupom__pin { padding: 3.5rem 0; }
+.sm-cupom--scroll .sm-cupom__pin { position: sticky; top: 4rem; height: calc(100svh - 4rem); min-height: 36rem; padding: 0; display: flex; align-items: center; overflow: hidden; }
+.sm-cupom__inner { width: 100%; max-width: 80rem; margin: 0 auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr; gap: 1.75rem; align-items: center; }
+.sm-cupom__head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.sm-cupom__title { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #0b192c; font-size: clamp(2rem, 3.4vw, 3rem); }
+.sm-cupom__title span { display: block; color: #0e7a46; white-space: nowrap; }
+.sm-cupom__apoio { max-width: 22rem; font-size: 0.875rem; line-height: 1.55; color: #5C7668; }
+.sm-cupom__passos { display: grid; gap: 0.75rem; list-style: none; margin: 0; padding: 0; }
+.sm-cupom__passo { width: 100%; display: flex; align-items: flex-start; gap: 1rem; text-align: left; padding: 1.05rem 1.25rem; border: 1px solid #dfe9e2; border-radius: 1.5rem; background: #fff; color: #0b192c; opacity: 0.5; transition: opacity 300ms ease, transform 300ms ease, background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease, color 300ms ease; }
+.sm-cupom__num { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1; color: #0e7a46; min-width: 2.6rem; transition: color 300ms ease; }
+.sm-cupom__passo strong { display: block; font-weight: 800; font-size: 1.05rem; }
+.sm-cupom__passo small { display: block; margin-top: 0.25rem; font-size: 0.85rem; line-height: 1.45; color: #5C7668; transition: color 300ms ease; }
+.sm-cupom__passo.is-ativo { opacity: 1; transform: scale(1.02); box-shadow: 0 18px 36px -22px rgba(11, 25, 44, 0.45); }
+.sm-cupom__passo--claro.is-ativo { background: #f1f7f3; border-color: #cfe2d6; }
+.sm-cupom__passo--escuro.is-ativo { background: #0b192c; border-color: #0b192c; color: #fff; }
+.sm-cupom__passo--escuro.is-ativo .sm-cupom__num { color: #34d399; }
+.sm-cupom__passo--escuro.is-ativo small { color: rgba(255, 255, 255, 0.72); }
+.sm-cupom__passo--verde.is-ativo { background: #0e7a46; border-color: #0e7a46; color: #fff; }
+.sm-cupom__passo--verde.is-ativo .sm-cupom__num { color: #fff; }
+.sm-cupom__passo--verde.is-ativo small { color: rgba(255, 255, 255, 0.88); }
+.sm-cupom__passo:focus-visible { outline: 2px solid #0e7a46; outline-offset: 3px; }
+.sm-cupom__cta { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.4rem; background: #0b192c; color: #fff; font-weight: 700; font-size: 0.9rem; border-radius: 999px; padding: 0.95rem 1.3rem; transition: background-color 200ms ease, box-shadow 300ms ease; }
+.sm-cupom__cta:hover { background: #16324f; }
+.sm-cupom__cta:focus-visible { outline: 2px solid #34d399; outline-offset: 3px; }
+.sm-cupom__cta.is-brilho { box-shadow: 0 0 0 4px rgba(14, 122, 70, 0.22), 0 12px 28px -10px rgba(14, 122, 70, 0.6); animation: sm-cupom-pulso 2.2s ease-in-out infinite; }
+@keyframes sm-cupom-pulso { 0%, 100% { box-shadow: 0 0 0 3px rgba(14, 122, 70, 0.18), 0 12px 28px -10px rgba(14, 122, 70, 0.5); } 50% { box-shadow: 0 0 0 8px rgba(14, 122, 70, 0.1), 0 12px 28px -10px rgba(14, 122, 70, 0.7); } }
+
+.sm-cupom__paper { background: #fff; border: 1px solid #e1e9e3; border-radius: 1.25rem; padding: 1.1rem; color: #0b192c; box-shadow: 0 24px 60px -30px rgba(11, 25, 44, 0.35); min-width: 0; }
+.sm-cupom__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #cdd8d0; }
+.sm-cupom__topo strong { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.sm-cupom__topo span { font-size: 0.68rem; font-weight: 600; color: #5C7668; border: 1px dashed #A8D1BC; border-radius: 999px; padding: 0.15rem 0.5rem; }
+.sm-cupom__grade { font-size: 0.7rem; }
+.sm-cupom__linha { display: grid; grid-template-columns: minmax(0, 1.9fr) repeat(4, minmax(0, 1fr)); gap: 0.35rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px dashed #e3ebe5; }
+.sm-cupom__linha--cab { font-weight: 700; color: #5C7668; font-size: 0.66rem; }
+.sm-cupom__linha--total { border-bottom: 0; padding-top: 0.8rem; font-weight: 800; }
+.sm-cupom__col { text-align: right; font-variant-numeric: tabular-nums; border-radius: 0.4rem; padding: 0.2rem 0.25rem; opacity: 0; transform: translateY(4px); transition: opacity 350ms ease var(--d, 0ms), transform 350ms ease var(--d, 0ms), background-color 300ms ease, color 300ms ease; }
+.sm-cupom__paper:not([data-passo="0"]) .sm-cupom__col { opacity: 1; transform: none; }
+.sm-cupom__paper:not([data-passo="0"]) .sm-cupom__preco.is-menor { background: #e8f8f0; color: #115c33; font-weight: 800; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__soma.is-vencedor { background: #0e7a46; color: #fff; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__linha--cab .is-vencedor { background: #0b192c; color: #fff; }
+.sm-cupom__item { animation: sm-cupom-in 450ms ease both; animation-delay: var(--d, 0ms); }
+@keyframes sm-cupom-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sm-cupom__produto { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+.sm-cupom__produto img { width: 2.25rem; height: 2.25rem; flex: none; object-fit: contain; border: 1px solid #e1e9e3; border-radius: 0.5rem; background: #fff; }
+.sm-cupom__produto strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; font-weight: 700; }
+.sm-cupom__produto small { color: #5C7668; }
+.sm-cupom__ok { flex: none; margin-left: auto; color: #0e7a46; }
+.sm-cupom__economia { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 0.9rem; padding: 0.8rem 0.9rem; border-radius: 0.8rem; background: #f1f7f3; font-size: 0.82rem; line-height: 1.4; opacity: 0; transform: translateY(8px); transition: opacity 400ms ease, transform 400ms ease; }
+.sm-cupom__economia svg { flex: none; margin-top: 0.15rem; color: #0e7a46; }
+.sm-cupom__economia small { display: block; color: #5C7668; font-size: 0.7rem; margin-top: 0.15rem; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__economia { opacity: 1; transform: none; }
+@media (min-width: 1024px) {
+  .sm-cupom__inner { padding: 0 2rem; gap: 3.5rem; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+  .sm-cupom__paper { padding: 1.5rem; }
+  .sm-cupom__grade { font-size: 0.78rem; }
+  .sm-cupom__produto img { width: 2.6rem; height: 2.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
+  .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { CupomViva } from "../components/comoFunciona/CupomViva"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -20,7 +21,7 @@ import {
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
-  MarqueeRedes,
+  RadarColeta,
 } from "../components/ui"
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
@@ -90,6 +91,15 @@ export function Home() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("nenhum")
   const [selectedMarket, setSelectedMarket] = useState("todos")
+  const propsRedes = {
+    markets: REDES_DA_FAIXA,
+    redesResumo: REDES_COM_PRODUTOS,
+    selectedMarket,
+    onSelect: (id) => {
+      setSelectedMarket((current) => (current === id ? "todos" : id))
+      document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+    },
+  }
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
@@ -397,15 +407,20 @@ export function Home() {
         </div>
       </section>
 
-      <section id="redes" className="scroll-mt-24 w-full py-12 sm:py-16">
+      <section
+        id="redes"
+        aria-labelledby="redes-titulo"
+        className="scroll-mt-24 w-full py-12 sm:py-16"
+        style={{ backgroundColor: "#f8faf8", backgroundImage: "radial-gradient(#d3dbd5 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <header className="mb-8 flex flex-col gap-5 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-green">
-                <span className="h-1.5 w-1.5 rounded-[2px] bg-brand-green" aria-hidden="true" />
+              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0e7a46]">
+                <span className="h-2 w-2 rounded-[2px] bg-[#0e7a46] motion-safe:animate-pulse" aria-hidden="true" />
                 Ecossistema de varejo
               </p>
-              <h2 className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-brand-navy sm:text-[2rem] text-balance">
+              <h2 id="redes-titulo" className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-[#0b192c] sm:text-[2rem] text-balance">
                 Redes que fazem parte da sua economia.
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
@@ -426,6 +441,10 @@ export function Home() {
                 </button>
               )}
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
+                <span className="relative flex h-2 w-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-60 motion-safe:animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-emerald" />
+                </span>
                 <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
                   {String(REDES_DA_FAIXA.length).padStart(2, "0")}
                 </span>
@@ -435,54 +454,13 @@ export function Home() {
           </header>
         </div>
 
-        {/* Fora do contêiner de largura máxima: a faixa vai de borda a borda da tela. */}
-        <MarqueeRedes
-          markets={REDES_DA_FAIXA}
-          selectedMarket={selectedMarket}
-          onSelect={(id) => {
-            setSelectedMarket((current) => (current === id ? "todos" : id))
-            document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-          }}
-        />
-      </section>
-
-      {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}
-      <section id="como-funciona" className="scroll-mt-24 bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">
-              Três passos.
-              <span className="block text-brand-green">Uma lista mais barata.</span>
-            </h2>
-            <p className="max-w-xs text-sm leading-relaxed text-brand-muted">
-              Sem abrir um aplicativo por rede. A comparação usa os preços que já estão no catálogo.
-            </p>
-          </div>
-          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <li className="rounded-3xl bg-brand-bg p-6">
-              <span className="font-display text-5xl font-extrabold text-brand-green">01</span>
-              <h3 className="mt-6 text-lg font-extrabold text-brand-navy">Monte a lista</h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-muted">Escolha os produtos do dia a dia e guarde a lista para a próxima compra.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-navy p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-[#7dffe0]">02</span>
-              <h3 className="mt-6 text-lg font-extrabold">Cruze os preços</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">O comparador olha o preço de cada item nas redes presentes no catálogo.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-green p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-white">03</span>
-              <h3 className="mt-6 text-lg font-extrabold">Escolha o mercado</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/85">Veja onde a cesta fecha mais barata antes de sair de casa.</p>
-            </li>
-          </ol>
-          <div className="mt-8">
-            <Link to="/list" className="sm-cta">
-              Começar pela lista
-              <span aria-hidden="true" className="sm-cta-arrow">→</span>
-            </Link>
-          </div>
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <RadarColeta {...propsRedes} />
         </div>
       </section>
+
+      {/* 4. COMO FUNCIONA: passos clicáveis + cupom que muda a cada passo */}
+      <CupomViva />
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
       <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">

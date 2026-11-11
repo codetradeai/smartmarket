@@ -30,6 +30,26 @@ public class Usuario {
     @Column(nullable = false)
     private Papel papel = Papel.USER;
 
+    // Localização (todos opcionais; contas antigas ficam nulas e são convidadas a informar o CEP).
+    // Dado pessoal (LGPD): o usuário pode editar e excluir. As coordenadas têm só a precisão do CEP.
+
+    /** Só dígitos (8). */
+    @Column(length = 8)
+    private String cep;
+
+    private String cidade;
+
+    @Column(length = 2)
+    private String uf;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loja_preferida_id")
+    private Loja lojaPreferida;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

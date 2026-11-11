@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import { LoginModalProvider } from '../contexts/LoginModalContext'
@@ -68,6 +68,7 @@ describe('Login em modal', () => {
 
       const card = screen.getByRole('dialog', { name: 'Entrar no SmartMarket' })
       expect(card).toHaveAttribute('aria-modal', 'true')
+      expect(within(card).getByRole('img', { name: 'SmartMarket' })).toBeInTheDocument()
       expect(screen.getByTestId('local')).toHaveTextContent(/^\/$/)
       expect(screen.getByText('supermercados do RS.')).toBeInTheDocument()
     })

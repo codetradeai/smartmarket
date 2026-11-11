@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { CupomViva } from './CupomViva'
 
@@ -38,6 +38,43 @@ describe('CupomViva', () => {
     montar()
     expect(screen.getByText(/exemplo ilustrativo/i)).toBeInTheDocument()
     expect(screen.getByRole('img', { name: /demonstração ilustrativa.*mercado c.*r\$\s?3,20/i })).toBeInTheDocument()
+  })
+
+  it('cada item do passo 01 tem seu índice de entrada e um selo de confirmado com o traço desenhável', () => {
+    montar()
+    const itens = [...document.querySelectorAll('.sm-cupom__item')]
+    expect(itens.length).toBeGreaterThan(1)
+    itens.forEach((item, i) => {
+      expect(item.style.getPropertyValue('--i')).toBe(String(i))
+      expect(item.querySelector('.sm-cupom__ok .sm-cupom__ok-traco')).toBeInTheDocument()
+      expect(item.querySelector('.sm-cupom__ok').closest('[aria-hidden="true"]')).not.toBeNull()
+    })
+  })
+
+  it('a entrada dos itens só dispara quando o cupom aparece na tela (sem IntersectionObserver, já nasce liberada)', () => {
+    const ObserverOriginal = window.IntersectionObserver
+    let aoInterceptar
+    window.IntersectionObserver = class {
+      constructor(cb) {
+        aoInterceptar = cb
+      }
+      observe() {}
+      disconnect() {}
+    }
+    try {
+      montar()
+      const papel = document.querySelector('.sm-cupom__paper')
+      expect(papel).toHaveAttribute('data-entrou', 'false')
+      act(() => aoInterceptar([{ isIntersecting: true }]))
+      expect(papel).toHaveAttribute('data-entrou', 'true')
+    } finally {
+      // se não existia antes, remove a propriedade (atribuir undefined deixaria `"IntersectionObserver" in window` verdadeiro)
+      if (ObserverOriginal === undefined) delete window.IntersectionObserver
+      else window.IntersectionObserver = ObserverOriginal
+    }
+    document.body.innerHTML = ''
+    montar()
+    expect(document.querySelector('.sm-cupom__paper')).toHaveAttribute('data-entrou', 'true')
   })
 
   it('o scanner (laser) fica na grade do cupom, escondido dos leitores de tela, e só anima no passo 02', () => {

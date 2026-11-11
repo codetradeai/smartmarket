@@ -233,7 +233,11 @@ SUBTIPOS_MAP = {
     "branco": ["branco", "polido"],
     "parboilizado": ["parboilizado", "parb"],
     "integral": ["integral", "integ"],
-    "arboreo": ["arboreo", "carnaroli"],
+    "arboreo": ["arborio", "arboreo", "carnaroli"],
+    "carreteiro": ["carreteiro", "cateto"],
+    "sushi": ["sushi", "japones"],
+    "arabe": ["arabe"],
+    "grega": ["grega", "a grega"],
     # Feijão
     "preto": ["preto"],
     "carioca": ["carioca", "carioquinha"],
@@ -471,6 +475,16 @@ class MotorConsolidacaoOfertas:
         categoria = item["categoria_bruta"]
         ean = item["ean"]
         sig = item["sig"]
+
+        # Trava de Sanidade Anti-Outlier (Ratio Máximo 2.2x):
+        # Se um produto canônico já tem ofertas e a nova oferta tem preço > 2.2x do menor preço
+        # ou < menor_preco / 2.2, separa em um produto canônico variante para não misturar embalagens/fardos.
+        precos_existentes = [of["preco"] for of in self.ofertas_agrupadas if of["produto_id"] == prod_id]
+        if precos_existentes:
+            menor_p = min(precos_existentes)
+            if preco > (menor_p * 2.2) or (menor_p > preco * 2.2):
+                faixa_preco = int(preco)
+                prod_id = f"{prod_id}_p{faixa_preco}"
 
         if prod_id not in self.produtos_canonicos:
             marca_display = (sig["marca"] or "").replace("_", " ").title()

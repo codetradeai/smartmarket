@@ -1,5 +1,5 @@
 -- SmartMarket Schema Otimizado com Agrupamento de Filiais
--- Gerado em: 2026-11-11T22:52:37.101641+00:00
+-- Gerado em: 2026-11-11T23:06:28.828385+00:00
 
 CREATE TABLE IF NOT EXISTS produtos_canonicos (
     produto_id VARCHAR(150) PRIMARY KEY,

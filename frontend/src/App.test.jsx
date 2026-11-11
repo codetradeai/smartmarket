@@ -9,8 +9,6 @@ describe('App', () => {
         <App />
       </MemoryRouter>
     )
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      /Sua lista/i
-    )
+    expect(screen.getByRole('heading', { level: 1, name: /Sua lista/i })).toBeInTheDocument()
   })
 })

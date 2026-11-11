@@ -1,0 +1,34 @@
+{
+  "asun": {
+    "largura": 126,
+    "altura": 76
+  },
+  "stok": {
+    "largura": 133,
+    "altura": 72
+  },
+  "atacadao": {
+    "largura": 79,
+    "altura": 76
+  },
+  "carrefour": {
+    "largura": 102,
+    "altura": 76
+  },
+  "fort": {
+    "largura": 168,
+    "altura": 57
+  },
+  "rissul": {
+    "largura": 208,
+    "altura": 46
+  },
+  "zaffari": {
+    "largura": 208,
+    "altura": 29
+  },
+  "master": {
+    "largura": 111,
+    "altura": 76
+  }
+}

@@ -20,14 +20,15 @@ import {
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
-  CarrosselRedes,
+  MarqueeRedes,
 } from "../components/ui"
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
+import { HeroHeadline } from "../components/HeroHeadline"
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { urlPublica } from "../utils/urlPublica"
-import { redesComProdutos } from "../utils/redesDoCatalogo"
+import { redesComColetaAtiva, redesComProdutos } from "../utils/redesDoCatalogo"
 
 const SEM_PRODUTOS = []
 
@@ -39,6 +40,9 @@ const SEM_PRODUTOS = []
 const { anuncios: TOTAL_ANUNCIOS, anunciosComPreco: ANUNCIOS_COM_PRECO, produtosEm2Redes: PRODUTOS_EM_2_REDES } = TOTAIS
 // Só as redes que têm anúncios com preço: o Carrefour, por exemplo, tem 0 hoje e não conta como "rede no catálogo".
 const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
+// Faixa de logos da segunda dobra: só redes que o scraper coleta hoje E que já têm anúncios no catálogo
+// (um logo sem produtos levaria o filtro a uma lista vazia).
+const REDES_DA_FAIXA = redesComColetaAtiva(REDES_ATIVAS)
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -287,16 +291,12 @@ export function Home() {
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
             </p>
-            <h1 className="sm-hero-title sm-rise sm-rise-2 mt-4">
-              <span className="block">Sua lista.</span>
-              <span className="block text-[#7dffe0]">O menor</span>
-              <span className="block">preço.</span>
-            </h1>
-            <p className="sm-rise sm-rise-3 mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
+            <HeroHeadline />
+            <p className="sm-rise sm-hero-late mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
               Monte a lista e veja, com os preços do catálogo, em qual mercado do Rio Grande do Sul a compra sai mais barata.
             </p>
 
-            <div className="sm-rise sm-rise-4 relative z-30 mt-8 max-w-3xl">
+            <div className="sm-rise sm-hero-late-2 relative z-30 mt-8 max-w-3xl">
               {isAuthenticated ? (
                 <SearchSuggest
                   id="busca-home"
@@ -362,7 +362,7 @@ export function Home() {
               </div>
             </div>
 
-            <div className="sm-rise sm-rise-5 mt-8 flex flex-wrap items-center gap-3">
+            <div className="sm-rise sm-hero-late-3 mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to={isAuthenticated ? "/list" : caminhoDoCadastro("lista")}
                 className="sm-cta sm-cta-light"
@@ -378,7 +378,7 @@ export function Home() {
               </Link>
             </div>
 
-            <dl className="sm-rise sm-rise-5 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
+            <dl className="sm-rise sm-hero-late-4 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
               <div>
                 <dt className="text-[11px] uppercase tracking-wider text-white/45">Redes no catálogo</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{REDES_ATIVAS.length}</dd>
@@ -409,7 +409,7 @@ export function Home() {
                 Redes que fazem parte da sua economia.
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
-                Explore as redes disponíveis e descubra onde sua lista de compras pode custar menos.
+                São as redes cujos preços o SmartMarket coleta. Toque em uma para filtrar o catálogo e descobrir onde sua lista custa menos.
               </p>
             </div>
 
@@ -427,21 +427,23 @@ export function Home() {
               )}
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
                 <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
-                  {String(REDES_ATIVAS.length).padStart(2, "0")}
+                  {String(REDES_DA_FAIXA.length).padStart(2, "0")}
                 </span>
-                <span className="font-medium text-brand-muted">redes disponíveis</span>
+                <span className="font-medium text-brand-muted">redes com coleta ativa</span>
               </p>
             </div>
           </header>
-
-          <CarrosselRedes
-            selectedMarket={selectedMarket}
-            onSelect={(id) => {
-              setSelectedMarket((current) => (current === id ? "todos" : id))
-              document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-            }}
-          />
         </div>
+
+        {/* Fora do contêiner de largura máxima: a faixa vai de borda a borda da tela. */}
+        <MarqueeRedes
+          markets={REDES_DA_FAIXA}
+          selectedMarket={selectedMarket}
+          onSelect={(id) => {
+            setSelectedMarket((current) => (current === id ? "todos" : id))
+            document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+          }}
+        />
       </section>
 
       {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}

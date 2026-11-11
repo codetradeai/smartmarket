@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react"
 import { ArrowRight } from "lucide-react"
-import { LOGOS_REDES } from "./logosRedes"
+import { LOGOS_REDES, MARCAS_REDES } from "./logosRedes"
 import OFERTAS from "./ofertasPorRede.json"
 
-const MARCAS = { atacadao: "#F28C00", master: "#2E8B3E", asun: "#D6262B", stok: "#E5336D" }
 const PUXAO = 14 // px de tração magnética no máximo
 const LARGURA_CARD = 288
 const ALTURA_CARD = 250
@@ -119,7 +118,7 @@ export function LenteRedes({ markets, redesResumo, selectedMarket, onSelect }) {
               <button
                 type="button"
                 className={`sm-lente__ped${ativo === mercado.id ? " is-ativo" : ""}${selecionado ? " is-selected" : ""}`}
-                style={{ "--marca": MARCAS[mercado.id] ?? "#1A8047" }}
+                style={{ "--marca": MARCAS_REDES[mercado.id] ?? "#1A8047" }}
                 aria-pressed={selecionado}
                 onClick={() => onSelect?.(mercado.id)}
                 onPointerMove={aoMover}

@@ -19,3 +19,6 @@ const ARQUIVOS = { asun, atacadao, carrefour, fort, master, rissul, stok, zaffar
 export const LOGOS_REDES = Object.fromEntries(
   Object.entries(ARQUIVOS).map(([id, src]) => [id, { src, largura: dados[id].largura, altura: dados[id].altura }]),
 )
+
+/** Cor de destaque de cada rede (anéis e realces das variantes da segunda dobra). */
+export const MARCAS_REDES = { atacadao: "#F28C00", master: "#2E8B3E", asun: "#D6262B", stok: "#E5336D" }

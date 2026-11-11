@@ -15,7 +15,7 @@ Há um coletor por rede (`coleta_<rede>.py`):
 | Zaffari / Bourbon | `coleta_zaffari.py` | VTEX Catalog System (**suspenso na rotina**) |
 | Rissul | `coleta_rissul.py` | VTEX Catalog System (**suspenso na rotina**) |
 
-Zaffari e Rissul coletam por `/api/catalog_system/...`, que o `robots.txt` das duas redes proíbe; por isso `rotina_carga.py` as pula (`REDES_SUSPENSAS`) e os módulos ficam no repositório só até haver autorização. Na prática a rotina diária coleta **6 redes**.
+Zaffari e Rissul coletam por `/api/catalog_system/...`, que o `robots.txt` das duas redes proíbe; por isso `rotina_carga.py` as pula (`REDES_SUSPENSAS`) e os módulos ficam no repositório só até haver autorização. O Fort também está suspenso: a API dele (`sense.osuper.com.br`) responde HTTP 403 do Cloudflare ao coletor (verificado em 2026-11-09), e o coletor para no primeiro 403 por contrato. Na prática a rotina diária coleta **5 redes**.
 
 Todos os coletores cumprem o **Contrato de Extração v1**, possuem gravação atômica, validação com `Decimal`, garantia de moeda `BRL`, controle de falhas parciais e testes offline com fixtures.
 

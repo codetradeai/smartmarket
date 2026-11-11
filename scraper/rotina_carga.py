@@ -45,6 +45,7 @@ LOGGER = logging.getLogger("rotina_carga")
 REDES_SUSPENSAS = {
     "zaffari": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
     "rissul": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
+    "fort": "Cloudflare bloqueia o coletor com HTTP 403 em sense.osuper.com.br (verificado em 2026-11-09)",
 }
 
 # Chave opcional "coleta_exaustiva" (padrao False) em cada entrada de REDES_CONFIG: so

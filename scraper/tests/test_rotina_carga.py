@@ -25,6 +25,11 @@ from rotina_carga import (
     main,
 )
 from pipeline import ErroIngestao
+from rotina_carga import REDES_SUSPENSAS
+
+# Orquestração com o Fort como rede ativa: os testes 07 e 09 mockam os ciclos e não
+# dependem de o Fort estar de fato liberado (hoje suspenso por bloqueio 403 do Cloudflare).
+SUSPENSAS_COM_FORT_ATIVO = {k: v for k, v in REDES_SUSPENSAS.items() if k != "fort"}
 
 
 class TestRotinaCarga(unittest.TestCase):
@@ -177,6 +182,36 @@ class TestRotinaCarga(unittest.TestCase):
     @patch("rotina_carga.garantir_mercados_existentes")
     @patch("rotina_carga.conectar_banco")
     @patch("rotina_carga.validar_dsn")
+    def test_06b_redes_suspensas_nao_executam_ciclo(
+        self, mock_validar_dsn, mock_conectar, mock_garantir, mock_ciclo
+    ):
+        """Fort, Zaffari e Rissul estão suspensas: o ciclo não roda e o relatório registra o motivo."""
+        mock_validar_dsn.return_value = {"dbname": "smartmarket"}
+        mock_conectar.return_value.__enter__.return_value = MagicMock()
+        mock_ciclo.side_effect = lambda chave, *a, **kw: {
+            "source": chave, "status": "concluido", "produtos_criados": 1, "precos_inseridos": 1,
+        }
+
+        relatorio = executar_rodada_completa(
+            dsn="host=localhost dbname=smartmarket",
+            diretorio_base=self.temp_dir,
+            modo_fixture=True,
+            diretorio_fixtures=self.fixtures_dir,
+            permitir_banco_app=True,
+        )
+
+        executadas = {chamada.args[0] for chamada in mock_ciclo.call_args_list}
+        for rede in ("fort", "zaffari", "rissul"):
+            self.assertIn(rede, REDES_SUSPENSAS)
+            self.assertNotIn(rede, executadas)
+            self.assertEqual(relatorio["redes"][rede]["status"], "suspensa")
+        self.assertIn("403", REDES_SUSPENSAS["fort"])
+
+    @patch("rotina_carga.REDES_SUSPENSAS", SUSPENSAS_COM_FORT_ATIVO)
+    @patch("rotina_carga.executar_ciclo_rede")
+    @patch("rotina_carga.garantir_mercados_existentes")
+    @patch("rotina_carga.conectar_banco")
+    @patch("rotina_carga.validar_dsn")
     def test_07_executar_rodada_completa_gera_relatorio(self, mock_validar_dsn, mock_conectar, mock_garantir, mock_ciclo):
         """Valida que a rodada completa orquestra Fort e Carrefour e gera relatório JSON."""
         mock_validar_dsn.return_value = {"dbname": "smartmarket"}
@@ -240,6 +275,7 @@ class TestRotinaCarga(unittest.TestCase):
         self.assertTrue(mock_rodada.called)
 
 
+    @patch("rotina_carga.REDES_SUSPENSAS", SUSPENSAS_COM_FORT_ATIVO)
     @patch("rotina_carga.executar_ciclo_rede")
     @patch("rotina_carga.garantir_mercados_existentes")
     @patch("rotina_carga.conectar_banco")

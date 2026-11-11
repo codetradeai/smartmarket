@@ -8,7 +8,7 @@ Documento técnico oficial da expansão de cobertura de dados, engenharia de scr
 
 O SmartMarket expandiu sua cobertura geográfica e mercadológica para as **8 maiores redes de supermercados e atacarejos do Rio Grande do Sul**, com coletores, enriquecimento cadastral e comparação.
 
-> **Situação atual:** a rotina diária coleta **6 das 8 redes**. Zaffari e Rissul estão **suspensas** em `scraper/rotina_carga.py` (`REDES_SUSPENSAS`), porque o `robots.txt` das duas proíbe `/api/` e os coletores usam `/api/catalog_system/...`; o catálogo e os preços dessas duas são históricos. Detalhes em [diagnostico-scraper.md](diagnostico-scraper.md).
+> **Situação atual:** a rotina diária coleta **5 das 8 redes**. O Fort está **suspenso** por bloqueio 403 do Cloudflare (2026-11-09). Zaffari e Rissul estão **suspensas** em `scraper/rotina_carga.py` (`REDES_SUSPENSAS`), porque o `robots.txt` das duas proíbe `/api/` e os coletores usam `/api/catalog_system/...`; o catálogo e os preços dessas duas são históricos. Detalhes em [diagnostico-scraper.md](diagnostico-scraper.md).
 
 ### Redes Monitoradas
 

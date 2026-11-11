@@ -56,6 +56,17 @@ describe('Home: números e redes sem inflar', () => {
     expect(coluna).not.toHaveTextContent(/Carrefour/)
   })
 
+  it('o rodapé separa as redes com coleta ativa das mapeadas (Fort suspenso fica no segundo grupo)', () => {
+    renderizar()
+
+    const coluna = screen.getByText('Redes no RS').parentElement
+    const ativas = within(coluna).getByText('Coleta ativa').nextElementSibling
+    const mapeadas = within(coluna).getByText(/Mapeadas no RS/).nextElementSibling
+    expect(ativas).toHaveTextContent('Asun Supermercados')
+    expect(ativas).not.toHaveTextContent('Fort Atacadista')
+    expect(mapeadas).toHaveTextContent('Fort Atacadista')
+  })
+
   it('chama os produtos coletados de "anúncios", cada um com o preço da rede onde foi coletado', () => {
     renderizar()
 
@@ -69,8 +80,7 @@ describe('Home: números e redes sem inflar', () => {
   it('o convite ao cadastro fala em anúncios, não em "produtos do catálogo", e não cita "8 supermercados"', () => {
     renderizar()
 
-    const titulo = screen.getByRole('heading', { name: /Quer ver todo o catálogo, com 3 anúncios\?/ })
-    expect(titulo).toBeInTheDocument()
+    expect(screen.getByText(/libera os 3 anúncios do catálogo/)).toBeInTheDocument()
     expect(within(document.body).queryByText(/dos 8 supermercados/)).not.toBeInTheDocument()
   })
 })

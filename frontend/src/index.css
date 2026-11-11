@@ -670,7 +670,7 @@ html, body, #root {
 .sm-radar__wires { display: none; width: 100%; height: 84px; margin-top: -1px; overflow: visible; }
 .sm-radar__stem { display: block; width: 2px; height: 1.75rem; margin: 0 auto; background: repeating-linear-gradient(to bottom, #9bb8aa 0 4px, transparent 4px 9px); }
 .sm-radar__wire { fill: none; stroke: #9bb8aa; stroke-width: 1.5; stroke-dasharray: 4 6; }
-.sm-radar__beam { fill: none; stroke: #00c853; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 12 88; stroke-dashoffset: 12; filter: drop-shadow(0 0 4px rgba(0, 200, 83, 0.7)); animation: sm-beam 2.6s linear infinite; }
+.sm-radar__beam { fill: none; stroke: #00c853; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 12 88; stroke-dashoffset: 12; filter: drop-shadow(0 0 4px rgba(0, 200, 83, 0.7)); animation: sm-beam 2.6s linear infinite reverse; /* reverse: o feixe sai da rede e chega ao motor de coleta */ }
 @keyframes sm-beam { to { stroke-dashoffset: -88; } }
 .sm-radar__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; list-style: none; padding: 0; margin: 0; }
 .sm-radar__card { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid #D4E8DC; border-radius: 1.1rem; padding: 1.4rem 1rem 1rem; cursor: pointer; text-align: center; box-shadow: 0 1px 2px rgba(13, 33, 55, 0.04); transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease; }
@@ -862,4 +862,53 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
   .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
+}
+
+/* Raio-X de Preços: troca de setor, trilha que se desenha e ponto do menor preço. Só transform/opacity. */
+.sm-raiox-painel { animation: sm-raiox-in 320ms ease both; }
+.sm-raiox-linha { animation: sm-raiox-in 420ms ease both; animation-delay: calc(var(--i, 0) * 90ms); }
+@keyframes sm-raiox-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sm-raiox-trilha { transform-origin: left center; animation: sm-raiox-trilha 650ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+@keyframes sm-raiox-trilha { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.sm-raiox-ponto { animation: sm-raiox-ponto 1400ms ease-out 2 both; animation-delay: calc(var(--i, 0) * 90ms + 500ms); }
+@keyframes sm-raiox-ponto { 0% { box-shadow: 0 0 0 0 rgba(14, 122, 70, 0.55); } 100% { box-shadow: 0 0 0 10px rgba(14, 122, 70, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .sm-raiox-painel, .sm-raiox-linha, .sm-raiox-trilha, .sm-raiox-ponto { animation: none; }
+}
+
+/* Scanner do cupom: linha de laser que desce pela grade no passo 02. Só transform/opacity. */
+.sm-cupom__grade { position: relative; }
+.sm-cupom__scan { position: absolute; inset: 0; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 250ms ease; z-index: 1; }
+.sm-cupom__scan i { position: absolute; inset: 0; border-bottom: 2px solid #1db4a3; background: linear-gradient(to bottom, rgba(29, 180, 163, 0) 55%, rgba(29, 180, 163, 0.16)); box-shadow: 0 10px 16px -8px rgba(29, 180, 163, 0.55); transform: translateY(-100%); }
+.sm-cupom__paper[data-passo="1"] .sm-cupom__scan { opacity: 1; }
+.sm-cupom__paper[data-passo="1"] .sm-cupom__scan i { animation: sm-cupom-scan 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes sm-cupom-scan { 0% { transform: translateY(-100%); } 70%, 100% { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .sm-cupom__scan { display: none; }
+}
+
+/* Troca de perfil no cupom da faixa final: fade curto com leve subida. */
+@keyframes sm-ticket-troca {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.sm-ticket-troca {
+  animation: sm-ticket-troca 220ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-ticket-troca { animation: none; }
+}
+
+/* Blueprint da seção Sobre: fluxo de pulso na conexão ativa e varredura do estado "coleta". */
+@keyframes sm-bp-fluxo { to { stroke-dashoffset: -24; } }
+@keyframes sm-bp-varredura { 0% { transform: translateY(-10%); opacity: 0; } 15%, 85% { opacity: 1; } 100% { transform: translateY(110%); opacity: 0; } }
+
+.sm-bp-fluxo { stroke-dasharray: 4 8; animation: sm-bp-fluxo 1.2s linear infinite; }
+.sm-bp-varredura { animation: sm-bp-varredura 2.8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-bp-fluxo { animation: none; stroke-dasharray: none; }
+  .sm-bp-varredura { animation: none; opacity: 0; }
 }

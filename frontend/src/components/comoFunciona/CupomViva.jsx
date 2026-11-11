@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
-import { Check, TrendingDown } from "lucide-react"
+import { TrendingDown } from "lucide-react"
 import { urlPublica } from "../../utils/urlPublica"
 import { PRODUTOS_DEMO, brl, indiceMenor } from "./comoFuncionaDados"
 
@@ -32,6 +32,25 @@ export function CupomViva() {
   const [modoScroll, setModoScroll] = useState(false)
   const [auto, setAuto] = useState(0)
   const [manual, setManual] = useState(null)
+  // A entrada dos itens só começa quando o cupom aparece na tela; sem IntersectionObserver já nasce "entrou".
+  const [entrou, setEntrou] = useState(() => typeof IntersectionObserver === "undefined")
+
+  useEffect(() => {
+    const secao = secaoRef.current
+    if (entrou || !secao) return undefined
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setEntrou(true)
+          obs.disconnect()
+        }
+      },
+      // margem em vez de proporção: no desktop a seção tem 300vh e nunca chegaria a 35% visível
+      { threshold: 0, rootMargin: "0px 0px -30% 0px" },
+    )
+    obs.observe(secao)
+    return () => obs.disconnect()
+  }, [entrou])
 
   useEffect(() => {
     const desktop = window.matchMedia?.("(min-width: 1024px)")
@@ -117,19 +136,20 @@ export function CupomViva() {
             </Link>
           </div>
 
-          <Cupom passo={passo} />
+          <Cupom passo={passo} entrou={entrou} />
         </div>
       </div>
     </section>
   )
 }
 
-function Cupom({ passo }) {
+function Cupom({ passo, entrou }) {
   const vencedor = MERCADOS[VENCEDOR]
   return (
     <div
       className="sm-cupom__paper"
       data-passo={passo}
+      data-entrou={entrou ? "true" : "false"}
       role="img"
       aria-label={`Demonstração ilustrativa: a cesta de 3 itens fecha mais barata no ${vencedor}, ${brl(ECONOMIA)} a menos que no mais caro.`}
     >
@@ -155,14 +175,19 @@ function Cupom({ passo }) {
         {LINHAS.map((p, i) => {
           const menor = indiceMenor(p.precos)
           return (
-            <div key={p.id} className="sm-cupom__linha sm-cupom__item" style={{ "--d": `${i * 110}ms` }}>
+            <div key={p.id} className="sm-cupom__linha sm-cupom__item" style={{ "--i": i }}>
               <span className="sm-cupom__produto">
                 <img src={urlPublica(p.foto)} alt="" width="36" height="36" loading="lazy" decoding="async" />
                 <span>
                   <strong>{p.nome}</strong>
                   <small>1 un</small>
                 </span>
-                <Check size={14} aria-hidden="true" className="sm-cupom__ok" />
+                {/* Selo de "item na lista": no passo 01 aparece depois de cada item, com o traço se desenhando. */}
+                <span className="sm-cupom__ok" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path className="sm-cupom__ok-traco" d="M7 12.8l3.3 3.3L17.2 8.9" />
+                  </svg>
+                </span>
               </span>
               {p.precos.map((preco, m) => (
                 <span key={m} className={`sm-cupom__col sm-cupom__preco${m === menor ? " is-menor" : ""}`} style={{ "--d": `${120 + i * 90 + m * 50}ms` }}>

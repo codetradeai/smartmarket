@@ -209,7 +209,7 @@ describe('Login em modal', () => {
   })
 
   describe('enviar', () => {
-    it('envia e-mail e senha pelo login do AuthContext e fecha o card', async () => {
+    it('envia e-mail e senha pelo login do AuthContext, fecha o card e vai direto para o catálogo', async () => {
       const login = jest.fn().mockResolvedValue({ success: true })
       renderizar({ login })
       await abrir()
@@ -219,6 +219,18 @@ describe('Login em modal', () => {
 
       await waitFor(() => expect(dialogo()).not.toBeInTheDocument())
       expect(login).toHaveBeenCalledWith('ana@email.com', 'segredo1')
+      expect(screen.getByTestId('local')).toHaveTextContent(/^\/catalog$/)
+    })
+
+    it('não sai da página quando o login falha', async () => {
+      const login = jest.fn().mockResolvedValue({ success: false, error: 'Senha incorreta.' })
+      renderizar({ login })
+      await abrir()
+
+      preencher('ana@email.com', 'errada')
+      fireEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+
+      await screen.findByRole('alert')
       expect(screen.getByTestId('local')).toHaveTextContent(/^\/$/)
     })
 

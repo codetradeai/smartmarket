@@ -16,7 +16,7 @@ jest.mock('../data', () => ({
     { id: 'asun', name: 'Asun Supermercados', color: '#00863F' },
   ],
   PRODUCTS: [
-    { id: 'p1', name: 'Arroz Só Fort 5kg', brand: 'A', category: 'graos', unit: '5kg', image: '🌾', prices: { fort: 20 } },
+    { id: 'p1', name: 'Arroz Só Asun 5kg', brand: 'A', category: 'graos', unit: '5kg', image: '🌾', prices: { asun: 20 } },
     { id: 'p2', name: 'Feijão Duas Redes 1kg', brand: 'B', category: 'graos', unit: '1kg', image: '🫘', prices: { fort: 8, asun: 9 } },
     { id: 'p3', name: 'Sal Sem Preço 1kg', brand: 'C', category: 'mercearia', unit: '1kg', image: '🧂', prices: {} },
   ],
@@ -27,12 +27,15 @@ jest.mock('../hooks/useAuth', () => ({
 }))
 
 async function renderizar() {
+  // O filtro por rede rola até o catálogo; o jsdom não implementa scrollIntoView.
+  Element.prototype.scrollIntoView = jest.fn()
   render(
     <MemoryRouter>
       <Home />
     </MemoryRouter>
   )
-  fireEvent.click(screen.getByRole('button', { name: /Grãos e Arroz/ }))
+  // Os cards de produto com "Melhor Preço" só aparecem na prévia filtrada por rede (o setor mostra o Raio-X).
+  fireEvent.click(screen.getByRole('button', { name: /Asun Supermercados/ }))
   // O catálogo chega por import dinâmico: espera o "Carregando o catálogo…" sumir.
   await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
 }
@@ -62,18 +65,18 @@ describe('Home: contador do catálogo', () => {
     )
 
     expect(screen.queryByText(/nas 8 redes do RS\?/)).not.toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Quer ver todo o catálogo, com 3 anúncios?' })).toBeInTheDocument()
+    expect(screen.getByText(/libera os 3 anúncios do catálogo/)).toBeInTheDocument()
   })
 })
 
 describe('Home com preço em uma rede só', () => {
   it('não diz "Comparado em 1 mercados" nem "Melhor Preço" quando só uma rede tem preço', async () => {
     await renderizar()
-    const cartao = cartaoDe('Arroz Só Fort 5kg')
+    const cartao = cartaoDe('Arroz Só Asun 5kg')
 
     expect(cartao).not.toHaveTextContent(/Comparado em 1 mercados/)
     expect(cartao).not.toHaveTextContent(/Melhor Preço/)
-    expect(cartao).toHaveTextContent('Preço no Fort Atacadista')
+    expect(cartao).toHaveTextContent('Preço no Asun Supermercados')
     expect(cartao).toHaveTextContent('Preço só nesta rede')
   })
 

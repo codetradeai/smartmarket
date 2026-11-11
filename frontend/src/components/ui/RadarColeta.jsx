@@ -14,7 +14,8 @@ function caminho(i, n) {
 const numero = (valor) => Number(valor || 0).toLocaleString("pt-BR")
 
 /**
- * "Radar de coleta": um hub (motor de coleta) ligado por fios com um feixe de luz a um card por rede.
+ * "Radar de coleta": um hub (motor de coleta) ligado por fios a um card por rede, com um feixe de luz que
+ * viaja de cada rede até o hub (os dados saem das redes e chegam ao motor).
  * Os números vêm do resumo do catálogo (anúncios por rede), nada é inventado. Cada card é um botão que
  * filtra o catálogo pela rede (`onSelect`). Os feixes só animam com movimento permitido (ver index.css).
  */

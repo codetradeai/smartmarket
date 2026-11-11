@@ -222,8 +222,8 @@ class LojasPorCepMigracaoTest {
         jdbc.update("insert into loja(mercado_id, nome, codigo_externo) values (?, 'Rede A Filial 2', 'filial_2')", rede);
         long filial2 = jdbc.queryForObject("select id from loja where codigo_externo = 'filial_2'", Long.class);
         long precoNovo = inserirPreco(produto, rede, "13.00", T4, true);
-        jdbc.update("insert into preco_loja(preco_id, loja_id, vigente_desde, confirmado_em) values (?, ?, ?, ?)",
-            precoNovo, filial2, T4, T4);
+        jdbc.update("insert into preco_loja(preco_id, produto_id, loja_id, vigente_desde, confirmado_em) values (?, ?, ?, ?, ?)",
+            precoNovo, produto, filial2, T4, T4);
 
         aplicarMigration();
 
@@ -293,8 +293,9 @@ class LojasPorCepMigracaoTest {
         long loja = jdbc.queryForObject("select id from loja where mercado_id = ?", Long.class, rede);
 
         assertThatThrownBy(() -> jdbc.update(
-            "insert into preco_loja(preco_id, loja_id, vigente_desde, vigente_ate, confirmado_em) values (?, ?, ?, ?, ?)",
-            preco, loja, T2, T1, T2)).isInstanceOf(DataIntegrityViolationException.class);
+            "insert into preco_loja(preco_id, produto_id, loja_id, vigente_desde, vigente_ate, confirmado_em) "
+                + "values (?, ?, ?, ?, ?, ?)",
+            preco, produto, loja, T2, T1, T2)).isInstanceOf(DataIntegrityViolationException.class);
 
         // PrecoService.remover apaga o preço direto: o vínculo precisa ir junto, sem erro de FK.
         jdbc.update("delete from preco where id = ?", preco);
@@ -302,7 +303,23 @@ class LojasPorCepMigracaoTest {
     }
 
     @Test
-    void copiaEmDatabaseEhIdenticaAoScriptDeDeploy() throws IOException {
+    void produtoIdDoVinculoVemDoPrecoNoBackfill() throws Exception {
+        long rede = inserirMercado("Rede A");
+        long produto = inserirProduto("Produto Teste");
+        long preco = inserirPreco(produto, rede, "10.00", T1, true);
+
+        aplicarMigration();
+
+        // A FK composta que impede divergencia depois do backfill e do 07 (so PostgreSQL):
+        // validada em test_lojas_postgres.sh.
+        assertThat(jdbc.queryForObject("select produto_id from preco_loja where preco_id = ?", Long.class, preco))
+            .isEqualTo(produto);
+    }
+
+    @Test
+    void copiasEmDatabaseSaoIdenticasAosScriptsDeDeploy() throws IOException {
         assertThat(Files.readString(COPIA_EM_DATABASE)).isEqualTo(Files.readString(MIGRATION));
+        assertThat(Files.readString(Path.of("database", "migration_indice_unico_vinculo_vigente.sql")))
+            .isEqualTo(Files.readString(Path.of("deploy", "07_indice_unico_vinculo_vigente.sql")));
     }
 }

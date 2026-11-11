@@ -339,10 +339,15 @@ CREATE TABLE loja (
         CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180)
 );
 
--- vigente_ate NULL = vinculo corrente; o mesmo preco pode valer em varias lojas
+-- vigente_ate NULL = vinculo corrente; o mesmo preco pode valer em varias lojas.
+-- produto_id repete preco.produto_id de proposito (FK composta impede divergencia) para
+-- permitir o indice unico parcial abaixo: uma loja, um preco vigente por produto.
+CREATE UNIQUE INDEX uk_preco_id_produto ON preco(id, produto_id);
+
 CREATE TABLE preco_loja (
     id BIGSERIAL PRIMARY KEY,
     preco_id BIGINT NOT NULL,
+    produto_id BIGINT NOT NULL,
     loja_id BIGINT NOT NULL,
     disponivel BOOLEAN NOT NULL DEFAULT TRUE,
     vigente_desde TIMESTAMP NOT NULL,
@@ -350,9 +355,9 @@ CREATE TABLE preco_loja (
     confirmado_em TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_preco_loja_preco
-        FOREIGN KEY (preco_id)
-        REFERENCES preco(id)
+    CONSTRAINT fk_preco_loja_preco_produto
+        FOREIGN KEY (preco_id, produto_id)
+        REFERENCES preco(id, produto_id)
         ON DELETE CASCADE,
 
     CONSTRAINT fk_preco_loja_loja
@@ -379,6 +384,9 @@ CREATE INDEX idx_loja_mercado ON loja(mercado_id);
 CREATE INDEX idx_loja_lat_long ON loja(latitude, longitude);
 CREATE INDEX idx_preco_loja_loja_vigente ON preco_loja(loja_id, vigente_ate);
 CREATE INDEX idx_preco_loja_preco ON preco_loja(preco_id);
+CREATE INDEX idx_preco_loja_loja_produto ON preco_loja(loja_id, produto_id);
+-- so PostgreSQL (mesma regra de deploy/07_indice_unico_vinculo_vigente.sql)
+CREATE UNIQUE INDEX uk_preco_loja_vigente ON preco_loja(loja_id, produto_id) WHERE vigente_ate IS NULL;
 CREATE INDEX idx_promocao_loja ON promocao(loja_id);
 CREATE INDEX idx_usuario_loja_preferida ON usuario(loja_preferida_id);
 CREATE INDEX idx_produto_codigo_barras ON produto(codigo_barras);

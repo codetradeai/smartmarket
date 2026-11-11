@@ -86,6 +86,7 @@ class LojasPorCepEntidadesTest {
 
         PrecoLoja vinculo = precoLojaRepository.save(PrecoLoja.builder().preco(preco).loja(loja).build());
 
+        assertThat(vinculo.getProdutoId()).isEqualTo(preco.getProduto().getId());
         assertThat(vinculo.getDisponivel()).isTrue();
         assertThat(vinculo.estaVigente()).isTrue();
         assertThat(vinculo.getVigenteDesde()).isEqualTo(vinculo.getCreatedAt());

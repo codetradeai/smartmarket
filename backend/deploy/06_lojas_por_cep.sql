@@ -48,10 +48,16 @@ CREATE TABLE IF NOT EXISTS loja (
 --    vigente_ate NULL = vinculo corrente. Quando o valor muda na loja, o vinculo antigo e
 --    fechado e nasce outro; o preco antigo continua no historico.
 --    disponivel e confirmado_em sao por loja (o preco e compartilhado, a disponibilidade nao).
+--    produto_id repete preco.produto_id de proposito: permite achar o preco atual de um produto
+--    numa loja sem juntar com preco e sustenta a trava "uma loja, um preco vigente por produto".
+--    As travas que so existem no PostgreSQL (FK composta que impede produto_id divergente do
+--    preco e indice unico parcial dos vinculos vigentes) ficam em
+--    07_indice_unico_vinculo_vigente.sql: o H2 dos testes nao as suporta.
 -- ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS preco_loja (
     id            BIGSERIAL  PRIMARY KEY,
     preco_id      BIGINT     NOT NULL REFERENCES preco(id) ON DELETE CASCADE,
+    produto_id    BIGINT     NOT NULL REFERENCES produto(id),
     loja_id       BIGINT     NOT NULL REFERENCES loja(id)  ON DELETE CASCADE,
     disponivel    BOOLEAN    NOT NULL DEFAULT TRUE,
     vigente_desde TIMESTAMP  NOT NULL,
@@ -83,6 +89,7 @@ CREATE INDEX IF NOT EXISTS idx_loja_mercado            ON loja(mercado_id);
 CREATE INDEX IF NOT EXISTS idx_loja_lat_long           ON loja(latitude, longitude);
 CREATE INDEX IF NOT EXISTS idx_preco_loja_loja_vigente ON preco_loja(loja_id, vigente_ate);
 CREATE INDEX IF NOT EXISTS idx_preco_loja_preco        ON preco_loja(preco_id);
+CREATE INDEX IF NOT EXISTS idx_preco_loja_loja_produto ON preco_loja(loja_id, produto_id);
 CREATE INDEX IF NOT EXISTS idx_promocao_loja           ON promocao(loja_id);
 CREATE INDEX IF NOT EXISTS idx_usuario_loja_preferida  ON usuario(loja_preferida_id);
 CREATE INDEX IF NOT EXISTS idx_produto_codigo_barras   ON produto(codigo_barras);
@@ -103,10 +110,10 @@ WHERE NOT EXISTS (
 --     instante da coleta seguinte do mesmo produto no mesmo mercado; o mais recente fica
 --     aberto (vigente_ate NULL). A disponibilidade e a do proprio preco.
 -- ----------------------------------------------------------------
-INSERT INTO preco_loja (preco_id, loja_id, disponivel, vigente_desde, vigente_ate, confirmado_em)
-SELECT s.id, s.loja_id, s.disponivel, s.coletado_em, s.proximo, s.coletado_em
+INSERT INTO preco_loja (preco_id, produto_id, loja_id, disponivel, vigente_desde, vigente_ate, confirmado_em)
+SELECT s.id, s.produto_id, s.loja_id, s.disponivel, s.coletado_em, s.proximo, s.coletado_em
 FROM (
-    SELECT p.id, l.id AS loja_id, p.disponivel, p.coletado_em,
+    SELECT p.id, p.produto_id, l.id AS loja_id, p.disponivel, p.coletado_em,
            LEAD(p.coletado_em) OVER (
                PARTITION BY p.produto_id, p.mercado_id
                ORDER BY p.coletado_em, p.id

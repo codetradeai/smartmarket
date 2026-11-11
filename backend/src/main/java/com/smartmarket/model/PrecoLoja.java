@@ -28,6 +28,14 @@ public class PrecoLoja {
     @JoinColumn(name = "preco_id", nullable = false)
     private Preco preco;
 
+    /**
+     * Repete preco.produto_id de propósito: permite achar o preço atual de um produto numa loja
+     * sem juntar com preco e sustenta o índice único parcial (loja, produto) dos vínculos
+     * vigentes. Preenchido de {@link #preco} no persist; a FK composta impede que divirja.
+     */
+    @Column(name = "produto_id", nullable = false)
+    private Long produtoId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loja_id", nullable = false)
     private Loja loja;
@@ -57,6 +65,9 @@ public class PrecoLoja {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (produtoId == null && preco != null && preco.getProduto() != null) {
+            produtoId = preco.getProduto().getId();
+        }
         if (vigenteDesde == null) {
             vigenteDesde = createdAt;
         }

@@ -163,11 +163,20 @@ class PostgresTest(unittest.TestCase):
         self.assertEqual(self.count_prices(),3)
 
     def test_17_pipeline_novo_run_nova_coleta(self):
-        # Demonstra que tempo é preservado no replay, mas um novo instante
-        # representa nova observação histórica, mesmo se o preço não mudou.
+        # Demonstra que tempo é preservado no replay e que um novo instante é uma nova
+        # observação: com o preço igual ela vira um novo evento e avança confirmado_em do
+        # vínculo com a loja, mas não cria linha nova em preco (só mudança de valor cria).
         self.load()
-        self.load([registro(data_coleta='2026-10-06T13:00:00+00:00')],run_id=self.run+'2')
-        self.assertEqual(self.count_prices(),2)
+        resumo = self.load([registro(data_coleta='2026-10-06T13:00:00+00:00')],run_id=self.run+'2')
+        self.assertEqual((resumo['precos_inseridos'],resumo['precos_confirmados']),(0,1))
+        self.assertEqual(self.count_prices(),1)
+        with self.psycopg.connect(self.dsn) as conn:
+            eventos=conn.execute('SELECT count(*), count(DISTINCT preco_id) FROM smartmarket_ingest.event WHERE source=%s',
+                                 (self.source,)).fetchone()
+            confirmado=conn.execute('SELECT pl.confirmado_em FROM preco_loja pl JOIN preco p ON p.id=pl.preco_id '
+                                    'WHERE p.mercado_id=%s',(self.market,)).fetchone()[0]
+        self.assertEqual(eventos,(2,1))
+        self.assertEqual(confirmado.isoformat(),'2026-10-06T13:00:00')
 
     def test_18_preparacao_cria_base_nova_sem_reinicializar_existente(self):
         from preparar_banco_fixture import preparar_banco

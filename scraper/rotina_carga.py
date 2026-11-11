@@ -32,7 +32,7 @@ import coleta_master as master
 import coleta_rissul as rissul
 import coleta_stok as stok
 import coleta_zaffari as zaffari
-from pipeline import carregar, ErroIngestao, validar_dsn
+from pipeline import carregar, ErroIngestao, loja_padrao_id, validar_dsn
 
 LOGGER = logging.getLogger("rotina_carga")
 
@@ -280,6 +280,9 @@ def atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, produt
     na coleta mais recente são marcados como indisponíveis na tabela 'preco'.
     """
     with conn.cursor() as cur:
+        # A disponibilidade e por loja (preco_loja); a coleta grava na loja padrao do mercado.
+        loja_id = loja_padrao_id(cur, mercado_id)
+        agora = datetime.now(timezone.utc).replace(tzinfo=None)
         # Busca produtos conhecidos desta loja
         cur.execute(
             "SELECT external_id, produto_id FROM smartmarket_ingest.source_product WHERE source=%s AND store=%s",
@@ -288,6 +291,21 @@ def atualizar_indisponibilidade_produtos(conn, source, store, mercado_id, produt
         cadastrados = cur.fetchall()
         for ext_id, prod_id in cadastrados:
             if ext_id not in produtos_coletados_ids:
+                # Vinculo vigente da loja: fecha ANTES de abrir o indisponivel (indice unico do 07).
+                cur.execute(
+                    "SELECT id, preco_id, vigente_desde FROM preco_loja "
+                    "WHERE loja_id=%s AND produto_id=%s AND vigente_ate IS NULL AND disponivel",
+                    (loja_id, prod_id)
+                )
+                vigente = cur.fetchone()
+                if vigente:
+                    instante = max(agora, vigente[2])
+                    cur.execute("UPDATE preco_loja SET vigente_ate=%s WHERE id=%s", (instante, vigente[0]))
+                    cur.execute(
+                        "INSERT INTO preco_loja(preco_id, produto_id, loja_id, disponivel, vigente_desde, confirmado_em) "
+                        "VALUES(%s,%s,%s,FALSE,%s,%s)",
+                        (vigente[1], prod_id, loja_id, instante, instante)
+                    )
                 # Marca o preço mais recente como indisponível
                 cur.execute(
                     """

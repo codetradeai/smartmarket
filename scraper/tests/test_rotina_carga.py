@@ -129,6 +129,9 @@ class TestRotinaCarga(unittest.TestCase):
             ("prod_1", 101),
             ("prod_2", 102),
         ]
+        # 1o fetchone: id da loja padrao (7); 2o: vinculo vigente e disponivel de prod_2 (id 55, preco 900).
+        desde = datetime(2026, 1, 1, 12, 0)
+        mock_cursor.fetchone.side_effect = [(7,), (55, 900, desde)]
 
         # Na coleta atual, apenas 'prod_1' foi coletado. Logo, 'prod_2' deve ser marcado indisponível.
         coletados_ids = {"prod_1"}
@@ -140,12 +143,40 @@ class TestRotinaCarga(unittest.TestCase):
             produtos_coletados_ids=coletados_ids
         )
 
-        # Deve ter executado SELECT na source_product e UPDATE em preco para prod_2
-        self.assertEqual(mock_cursor.execute.call_count, 2)
-        update_call = mock_cursor.execute.call_args_list[1]
-        self.assertIn("UPDATE preco", update_call[0][0])
-        self.assertIn("disponivel = FALSE", update_call[0][0])
-        self.assertEqual(update_call[0][1], (102, 2))
+        chamadas = [(" ".join(c[0][0].split()), c[0][1] if len(c[0]) > 1 else None)
+                    for c in mock_cursor.execute.call_args_list]
+
+        # Legado: UPDATE em preco para prod_2 (mantido; o backend ainda le preco.disponivel).
+        update_preco = [c for c in chamadas if c[0].startswith("UPDATE preco ")]
+        self.assertEqual(len(update_preco), 1)
+        self.assertIn("disponivel = FALSE", update_preco[0][0])
+        self.assertEqual(update_preco[0][1], (102, 2))
+
+        # Por loja: fecha o vinculo vigente (id 55) e so depois abre o indisponivel, sobre o mesmo preco.
+        fecha = [i for i, c in enumerate(chamadas) if c[0].startswith("UPDATE preco_loja SET vigente_ate")]
+        abre = [i for i, c in enumerate(chamadas) if c[0].startswith("INSERT INTO preco_loja")]
+        self.assertEqual((len(fecha), len(abre)), (1, 1))
+        self.assertLess(fecha[0], abre[0])
+        instante = chamadas[fecha[0]][1][0]
+        self.assertGreaterEqual(instante, desde)
+        self.assertEqual(chamadas[fecha[0]][1], (instante, 55))
+        self.assertIn("FALSE", chamadas[abre[0]][0])
+        self.assertEqual(chamadas[abre[0]][1], (900, 102, 7, instante, instante))
+
+    def test_05b_produto_sem_vinculo_vigente_disponivel_nao_grava_vinculo(self):
+        """Sem vinculo vigente e disponivel na loja, nao ha o que fechar nem abrir (so o legado em preco)."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [("prod_2", 102)]
+        mock_cursor.fetchone.side_effect = [(7,), None]
+
+        atualizar_indisponibilidade_produtos(mock_conn, "carrefour", "mercado", 2, set())
+
+        sqls = [" ".join(c[0][0].split()) for c in mock_cursor.execute.call_args_list]
+        self.assertFalse(any(s.startswith("INSERT INTO preco_loja") for s in sqls))
+        self.assertFalse(any(s.startswith("UPDATE preco_loja") for s in sqls))
+        self.assertTrue(any(s.startswith("UPDATE preco ") for s in sqls))
 
     @patch("rotina_carga.carregar")
     @patch("rotina_carga.conectar_banco")

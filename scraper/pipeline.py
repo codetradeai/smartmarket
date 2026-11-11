@@ -31,7 +31,14 @@ MOTIVOS_QUARENTENA_BANCO = frozenset({
     'ean_divergente_exige_revisao',
     'evento_mesmo_instante_com_conteudo_diferente',
     'produto_mapeado_nao_existe',
+    # Coleta anterior ao vinculo vigente da loja: fecha-lo com data menor que a abertura
+    # violaria a vigencia; o registro vai para revisao em vez de reescrever o passado.
+    'coleta_mais_antiga_que_vinculo_vigente',
 })
+
+# Preco continua por rede: cada coleta e gravada na loja "padrao" do mercado (a mesma que a
+# migration 06 cria). Filiais reais (tabela loja) entram por lista curada, nao por coleta.
+CODIGO_LOJA_PADRAO = 'padrao'
 
 
 def hash_dados(dados):
@@ -190,6 +197,59 @@ def _resumo_motivos(rejeitados):
     return ', '.join(f'{m}={n}' for m, n in sorted(contagem.items()))
 
 
+def loja_padrao_id(cur, mercado_id):
+    """id da loja padrão do mercado; cria a loja se o mercado ainda não tem (idempotente)."""
+    cur.execute('INSERT INTO loja(mercado_id, nome, codigo_externo) '
+                'SELECT m.id, m.nome, %s FROM mercado m WHERE m.id=%s '
+                'ON CONFLICT (mercado_id, codigo_externo) DO NOTHING', (CODIGO_LOJA_PADRAO, mercado_id))
+    cur.execute('SELECT id FROM loja WHERE mercado_id=%s AND codigo_externo=%s', (mercado_id, CODIGO_LOJA_PADRAO))
+    return cur.fetchone()[0]
+
+
+def gravar_preco_na_loja(cur, *, loja_id, produto_id, mercado_id, valor, instante, origem, nome_bruto):
+    """Grava o preço coletado como vínculo preco_loja da loja; retorna (preco_id, desfecho).
+
+    - mesmo valor do vínculo vigente (e disponível): só avança confirmado_em, sem linha nova;
+    - valor mudou (ou não havia vínculo): reaproveita um preco já vigente em outra loja do mesmo
+      mercado com o mesmo valor, ou cria a linha em preco; o vínculo antigo é FECHADO antes de
+      abrir o novo, na mesma transação (o índice único parcial do 07 recusa dois vigentes);
+    - voltou a ficar disponível com o mesmo valor: fecha o vínculo indisponível e abre outro
+      disponível sobre o mesmo preco.
+    desfecho é a chave do contador no resumo: precos_inseridos, precos_confirmados ou
+    precos_reaproveitados. ``instante`` é naive em UTC (convenção do DDL).
+    """
+    cur.execute('SELECT pl.id, pl.preco_id, p.valor, pl.disponivel, pl.vigente_desde '
+                'FROM preco_loja pl JOIN preco p ON p.id = pl.preco_id '
+                'WHERE pl.loja_id=%s AND pl.produto_id=%s AND pl.vigente_ate IS NULL', (loja_id, produto_id))
+    atual = cur.fetchone()
+    if atual and instante < atual[4]:
+        raise ErroIngestao('coleta_mais_antiga_que_vinculo_vigente')
+    if atual and atual[2] == valor and atual[3]:
+        cur.execute('UPDATE preco_loja SET confirmado_em = GREATEST(confirmado_em, %s) WHERE id=%s',
+                    (instante, atual[0]))
+        return atual[1], 'precos_confirmados'
+    if atual and atual[2] == valor:
+        preco_id, desfecho = atual[1], 'precos_reaproveitados'
+    else:
+        cur.execute('SELECT p.id FROM preco_loja pl JOIN preco p ON p.id = pl.preco_id '
+                    'WHERE p.produto_id=%s AND p.mercado_id=%s AND p.valor=%s '
+                    'AND pl.vigente_ate IS NULL AND pl.disponivel ORDER BY p.id LIMIT 1',
+                    (produto_id, mercado_id, valor))
+        achado = cur.fetchone()
+        if achado:
+            preco_id, desfecho = achado[0], 'precos_reaproveitados'
+        else:
+            cur.execute('INSERT INTO preco(produto_id,mercado_id,valor,coletado_em,origem,nome_bruto,disponivel) '
+                        'VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
+                        (produto_id, mercado_id, valor, instante, origem, nome_bruto, True))
+            preco_id, desfecho = cur.fetchone()[0], 'precos_inseridos'
+    if atual:
+        cur.execute('UPDATE preco_loja SET vigente_ate=%s WHERE id=%s', (instante, atual[0]))
+    cur.execute('INSERT INTO preco_loja(preco_id, produto_id, loja_id, disponivel, vigente_desde, confirmado_em) '
+                'VALUES(%s,%s,%s,%s,%s,%s)', (preco_id, produto_id, loja_id, True, instante, instante))
+    return preco_id, desfecho
+
+
 def sincronizar_codigo_barras(cur, produto_id, codigo):
     """Grava o EAN em produto.codigo_barras quando ainda está vazio.
 
@@ -254,6 +314,7 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                              'eventos': sorted(row['hash'] for row in preparados),
                              'mapeamento': mapeamento})
     resumo = {'run_id': run_id, 'produtos_criados': 0, 'precos_inseridos': 0,
+              'precos_confirmados': 0, 'precos_reaproveitados': 0,
               'eventos_repetidos': 0, 'eans_gravados': 0, 'reexecucao': False, 'moeda': 'BRL',
               'rejeitados': rejeitados,
               'pendencias': [{'external_id': row['external_id'], 'motivos': row['produto']['pendencias']}
@@ -280,12 +341,18 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
             cur.execute('SELECT id FROM mercado WHERE id=%s', (mercado_id,))
             if cur.fetchone() is None:
                 raise ErroIngestao('mercado_nao_cadastrado')
+            cur.execute("SELECT to_regclass('public.loja') IS NOT NULL AND to_regclass('public.preco_loja') IS NOT NULL")
+            if not cur.fetchone()[0]:
+                raise ErroIngestao('tabelas_loja_ausentes_aplique_a_migration_06_lojas_por_cep')
+            # (source, store) -> loja padrao do mercado: o preco continua por rede.
+            loja_id = loja_padrao_id(cur, mercado_id)
             if not vinculo:
                 cur.execute('INSERT INTO smartmarket_ingest.source_store(source,store,mercado_id) VALUES(%s,%s,%s)', (source,store,mercado_id))
             cur.execute('INSERT INTO smartmarket_ingest.run(run_id, source, store, mercado_id, payload_hash) VALUES(%s,%s,%s,%s,%s)',
                         (run_id, source, store, mercado_id, fingerprint))
             for row in preparados:
-                contadores = {k: resumo[k] for k in ('produtos_criados', 'precos_inseridos', 'eventos_repetidos', 'eans_gravados')}
+                contadores = {k: resumo[k] for k in ('produtos_criados', 'precos_inseridos', 'precos_confirmados',
+                                                     'precos_reaproveitados', 'eventos_repetidos', 'eans_gravados')}
                 try:
                     # Savepoint por registro: um conflito não desfaz os demais preços da rede.
                     with conn.transaction():
@@ -334,12 +401,13 @@ def carregar(registros, *, dsn, source, store, mercado_id, run_id, mapeamento=No
                             continue
                         # DDL da equipe usa TIMESTAMP sem fuso: armazenar UTC explícito
                         # por convenção documentada; metadado de ingestão usa TIMESTAMPTZ.
-                        cur.execute('INSERT INTO preco(produto_id,mercado_id,valor,coletado_em,origem,nome_bruto,disponivel) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING id',
-                                    (produto_id,mercado_id,row['valor'],row['instante'].replace(tzinfo=None),origem,row['produto']['nome'],True))
-                        preco_id = cur.fetchone()[0]
+                        preco_id, desfecho = gravar_preco_na_loja(
+                            cur, loja_id=loja_id, produto_id=produto_id, mercado_id=mercado_id,
+                            valor=row['valor'], instante=row['instante'].replace(tzinfo=None),
+                            origem=origem, nome_bruto=row['produto']['nome'])
                         cur.execute('INSERT INTO smartmarket_ingest.event(source,store,external_id,collected_at,payload_hash,preco_id,run_id) VALUES(%s,%s,%s,%s,%s,%s,%s)',
                                     (*key,row['instante'],row['hash'],preco_id,run_id))
-                        resumo['precos_inseridos'] += 1
+                        resumo[desfecho] += 1
                 except ErroIngestao as exc:
                     if str(exc) not in MOTIVOS_QUARENTENA_BANCO:
                         raise

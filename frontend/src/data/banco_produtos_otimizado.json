@@ -1,0 +1,227 @@
+{
+  "metadata": {
+    "versao": "2.0-georreferenciada",
+    "gerado_em": "2026-11-11T21:24:38.812705+00:00",
+    "total_produtos_unicos": 10,
+    "total_ofertas_agrupadas": 10
+  },
+  "produtos": [
+    {
+      "produto_id": "prod_cafe_melitta_tradicional_caixa_500g",
+      "nome_canonico": "Café Melitta Tradicional Caixa 500g",
+      "marca": null,
+      "categoria": "Mercearia",
+      "imagem_url": "https://edge.osuper.com.br/59P3OskcK-Vi8KCrNJHj_YNlENo=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55933f900/14488-b5646409.webp",
+      "data_atualizacao": "2026-11-11T21:24:38.811610+00:00"
+    },
+    {
+      "produto_id": "prod_filtro_papel_melitta_103_30unidades",
+      "nome_canonico": "Filtro de Papel Melitta 103 Com 30 Unidades",
+      "marca": null,
+      "categoria": "Mercearia",
+      "imagem_url": "https://edge.osuper.com.br/S7XVnJ33CjSae5MBCYWb781iMs0=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://produtos-osuper.s3.sa-east-1.amazonaws.com/934f78e66b9c78d0e28417895add18e55e3bff03/250497-b50f8b66.webp",
+      "data_atualizacao": "2026-11-11T21:24:38.811739+00:00"
+    },
+    {
+      "produto_id": "prod_manga_tommy_kg",
+      "nome_canonico": "Manga Tommy Kg",
+      "marca": null,
+      "categoria": "Mercearia",
+      "imagem_url": "https://edge.osuper.com.br/UFsWp2UEVcTBltBGC-gQLzoQwTc=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-ecommerce-fortatacadista.s3.sa-east-1.amazonaws.com/62c0c792-MANGATOMMYKG_631949.jpg.jpeg",
+      "data_atualizacao": "2026-11-11T21:24:38.811788+00:00"
+    },
+    {
+      "produto_id": "prod_cebola_kg",
+      "nome_canonico": "Cebola Kg",
+      "marca": null,
+      "categoria": "Mercearia",
+      "imagem_url": "https://edge.osuper.com.br/Cj3jbKRmcYn2wZvaFYj5zhO5V4A=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-ecommerce-fortatacadista.s3.sa-east-1.amazonaws.com/1c5c3466-CEBOLAKG_CEBOLA-KG---206865.jpg.jpeg",
+      "data_atualizacao": "2026-11-11T21:24:38.811820+00:00"
+    },
+    {
+      "produto_id": "prod_molho_tomate_tradelli_tradicional_300g",
+      "nome_canonico": "Molho de Tomate Tradelli Tradicional Sachê 300g",
+      "marca": null,
+      "categoria": "Mercearia",
+      "imagem_url": "https://edge.osuper.com.br/4N0o86gkivp-7yPmKQwZA0t2wlQ=/fit-in/400x400/filters:fill(FFFFFF):background_color(white)/https://osuper-ecommerce-fortatacadista.s3.sa-east-1.amazonaws.com/fcd2f78d-MolhodeTomateTradelliTradicionalSach300g_2710293--molho-tradelli.jpg.jpeg",
+      "data_atualizacao": "2026-11-11T21:24:38.811912+00:00"
+    },
+    {
+      "produto_id": "prod_cafe_soluvel_nescafe_gold_40g",
+      "nome_canonico": "Café Solúvel Nescafé Gold Liofilizado Intensidade 5 40g",
+      "marca": null,
+      "categoria": "Graos_Arrozes_Feijoes",
+      "imagem_url": "https://carrefourbrfood.vtexassets.com/arquivos/ids/215160710-200-auto/4141415_1.jpg?v=639166958334400000&quality=5&width=200&height=200",
+      "data_atualizacao": "2026-11-11T21:24:38.811972+00:00"
+    },
+    {
+      "produto_id": "prod_arroz_branco_longo_fino_2kg",
+      "nome_canonico": "Arroz Branco Longo-fino Tipo 1 Tio João 2Kg",
+      "marca": null,
+      "categoria": "Graos_Arrozes_Feijoes",
+      "imagem_url": "https://carrefourbrfood.vtexassets.com/arquivos/ids/203188-200-auto/115657_1.jpg?v=637272452216400000&quality=5&width=200&height=200",
+      "data_atualizacao": "2026-11-11T21:24:38.812029+00:00"
+    },
+    {
+      "produto_id": "prod_farinha_trigo_renata_premium_1kg",
+      "nome_canonico": "Farinha de Trigo Renata Premium 1kg",
+      "marca": null,
+      "categoria": "Graos_Arrozes_Feijoes",
+      "imagem_url": "https://carrefourbrfood.vtexassets.com/arquivos/ids/194328-200-auto/542202_1.jpg?v=637272432370400000&quality=5&width=200&height=200",
+      "data_atualizacao": "2026-11-11T21:24:38.812072+00:00"
+    },
+    {
+      "produto_id": "prod_farinha_lactea_nestle_tradicional_600g",
+      "nome_canonico": "Farinha Láctea Nestlé Tradicional 600g",
+      "marca": null,
+      "categoria": "Graos_Arrozes_Feijoes",
+      "imagem_url": "https://carrefourbrfood.vtexassets.com/arquivos/ids/206426835-200-auto/9943749_1.jpg?v=638981166668500000&quality=5&width=200&height=200",
+      "data_atualizacao": "2026-11-11T21:24:38.812117+00:00"
+    },
+    {
+      "produto_id": "prod_feijao_solito_preto_1kg",
+      "nome_canonico": "Feijão Solito Preto Tipo 1Kg",
+      "marca": null,
+      "categoria": "Graos_Arrozes_Feijoes",
+      "imagem_url": "https://carrefourbrfood.vtexassets.com/arquivos/ids/182493354-200-auto/feijao-solito-preto-tipo-1kg-1.jpg?v=638723876809930000&quality=5&width=200&height=200",
+      "data_atualizacao": "2026-11-11T21:24:38.812159+00:00"
+    }
+  ],
+  "ofertas": [
+    {
+      "oferta_id": "of_prod_cafe_melitta_tradicional_caixa_500g_fort_2398",
+      "produto_id": "prod_cafe_melitta_tradicional_caixa_500g",
+      "rede": "Fort Atacadista",
+      "preco": 23.98,
+      "preco_normal": 28.99,
+      "em_promocao": true,
+      "filiais_ids": [
+        "fort_1585",
+        "fort_1586"
+      ],
+      "data_coleta": "2026-11-11T21:12:35.720285+00:00"
+    },
+    {
+      "oferta_id": "of_prod_filtro_papel_melitta_103_30unidades_fort_479",
+      "produto_id": "prod_filtro_papel_melitta_103_30unidades",
+      "rede": "Fort Atacadista",
+      "preco": 4.79,
+      "preco_normal": 5.19,
+      "em_promocao": true,
+      "filiais_ids": [
+        "fort_1585",
+        "fort_1586"
+      ],
+      "data_coleta": "2026-11-11T21:12:35.720335+00:00"
+    },
+    {
+      "oferta_id": "of_prod_manga_tommy_kg_fort_548",
+      "produto_id": "prod_manga_tommy_kg",
+      "rede": "Fort Atacadista",
+      "preco": 5.48,
+      "preco_normal": 6.28,
+      "em_promocao": true,
+      "filiais_ids": [
+        "fort_1585",
+        "fort_1586"
+      ],
+      "data_coleta": "2026-11-11T21:12:35.720360+00:00"
+    },
+    {
+      "oferta_id": "of_prod_cebola_kg_fort_848",
+      "produto_id": "prod_cebola_kg",
+      "rede": "Fort Atacadista",
+      "preco": 8.48,
+      "preco_normal": 8.78,
+      "em_promocao": true,
+      "filiais_ids": [
+        "fort_1585",
+        "fort_1586"
+      ],
+      "data_coleta": "2026-11-11T21:12:35.720379+00:00"
+    },
+    {
+      "oferta_id": "of_prod_molho_tomate_tradelli_tradicional_300g_fort_98",
+      "produto_id": "prod_molho_tomate_tradelli_tradicional_300g",
+      "rede": "Fort Atacadista",
+      "preco": 0.98,
+      "preco_normal": 1.49,
+      "em_promocao": true,
+      "filiais_ids": [
+        "fort_1585",
+        "fort_1586"
+      ],
+      "data_coleta": "2026-11-11T21:12:35.720397+00:00"
+    },
+    {
+      "oferta_id": "of_prod_cafe_soluvel_nescafe_gold_40g_carr_699",
+      "produto_id": "prod_cafe_soluvel_nescafe_gold_40g",
+      "rede": "Carrefour Mercado",
+      "preco": 6.99,
+      "preco_normal": 8.49,
+      "em_promocao": true,
+      "filiais_ids": [
+        "carrefour_passo_dareia",
+        "carrefour_partenon",
+        "carrefour_canoas"
+      ],
+      "data_coleta": "2026-11-11T21:12:54.166110+00:00"
+    },
+    {
+      "oferta_id": "of_prod_arroz_branco_longo_fino_2kg_carr_1149",
+      "produto_id": "prod_arroz_branco_longo_fino_2kg",
+      "rede": "Carrefour Mercado",
+      "preco": 11.49,
+      "preco_normal": 13.09,
+      "em_promocao": true,
+      "filiais_ids": [
+        "carrefour_passo_dareia",
+        "carrefour_partenon",
+        "carrefour_canoas"
+      ],
+      "data_coleta": "2026-11-11T21:12:54.166212+00:00"
+    },
+    {
+      "oferta_id": "of_prod_farinha_trigo_renata_premium_1kg_carr_669",
+      "produto_id": "prod_farinha_trigo_renata_premium_1kg",
+      "rede": "Carrefour Mercado",
+      "preco": 6.69,
+      "preco_normal": 8.89,
+      "em_promocao": true,
+      "filiais_ids": [
+        "carrefour_passo_dareia",
+        "carrefour_partenon",
+        "carrefour_canoas"
+      ],
+      "data_coleta": "2026-11-11T21:12:54.166273+00:00"
+    },
+    {
+      "oferta_id": "of_prod_farinha_lactea_nestle_tradicional_600g_carr_1989",
+      "produto_id": "prod_farinha_lactea_nestle_tradicional_600g",
+      "rede": "Carrefour Mercado",
+      "preco": 19.9,
+      "preco_normal": 27.9,
+      "em_promocao": true,
+      "filiais_ids": [
+        "carrefour_passo_dareia",
+        "carrefour_partenon",
+        "carrefour_canoas"
+      ],
+      "data_coleta": "2026-11-11T21:12:54.166326+00:00"
+    },
+    {
+      "oferta_id": "of_prod_feijao_solito_preto_1kg_carr_549",
+      "produto_id": "prod_feijao_solito_preto_1kg",
+      "rede": "Carrefour Mercado",
+      "preco": 5.49,
+      "preco_normal": 6.49,
+      "em_promocao": true,
+      "filiais_ids": [
+        "carrefour_passo_dareia",
+        "carrefour_partenon",
+        "carrefour_canoas"
+      ],
+      "data_coleta": "2026-11-11T21:12:54.166400+00:00"
+    }
+  ]
+}

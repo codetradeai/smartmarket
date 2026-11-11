@@ -4,7 +4,8 @@ import ComCatalogo from "../components/ComCatalogo";
 import { redesComEquivalenteConfirmado } from "../utils/equivalentes";
 import { nomeCurtoRede, listarNomes, redesComProdutos } from "../utils/redesDoCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
-import { ProductDetailModal, Product360HoverPreview } from "../components/ui";
+import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio } from "../components/ui";
+import { encontrarFiliaisMaisProximas, resolverCoordenadasCepSync } from "../utils/proximidadeFiliais";
 import logoFort from "../../logo/logo-fort.png";
 import logoAsun from "../../logo/logo-asun.png";
 import logoStok from "../../logo/logo-stok.png";
@@ -167,8 +168,8 @@ function getPriceForMarket(product, market) {
   return null;
 }
 
-// Identifica a melhor oferta e a variação de preço
-function getProductPricing(product, markets) {
+// Identifica a melhor oferta, filial mais próxima e variação de preço
+function getProductPricing(product, markets, filiaisMaisProximas = {}) {
   if (!product || !product.prices) return null;
   const valid = markets
     .map((m) => {
@@ -179,7 +180,20 @@ function getProductPricing(product, markets) {
         (m.id === "stok" && product.promo && product.supermercadoOrigem === "Stok Center")
       );
       const clubeNome = product.clubPrices?.[m.id] || m.clube || "Preço Clube";
-      return { market: m, price: p, isClube, clubeNome };
+
+      // Vincula a filial física mais próxima da rede correspondente
+      const mPrimeiroNome = (m.name || "").toLowerCase().split(" ")[0];
+      const filialMaisProx = filiaisMaisProximas[m.name] || 
+        Object.values(filiaisMaisProximas).find((f) => f.nomeFilial?.toLowerCase().includes(mPrimeiroNome)) || null;
+
+      return {
+        market: m,
+        price: p,
+        isClube,
+        clubeNome,
+        filialMaisProxima: filialMaisProx,
+        distanciaKm: filialMaisProx ? filialMaisProx.distanciaKm : null,
+      };
     })
     .filter((item) => item.price !== null && item.price !== undefined && Number(item.price) > 0);
 
@@ -190,6 +204,10 @@ function getProductPricing(product, markets) {
   const mostExpensive = valid[valid.length - 1];
   const economia = mostExpensive.price - cheapest.price;
 
+  // Oferta da filial mais próxima em distância
+  const comDistancia = [...valid].filter((item) => item.distanciaKm !== null).sort((a, b) => a.distanciaKm - b.distanciaKm);
+  const closest = comDistancia.length > 0 ? comDistancia[0] : cheapest;
+
   return {
     bestMarket: cheapest.market,
     bestPrice: Number(cheapest.price),
@@ -198,6 +216,12 @@ function getProductPricing(product, markets) {
     allPrices: valid,
     isClube: cheapest.isClube,
     clubeNome: cheapest.clubeNome,
+    bestFilial: cheapest.filialMaisProxima,
+    bestDistanciaKm: cheapest.distanciaKm,
+    closestMarket: closest.market,
+    closestPrice: Number(closest.price),
+    closestFilial: closest.filialMaisProxima,
+    closestDistanciaKm: closest.distanciaKm,
   };
 }
 
@@ -475,6 +499,7 @@ function nomesDasRedesEquivalentes(product, catalogo) {
 function ProductCard({
   product,
   markets,
+  filiaisMaisProximas = {},
   isFavProduct,
   onToggleFavProduct,
   onAdd,
@@ -485,7 +510,7 @@ function ProductCard({
   catalogo,
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const pricing = useMemo(() => getProductPricing(product, markets), [product, markets]);
+  const pricing = useMemo(() => getProductPricing(product, markets, filiaisMaisProximas), [product, markets, filiaisMaisProximas]);
   const tambemEm = useMemo(() => nomesDasRedesEquivalentes(product, catalogo), [product, catalogo]);
 
   function handleAddClick(e) {
@@ -604,6 +629,18 @@ function ProductCard({
                   </span>
                 )}
               </div>
+
+              {/* Indicação da Filial Mais Próxima do Usuário */}
+              {pricing.bestFilial && (
+                <div
+                  className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 bg-emerald-50/90 border border-emerald-200/90 px-2.5 py-1 rounded-xl"
+                  title={`${pricing.bestFilial.nomeFilial} - ${pricing.bestFilial.endereco} (${pricing.bestFilial.cidade})`}
+                >
+                  <span className="shrink-0 text-xs">📍</span>
+                  <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
+                  <span className="text-emerald-700 font-extrabold shrink-0">• {pricing.bestDistanciaKm?.toFixed(1)} km</span>
+                </div>
+              )}
 
               <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
                 <span>Comparado em {pricing.allPrices.length} mercados</span>
@@ -762,6 +799,18 @@ function ProductCard({
                 </span>
               )}
             </div>
+
+            {/* Indicação da Filial Mais Próxima */}
+            {pricing.bestFilial && (
+              <div
+                className="flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg truncate"
+                title={`${pricing.bestFilial.nomeFilial} (${pricing.bestFilial.cidade})`}
+              >
+                <span className="shrink-0 text-xs">📍</span>
+                <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
+                <span className="text-emerald-700 font-extrabold shrink-0">• {pricing.bestDistanciaKm?.toFixed(1)} km</span>
+              </div>
+            )}
 
             {/* Mini fita comparativa com preços nas redes */}
             <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pt-1.5">
@@ -1047,12 +1096,40 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [visibleLimit, setVisibleLimit] = useState(48);
 
   // "Ver mais" recomeça em 48 sempre que a consulta muda (ajuste de estado na renderização)
-  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode].join("|");
+  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode, userLocalizacao?.cep, userLocalizacao?.raioKm].join("|");
   const [consultaAnterior, setConsultaAnterior] = useState(consultaAtual);
   if (consultaAtual !== consultaAnterior) {
     setConsultaAnterior(consultaAtual);
     setVisibleLimit(48);
   }
+
+  // Localização do usuário e filiais mais próximas
+  const [userLocalizacao, setUserLocalizacao] = useState(() => {
+    try {
+      const cepSalvo = localStorage.getItem("sm_user_cep") || "94910-000";
+      const raioSalvo = localStorage.getItem("sm_user_raio_km");
+      const geo = resolverCoordenadasCepSync(cepSalvo);
+      return {
+        cep: cepSalvo,
+        raioKm: raioSalvo ? (raioSalvo === "todos" ? "todos" : Number(raioSalvo)) : 15,
+        cidade: geo.cidade,
+        lat: geo.lat,
+        lon: geo.lon,
+      };
+    } catch {
+      return {
+        cep: "94910-000",
+        raioKm: 15,
+        cidade: "Cachoeirinha",
+        lat: -29.9511,
+        lon: -51.0944,
+      };
+    }
+  });
+
+  const filiaisMaisProximas = useMemo(() => {
+    return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon);
+  }, [userLocalizacao.lat, userLocalizacao.lon]);
 
   // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());

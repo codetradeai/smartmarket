@@ -11,3 +11,5 @@ export * from "./SmartMarketLogo"
 export * from "./SearchSuggest"
 export * from "./RadarColeta"
 export * from "./MarqueeRedes"
+export { default as SeletorCepRaio } from "./SeletorCepRaio"
+

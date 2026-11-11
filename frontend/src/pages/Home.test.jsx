@@ -56,7 +56,7 @@ describe('Home (visitante)', () => {
     renderizar()
 
     const primeiraDobra = screen.getByRole('region', { name: 'Compare sua lista de compras' })
-    expect(within(primeiraDobra).getByRole('heading', { level: 1 })).toHaveTextContent(/^Sua lista\.\s*O menor\s*preço\.$/)
+    expect(within(primeiraDobra).getByRole('heading', { level: 1, name: 'Sua lista. O menor preço.' })).toBeInTheDocument()
     expect(within(primeiraDobra).getByLabelText('Buscar no catálogo')).toHaveValue('')
     expect(within(primeiraDobra).getByRole('button', { name: 'Criar conta e buscar' })).toBeInTheDocument()
     expect(within(primeiraDobra).getByText('A busca abre com a sua conta')).toBeInTheDocument()

@@ -874,3 +874,8 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .sm-cupom__scan { display: none; }
 }
+
+/* Cupom no celular: o check do item sobrepunha a coluna de preços. */
+@media (max-width: 480px) {
+  .sm-cupom__ok { display: none; }
+}

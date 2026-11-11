@@ -120,14 +120,23 @@ describe('authService', () => {
       const dados = { token: 't', nome: 'Ana' }
       api.post.mockResolvedValue({ data: dados })
 
-      const resultado = await authService.register('Ana', 'ana@email.com', 'segredo')
+      const resultado = await authService.register('Ana', 'ana@email.com', 'segredo', '90010000')
 
       expect(api.post).toHaveBeenCalledWith('/auth/register', {
         nome: 'Ana',
         email: 'ana@email.com',
         senha: 'segredo',
+        cep: '90010000',
       })
       expect(resultado).toBe(dados)
+    })
+
+    it('envia só os dígitos do CEP, mesmo se chegar com máscara', async () => {
+      api.post.mockResolvedValue({ data: {} })
+
+      await authService.register('Ana', 'ana@email.com', 'segredo', '90010-000')
+
+      expect(api.post.mock.calls[0][1].cep).toBe('90010000')
     })
 
     it('relanca erros do servidor (ex: e-mail ja cadastrado)', async () => {

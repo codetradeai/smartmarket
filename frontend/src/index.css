@@ -842,13 +842,26 @@ html, body, #root {
 .sm-cupom__paper:not([data-passo="0"]) .sm-cupom__preco.is-menor { background: #e8f8f0; color: #115c33; font-weight: 800; }
 .sm-cupom__paper[data-passo="2"] .sm-cupom__soma.is-vencedor { background: #0e7a46; color: #fff; }
 .sm-cupom__paper[data-passo="2"] .sm-cupom__linha--cab .is-vencedor { background: #0b192c; color: #fff; }
-.sm-cupom__item { animation: sm-cupom-in 450ms ease both; animation-delay: var(--d, 0ms); }
-@keyframes sm-cupom-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* Passo 01: os itens entram um de cada vez (700 ms entre eles) e cada um ganha o selo depois de aparecer.
+   As animações só existem enquanto data-passo="0": ao voltar para o passo 01 elas recomeçam. Só transform/opacity. */
+.sm-cupom__paper[data-passo="0"][data-entrou="false"] .sm-cupom__item { opacity: 0; }
+.sm-cupom__paper[data-passo="0"][data-entrou="true"] .sm-cupom__item { animation: sm-cupom-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 700ms + 250ms); }
+@keyframes sm-cupom-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 .sm-cupom__produto { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
 .sm-cupom__produto img { width: 2.25rem; height: 2.25rem; flex: none; object-fit: contain; border: 1px solid #e1e9e3; border-radius: 0.5rem; background: #fff; }
 .sm-cupom__produto strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; font-weight: 700; }
 .sm-cupom__produto small { color: #5C7668; }
-.sm-cupom__ok { flex: none; margin-left: auto; color: #0e7a46; }
+/* Selo de confirmado: disco verde com brilho suave, traço branco que se desenha e uma onda que se dissipa. */
+.sm-cupom__ok { position: relative; flex: none; margin-left: auto; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: linear-gradient(145deg, #34d399, #0e7a46); box-shadow: 0 0 0 3px rgba(14, 122, 70, 0.1), 0 5px 10px -3px rgba(14, 122, 70, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+.sm-cupom__ok svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sm-cupom__ok-traco { stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20; }
+.sm-cupom__ok::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #34d399; opacity: 0; pointer-events: none; }
+.sm-cupom__paper[data-passo="0"][data-entrou="true"] .sm-cupom__ok { animation: sm-cupom-ok-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: calc(var(--i, 0) * 700ms + 700ms); }
+.sm-cupom__paper[data-passo="0"][data-entrou="true"] .sm-cupom__ok-traco { animation: sm-cupom-ok-traco 360ms ease-out both; animation-delay: calc(var(--i, 0) * 700ms + 900ms); }
+.sm-cupom__paper[data-passo="0"][data-entrou="true"] .sm-cupom__ok::after { animation: sm-cupom-ok-onda 800ms ease-out both; animation-delay: calc(var(--i, 0) * 700ms + 800ms); }
+@keyframes sm-cupom-ok-pop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: none; } }
+@keyframes sm-cupom-ok-traco { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+@keyframes sm-cupom-ok-onda { 0% { opacity: 0.7; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
 .sm-cupom__economia { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 0.9rem; padding: 0.8rem 0.9rem; border-radius: 0.8rem; background: #f1f7f3; font-size: 0.82rem; line-height: 1.4; opacity: 0; transform: translateY(8px); transition: opacity 400ms ease, transform 400ms ease; }
 .sm-cupom__economia svg { flex: none; margin-top: 0.15rem; color: #0e7a46; }
 .sm-cupom__economia small { display: block; color: #5C7668; font-size: 0.7rem; margin-top: 0.15rem; }
@@ -862,6 +875,9 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
   .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
+  .sm-cupom__paper .sm-cupom__item, .sm-cupom__paper .sm-cupom__ok, .sm-cupom__paper .sm-cupom__ok-traco { animation: none; }
+  .sm-cupom__ok::after { display: none; }
+  .sm-cupom__paper[data-passo="0"][data-entrou="false"] .sm-cupom__item { opacity: 1; }
 }
 
 /* Raio-X de Preços: troca de setor, trilha que se desenha e ponto do menor preço. Só transform/opacity. */
@@ -887,6 +903,10 @@ html, body, #root {
   .sm-cupom__scan { display: none; }
 }
 
+/* Cupom no celular: o check do item sobrepunha a coluna de preços. */
+@media (max-width: 480px) {
+  .sm-cupom__ok { display: none; }
+}
 /* Troca de perfil no cupom da faixa final: fade curto com leve subida. */
 @keyframes sm-ticket-troca {
   from { opacity: 0; transform: translateY(4px); }

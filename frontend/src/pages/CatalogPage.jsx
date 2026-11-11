@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { CATEGORIES, MARKETS as DEFAULT_MARKETS, REDES_COM_PRODUTOS } from "../catalogoResumo";
 import ComCatalogo from "../components/ComCatalogo";
 import { redesComEquivalenteConfirmado } from "../utils/equivalentes";
@@ -1133,6 +1133,27 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon);
   }, [userLocalizacao.lat, userLocalizacao.lon]);
 
+  const handleLocalizacaoChange = useCallback((novoFiltro) => {
+    setUserLocalizacao((ant) => {
+      if (
+        ant.cep === novoFiltro.cep &&
+        ant.raioKm === novoFiltro.raioKm &&
+        ant.lat === novoFiltro.lat &&
+        ant.lon === novoFiltro.lon
+      ) {
+        return ant;
+      }
+      return {
+        ...ant,
+        cep: novoFiltro.cep,
+        raioKm: novoFiltro.raioKm,
+        cidade: novoFiltro.cidade,
+        lat: novoFiltro.lat,
+        lon: novoFiltro.lon,
+      };
+    });
+  }, []);
+
   // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());
   const listCount = useMemo(
@@ -1459,18 +1480,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
 
           {/* Linha 2: Seletor de CEP e Raio de Proximidade */}
           <div className="pt-1">
-            <SeletorCepRaio
-              onFiltroChange={(novoFiltro) => {
-                setUserLocalizacao((ant) => ({
-                  ...ant,
-                  cep: novoFiltro.cep,
-                  raioKm: novoFiltro.raioKm,
-                  cidade: novoFiltro.cidade,
-                  lat: novoFiltro.lat,
-                  lon: novoFiltro.lon,
-                }));
-              }}
-            />
+            <SeletorCepRaio onFiltroChange={handleLocalizacaoChange} />
           </div>
 
           {/* Linha 3: Fita de Redes do RS */}

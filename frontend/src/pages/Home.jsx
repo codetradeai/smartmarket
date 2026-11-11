@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CupomViva } from "../components/comoFunciona/CupomViva"
 import { Link, useNavigate, useLocation } from "react-router-dom"
+import LinkEntrar from "../components/LinkEntrar"
 import { useAuth } from "../hooks/useAuth"
 import {
   Button,
@@ -817,12 +818,11 @@ export function Home() {
                   <span aria-hidden="true" className="sm-cta-arrow">→</span>
                 </Link>
                 {!isAuthenticated && (
-                  <Link
-                    to="/auth?mode=login"
+                  <LinkEntrar
                     className="sm-cta sm-cta-ghost whitespace-nowrap"
                   >
                     Entrar
-                  </Link>
+                  </LinkEntrar>
                 )}
               </div>
             </div>

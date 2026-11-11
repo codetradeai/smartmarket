@@ -19,6 +19,7 @@
 #   5. 07 duas vezes; depois disso uma loja NAO aceita dois vinculos vigentes do mesmo produto,
 #      mas aceita fechar o antigo e abrir o novo na mesma transacao.
 #   6. FK composta rejeita produto_id divergente do preco.
+#   7. Apagar um preco apaga os vinculos (cascata): PrecoService.remover depende disso.
 
 set -euo pipefail
 
@@ -124,5 +125,11 @@ OUTRO="$(psql_ -c "select id from produto where id <> $PRODUTO order by id limit
 MSG="$(psql_ -c "insert into preco_loja(preco_id, produto_id, loja_id, vigente_desde, vigente_ate, confirmado_em) values ($NOVO_PRECO, $OUTRO, $LOJA, now(), now(), now())" 2>&1 || true)"
 echo "$MSG" | grep -q 'fk_preco_loja_preco_produto' || falha "FK composta aceitou produto_id divergente: $MSG"
 ok "produto_id divergente do preco e recusado pela FK composta"
+
+# Cascata: PrecoService.remover apaga o preco direto; com a FK composta do 07 o vinculo tem de ir junto.
+esperar_igual "preco de teste tem vinculo antes de apagar" "1" "$(psql_ -c "select count(*) from preco_loja where preco_id = $NOVO_PRECO")"
+psql_ -c "delete from preco where id = $NOVO_PRECO" >/dev/null || falha "apagar preco com vinculos deveria passar"
+esperar_igual "apagar preco apaga os vinculos (cascata com a FK composta)" "0" "$(psql_ -c "select count(*) from preco_loja where preco_id = $NOVO_PRECO")"
+esperar_igual "apagar preco nao deixa vinculo orfao" "0" "$(psql_ -c 'select count(*) from preco_loja pl where not exists (select 1 from preco p where p.id = pl.preco_id)')"
 
 echo "TUDO OK: 06 e 07 validados em $IMAGEM"

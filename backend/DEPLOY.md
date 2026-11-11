@@ -91,10 +91,17 @@
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
 
-   > ⚠️ **Passo manual — `06_lojas_por_cep.sql` (lojas por CEP)**: **só por ordem do responsável, à mão no
-   > Neon**; nenhum pipeline o aplica. Rode **antes** de subir o backend que traz as entidades `Loja`
-   > e `PrecoLoja` (o Hibernate com `ddl-auto=validate` recusa iniciar sem as tabelas e colunas novas) e
-   > **com o coletor antigo parado**.
+   > ⚠️ **Passos manuais — `06_lojas_por_cep.sql` e depois `07_indice_unico_vinculo_vigente.sql` (lojas por
+   > CEP)**: **só por ordem do responsável, à mão no Neon**; nenhum pipeline os aplica. **Ordem obrigatória:
+   > 06 e só então 07** (o 07 depende das tabelas e da coluna `produto_id` criadas pelo 06; o 07 só roda em
+   > PostgreSQL, no Neon). Rode **antes** de subir o backend que traz as entidades `Loja` e `PrecoLoja` (o
+   > Hibernate com `ddl-auto=validate` recusa iniciar sem as tabelas e colunas novas) e **com o coletor antigo
+   > parado**.
+   >
+   > **Antes de aplicar, faça uma cópia do banco:** crie uma **branch do banco no Neon** (copy-on-write,
+   > instantânea) a partir do ramo de produção, ou anote o ponto de restauração. Se algo sair errado, volte
+   > para essa branch/ponto. As duas migrations só criam e ligam dados (nenhum `preco` é apagado ou
+   > alterado), mas a cópia é a rede de segurança.
    > - Cria `loja`, `preco_loja`, as colunas opcionais de localização em `usuario` (`cep`, `cidade`, `uf`,
    >   `latitude`, `longitude`, `loja_preferida_id`), `promocao.loja_id` (nulo = promoção da rede toda) e os
    >   índices, inclusive `produto(codigo_barras)`.
@@ -103,7 +110,7 @@
    >   alterada**; contas antigas ficam com a localização nula.
    > - Idempotente: rodar de novo não duplica nada; só cria o que falta e só liga preços ainda sem vínculo.
    >   Rode-o de novo depois de cadastrar um mercado novo para ele ganhar a loja padrão.
-   > - Backup antes (ponto de restauração do Neon). Conferência: `SELECT count(*) FROM loja;` deve ser igual a
+   > - Conferência depois do 06: `SELECT count(*) FROM loja;` deve ser igual a
    >   `SELECT count(*) FROM mercado;` e `SELECT count(*) FROM preco_loja;` igual a `SELECT count(*) FROM preco;`
    >   (até o coletor novo entrar). Cópia idêntica do script em `backend/database/migration_lojas_por_cep.sql`.
    > - `preco_loja.produto_id` repete `preco.produto_id` de propósito (leitura direta do preço atual da
@@ -112,8 +119,10 @@
    >   responsável):** cria o índice único parcial `(loja_id, produto_id) WHERE vigente_ate IS NULL` (uma
    >   loja nunca tem dois preços vigentes do mesmo produto, sem depender só do lock da carga) e a FK
    >   composta `(preco_id, produto_id) → preco(id, produto_id)`. Fica separado porque o H2 dos testes não
-   >   suporta índice parcial nem bloco `DO`. A carga precisa fechar o vínculo antigo antes de abrir o novo,
-   >   na mesma transação. Idempotente.
+   >   suporta índice parcial nem bloco `DO`. **A carga (coletor) precisa fechar o vínculo antigo antes de
+   >   abrir o novo, na mesma transação; senão o 07 recusa a gravação.** Apagar um `preco` (o
+   >   `PrecoService.remover`) continua apagando seus vínculos em cascata, também com a FK composta
+   >   (conferido em PostgreSQL 15 e 16 pelo script abaixo). Idempotente.
    > - **Validação em PostgreSQL real:** `bash backend/deploy/test_lojas_postgres.sh` (Docker em execução)
    >   sobe um container descartável (nunca o Neon), aplica 01–05 + histórico sintético + 06 duas vezes + 07
    >   duas vezes, e confere contagens, checksum de `preco`, cadeia de vigência, a recusa de dois vínculos

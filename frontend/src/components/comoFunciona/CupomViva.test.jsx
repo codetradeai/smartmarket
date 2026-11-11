@@ -39,4 +39,16 @@ describe('CupomViva', () => {
     expect(screen.getByText(/exemplo ilustrativo/i)).toBeInTheDocument()
     expect(screen.getByRole('img', { name: /demonstração ilustrativa.*mercado c.*r\$\s?3,20/i })).toBeInTheDocument()
   })
+
+  it('o scanner (laser) fica na grade do cupom, escondido dos leitores de tela, e só anima no passo 02', () => {
+    montar()
+    const papel = document.querySelector('.sm-cupom__paper')
+    const scan = papel.querySelector('.sm-cupom__grade .sm-cupom__scan')
+    expect(scan).toBeInTheDocument()
+    expect(scan.closest('[aria-hidden="true"]')).not.toBeNull()
+    expect(papel).toHaveAttribute('data-passo', '0')
+
+    fireEvent.click(screen.getByRole('button', { name: /cruze os preços/i }))
+    expect(papel).toHaveAttribute('data-passo', '1')
+  })
 })

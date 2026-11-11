@@ -1004,3 +1004,68 @@ html, body, #root {
   .sm-scan__track, .sm-scan__card, .sm-scan__cta, .sm-scan__dot { transition: none; }
   .sm-scan__sweep, .sm-scan__led, .sm-scan__grid { animation: none; }
 }
+
+/* ===== Cupom fiscal vivo (dobra 3, variante cupom): passos clicáveis + cupom que muda ===== */
+.sm-cupom { background: #fff; }
+.sm-cupom--scroll { height: 300vh; }
+.sm-cupom__pin { padding: 3.5rem 0; }
+.sm-cupom--scroll .sm-cupom__pin { position: sticky; top: 4rem; height: calc(100svh - 4rem); min-height: 36rem; padding: 0; display: flex; align-items: center; overflow: hidden; }
+.sm-cupom__inner { width: 100%; max-width: 80rem; margin: 0 auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr; gap: 1.75rem; align-items: center; }
+.sm-cupom__head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.sm-cupom__title { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; color: #0b192c; font-size: clamp(2rem, 3.4vw, 3rem); }
+.sm-cupom__title span { display: block; color: #0e7a46; white-space: nowrap; }
+.sm-cupom__apoio { max-width: 22rem; font-size: 0.875rem; line-height: 1.55; color: #5C7668; }
+.sm-cupom__passos { display: grid; gap: 0.75rem; list-style: none; margin: 0; padding: 0; }
+.sm-cupom__passo { width: 100%; display: flex; align-items: flex-start; gap: 1rem; text-align: left; padding: 1.05rem 1.25rem; border: 1px solid #dfe9e2; border-radius: 1.5rem; background: #fff; color: #0b192c; opacity: 0.5; transition: opacity 300ms ease, transform 300ms ease, background-color 300ms ease, border-color 300ms ease, box-shadow 300ms ease, color 300ms ease; }
+.sm-cupom__num { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1; color: #0e7a46; min-width: 2.6rem; transition: color 300ms ease; }
+.sm-cupom__passo strong { display: block; font-weight: 800; font-size: 1.05rem; }
+.sm-cupom__passo small { display: block; margin-top: 0.25rem; font-size: 0.85rem; line-height: 1.45; color: #5C7668; transition: color 300ms ease; }
+.sm-cupom__passo.is-ativo { opacity: 1; transform: scale(1.02); box-shadow: 0 18px 36px -22px rgba(11, 25, 44, 0.45); }
+.sm-cupom__passo--claro.is-ativo { background: #f1f7f3; border-color: #cfe2d6; }
+.sm-cupom__passo--escuro.is-ativo { background: #0b192c; border-color: #0b192c; color: #fff; }
+.sm-cupom__passo--escuro.is-ativo .sm-cupom__num { color: #34d399; }
+.sm-cupom__passo--escuro.is-ativo small { color: rgba(255, 255, 255, 0.72); }
+.sm-cupom__passo--verde.is-ativo { background: #0e7a46; border-color: #0e7a46; color: #fff; }
+.sm-cupom__passo--verde.is-ativo .sm-cupom__num { color: #fff; }
+.sm-cupom__passo--verde.is-ativo small { color: rgba(255, 255, 255, 0.88); }
+.sm-cupom__passo:focus-visible { outline: 2px solid #0e7a46; outline-offset: 3px; }
+.sm-cupom__cta { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.4rem; background: #0b192c; color: #fff; font-weight: 700; font-size: 0.9rem; border-radius: 999px; padding: 0.95rem 1.3rem; transition: background-color 200ms ease, box-shadow 300ms ease; }
+.sm-cupom__cta:hover { background: #16324f; }
+.sm-cupom__cta:focus-visible { outline: 2px solid #34d399; outline-offset: 3px; }
+.sm-cupom__cta.is-brilho { box-shadow: 0 0 0 4px rgba(14, 122, 70, 0.22), 0 12px 28px -10px rgba(14, 122, 70, 0.6); animation: sm-cupom-pulso 2.2s ease-in-out infinite; }
+@keyframes sm-cupom-pulso { 0%, 100% { box-shadow: 0 0 0 3px rgba(14, 122, 70, 0.18), 0 12px 28px -10px rgba(14, 122, 70, 0.5); } 50% { box-shadow: 0 0 0 8px rgba(14, 122, 70, 0.1), 0 12px 28px -10px rgba(14, 122, 70, 0.7); } }
+
+.sm-cupom__paper { background: #fff; border: 1px solid #e1e9e3; border-radius: 1.25rem; padding: 1.1rem; color: #0b192c; box-shadow: 0 24px 60px -30px rgba(11, 25, 44, 0.35); min-width: 0; }
+.sm-cupom__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #cdd8d0; }
+.sm-cupom__topo strong { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.sm-cupom__topo span { font-size: 0.68rem; font-weight: 600; color: #5C7668; border: 1px dashed #A8D1BC; border-radius: 999px; padding: 0.15rem 0.5rem; }
+.sm-cupom__grade { font-size: 0.7rem; }
+.sm-cupom__linha { display: grid; grid-template-columns: minmax(0, 1.9fr) repeat(4, minmax(0, 1fr)); gap: 0.35rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px dashed #e3ebe5; }
+.sm-cupom__linha--cab { font-weight: 700; color: #5C7668; font-size: 0.66rem; }
+.sm-cupom__linha--total { border-bottom: 0; padding-top: 0.8rem; font-weight: 800; }
+.sm-cupom__col { text-align: right; font-variant-numeric: tabular-nums; border-radius: 0.4rem; padding: 0.2rem 0.25rem; opacity: 0; transform: translateY(4px); transition: opacity 350ms ease var(--d, 0ms), transform 350ms ease var(--d, 0ms), background-color 300ms ease, color 300ms ease; }
+.sm-cupom__paper:not([data-passo="0"]) .sm-cupom__col { opacity: 1; transform: none; }
+.sm-cupom__paper:not([data-passo="0"]) .sm-cupom__preco.is-menor { background: #e8f8f0; color: #115c33; font-weight: 800; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__soma.is-vencedor { background: #0e7a46; color: #fff; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__linha--cab .is-vencedor { background: #0b192c; color: #fff; }
+.sm-cupom__item { animation: sm-cupom-in 450ms ease both; animation-delay: var(--d, 0ms); }
+@keyframes sm-cupom-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sm-cupom__produto { display: flex; align-items: center; gap: 0.55rem; min-width: 0; }
+.sm-cupom__produto img { width: 2.25rem; height: 2.25rem; flex: none; object-fit: contain; border: 1px solid #e1e9e3; border-radius: 0.5rem; background: #fff; }
+.sm-cupom__produto strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; font-weight: 700; }
+.sm-cupom__produto small { color: #5C7668; }
+.sm-cupom__ok { flex: none; margin-left: auto; color: #0e7a46; }
+.sm-cupom__economia { display: flex; align-items: flex-start; gap: 0.6rem; margin-top: 0.9rem; padding: 0.8rem 0.9rem; border-radius: 0.8rem; background: #f1f7f3; font-size: 0.82rem; line-height: 1.4; opacity: 0; transform: translateY(8px); transition: opacity 400ms ease, transform 400ms ease; }
+.sm-cupom__economia svg { flex: none; margin-top: 0.15rem; color: #0e7a46; }
+.sm-cupom__economia small { display: block; color: #5C7668; font-size: 0.7rem; margin-top: 0.15rem; }
+.sm-cupom__paper[data-passo="2"] .sm-cupom__economia { opacity: 1; transform: none; }
+@media (min-width: 1024px) {
+  .sm-cupom__inner { padding: 0 2rem; gap: 3.5rem; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); }
+  .sm-cupom__paper { padding: 1.5rem; }
+  .sm-cupom__grade { font-size: 0.78rem; }
+  .sm-cupom__produto img { width: 2.6rem; height: 2.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
+  .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
+}

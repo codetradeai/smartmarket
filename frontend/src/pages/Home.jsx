@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { ComoFunciona } from "../components/comoFunciona/ComoFunciona"
+import { CupomViva } from "../components/comoFunciona/CupomViva"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -46,6 +47,9 @@ const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
 // Faixa de logos da segunda dobra: só redes que o scraper coleta hoje E que já têm anúncios no catálogo
 // (um logo sem produtos levaria o filtro a uma lista vazia).
 const REDES_DA_FAIXA = redesComColetaAtiva(REDES_ATIVAS)
+// TEMPORÁRIO: variante da dobra 3 pela URL (?dobra3=cupom), só para decidir qual fica.
+const VARIANTE_DOBRA3 =
+  typeof window === "undefined" ? "scroll" : new URLSearchParams(window.location.search).get("dobra3") || "scroll"
 // TEMPORÁRIO: variante da segunda dobra pela URL (?dobra2=marquee|radar|lente|scanner), só para decidir qual fica.
 const VARIANTE_DOBRA2 =
   typeof window === "undefined" ? "radar" : new URLSearchParams(window.location.search).get("dobra2") || "radar"
@@ -480,7 +484,7 @@ export function Home() {
       </section>
 
       {/* 4. COMO FUNCIONA: scrollytelling, uma interface que evolui com o scroll */}
-      <ComoFunciona />
+      {VARIANTE_DOBRA3 === "cupom" ? <CupomViva /> : <ComoFunciona />}
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
       <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">

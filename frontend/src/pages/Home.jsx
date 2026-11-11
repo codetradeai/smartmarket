@@ -22,6 +22,8 @@ import {
   Product360HoverPreview,
   SmartMarketLogo,
   RadarColeta,
+  LenteRedes,
+  MarqueeRedes,
 } from "../components/ui"
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
@@ -43,6 +45,9 @@ const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
 // Faixa de logos da segunda dobra: só redes que o scraper coleta hoje E que já têm anúncios no catálogo
 // (um logo sem produtos levaria o filtro a uma lista vazia).
 const REDES_DA_FAIXA = redesComColetaAtiva(REDES_ATIVAS)
+// TEMPORÁRIO: variante da segunda dobra pela URL (?dobra2=marquee|radar|lente), só para decidir qual fica.
+const VARIANTE_DOBRA2 =
+  typeof window === "undefined" ? "radar" : new URLSearchParams(window.location.search).get("dobra2") || "radar"
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -90,6 +95,15 @@ export function Home() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("nenhum")
   const [selectedMarket, setSelectedMarket] = useState("todos")
+  const propsRedes = {
+    markets: REDES_DA_FAIXA,
+    redesResumo: REDES_COM_PRODUTOS,
+    selectedMarket,
+    onSelect: (id) => {
+      setSelectedMarket((current) => (current === id ? "todos" : id))
+      document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+    },
+  }
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
@@ -448,17 +462,14 @@ export function Home() {
           </header>
         </div>
 
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <RadarColeta
-          markets={REDES_DA_FAIXA}
-          redesResumo={REDES_COM_PRODUTOS}
-          selectedMarket={selectedMarket}
-          onSelect={(id) => {
-            setSelectedMarket((current) => (current === id ? "todos" : id))
-            document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-          }}
-        />
-        </div>
+        {/* TEMPORÁRIO: ?dobra2=marquee|radar|lente alterna as variantes da segunda dobra para comparar. */}
+        {VARIANTE_DOBRA2 === "marquee" ? (
+          <MarqueeRedes {...propsRedes} />
+        ) : (
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            {VARIANTE_DOBRA2 === "lente" ? <LenteRedes {...propsRedes} /> : <RadarColeta {...propsRedes} />}
+          </div>
+        )}
       </section>
 
       {/* 4. COMO FUNCIONA: scrollytelling, uma interface que evolui com o scroll */}

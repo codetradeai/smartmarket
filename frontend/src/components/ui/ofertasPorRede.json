@@ -1,0 +1,86 @@
+{
+  "asun": {
+    "itens": 3367,
+    "comDesconto": 435,
+    "ofertas": [
+      {
+        "nome": "Confeito De Chocolate Ao Leite M&M's Crispy 35g",
+        "preco": 3.79,
+        "desconto": 55
+      },
+      {
+        "nome": "Confeito M&M's Amendoim 45g",
+        "preco": 3.79,
+        "desconto": 55
+      },
+      {
+        "nome": "Confeito M&M's Chocolate 45g",
+        "preco": 3.79,
+        "desconto": 55
+      }
+    ]
+  },
+  "stok": {
+    "itens": 118,
+    "comDesconto": 11,
+    "ofertas": [
+      {
+        "nome": "Leite Condensado Elegê Semidesnatado 395g",
+        "preco": 3.99,
+        "desconto": 27
+      },
+      {
+        "nome": "Café Iguaçu Solúvel Tradicional Leve 200g Pague 190g",
+        "preco": 21.9,
+        "desconto": 16
+      },
+      {
+        "nome": "Massa Orquídea De Sêmola Com Ovos Parafuso 500g",
+        "preco": 3.79,
+        "desconto": 15
+      }
+    ]
+  },
+  "atacadao": {
+    "itens": 5,
+    "comDesconto": 0,
+    "ofertas": [
+      {
+        "nome": "Açúcar Refinado Bulnez 1kg",
+        "preco": 3.15,
+        "desconto": null
+      },
+      {
+        "nome": "Leite Condensado Moça Integral 15% Grátis 395g",
+        "preco": 8.48,
+        "desconto": null
+      },
+      {
+        "nome": "Biscoito Marilan Maizena 300g",
+        "preco": 4.49,
+        "desconto": null
+      }
+    ]
+  },
+  "master": {
+    "itens": 120,
+    "comDesconto": 14,
+    "ofertas": [
+      {
+        "nome": "Sabão Barra Girando Sol Glicerinado Glicerina 400g",
+        "preco": 5.99,
+        "desconto": 37
+      },
+      {
+        "nome": "Leite Molico Desnatado 1l",
+        "preco": 4.99,
+        "desconto": 29
+      },
+      {
+        "nome": "Café 3 Corações Rituais Sachê Coffee C/10",
+        "preco": 20.89,
+        "desconto": 27
+      }
+    ]
+  }
+}

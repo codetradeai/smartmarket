@@ -1,6 +1,7 @@
 import { Suspense, lazy, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
-import { ShoppingCart, X } from "lucide-react"
+import { X } from "lucide-react"
+import logoImg from "../assets/logo.png"
 import { useFocoNoDialogo } from "../hooks/useFocoNoDialogo"
 import { importarCartaoLogin } from "./carregarCartaoLogin"
 
@@ -9,10 +10,10 @@ import { importarCartaoLogin } from "./carregarCartaoLogin"
 const CartaoLogin = lazy(importarCartaoLogin)
 
 // Altura reservada para o esqueleto e para o card carregado: o diálogo não "pula" quando o chunk chega.
-// 46.625rem (746px) é a altura natural do card em telas largas (3 colunas), medida no navegador; o min()
+// 47rem (752px) é a altura natural do card em telas largas (3 colunas), medida no navegador; o min()
 // com o viewport evita que a reserva passe do espaço disponível em telas baixas, onde o card rola por
 // dentro (max-h abaixo). Se o conteúdo do card mudar de tamanho, reajuste este valor.
-const ALTURA_MINIMA = "min-h-[min(46.625rem,calc(100dvh-2rem))]"
+const ALTURA_MINIMA = "min-h-[min(47rem,calc(100dvh-2rem))]"
 
 function EsqueletoCartao() {
   return (
@@ -75,12 +76,8 @@ export default function LoginDialogo({ onFechar }) {
         className={`sm-login-card relative flex max-h-[calc(100dvh-2rem)] w-full max-w-[34rem] flex-col overflow-y-auto rounded-[28px] bg-white shadow-[0_24px_48px_-16px_rgba(13,33,55,0.3)] ${ALTURA_MINIMA}`}
       >
         <div className="flex items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-slate-100">
-              <ShoppingCart size={16} className="text-slate-600" aria-hidden="true" />
-            </span>
-            <span className="text-sm font-semibold tracking-tight text-brand-navy">SmartMarket</span>
-          </div>
+          {/* width/height reservam o espaço do logo (863x196) antes de a imagem carregar */}
+          <img src={logoImg} alt="SmartMarket" width={176} height={40} className="h-10 w-auto" />
           <div className="flex items-center gap-2">
             <span className="hidden items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 sm:inline-flex">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />

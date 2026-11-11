@@ -6,6 +6,7 @@ import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService
 import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
 import logoImg from "../assets/logo.png"
 import { MARKETS, REDES_COM_PRODUTOS } from "../catalogoResumo"
+import { cepValido, mascararCep, somenteDigitosCep } from "../utils/cep"
 import { listarNomes, nomeCurtoRede, redesComProdutos } from "../utils/redesDoCatalogo"
 
 // Só as redes que têm produtos no catálogo (o Carrefour, por exemplo, tem 0 hoje).
@@ -111,6 +112,8 @@ export default function AuthPage() {
   const [cadEmail, setCadEmail] = useState("")
   const [cadPassword, setCadPassword] = useState("")
   const [cadConfirm, setCadConfirm] = useState("")
+  const [cadCep, setCadCep] = useState("")
+  const [cepErro, setCepErro] = useState("")
 
   // Modal Esqueceu a Senha (informativo: o backend não tem endpoint de redefinição)
   const [forgotModalOpen, setForgotModalOpen] = useState(false)
@@ -118,8 +121,14 @@ export default function AuthPage() {
   // Destino pós-login (ou padrão /catalog)
   const fromDestination = location.state?.from?.pathname || "/catalog"
 
+  const handleCepChange = (e) => {
+    setCadCep(mascararCep(e.target.value))
+    if (cepErro) setCepErro("")
+  }
+
   const handleSwitchTab = (newTab) => {
     setTab(newTab)
+    setCepErro("")
     setErrorMessage("")
     setSuccessMessage("")
   }
@@ -156,6 +165,7 @@ export default function AuthPage() {
   const handleCadastroSubmit = async (e) => {
     e.preventDefault()
     setErrorMessage("")
+    setCepErro("")
 
     if (!cadNome || !cadEmail || !cadPassword || !cadConfirm) {
       setErrorMessage("Por favor, preencha todos os campos obrigatórios.")
@@ -172,13 +182,25 @@ export default function AuthPage() {
       return
     }
 
-    const result = await register(cadNome, cadEmail, cadPassword)
+    if (!cadCep) {
+      setCepErro("Informe o CEP.")
+      return
+    }
+
+    if (!cepValido(cadCep)) {
+      setCepErro("CEP inválido: informe os 8 dígitos (ex.: 90010-000).")
+      return
+    }
+
+    const result = await register(cadNome, cadEmail, cadPassword, somenteDigitosCep(cadCep))
     if (result.success) {
       setSuccessMessage("Conta criada com sucesso! Redirecionando...")
       setTimeout(() => {
         navigate(fromDestination, { replace: true })
       }, 1200)
     } else {
+      // Erro de validação por campo vindo do backend: marca o CEP sem perder o que foi digitado
+      if (result.campos && typeof result.campos.cep === "string") setCepErro(result.campos.cep)
       setErrorMessage(result.error || "Falha ao criar conta.")
     }
   }
@@ -450,6 +472,25 @@ export default function AuthPage() {
                   value={cadConfirm}
                   onChange={(e) => setCadConfirm(e.target.value)}
                 />
+
+                <div>
+                  <Input
+                    label="CEP"
+                    required
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    maxLength={9}
+                    placeholder="00000-000"
+                    value={cadCep}
+                    onChange={handleCepChange}
+                    error={cepErro}
+                    aria-describedby="cep-finalidade"
+                  />
+                  <p id="cep-finalidade" className="mt-1.5 text-xs text-brand-muted leading-relaxed">
+                    Usamos o CEP para mostrar os preços da loja mais próxima de você. Para achar a
+                    localização, ele é consultado em um serviço externo (BrasilAPI/ViaCEP).
+                  </p>
+                </div>
 
                 <Button
                   type="submit"

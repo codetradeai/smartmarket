@@ -30,11 +30,12 @@ function preencherLogin(email, senha) {
   fireEvent.change(screen.getByLabelText('Senha'), { target: { value: senha } })
 }
 
-function preencherCadastro({ nome = '', email = '', senha = '', confirmar = '' }) {
+function preencherCadastro({ nome = '', email = '', senha = '', confirmar = '', cep = '90010000' }) {
   fireEvent.change(screen.getByLabelText('Nome completo'), { target: { value: nome } })
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: email } })
   fireEvent.change(screen.getByLabelText('Senha'), { target: { value: senha } })
   fireEvent.change(screen.getByLabelText('Confirmar Senha'), { target: { value: confirmar } })
+  fireEvent.change(screen.getByLabelText('CEP'), { target: { value: cep } })
 }
 
 describe('AuthPage', () => {
@@ -295,7 +296,7 @@ describe('AuthPage', () => {
         fireEvent.submit(formulario(container))
       })
 
-      expect(register).toHaveBeenCalledWith('Ana', 'ana@email.com', 'segredo1')
+      expect(register).toHaveBeenCalledWith('Ana', 'ana@email.com', 'segredo1', '90010000')
       expect(screen.getByText('Conta criada com sucesso! Redirecionando...')).toBeInTheDocument()
       expect(screen.queryByText('Pagina do catalogo')).not.toBeInTheDocument()
 
@@ -327,6 +328,106 @@ describe('AuthPage', () => {
       })
 
       expect(screen.getByText('Falha ao criar conta.')).toBeInTheDocument()
+    })
+
+    describe('CEP', () => {
+      const enviar = async (container) => {
+        await act(async () => {
+          fireEvent.submit(formulario(container))
+        })
+      }
+      const dadosOk = { nome: 'Ana', email: 'ana@email.com', senha: 'segredo1', confirmar: 'segredo1' }
+
+      it('mostra o campo com o aviso de finalidade e dos serviços externos', () => {
+        abrirCadastro()
+
+        expect(screen.getByLabelText('CEP')).toHaveAttribute('placeholder', '00000-000')
+        expect(screen.getByText(/preços da loja mais próxima/)).toBeInTheDocument()
+        expect(screen.getByText(/BrasilAPI\/ViaCEP/)).toBeInTheDocument()
+      })
+
+      it('aplica a máscara 00000-000 enquanto digita e ignora o que não é número', () => {
+        abrirCadastro()
+        const campo = screen.getByLabelText('CEP')
+
+        fireEvent.change(campo, { target: { value: '90010' } })
+        expect(campo).toHaveValue('90010')
+
+        fireEvent.change(campo, { target: { value: '90010000' } })
+        expect(campo).toHaveValue('90010-000')
+
+        fireEvent.change(campo, { target: { value: '9a0b0-1c0d0e0f0' } })
+        expect(campo).toHaveValue('90010-000')
+      })
+
+      it('exige o CEP e não chama o cadastro', async () => {
+        const { container } = abrirCadastro()
+        preencherCadastro({ ...dadosOk, cep: '' })
+
+        await enviar(container)
+
+        expect(screen.getByText('Informe o CEP.')).toBeInTheDocument()
+        expect(register).not.toHaveBeenCalled()
+      })
+
+      it('rejeita CEP com menos de 8 dígitos', async () => {
+        const { container } = abrirCadastro()
+        preencherCadastro({ ...dadosOk, cep: '90010-00' })
+
+        await enviar(container)
+
+        expect(screen.getByText(/CEP inválido: informe os 8 dígitos/)).toBeInTheDocument()
+        expect(register).not.toHaveBeenCalled()
+      })
+
+      it('limpa o erro do CEP ao voltar a digitar', async () => {
+        const { container } = abrirCadastro()
+        preencherCadastro({ ...dadosOk, cep: '123' })
+        await enviar(container)
+        expect(screen.getByText(/CEP inválido/)).toBeInTheDocument()
+
+        fireEvent.change(screen.getByLabelText('CEP'), { target: { value: '1234' } })
+
+        expect(screen.queryByText(/CEP inválido/)).not.toBeInTheDocument()
+      })
+
+      it('envia só os 8 dígitos ao cadastro, sem o hífen', async () => {
+        register.mockResolvedValue({ success: false, error: 'x' })
+        const { container } = abrirCadastro()
+        preencherCadastro({ ...dadosOk, cep: '90010-000' })
+
+        await enviar(container)
+
+        expect(screen.getByLabelText('CEP')).toHaveValue('90010-000')
+        expect(register).toHaveBeenCalledWith('Ana', 'ana@email.com', 'segredo1', '90010000')
+      })
+
+      it('marca o campo CEP quando o backend rejeita só o CEP, sem perder o digitado', async () => {
+        register.mockResolvedValue({
+          success: false,
+          error: 'CEP não encontrado',
+          campos: { cep: 'CEP não encontrado' },
+        })
+        const { container } = abrirCadastro()
+        preencherCadastro({ ...dadosOk, cep: '99999999' })
+
+        await enviar(container)
+
+        expect(screen.getAllByText('CEP não encontrado')).toHaveLength(2)
+        expect(screen.getByLabelText('CEP')).toHaveValue('99999-999')
+        expect(screen.getByLabelText('Nome completo')).toHaveValue('Ana')
+      })
+
+      it('não quebra quando o backend devolve campos sem o CEP', async () => {
+        register.mockResolvedValue({ success: false, error: 'E-mail inválido', campos: { email: 'E-mail inválido' } })
+        const { container } = abrirCadastro()
+        preencherCadastro(dadosOk)
+
+        await enviar(container)
+
+        expect(screen.getByText('E-mail inválido')).toBeInTheDocument()
+        expect(screen.queryByText('Informe o CEP.')).not.toBeInTheDocument()
+      })
     })
   })
 

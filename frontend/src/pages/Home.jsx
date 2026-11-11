@@ -27,6 +27,7 @@ import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
 import { HeroHeadline } from "../components/HeroHeadline"
+import { FaixaFinal } from "../components/FaixaFinal"
 import { CATEGORIAS_VISUAIS, MIN_COMPARADOS_NO_SETOR, SETORES_EM_DESTAQUE } from "../utils/categoriasVisuais"
 import { calcularComparacoes, dispersaoDoSetor } from "../utils/dispersaoPrecos"
 import { RaioXCorredor } from "../components/RaioXCorredor"
@@ -48,6 +49,8 @@ const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
 // Faixa de logos da segunda dobra: só redes que o scraper coleta hoje E que já têm anúncios no catálogo
 // (um logo sem produtos levaria o filtro a uma lista vazia).
 const REDES_DA_FAIXA = redesComColetaAtiva(REDES_ATIVAS)
+// Rodapé: as demais redes com produtos no catálogo (Zaffari, Rissul, Fort), hoje fora da rotina diária.
+const REDES_MAPEADAS = REDES_ATIVAS.filter((m) => !REDES_DA_FAIXA.includes(m))
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -877,27 +880,7 @@ export function Home() {
       </section>
 
       {/* 7. FAIXA FINAL — dois blocos de cor, como o banner do Desco */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[2rem] lg:grid-cols-12">
-          <div className="bg-brand-navy px-8 py-12 text-white sm:px-12 lg:col-span-7">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight text-balance sm:text-5xl">
-              A próxima compra
-              <span className="block text-[#7dffe0]">pode custar menos.</span>
-            </h2>
-            <p className="mt-4 max-w-md text-sm leading-relaxed text-white/70">
-              Abra a lista ou entre no catálogo. Os preços continuam os do SmartMarket, sem estimativa inventada.
-            </p>
-          </div>
-          <div className="flex flex-col justify-center gap-3 bg-brand-green px-8 py-12 lg:col-span-5">
-            <Link to="/list" className="sm-cta sm-cta-light justify-center">
-              Abrir minha lista
-            </Link>
-            <Link to="/catalog" className="sm-cta sm-cta-ghost justify-center border-white/40 text-white hover:bg-white hover:text-brand-navy">
-              Ver o catálogo
-            </Link>
-          </div>
-        </div>
-      </section>
+      <FaixaFinal redesAtivas={REDES_DA_FAIXA.length} />
 
       {/* 7. MODAL DE DETALHES COMPLETOS DO PRODUTO (PRESERVADO) */}
       <ProductDetailModal
@@ -1000,9 +983,40 @@ export function Home() {
             <h4 className="text-xs font-bold text-brand-navy uppercase tracking-wider">
               Redes no RS
             </h4>
-            <p className="text-xs text-brand-muted">
-              {REDES_ATIVAS.map((m) => m.name).join(" • ")}.
-            </p>
+            <div>
+              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-800">
+                Coleta ativa
+              </p>
+              <ul className="flex flex-wrap gap-1.5">
+                {REDES_DA_FAIXA.map((m) => (
+                  <li
+                    key={m.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-900"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" aria-hidden="true" />
+                    {m.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {REDES_MAPEADAS.length > 0 && (
+              <div className="pt-2">
+                <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-amber-800">
+                  Mapeadas no RS · coleta em pausa
+                </p>
+                <ul className="flex flex-wrap gap-1.5">
+                  {REDES_MAPEADAS.map((m) => (
+                    <li
+                      key={m.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
+                      {m.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Coluna 4: Institucional */}
@@ -1026,9 +1040,9 @@ export function Home() {
             SmartMarket &copy; 2026 — Todos os direitos reservados. Feito com excelência para o Rio Grande do Sul.
           </p>
           <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-brand-green">
-              <span className="w-2 h-2 rounded-full bg-brand-green animate-pulse" />
-              Sistemas Operacionais 100%
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              Plataforma operacional
             </span>
           </div>
         </div>

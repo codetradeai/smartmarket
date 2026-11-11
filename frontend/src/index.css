@@ -905,3 +905,15 @@ html, body, #root {
 @media (prefers-reduced-motion: reduce) {
   .sm-ticket-troca { animation: none; }
 }
+
+/* Blueprint da seção Sobre: fluxo de pulso na conexão ativa e varredura do estado "coleta". */
+@keyframes sm-bp-fluxo { to { stroke-dashoffset: -24; } }
+@keyframes sm-bp-varredura { 0% { transform: translateY(-10%); opacity: 0; } 15%, 85% { opacity: 1; } 100% { transform: translateY(110%); opacity: 0; } }
+
+.sm-bp-fluxo { stroke-dasharray: 4 8; animation: sm-bp-fluxo 1.2s linear infinite; }
+.sm-bp-varredura { animation: sm-bp-varredura 2.8s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-bp-fluxo { animation: none; stroke-dasharray: none; }
+  .sm-bp-varredura { animation: none; opacity: 0; }
+}

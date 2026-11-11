@@ -85,6 +85,9 @@
 
    -- Passo 6: lojas (filiais), preço por loja e localização do usuário por CEP
    \i backend/deploy/06_lojas_por_cep.sql
+
+   -- Passo 7 (só PostgreSQL): travas de integridade do preço por loja
+   \i backend/deploy/07_indice_unico_vinculo_vigente.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
 
@@ -103,8 +106,18 @@
    > - Backup antes (ponto de restauração do Neon). Conferência: `SELECT count(*) FROM loja;` deve ser igual a
    >   `SELECT count(*) FROM mercado;` e `SELECT count(*) FROM preco_loja;` igual a `SELECT count(*) FROM preco;`
    >   (até o coletor novo entrar). Cópia idêntica do script em `backend/database/migration_lojas_por_cep.sql`.
-   > - Não foi validado em PostgreSQL real nesta entrega, só em H2 (modo PostgreSQL); valide num banco
-   >   descartável antes do Neon.
+   > - `preco_loja.produto_id` repete `preco.produto_id` de propósito (leitura direta do preço atual da
+   >   loja e a trava abaixo). O 06 o preenche; quem impede a divergência é o 07.
+   > - **`07_indice_unico_vinculo_vigente.sql` (só PostgreSQL, rode logo depois do 06, também por ordem do
+   >   responsável):** cria o índice único parcial `(loja_id, produto_id) WHERE vigente_ate IS NULL` (uma
+   >   loja nunca tem dois preços vigentes do mesmo produto, sem depender só do lock da carga) e a FK
+   >   composta `(preco_id, produto_id) → preco(id, produto_id)`. Fica separado porque o H2 dos testes não
+   >   suporta índice parcial nem bloco `DO`. A carga precisa fechar o vínculo antigo antes de abrir o novo,
+   >   na mesma transação. Idempotente.
+   > - **Validação em PostgreSQL real:** `bash backend/deploy/test_lojas_postgres.sh` (Docker em execução)
+   >   sobe um container descartável (nunca o Neon), aplica 01–05 + histórico sintético + 06 duas vezes + 07
+   >   duas vezes, e confere contagens, checksum de `preco`, cadeia de vigência, a recusa de dois vínculos
+   >   vigentes e a FK composta. Passou em `postgres:16` e `postgres:15-alpine`.
 
    > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
    > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em

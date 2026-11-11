@@ -139,6 +139,10 @@ function Cupom({ passo }) {
       </div>
 
       <div className="sm-cupom__grade" aria-hidden="true">
+        {/* Scanner: o laser varre a grade enquanto o passo 02 (cruzar os preços) está ativo. */}
+        <span className="sm-cupom__scan">
+          <i />
+        </span>
         <div className="sm-cupom__linha sm-cupom__linha--cab">
           <span>Item</span>
           {MERCADOS.map((nome, m) => (

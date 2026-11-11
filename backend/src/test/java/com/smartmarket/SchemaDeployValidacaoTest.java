@@ -10,8 +10,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Em producao o Hibernate sobe com ddl-auto=validate sobre o que backend/deploy/01_schema.sql
- * sozinho (o 04 e idempotente) criou. Os demais testes usam create-drop, entao uma coluna que a entidade exige
- * e o DDL nao tem so apareceria no deploy ("missing column [ativa] in table [promocao]").
+ * e a migration 06_lojas_por_cep.sql (o 04 e idempotente) criaram. Os demais testes usam create-drop, entao uma
+ * coluna que a entidade exige e o DDL nao tem so apareceria no deploy ("missing column [ativa] in table [promocao]").
  * Aqui o contexto sobe em H2 (modo PostgreSQL) com o schema de deploy e validate: se entidade e DDL
  * divergirem, o contexto nao inicializa e este teste falha.
  */
@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     "spring.datasource.url=jdbc:h2:mem:schema_deploy;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
     "spring.jpa.hibernate.ddl-auto=validate",
     "spring.sql.init.mode=always",
-    "spring.sql.init.schema-locations=file:deploy/01_schema.sql",
+    "spring.sql.init.schema-locations=file:deploy/01_schema.sql,file:deploy/06_lojas_por_cep.sql",
     "spring.sql.init.data-locations="
 })
 @ActiveProfiles("test")

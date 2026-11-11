@@ -82,8 +82,29 @@
 
    -- Passo 5: corrige produto.nome_normalizado (sem acento) — ver aviso abaixo
    \i backend/deploy/05_corrige_nome_normalizado.sql
+
+   -- Passo 6: lojas (filiais), preço por loja e localização do usuário por CEP
+   \i backend/deploy/06_lojas_por_cep.sql
    ```
    Ou copie e cole o conteúdo de cada arquivo diretamente.
+
+   > ⚠️ **Passo manual — `06_lojas_por_cep.sql` (lojas por CEP)**: **só por ordem do responsável, à mão no
+   > Neon**; nenhum pipeline o aplica. Rode **antes** de subir o backend que traz as entidades `Loja`
+   > e `PrecoLoja` (o Hibernate com `ddl-auto=validate` recusa iniciar sem as tabelas e colunas novas) e
+   > **com o coletor antigo parado**.
+   > - Cria `loja`, `preco_loja`, as colunas opcionais de localização em `usuario` (`cep`, `cidade`, `uf`,
+   >   `latitude`, `longitude`, `loja_preferida_id`), `promocao.loja_id` (nulo = promoção da rede toda) e os
+   >   índices, inclusive `produto(codigo_barras)`.
+   > - Dados atuais: cria uma loja "padrão" por mercado (`codigo_externo = 'padrao'`) e liga cada preço que já
+   >   existe a ela, com a vigência encadeada pela data de coleta. **Nenhuma linha de `preco` é apagada ou
+   >   alterada**; contas antigas ficam com a localização nula.
+   > - Idempotente: rodar de novo não duplica nada; só cria o que falta e só liga preços ainda sem vínculo.
+   >   Rode-o de novo depois de cadastrar um mercado novo para ele ganhar a loja padrão.
+   > - Backup antes (ponto de restauração do Neon). Conferência: `SELECT count(*) FROM loja;` deve ser igual a
+   >   `SELECT count(*) FROM mercado;` e `SELECT count(*) FROM preco_loja;` igual a `SELECT count(*) FROM preco;`
+   >   (até o coletor novo entrar). Cópia idêntica do script em `backend/database/migration_lojas_por_cep.sql`.
+   > - Não foi validado em PostgreSQL real nesta entrega, só em H2 (modo PostgreSQL); valide num banco
+   >   descartável antes do Neon.
 
    > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
    > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em

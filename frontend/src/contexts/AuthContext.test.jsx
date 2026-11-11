@@ -348,7 +348,7 @@ describe('AuthProvider', () => {
         resultado = await capturado.atual.register('Caio', 'caio@email.com', 'senha')
       })
 
-      expect(authService.register).toHaveBeenCalledWith('Caio', 'caio@email.com', 'senha')
+      expect(authService.register).toHaveBeenCalledWith('Caio', 'caio@email.com', 'senha', undefined)
       expect(resultado).toMatchObject({ success: true, user: { nome: 'Caio' } })
       expect(screen.getByTestId('autenticado')).toHaveTextContent('true')
       expect(localStorage.getItem(TOKEN_KEY)).toBe(jwtValido)
@@ -367,7 +367,6 @@ describe('AuthProvider', () => {
 
     it.each([
       ['erro textual', { erro: 'E-mail ja cadastrado' }, 'E-mail ja cadastrado'],
-      ['erros por campo', { campos: { nome: 'Nome obrigatorio' } }, 'Nome obrigatorio'],
       ['campo message', { message: 'Conflito' }, 'Conflito'],
       ['resposta sem mensagem conhecida', {}, 'Falha ao cadastrar. Tente novamente com outro e-mail.'],
     ])('devolve a mensagem correta para %s', async (_nome, data, esperada) => {
@@ -380,6 +379,32 @@ describe('AuthProvider', () => {
       })
 
       expect(resultado).toEqual({ success: false, error: esperada })
+    })
+
+    it('devolve a mensagem e os campos inválidos quando o backend valida por campo', async () => {
+      const campos = { nome: 'Nome obrigatorio', cep: 'CEP inválido' }
+      authService.register.mockRejectedValue({ response: { status: 400, data: { campos } } })
+      renderizar()
+
+      let resultado
+      await act(async () => {
+        resultado = await capturado.atual.register('', 'a@a.com', 'x', '123')
+      })
+
+      expect(resultado).toEqual({ success: false, error: 'Nome obrigatorio. CEP inválido', campos })
+    })
+
+    it('repassa o CEP ao serviço de cadastro', async () => {
+      authService.register.mockResolvedValue({
+        token: jwtValido, id: 5, nome: 'Caio', email: 'caio@email.com', papel: 'USER',
+      })
+      renderizar()
+
+      await act(async () => {
+        await capturado.atual.register('Caio', 'caio@email.com', 'senha', '90010000')
+      })
+
+      expect(authService.register).toHaveBeenCalledWith('Caio', 'caio@email.com', 'senha', '90010000')
     })
 
     it('devolve a mensagem padrao quando nao ha resposta do servidor', async () => {

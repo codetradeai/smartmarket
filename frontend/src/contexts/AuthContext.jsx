@@ -115,10 +115,10 @@ export function AuthProvider({ children }) {
   /**
    * Realiza cadastro
    */
-  const register = useCallback(async (name, email, password) => {
+  const register = useCallback(async (name, email, password, cep) => {
     setIsLoading(true)
     try {
-      const data = await authService.register(name, email, password)
+      const data = await authService.register(name, email, password, cep)
       const userObj = {
         id: data.id,
         nome: data.nome,
@@ -138,6 +138,7 @@ export function AuthProvider({ children }) {
       return { success: true, user: userObj, isDemo: data.isDemo }
     } catch (error) {
       let message = "Falha ao cadastrar. Tente novamente com outro e-mail."
+      let campos
       if (error.userMessage) {
         message = error.userMessage
       } else if (error.response?.data) {
@@ -145,12 +146,14 @@ export function AuthProvider({ children }) {
         if (typeof data.erro === "string") {
           message = data.erro
         } else if (data.campos && typeof data.campos === "object") {
+          campos = data.campos
           message = Object.values(data.campos).join(". ")
         } else if (data.mensagem || data.message) {
           message = data.mensagem || data.message
         }
       }
-      return { success: false, error: message }
+      // `campos` (erro de validação por campo do backend) deixa a tela marcar o campo certo
+      return campos ? { success: false, error: message, campos } : { success: false, error: message }
     } finally {
       setIsLoading(false)
     }

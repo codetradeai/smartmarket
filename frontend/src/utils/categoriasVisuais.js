@@ -2,6 +2,13 @@ import { urlPublica } from "./urlPublica"
 
 // Departamentos com foto e ícone (estilo Master Supermercados), usados na Home, no Catálogo e nos
 // Favoritos. Fica num só lugar: antes o mesmo array de 15 itens vivia copiado nas três páginas.
+// Vitrine do Raio-X na Home: só os setores com maior diferença média de preço entre redes para o mesmo
+// produto, com pelo menos MIN_COMPARADOS_NO_SETOR produtos comparados (critério: média >= 19% e n >= 10,
+// medido no catálogo de nov/2026). Fixa no código para a ordem não mudar quando o catálogo termina de
+// carregar; os números exibidos vêm sempre dos dados. Ordem: mais produtos comparados primeiro.
+export const SETORES_EM_DESTAQUE = ["biscoitos", "leites", "mercearia", "padaria", "limpeza"]
+export const MIN_COMPARADOS_NO_SETOR = 10
+
 export const CATEGORIAS_VISUAIS = [
   { id: "todos", label: "Todos", img: urlPublica("/images/categorias/master/todos.png"), icon: "🏪" },
   { id: "hortifruti", label: "Hortifrúti", img: urlPublica("/images/categorias/master/hortifruti.png"), icon: "🍎" },

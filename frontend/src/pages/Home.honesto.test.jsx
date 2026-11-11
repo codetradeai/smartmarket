@@ -80,8 +80,7 @@ describe('Home: números e redes sem inflar', () => {
   it('o convite ao cadastro fala em anúncios, não em "produtos do catálogo", e não cita "8 supermercados"', () => {
     renderizar()
 
-    const titulo = screen.getByRole('heading', { name: /Quer ver todo o catálogo, com 3 anúncios\?/ })
-    expect(titulo).toBeInTheDocument()
+    expect(screen.getByText(/libera os 3 anúncios do catálogo/)).toBeInTheDocument()
     expect(within(document.body).queryByText(/dos 8 supermercados/)).not.toBeInTheDocument()
   })
 })

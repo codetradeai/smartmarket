@@ -28,11 +28,15 @@ import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
 import { HeroHeadline } from "../components/HeroHeadline"
 import { FaixaFinal } from "../components/FaixaFinal"
-import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
+import { CATEGORIAS_VISUAIS, MIN_COMPARADOS_NO_SETOR, SETORES_EM_DESTAQUE } from "../utils/categoriasVisuais"
+import { calcularComparacoes, dispersaoDoSetor } from "../utils/dispersaoPrecos"
+import { RaioXCorredor } from "../components/RaioXCorredor"
 import { urlPublica } from "../utils/urlPublica"
 import { redesComColetaAtiva, redesComProdutos } from "../utils/redesDoCatalogo"
 
 const SEM_PRODUTOS = []
+// Setores clicáveis do Raio-X: só os de maior diferença de preço entre redes (ver categoriasVisuais.js).
+const SETORES = SETORES_EM_DESTAQUE.map((id) => CATEGORIAS_VISUAIS.find((cat) => cat.id === id)).filter(Boolean)
 
 
 // Cobertura real do catálogo: cada produto tem preço só nas redes onde foi coletado.
@@ -92,8 +96,28 @@ export function Home() {
   }, [location.hash])
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("nenhum")
+  // Setor do Raio-X: sempre há um ativo (nunca a seção vazia). O catálogo só baixa quando a seção
+  // aparece na tela ou o usuário mexe nela, para não pesar a primeira dobra.
+  const [setorEscolhido, setSetorEscolhido] = useState(null)
+  const [secaoVisivel, setSecaoVisivel] = useState(false)
+  const secaoSetoresRef = useRef(null)
   const [selectedMarket, setSelectedMarket] = useState("todos")
+
+  useEffect(() => {
+    const el = secaoSetoresRef.current
+    if (!el || typeof IntersectionObserver === "undefined") return undefined
+    const observer = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) {
+          setSecaoVisivel(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: "300px 0px" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
   const propsRedes = {
     markets: REDES_DA_FAIXA,
     redesResumo: REDES_COM_PRODUTOS,
@@ -150,7 +174,7 @@ export function Home() {
   // setor/rede/busca escolhidos ou produto aberto. A primeira dobra não depende dele.
   const precisaProdutos =
     isAuthenticated ||
-    selectedCategory !== "nenhum" ||
+    secaoVisivel ||
     selectedMarket !== "todos" ||
     searchTerm.trim() !== "" ||
     Boolean(selectedProductDetail)
@@ -185,20 +209,34 @@ export function Home() {
         }
       }
 
-      const matchesCategory =
-        selectedCategory === "todos" ||
-        selectedCategory === "nenhum" ||
-        p.category === selectedCategory
-
       const insights = getProductInsights(p)
       const matchesMarket =
         selectedMarket === "todos" ||
         (insights && insights.bestMarketKey === selectedMarket) ||
         (p.prices && p.prices[selectedMarket] > 0)
 
-      return matchesSearch && matchesCategory && matchesMarket
+      return matchesSearch && matchesMarket
     })
-  }, [PRODUCTS, searchTerm, selectedCategory, selectedMarket])
+  }, [PRODUCTS, searchTerm, selectedMarket])
+
+  // Raio-X: uma comparação por produto presente em 2+ redes (grupos confirmados), calculada uma vez por
+  // catálogo. Sem escolha do usuário, abre no primeiro setor da vitrine (todos têm comparação de sobra).
+  const comparacoes = useMemo(() => calcularComparacoes(PRODUCTS), [PRODUCTS])
+  const setorAtivo = setorEscolhido ?? SETORES[0].id
+  // Diferença média por setor para o selo dos círculos; some se a amostra for pequena demais.
+  const resumoDosSetores = useMemo(() => {
+    const resumo = {}
+    for (const s of SETORES) {
+      const { total, mediaPercentual } = dispersaoDoSetor(comparacoes, s.id)
+      if (total >= MIN_COMPARADOS_NO_SETOR) resumo[s.id] = mediaPercentual
+    }
+    return resumo
+  }, [comparacoes])
+  const setorSelecionado = SETORES.find((s) => s.id === setorAtivo) || SETORES[0]
+  const dispersaoDoSetorAtivo = useMemo(
+    () => dispersaoDoSetor(comparacoes, setorSelecionado.id),
+    [comparacoes, setorSelecionado.id]
+  )
 
   const heroVideoRef = useRef(null)
   // O vídeo do hero (2 a 4 MB, conforme a tela) só é pedido depois da primeira renderização e com a janela ociosa:
@@ -466,22 +504,27 @@ export function Home() {
       <CupomViva />
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
-      <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">
+      <main id="catalogo-ofertas" className="w-full flex-1 bg-gradient-to-b from-brand-green-light/70 via-white to-white">
+       <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-12 sm:px-6 lg:px-8">
         {/* Cabeçalho dos Setores */}
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-brand-border pb-4">
+        <div ref={secaoSetoresRef} className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-brand-border/70 pb-5">
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-navy">
-                  Explore por Setor do Supermercado
-                </h2>
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-green-dark">
+                Raio-X de preços
+              </p>
+              <h2 className="mt-1 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-brand-navy">
+                O mesmo produto.{" "}
+                <span className="block sm:inline text-brand-green-dark">Preços diferentes.</span>
+              </h2>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <p className="text-xs sm:text-sm text-brand-muted">
+                  Explore os setores e descubra quanto os preços podem variar entre supermercados.
+                </p>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-brand-green-light text-brand-green-dark">
                   {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios monitorados
                 </span>
               </div>
-              <p className="text-xs text-brand-muted mt-0.5">
-                Clique em qualquer setor abaixo para espiar uma amostra de produtos. Para pesquisar e comparar todos os preços, crie sua conta gratuita.
-              </p>
             </div>
 
             {/* Botão de Alerta de Preço / Cadastro */}
@@ -496,7 +539,7 @@ export function Home() {
                   }
                   setIsAlertModalOpen(true)
                 }}
-                className="text-xs font-bold border-brand-border gap-1.5"
+                className="text-xs font-bold border-brand-border gap-1.5 whitespace-nowrap"
               >
                 <svg className="w-4 h-4 text-brand-amber" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
@@ -506,84 +549,81 @@ export function Home() {
             </div>
           </div>
 
-          {/* Banners Visuais dos Setores (Sem "Todos" aberto de cara para incentivar o clique no setor) */}
-          <div className="bg-white rounded-2xl border border-brand-border/80 p-3 sm:p-4 shadow-2xs">
-            <div className="flex items-start justify-between gap-4 sm:gap-6 overflow-x-auto no-scrollbar scroll-smooth py-1 px-2">
-              {CATEGORIAS_VISUAIS.filter((cat) => cat.id !== "todos").map((cat) => {
-                const isActive = selectedCategory === cat.id
+          {/* Setores em destaque: grade centralizada, sem rolagem horizontal */}
+          <div className="space-y-3 pt-1">
+            <div role="group" aria-label="Setores com maior diferença de preço entre redes" className="flex flex-wrap justify-center gap-x-5 gap-y-4 sm:gap-x-9">
+              {SETORES.map((cat) => {
+                const isActive = setorAtivo === cat.id && selectedMarket === "todos" && !searchTerm.trim()
+                const media = resumoDosSetores[cat.id]
                 return (
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() =>
-                      setSelectedCategory((prev) => (prev === cat.id ? "nenhum" : cat.id))
-                    }
-                    className="group flex flex-col items-center shrink-0 cursor-pointer select-none transition-all duration-200 outline-none"
-                    title={`Ver amostra de ${cat.label}`}
+                    aria-pressed={isActive}
+                    onClick={() => {
+                      setSetorEscolhido(cat.id)
+                      setSecaoVisivel(true)
+                      setSelectedMarket("todos")
+                      setSearchTerm("")
+                    }}
+                    className="group flex w-24 flex-col items-center cursor-pointer select-none rounded-2xl p-1 outline-none focus-visible:ring-2 focus-visible:ring-[#0e7a46] focus-visible:ring-offset-2 sm:w-28"
+                    title={`Ver o Raio-X de preços de ${cat.label}`}
                   >
                     <div
-                      className={`relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center rounded-2xl transition-all duration-300 ${
+                      className={`relative flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 sm:h-24 sm:w-24 ${
                         isActive
-                          ? "ring-3 ring-[#065417] ring-offset-2 scale-105 bg-emerald-50/70 shadow-sm"
-                          : "group-hover:scale-105"
+                          ? "bg-brand-green-light ring-2 ring-[#0e7a46] ring-offset-2"
+                          : "group-hover:bg-brand-green-light/70"
                       }`}
                     >
                       <img
                         src={cat.img}
-                        alt={cat.label}
+                        alt=""
                         loading="lazy"
                         style={{ clipPath: "inset(0 0 8% 0)" }}
-                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-108 pointer-events-none"
+                        className="h-full w-full object-contain pointer-events-none"
                       />
                     </div>
                     <span
-                      className={`mt-1.5 text-xs sm:text-[13px] font-extrabold text-center tracking-tight transition-colors line-clamp-1 ${
-                        isActive
-                          ? "text-[#065417] underline decoration-2 underline-offset-4"
-                          : "text-[#065417]/90 group-hover:text-[#065417]"
+                      className={`mt-1.5 text-center text-xs font-extrabold leading-tight tracking-tight text-[#065417] sm:text-[13px] ${
+                        isActive ? "underline decoration-2 underline-offset-4" : ""
                       }`}
                     >
                       {cat.label}
                     </span>
+                    {media !== undefined && (
+                      <span className="mt-0.5 text-[11px] font-bold text-brand-muted">{media}% em média</span>
+                    )}
                   </button>
                 )
               })}
             </div>
+            <p className="text-center text-xs leading-relaxed text-brand-muted">
+              Mostramos os {SETORES.length} setores com maior diferença média de preço entre redes (mínimo de {MIN_COMPARADOS_NO_SETOR} produtos comparados).{" "}
+              <Link
+                to={isAuthenticated ? "/catalog" : caminhoDoCadastro("catalogo")}
+                className="font-bold text-brand-green-dark underline underline-offset-2"
+              >
+                Ver todos os setores no catálogo →
+              </Link>
+            </p>
           </div>
         </div>
 
-        {/* Conteúdo abaixo dos setores: Oculto até que o usuário clique em um setor, e limitado a 4 produtos de amostra */}
-        {selectedCategory === "nenhum" && selectedMarket === "todos" && !searchTerm.trim() ? (
-          <div className="rounded-3xl border border-brand-border/80 bg-white p-8 sm:p-10 text-center shadow-2xs">
-            <div className="mx-auto max-w-xl space-y-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-green-light px-3 py-1 text-xs font-extrabold text-brand-green uppercase tracking-wider">
-                👆 Escolha um setor acima para espiar
-              </span>
-              <h3 className="text-lg sm:text-xl font-extrabold text-brand-navy">
-                Quer ver todo o catálogo, com {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios?
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                Clique em um dos setores acima para ver uma prévia de produtos ou cadastre-se gratuitamente para liberar o catálogo completo e o comparador de listas.
-              </p>
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                <Link
-                  to={isAuthenticated ? "/catalog" : caminhoDoCadastro("catalogo")}
-                  className="sm-cta"
-                >
-                  {isAuthenticated ? "Abrir Catálogo Completo" : "Criar conta grátis e liberar tudo"}
-                  <span aria-hidden="true" className="sm-cta-arrow">→</span>
-                </Link>
-                {!isAuthenticated && (
-                  <Link
-                    to="/auth?mode=login"
-                    className="px-4 py-2.5 rounded-xl border border-brand-border text-xs sm:text-sm font-bold text-brand-navy hover:bg-slate-50"
-                  >
-                    Já tenho conta
-                  </Link>
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Raio-X de Dispersão por setor (sempre com um setor ativo). Filtro por rede ou busca mantém a prévia de produtos abaixo. */}
+        {selectedMarket === "todos" && !searchTerm.trim() ? (
+          <RaioXCorredor
+            setor={setorSelecionado}
+            dispersao={dispersaoDoSetorAtivo}
+            carregando={carregandoProdutos || !produtos}
+            erro={erroProdutos}
+            onTentarNovamente={recarregar}
+            nomeDaRede={(id) => MARKETS.find((m) => m.id === id)?.name || id}
+            autenticado={isAuthenticated}
+            caminhoCadastro={caminhoDoCadastro}
+            caminhoCatalogo="/catalog"
+            totalAnuncios={TOTAL_ANUNCIOS}
+          />
         ) : erroProdutos ? (
           <CatalogoErro onTentarNovamente={recarregar} className="rounded-3xl border border-brand-border bg-white" />
         ) : carregandoProdutos ? (
@@ -598,7 +638,6 @@ export function Home() {
               size="sm"
               onClick={() => {
                 setSearchTerm("")
-                setSelectedCategory("nenhum")
                 setSelectedMarket("todos")
               }}
             >
@@ -609,7 +648,7 @@ export function Home() {
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-2 px-1">
               <p className="text-xs sm:text-sm font-bold text-brand-navy">
-                Prévia do setor:{" "}
+                Prévia da seleção:{" "}
                 <span className="text-brand-green">
                   mostrando 4 de {filteredProducts.length} produtos disponíveis
                 </span>
@@ -617,7 +656,7 @@ export function Home() {
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedCategory("nenhum")
+                  setSearchTerm("")
                   setSelectedMarket("todos")
                 }}
                 className="text-xs font-bold text-brand-muted hover:text-brand-navy cursor-pointer"
@@ -756,10 +795,10 @@ export function Home() {
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-navy via-[#133250] to-brand-navy p-6 sm:p-8 text-white shadow-lg border border-brand-green/30 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-2 text-center md:text-left">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-extrabold text-[#7dffe0] uppercase tracking-wider">
-                  🔒 +{Math.max(0, filteredProducts.length - 4)} produtos ocultos neste setor
+                  🔒 +{Math.max(0, filteredProducts.length - 4)} produtos ocultos nesta seleção
                 </span>
                 <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-                  Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens deste setor!
+                  Cadastre-se grátis para desbloquear todos os {filteredProducts.length} itens desta seleção!
                 </h3>
                 <p className="text-xs sm:text-sm text-white/75 max-w-2xl">
                   Com a sua conta gratuita, você libera os {TOTAL_ANUNCIOS.toLocaleString("pt-BR")} anúncios do catálogo, pesquisa qualquer marca e vê os preços em {REDES_ATIVAS.length} supermercados.
@@ -786,6 +825,7 @@ export function Home() {
             </div>
           </div>
         )}
+       </div>
       </main>
 
       {/* 6. SEÇÃO SOBRE (#sobre) INTEGRADA NA HOME */}

@@ -8,8 +8,11 @@ import { importarCartaoLogin } from "./carregarCartaoLogin"
 // inicial e é pequeno de propósito: overlay, cabeçalho e botão de fechar.
 const CartaoLogin = lazy(importarCartaoLogin)
 
-// Mesma altura mínima para o esqueleto e para o card carregado: o diálogo não "pula" quando o chunk chega.
-const ALTURA_MINIMA = "min-h-[34rem]"
+// Altura reservada para o esqueleto e para o card carregado: o diálogo não "pula" quando o chunk chega.
+// 46.625rem (746px) é a altura natural do card em telas largas (3 colunas), medida no navegador; o min()
+// com o viewport evita que a reserva passe do espaço disponível em telas baixas, onde o card rola por
+// dentro (max-h abaixo). Se o conteúdo do card mudar de tamanho, reajuste este valor.
+const ALTURA_MINIMA = "min-h-[min(46.625rem,calc(100dvh-2rem))]"
 
 function EsqueletoCartao() {
   return (

@@ -25,6 +25,7 @@ import {
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
+import { HeroHeadline } from "../components/HeroHeadline"
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { urlPublica } from "../utils/urlPublica"
 import { redesComColetaAtiva, redesComProdutos } from "../utils/redesDoCatalogo"
@@ -290,16 +291,12 @@ export function Home() {
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
             </p>
-            <h1 className="sm-hero-title sm-rise sm-rise-2 mt-4">
-              <span className="block">Sua lista.</span>
-              <span className="block text-[#7dffe0]">O menor</span>
-              <span className="block">preço.</span>
-            </h1>
-            <p className="sm-rise sm-rise-3 mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
+            <HeroHeadline />
+            <p className="sm-rise sm-hero-late mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
               Monte a lista e veja, com os preços do catálogo, em qual mercado do Rio Grande do Sul a compra sai mais barata.
             </p>
 
-            <div className="sm-rise sm-rise-4 relative z-30 mt-8 max-w-3xl">
+            <div className="sm-rise sm-hero-late-2 relative z-30 mt-8 max-w-3xl">
               {isAuthenticated ? (
                 <SearchSuggest
                   id="busca-home"
@@ -365,7 +362,7 @@ export function Home() {
               </div>
             </div>
 
-            <div className="sm-rise sm-rise-5 mt-8 flex flex-wrap items-center gap-3">
+            <div className="sm-rise sm-hero-late-3 mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to={isAuthenticated ? "/list" : caminhoDoCadastro("lista")}
                 className="sm-cta sm-cta-light"
@@ -381,7 +378,7 @@ export function Home() {
               </Link>
             </div>
 
-            <dl className="sm-rise sm-rise-5 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
+            <dl className="sm-rise sm-hero-late-4 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
               <div>
                 <dt className="text-[11px] uppercase tracking-wider text-white/45">Redes no catálogo</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{REDES_ATIVAS.length}</dd>

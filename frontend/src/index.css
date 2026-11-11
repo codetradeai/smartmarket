@@ -740,3 +740,26 @@ html, body, #root {
     overflow: auto;
   }
 }
+
+/* ===== Headline da hero: palavras mascaradas + complemento rotativo ===== */
+.sm-hero-title { word-spacing: 0.1em; }
+.sm-w { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0.08em 0.04em 0.16em; margin: -0.08em -0.04em -0.16em; }
+.sm-w__in { display: inline-block; transform-origin: 0 100%; animation: sm-word-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i) * 70ms + 80ms); }
+@keyframes sm-word-in { from { opacity: 0; transform: translateY(110%) rotate(2deg); } to { opacity: 1; transform: translateY(0) rotate(0); } }
+.sm-slot { position: relative; padding-bottom: 0.12em; }
+.sm-slot__palavras { display: inline-grid; overflow: hidden; vertical-align: bottom; padding: 0.08em 0.04em 0.16em; margin: -0.08em -0.04em -0.16em; animation: sm-word-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i) * 70ms + 80ms); }
+.sm-slot__item { grid-area: 1 / 1; justify-self: start; white-space: nowrap; transform: translateY(110%); opacity: 0; }
+.sm-slot__item.is-ativo { transform: translateY(0); opacity: 1; transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease; }
+.sm-slot__item.is-saindo { transform: translateY(-110%); opacity: 0; transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; }
+.sm-slot__traco { position: absolute; left: 0.04em; bottom: -0.02em; height: 0.2em; max-width: 100%; overflow: visible; transition: width 0.5s ease; pointer-events: none; }
+.sm-slot__traco path { fill: none; stroke: #10b981; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; animation: sm-traco 0.7s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes sm-traco { to { stroke-dashoffset: 0; } }
+.sm-hero-late { animation-delay: 0.45s; }
+.sm-hero-late-2 { animation-delay: 0.55s; }
+.sm-hero-late-3 { animation-delay: 0.65s; }
+.sm-hero-late-4 { animation-delay: 0.75s; }
+@media (prefers-reduced-motion: reduce) {
+  .sm-w__in, .sm-slot__palavras { animation: none; }
+  .sm-slot__item.is-ativo, .sm-slot__item.is-saindo { transition: none; }
+  .sm-slot__traco path { animation: none; stroke-dashoffset: 0; }
+}

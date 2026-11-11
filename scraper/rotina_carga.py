@@ -46,6 +46,9 @@ REDES_SUSPENSAS = {
     "zaffari": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
     "rissul": "robots.txt da rede proibe /api/ (coletor usa /api/catalog_system)",
     "fort": "Cloudflare bloqueia o coletor com HTTP 403 em sense.osuper.com.br (verificado em 2026-11-09)",
+    "asun": "Cloudflare responde HTTP 403 em sense.osuper.com.br ao coletor com User-Agent identificado "
+            "(verificado em 2026-11-11); suspensa ate haver autorizacao da Asun/OSuper "
+            "(pedido enviado pelo responsavel do projeto)",
 }
 
 # Chave opcional "coleta_exaustiva" (padrao False) em cada entrada de REDES_CONFIG: so

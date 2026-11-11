@@ -27,9 +27,9 @@ from rotina_carga import (
 from pipeline import ErroIngestao
 from rotina_carga import REDES_SUSPENSAS
 
-# Orquestração com o Fort como rede ativa: os testes 07 e 09 mockam os ciclos e não
-# dependem de o Fort estar de fato liberado (hoje suspenso por bloqueio 403 do Cloudflare).
-SUSPENSAS_COM_FORT_ATIVO = {k: v for k, v in REDES_SUSPENSAS.items() if k != "fort"}
+# Orquestração com Fort e Asun como redes ativas: os testes 07 e 09 mockam os ciclos e não
+# dependem de elas estarem de fato liberadas (hoje suspensas por bloqueio 403 do Cloudflare).
+SUSPENSAS_COM_FORT_ATIVO = {k: v for k, v in REDES_SUSPENSAS.items() if k not in ("fort", "asun")}
 
 
 class TestRotinaCarga(unittest.TestCase):
@@ -201,11 +201,15 @@ class TestRotinaCarga(unittest.TestCase):
         )
 
         executadas = {chamada.args[0] for chamada in mock_ciclo.call_args_list}
-        for rede in ("fort", "zaffari", "rissul"):
+        for rede in ("fort", "asun", "zaffari", "rissul"):
             self.assertIn(rede, REDES_SUSPENSAS)
             self.assertNotIn(rede, executadas)
             self.assertEqual(relatorio["redes"][rede]["status"], "suspensa")
         self.assertIn("403", REDES_SUSPENSAS["fort"])
+        self.assertIn("403", REDES_SUSPENSAS["asun"])
+        self.assertIn("autorizacao", REDES_SUSPENSAS["asun"])
+        # A coleta diaria cobre 4 redes: Carrefour, Atacadao, Master e Stok.
+        self.assertEqual(executadas, {"carrefour", "atacadao", "master", "stok"})
 
     @patch("rotina_carga.REDES_SUSPENSAS", SUSPENSAS_COM_FORT_ATIVO)
     @patch("rotina_carga.executar_ciclo_rede")

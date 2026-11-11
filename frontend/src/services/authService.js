@@ -1,4 +1,5 @@
 import api from "./api"
+import { somenteDigitosCep } from "../utils/cep"
 
 // Credenciais de demonstração (DEMO_USERS, atalhos da tela de login) ficam em demoLogin.js e só são
 // carregadas por import dinâmico. A condição de cada import fica escrita DIRETAMENTE no `if`: em
@@ -79,11 +80,12 @@ export const authService = {
   },
 
   /**
-   * Realiza o cadastro de um novo usuário
+   * Realiza o cadastro de um novo usuário.
+   * O CEP vai ao backend só com os 8 dígitos (sem hífen), como o contrato exige.
    */
-  async register(nome, email, senha) {
+  async register(nome, email, senha, cep) {
     try {
-      const response = await api.post("/auth/register", { nome, email, senha })
+      const response = await api.post("/auth/register", { nome, email, senha, cep: somenteDigitosCep(cep) })
       return response.data
     } catch (error) {
       if (!semRespostaDoServidor(error)) throw error

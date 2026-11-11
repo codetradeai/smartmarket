@@ -863,3 +863,17 @@ html, body, #root {
   .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
   .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
 }
+
+/* Troca de perfil no cupom da faixa final: fade curto com leve subida. */
+@keyframes sm-ticket-troca {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.sm-ticket-troca {
+  animation: sm-ticket-troca 220ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sm-ticket-troca { animation: none; }
+}

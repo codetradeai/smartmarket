@@ -863,3 +863,15 @@ html, body, #root {
   .sm-cupom__passo, .sm-cupom__num, .sm-cupom__col, .sm-cupom__economia, .sm-cupom__cta { transition: none; }
   .sm-cupom__item, .sm-cupom__cta.is-brilho { animation: none; }
 }
+
+/* Raio-X de Preços: troca de setor, trilha que se desenha e ponto do menor preço. Só transform/opacity. */
+.sm-raiox-painel { animation: sm-raiox-in 320ms ease both; }
+.sm-raiox-linha { animation: sm-raiox-in 420ms ease both; animation-delay: calc(var(--i, 0) * 90ms); }
+@keyframes sm-raiox-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.sm-raiox-trilha { transform-origin: left center; animation: sm-raiox-trilha 650ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+@keyframes sm-raiox-trilha { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.sm-raiox-ponto { animation: sm-raiox-ponto 1400ms ease-out 2 both; animation-delay: calc(var(--i, 0) * 90ms + 500ms); }
+@keyframes sm-raiox-ponto { 0% { box-shadow: 0 0 0 0 rgba(14, 122, 70, 0.55); } 100% { box-shadow: 0 0 0 10px rgba(14, 122, 70, 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .sm-raiox-painel, .sm-raiox-linha, .sm-raiox-trilha, .sm-raiox-ponto { animation: none; }
+}

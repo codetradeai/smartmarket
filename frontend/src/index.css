@@ -740,3 +740,140 @@ html, body, #root {
     overflow: auto;
   }
 }
+
+/* ===== Como funciona: scrollytelling (progresso em --p, escrito por ComoFunciona.jsx) ===== */
+.sm-story {
+  --p: 1;
+  position: relative;
+  height: 320vh;
+  background: #fff;
+}
+.sm-story__pin {
+  position: sticky;
+  top: 4rem;
+  height: calc(100svh - 4rem);
+  min-height: 34rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.sm-story__inner {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+.sm-story__headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  color: #0D2137;
+  font-size: clamp(2rem, 3.6vw, 3.25rem);
+  text-wrap: balance;
+}
+.sm-story__headline span { display: block; white-space: nowrap; }
+.sm-story__accent { color: #1A8047; }
+.sm-story__steps { margin-top: 2rem; display: grid; gap: 1.1rem; }
+.sm-story__step {
+  display: flex;
+  gap: 1rem;
+  opacity: 0.5;
+  transition: opacity 280ms ease;
+}
+.sm-story__step.is-active { opacity: 1; }
+.sm-story__num { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: #1A8047; min-width: 2rem; }
+.sm-story__step h3 { font-weight: 800; color: #0D2137; font-size: 1.05rem; }
+.sm-story__step p { margin-top: 0.2rem; color: #5C7668; font-size: 0.9rem; line-height: 1.5; max-width: 26rem; }
+.sm-story__progress { position: relative; margin-top: 1.5rem; height: 3px; border-radius: 3px; background: #D4E8DC; max-width: 26rem; }
+.sm-story__progress i { position: absolute; inset: 0; border-radius: 3px; background: #1A8047; transform-origin: left; transform: scaleX(var(--p)); }
+.sm-story__progress span { position: absolute; top: -3px; width: 2px; height: 9px; background: #fff; z-index: 1; }
+.sm-story__cta { margin-top: 1.5rem; transition: background-color 180ms ease, transform 280ms ease, box-shadow 280ms ease; }
+.sm-story__cta.is-primary { background: #1A8047; transform: scale(1.04); box-shadow: 0 10px 24px -10px rgba(26, 128, 71, 0.7); }
+.sm-story__cta.is-primary:hover { background: #146B3A; }
+
+/* Palco */
+.sm-stage {
+  background: #fff;
+  border: 1px solid #D4E8DC;
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 60px -30px rgba(13, 33, 55, 0.35);
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: #0D2137;
+  min-width: 0;
+}
+.sm-stage__bar { display: flex; align-items: center; gap: 0.6rem; padding-bottom: 0.8rem; border-bottom: 1px solid #D4E8DC; }
+.sm-stage__title { font-weight: 800; font-size: 0.95rem; }
+.sm-stage__count { font-variant-numeric: tabular-nums; background: #E8F8F0; color: #115C33; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 999px; }
+.sm-stage__demo { margin-left: auto; font-size: 0.7rem; font-weight: 600; color: #5C7668; border: 1px dashed #A8D1BC; border-radius: 999px; padding: 0.15rem 0.55rem; }
+.sm-stage__table { margin-top: 0.4rem; }
+.sm-stage__body { position: relative; }
+.sm-stage__row { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); gap: 0.5rem; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid #E8F3EC; }
+.sm-stage__row--head { font-size: 0.7rem; font-weight: 700; color: #5C7668; padding-bottom: 0.4rem; }
+.sm-stage__row--total { border-bottom: 0; padding-top: 0.9rem; font-weight: 800; }
+.sm-stage__item { display: flex; align-items: center; gap: 0.6rem; min-width: 0; }
+.sm-stage__item strong { display: block; font-weight: 700; }
+.sm-stage__item small { display: block; color: #5C7668; font-size: 0.7rem; }
+.sm-stage__check { width: 1.1rem; height: 1.1rem; flex: none; border-radius: 50%; background: #1A8047; position: relative; }
+.sm-stage__check::after { content: ""; position: absolute; left: 0.33rem; top: 0.2rem; width: 0.28rem; height: 0.5rem; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.sm-stage__cell { text-align: right; font-variant-numeric: tabular-nums; border-radius: 0.5rem; padding: 0.25rem 0.35rem; position: relative; }
+.sm-stage__price { font-weight: 600; display: flex; flex-direction: column; align-items: flex-end; }
+.sm-stage__price.is-min { background: #E8F8F0; color: #115C33; font-weight: 800; }
+.sm-stage__min { font-style: normal; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+.sm-stage__sum { font-size: 0.9rem; display: flex; flex-direction: column; align-items: flex-end; }
+.sm-stage__cell.is-win { background: #0D2137; color: #fff; box-shadow: 0 0 0 2px #0D2137; transition: background-color 280ms ease, color 280ms ease; }
+.sm-stage__badge { margin-top: 0.2rem; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; background: #7dffe0; color: #0D2137; padding: 0.1rem 0.4rem; border-radius: 999px; }
+.sm-stage__scan {
+  position: absolute; left: 0; right: 0; top: 0; height: 2px; background: #1DB4A3;
+  box-shadow: 0 0 14px 2px rgba(29, 180, 163, 0.35); pointer-events: none; z-index: 1;
+  --s: clamp(0, calc((var(--p) - 0.42) / 0.22), 1);
+  --alcance: 11.5rem;
+  transform: translate3d(0, calc(var(--s) * var(--alcance)), 0);
+  opacity: calc(clamp(0, var(--s) * 20, 1) * clamp(0, (1 - var(--s)) * 20, 1));
+}
+.sm-stage__result { margin-top: 0.9rem; padding: 0.75rem 0.9rem; border-radius: 0.8rem; background: #F4FAF7; font-size: 0.82rem; line-height: 1.4; }
+.sm-stage__result small { display: block; color: #5C7668; font-size: 0.7rem; margin-top: 0.15rem; }
+
+/* Entrada controlada pelo scroll: --t vai de 0 a 1 dentro da janela [--a, --b] */
+.sm-story-fade, .sm-story-rise {
+  --t: clamp(0, calc((var(--p) - var(--a)) / (var(--b) - var(--a))), 1);
+  opacity: var(--t);
+}
+.sm-story-rise { transform: translate3d(0, calc((1 - var(--t)) * 14px), 0); }
+
+@media (min-width: 1024px) {
+  .sm-story__inner { padding: 0 2rem; gap: 3.5rem; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); }
+  .sm-stage { padding: 1.5rem; font-size: 0.9rem; }
+  .sm-stage__scan { --alcance: 13.5rem; }
+}
+/* Telas menores: só o passo ativo aparece e o texto fica compacto, para o palco caber abaixo. */
+@media (max-width: 1023px) {
+  .sm-story { height: 280vh; }
+  .sm-story__headline { font-size: 1.5rem; }
+  .sm-story__steps { margin-top: 0.75rem; }
+  .sm-story__step:not(.is-active) { display: none; }
+  .sm-story__progress { margin-top: 0.75rem; }
+  .sm-story__cta { margin-top: 0.9rem; }
+  .sm-stage__row { padding: 0.5rem 0; }
+  .sm-stage__scan { --alcance: 9rem; }
+}
+@media (max-width: 480px) {
+  .sm-story__headline { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .sm-stage { font-size: 0.72rem; padding: 0.75rem; }
+  .sm-stage__demo { display: none; }
+}
+
+/* Movimento reduzido: sem sticky nem progressão; tudo visível, no estado final. */
+.sm-story--static { height: auto; padding: 4rem 0; }
+.sm-story--static .sm-story__pin { position: static; height: auto; min-height: 0; overflow: visible; }
+.sm-story--static .sm-story__step { opacity: 1; display: flex; }
+.sm-story--static .sm-stage__scan { display: none; }
+.sm-story--static .sm-story__progress { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sm-story__step, .sm-story__cta { transition: none; }
+}

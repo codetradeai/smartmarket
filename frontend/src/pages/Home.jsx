@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { ComoFunciona } from "../components/comoFunciona/ComoFunciona"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -449,43 +450,8 @@ export function Home() {
         />
       </section>
 
-      {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}
-      <section id="como-funciona" className="scroll-mt-24 bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">
-              Três passos.
-              <span className="block text-brand-green">Uma lista mais barata.</span>
-            </h2>
-            <p className="max-w-xs text-sm leading-relaxed text-brand-muted">
-              Sem abrir um aplicativo por rede. A comparação usa os preços que já estão no catálogo.
-            </p>
-          </div>
-          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <li className="rounded-3xl bg-brand-bg p-6">
-              <span className="font-display text-5xl font-extrabold text-brand-green">01</span>
-              <h3 className="mt-6 text-lg font-extrabold text-brand-navy">Monte a lista</h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-muted">Escolha os produtos do dia a dia e guarde a lista para a próxima compra.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-navy p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-[#7dffe0]">02</span>
-              <h3 className="mt-6 text-lg font-extrabold">Cruze os preços</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">O comparador olha o preço de cada item nas redes presentes no catálogo.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-green p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-white">03</span>
-              <h3 className="mt-6 text-lg font-extrabold">Escolha o mercado</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/85">Veja onde a cesta fecha mais barata antes de sair de casa.</p>
-            </li>
-          </ol>
-          <div className="mt-8">
-            <Link to="/list" className="sm-cta">
-              Começar pela lista
-              <span aria-hidden="true" className="sm-cta-arrow">→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* 4. COMO FUNCIONA: scrollytelling, uma interface que evolui com o scroll */}
+      <ComoFunciona />
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
       <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">

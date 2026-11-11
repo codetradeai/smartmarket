@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { CupomViva } from "../components/comoFunciona/CupomViva"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import {
@@ -20,14 +21,15 @@ import {
   ProductDetailModal,
   Product360HoverPreview,
   SmartMarketLogo,
-  CarrosselRedes,
+  RadarColeta,
 } from "../components/ui"
 import { MARKETS, TOTAIS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { useProdutos } from "../hooks/useProdutos"
 import { CatalogoCarregando, CatalogoErro } from "../components/ComCatalogo"
+import { HeroHeadline } from "../components/HeroHeadline"
 import { CATEGORIAS_VISUAIS } from "../utils/categoriasVisuais"
 import { urlPublica } from "../utils/urlPublica"
-import { redesComProdutos } from "../utils/redesDoCatalogo"
+import { redesComColetaAtiva, redesComProdutos } from "../utils/redesDoCatalogo"
 
 const SEM_PRODUTOS = []
 
@@ -39,6 +41,9 @@ const SEM_PRODUTOS = []
 const { anuncios: TOTAL_ANUNCIOS, anunciosComPreco: ANUNCIOS_COM_PRECO, produtosEm2Redes: PRODUTOS_EM_2_REDES } = TOTAIS
 // Só as redes que têm anúncios com preço: o Carrefour, por exemplo, tem 0 hoje e não conta como "rede no catálogo".
 const REDES_ATIVAS = redesComProdutos(MARKETS, REDES_COM_PRODUTOS)
+// Faixa de logos da segunda dobra: só redes que o scraper coleta hoje E que já têm anúncios no catálogo
+// (um logo sem produtos levaria o filtro a uma lista vazia).
+const REDES_DA_FAIXA = redesComColetaAtiva(REDES_ATIVAS)
 
 function contarItensDaLista(lista) {
   return Object.values(lista).filter((qty) => Number(qty || 0) > 0).length
@@ -86,6 +91,15 @@ export function Home() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("nenhum")
   const [selectedMarket, setSelectedMarket] = useState("todos")
+  const propsRedes = {
+    markets: REDES_DA_FAIXA,
+    redesResumo: REDES_COM_PRODUTOS,
+    selectedMarket,
+    onSelect: (id) => {
+      setSelectedMarket((current) => (current === id ? "todos" : id))
+      document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
+    },
+  }
   const [cartItemsCount, setCartItemsCount] = useState(() => contarItensDaLista(lerLista()))
   const [selectedProductDetail, setSelectedProductDetail] = useState(null)
   const [toastMessage, setToastMessage] = useState(null)
@@ -287,16 +301,12 @@ export function Home() {
             <p className="sm-rise text-[11px] font-bold uppercase tracking-[0.22em] text-[#7dffe0]">
               Comparação de preços
             </p>
-            <h1 className="sm-hero-title sm-rise sm-rise-2 mt-4">
-              <span className="block">Sua lista.</span>
-              <span className="block text-[#7dffe0]">O menor</span>
-              <span className="block">preço.</span>
-            </h1>
-            <p className="sm-rise sm-rise-3 mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
+            <HeroHeadline />
+            <p className="sm-rise sm-hero-late mt-6 max-w-md text-sm sm:text-base leading-relaxed text-white/75">
               Monte a lista e veja, com os preços do catálogo, em qual mercado do Rio Grande do Sul a compra sai mais barata.
             </p>
 
-            <div className="sm-rise sm-rise-4 relative z-30 mt-8 max-w-3xl">
+            <div className="sm-rise sm-hero-late-2 relative z-30 mt-8 max-w-3xl">
               {isAuthenticated ? (
                 <SearchSuggest
                   id="busca-home"
@@ -362,7 +372,7 @@ export function Home() {
               </div>
             </div>
 
-            <div className="sm-rise sm-rise-5 mt-8 flex flex-wrap items-center gap-3">
+            <div className="sm-rise sm-hero-late-3 mt-8 flex flex-wrap items-center gap-3">
               <Link
                 to={isAuthenticated ? "/list" : caminhoDoCadastro("lista")}
                 className="sm-cta sm-cta-light"
@@ -378,7 +388,7 @@ export function Home() {
               </Link>
             </div>
 
-            <dl className="sm-rise sm-rise-5 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
+            <dl className="sm-rise sm-hero-late-4 mt-6 grid grid-cols-2 gap-6 max-w-sm border-t border-white/15 pt-4">
               <div>
                 <dt className="text-[11px] uppercase tracking-wider text-white/45">Redes no catálogo</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums text-white">{REDES_ATIVAS.length}</dd>
@@ -397,19 +407,24 @@ export function Home() {
         </div>
       </section>
 
-      <section id="redes" className="scroll-mt-24 w-full py-12 sm:py-16">
+      <section
+        id="redes"
+        aria-labelledby="redes-titulo"
+        className="scroll-mt-24 w-full py-12 sm:py-16"
+        style={{ backgroundColor: "#f8faf8", backgroundImage: "radial-gradient(#d3dbd5 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+      >
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <header className="mb-8 flex flex-col gap-5 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-brand-green">
-                <span className="h-1.5 w-1.5 rounded-[2px] bg-brand-green" aria-hidden="true" />
+              <p className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#0e7a46]">
+                <span className="h-2 w-2 rounded-[2px] bg-[#0e7a46] motion-safe:animate-pulse" aria-hidden="true" />
                 Ecossistema de varejo
               </p>
-              <h2 className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-brand-navy sm:text-[2rem] text-balance">
+              <h2 id="redes-titulo" className="mt-2 font-display text-[1.75rem] font-extrabold tracking-tight text-[#0b192c] sm:text-[2rem] text-balance">
                 Redes que fazem parte da sua economia.
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
-                Explore as redes disponíveis e descubra onde sua lista de compras pode custar menos.
+                São as redes cujos preços o SmartMarket coleta. Toque em uma para filtrar o catálogo e descobrir onde sua lista custa menos.
               </p>
             </div>
 
@@ -426,61 +441,26 @@ export function Home() {
                 </button>
               )}
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-white px-3.5 py-1.5 text-xs shadow-[0_1px_2px_rgba(13,33,55,0.04)]">
-                <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
-                  {String(REDES_ATIVAS.length).padStart(2, "0")}
+                <span className="relative flex h-2 w-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-brand-emerald opacity-60 motion-safe:animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-emerald" />
                 </span>
-                <span className="font-medium text-brand-muted">redes disponíveis</span>
+                <span className="font-display text-sm font-extrabold tabular-nums text-brand-navy">
+                  {String(REDES_DA_FAIXA.length).padStart(2, "0")}
+                </span>
+                <span className="font-medium text-brand-muted">redes com coleta ativa</span>
               </p>
             </div>
           </header>
+        </div>
 
-          <CarrosselRedes
-            selectedMarket={selectedMarket}
-            onSelect={(id) => {
-              setSelectedMarket((current) => (current === id ? "todos" : id))
-              document.getElementById("catalogo-ofertas")?.scrollIntoView({ behavior: "smooth" })
-            }}
-          />
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <RadarColeta {...propsRedes} />
         </div>
       </section>
 
-      {/* 4. COMO FUNCIONA — faixas sólidas, lettering curto */}
-      <section id="como-funciona" className="scroll-mt-24 bg-white px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <h2 className="font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">
-              Três passos.
-              <span className="block text-brand-green">Uma lista mais barata.</span>
-            </h2>
-            <p className="max-w-xs text-sm leading-relaxed text-brand-muted">
-              Sem abrir um aplicativo por rede. A comparação usa os preços que já estão no catálogo.
-            </p>
-          </div>
-          <ol className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <li className="rounded-3xl bg-brand-bg p-6">
-              <span className="font-display text-5xl font-extrabold text-brand-green">01</span>
-              <h3 className="mt-6 text-lg font-extrabold text-brand-navy">Monte a lista</h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-muted">Escolha os produtos do dia a dia e guarde a lista para a próxima compra.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-navy p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-[#7dffe0]">02</span>
-              <h3 className="mt-6 text-lg font-extrabold">Cruze os preços</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">O comparador olha o preço de cada item nas redes presentes no catálogo.</p>
-            </li>
-            <li className="rounded-3xl bg-brand-green p-6 text-white">
-              <span className="font-display text-5xl font-extrabold text-white">03</span>
-              <h3 className="mt-6 text-lg font-extrabold">Escolha o mercado</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/85">Veja onde a cesta fecha mais barata antes de sair de casa.</p>
-            </li>
-          </ol>
-          <div className="mt-8">
-            <Link to="/list" className="sm-cta">
-              Começar pela lista
-              <span aria-hidden="true" className="sm-cta-arrow">→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* 4. COMO FUNCIONA: passos clicáveis + cupom que muda a cada passo */}
+      <CupomViva />
 
       {/* 5. SHOWCASE DO CATÁLOGO DE PRODUTOS & COMPARADOR AO VIVO */}
       <main id="catalogo-ofertas" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 space-y-8 w-full">

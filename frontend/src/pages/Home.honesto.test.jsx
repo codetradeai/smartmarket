@@ -36,7 +36,15 @@ describe('Home: números e redes sem inflar', () => {
 
     const dd = screen.getByText('Redes no catálogo').closest('div').querySelector('dd')
     expect(dd).toHaveTextContent(/^2$/)
-    expect(screen.getByText('redes disponíveis').previousSibling).toHaveTextContent('02')
+  })
+
+  it('a faixa de redes conta só as com coleta ativa (o Fort tem produtos, mas está suspenso no scraper)', () => {
+    renderizar()
+
+    expect(screen.getByText('redes com coleta ativa').previousSibling).toHaveTextContent('01')
+    const faixa = screen.getByRole('group', { name: 'Redes com coleta de preços' })
+    expect(faixa.querySelector('img[alt="Asun Supermercados"]')).toBeInTheDocument()
+    expect(faixa.querySelector('img[alt="Fort Atacadista"]')).not.toBeInTheDocument()
   })
 
   it('o rodapé lista só as redes com produtos, sem o Carrefour', () => {

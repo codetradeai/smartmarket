@@ -355,6 +355,36 @@ describe('AuthPage', () => {
     })
   })
 
+  describe('botão de mostrar e ocultar a senha', () => {
+    it('no login alterna o campo entre oculto e visível sem enviar o formulário', () => {
+      renderizar()
+      const campo = screen.getByLabelText('Senha')
+      expect(campo).toHaveAttribute('type', 'password')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar senha' }))
+      expect(campo).toHaveAttribute('type', 'text')
+      expect(screen.getByRole('button', { name: 'Ocultar senha' })).toHaveAttribute('aria-pressed', 'true')
+      expect(login).not.toHaveBeenCalled()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Ocultar senha' }))
+      expect(campo).toHaveAttribute('type', 'password')
+    })
+
+    it('no cadastro cada campo (senha e confirmação) tem o seu botão, independentes', () => {
+      renderizar()
+      fireEvent.click(abaCriarConta())
+      const senha = screen.getByLabelText('Senha')
+      const confirmar = screen.getByLabelText('Confirmar Senha')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar confirmação de senha' }))
+      expect(confirmar).toHaveAttribute('type', 'text')
+      expect(senha).toHaveAttribute('type', 'password')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mostrar senha' }))
+      expect(senha).toHaveAttribute('type', 'text')
+    })
+  })
+
   describe('textos que não prometem o que o sistema não faz', () => {
     it('o campo de senha do cadastro anuncia o mínimo que o código aceita (6), não 8', () => {
       renderizar('/auth?mode=register')

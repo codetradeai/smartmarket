@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
+import { Eye, EyeOff } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
 import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService"
 import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
@@ -9,6 +10,31 @@ import { listarNomes, nomeCurtoRede, redesComProdutos } from "../utils/redesDoCa
 
 // Só as redes que têm produtos no catálogo (o Carrefour, por exemplo, tem 0 hoje).
 const NOMES_DAS_REDES = listarNomes(redesComProdutos(MARKETS, REDES_COM_PRODUTOS).map(nomeCurtoRede))
+
+/**
+ * Campo de senha com botão de mostrar/ocultar, para conferir o que foi digitado (login, senha e confirmação).
+ * Cada campo guarda a própria visibilidade; o botão não envia o formulário.
+ */
+function CampoSenha({ nomeAcessivel = "senha", ...props }) {
+  const [visivel, setVisivel] = useState(false)
+  return (
+    <Input
+      {...props}
+      type={visivel ? "text" : "password"}
+      rightIcon={
+        <button
+          type="button"
+          onClick={() => setVisivel((v) => !v)}
+          aria-label={`${visivel ? "Ocultar" : "Mostrar"} ${nomeAcessivel}`}
+          aria-pressed={visivel}
+          className="rounded-full p-1 text-brand-muted transition-colors hover:text-brand-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+        >
+          {visivel ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+        </button>
+      }
+    />
+  )
+}
 
 /**
  * Medidor de Força de Senha conforme especificação do Figma
@@ -322,9 +348,8 @@ export default function AuthPage() {
                 />
 
                 <div>
-                  <Input
+                  <CampoSenha
                     label="Senha"
-                    type="password"
                     required
                     placeholder="••••••••"
                     value={loginPassword}
@@ -407,9 +432,8 @@ export default function AuthPage() {
                 />
 
                 <div>
-                  <Input
+                  <CampoSenha
                     label="Senha"
-                    type="password"
                     required
                     placeholder="Mínimo 6 caracteres"
                     value={cadPassword}
@@ -418,9 +442,9 @@ export default function AuthPage() {
                   {cadPassword.length > 0 && <PasswordStrengthIndicator password={cadPassword} />}
                 </div>
 
-                <Input
+                <CampoSenha
                   label="Confirmar Senha"
-                  type="password"
+                  nomeAcessivel="confirmação de senha"
                   required
                   placeholder="Repita a senha"
                   value={cadConfirm}

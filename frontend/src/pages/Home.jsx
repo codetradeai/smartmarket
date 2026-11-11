@@ -31,6 +31,7 @@ import { FaixaFinal } from "../components/FaixaFinal"
 import { CATEGORIAS_VISUAIS, MIN_COMPARADOS_NO_SETOR, SETORES_EM_DESTAQUE } from "../utils/categoriasVisuais"
 import { calcularComparacoes, dispersaoDoSetor } from "../utils/dispersaoPrecos"
 import { RaioXCorredor } from "../components/RaioXCorredor"
+import { AnatomiaSmartMarket } from "../components/AnatomiaSmartMarket"
 import { urlPublica } from "../utils/urlPublica"
 import { redesComColetaAtiva, redesComProdutos } from "../utils/redesDoCatalogo"
 
@@ -180,6 +181,8 @@ export function Home() {
     Boolean(selectedProductDetail)
   const { produtos, carregando: carregandoProdutos, erro: erroProdutos, recarregar } = useProdutos(precisaProdutos)
   const PRODUCTS = produtos || SEM_PRODUTOS
+  // Produto real com rotação 360° para o núcleo da seção "Sobre" (sem produto, ela usa a ilustração).
+  const produtoCom360 = useMemo(() => PRODUCTS.find((p) => p?.recursosVisuais?.has360 && p?.imageLocal) || null, [PRODUCTS])
 
   // Filtra produtos reais do catálogo com suporte a pesquisa, categoria e rede parceira
   const filteredProducts = useMemo(() => {
@@ -829,55 +832,7 @@ export function Home() {
       </main>
 
       {/* 6. SEÇÃO SOBRE (#sobre) INTEGRADA NA HOME */}
-      <section id="sobre" className="scroll-mt-24 bg-white border-t border-brand-border/60 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="mx-auto max-w-7xl space-y-10">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center rounded-full bg-brand-green-light px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-brand-green">
-              Sobre o SmartMarket
-            </span>
-            <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl text-balance">
-              Economia inteligente na palma da sua mão.
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-brand-muted leading-relaxed">
-              O SmartMarket nasceu com um propósito claro: eliminar o desperdício de tempo e dinheiro na comparação de preços em supermercados do Rio Grande do Sul.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <Card className="p-6 border-brand-border/80">
-              <div className="text-3xl mb-3">🤖</div>
-              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Coleta Automatizada RS</h3>
-              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                Robôs especializados que monitoram VTEX, VipCommerce e APIs oficiais das 8 maiores redes do RS.
-              </p>
-            </Card>
-
-            <Card className="p-6 border-brand-border/80">
-              <div className="text-3xl mb-3">📸</div>
-              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Fotos e 360° em Alta Definição</h3>
-              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                Catálogo visual enriquecido com imagens originais em alta resolução e rotação 360° interativa.
-              </p>
-            </Card>
-
-            <Card className="p-6 border-brand-border/80">
-              <div className="text-3xl mb-3">📊</div>
-              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Comparação Cesta a Cesta</h3>
-              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                Calculamos a economia líquida e apontamos o supermercado mais vantajoso para sua compra inteira.
-              </p>
-            </Card>
-
-            <Card className="p-6 border-brand-border/80">
-              <div className="text-3xl mb-3">🛡️</div>
-              <h3 className="text-base font-extrabold text-brand-navy mb-1.5">Transparência Total</h3>
-              <p className="text-xs sm:text-sm text-brand-muted leading-relaxed">
-                Preços neutros, sem favorecimento de marcas, focados 100% no benefício do consumidor gaúcho.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <AnatomiaSmartMarket produto={produtoCom360} />
 
       {/* 7. FAIXA FINAL — dois blocos de cor, como o banner do Desco */}
       <FaixaFinal redesAtivas={REDES_DA_FAIXA.length} />

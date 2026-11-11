@@ -24,6 +24,19 @@ export function redesComProdutos(markets, redesResumo) {
   return lista.filter((m) => comProdutos.has(String(m.id)))
 }
 
+/**
+ * Redes que o scraper coleta hoje na rotina diária. Fort (403 do Cloudflare), Zaffari e Rissul
+ * (robots.txt proíbe /api/) estão em REDES_SUSPENSAS em scraper/rotina_carga.py: têm preço
+ * histórico no catálogo, mas não são atualizadas. Ao suspender ou reativar uma rede lá, ajuste aqui.
+ */
+export const REDES_COM_COLETA_ATIVA = ["asun", "stok", "atacadao", "master", "carrefour"]
+
+/** Mantém só os mercados cuja coleta está ativa, na ordem recebida. */
+export function redesComColetaAtiva(markets) {
+  const ativas = new Set(REDES_COM_COLETA_ATIVA)
+  return (Array.isArray(markets) ? markets : []).filter((m) => ativas.has(String(m.id)))
+}
+
 /** ["Fort", "Asun", "Stok"] -> "Fort, Asun e Stok". */
 export function listarNomes(nomes) {
   const lista = (nomes || []).filter(Boolean)

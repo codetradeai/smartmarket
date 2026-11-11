@@ -896,6 +896,7 @@ function CategoryShelf({
   category,
   products,
   markets,
+  filiaisMaisProximas = {},
   favProducts,
   onToggleFavProduct,
   onAdd,
@@ -1045,6 +1046,7 @@ function CategoryShelf({
             key={prod.id}
             product={prod}
             markets={markets}
+            filiaisMaisProximas={filiaisMaisProximas}
             isFavProduct={favProducts.includes(String(prod.id))}
             onToggleFavProduct={onToggleFavProduct}
             onAdd={onAdd}
@@ -1095,14 +1097,6 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [visibleLimit, setVisibleLimit] = useState(48);
 
-  // "Ver mais" recomeça em 48 sempre que a consulta muda (ajuste de estado na renderização)
-  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode, userLocalizacao?.cep, userLocalizacao?.raioKm].join("|");
-  const [consultaAnterior, setConsultaAnterior] = useState(consultaAtual);
-  if (consultaAtual !== consultaAnterior) {
-    setConsultaAnterior(consultaAtual);
-    setVisibleLimit(48);
-  }
-
   // Localização do usuário e filiais mais próximas
   const [userLocalizacao, setUserLocalizacao] = useState(() => {
     try {
@@ -1126,6 +1120,14 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
       };
     }
   });
+
+  // "Ver mais" recomeça em 48 sempre que a consulta muda (ajuste de estado na renderização)
+  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode, userLocalizacao?.cep, userLocalizacao?.raioKm].join("|");
+  const [consultaAnterior, setConsultaAnterior] = useState(consultaAtual);
+  if (consultaAtual !== consultaAnterior) {
+    setConsultaAnterior(consultaAtual);
+    setVisibleLimit(48);
+  }
 
   const filiaisMaisProximas = useMemo(() => {
     return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon);
@@ -1455,7 +1457,23 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             </div>
           </div>
 
-          {/* Linha 2: Fita de Redes do RS */}
+          {/* Linha 2: Seletor de CEP e Raio de Proximidade */}
+          <div className="pt-1">
+            <SeletorCepRaio
+              onFiltroChange={(novoFiltro) => {
+                setUserLocalizacao((ant) => ({
+                  ...ant,
+                  cep: novoFiltro.cep,
+                  raioKm: novoFiltro.raioKm,
+                  cidade: novoFiltro.cidade,
+                  lat: novoFiltro.lat,
+                  lon: novoFiltro.lon,
+                }));
+              }}
+            />
+          </div>
+
+          {/* Linha 3: Fita de Redes do RS */}
           <FavMarketsStrip
             markets={markets}
             selectedMkt={mktFilter}
@@ -1503,6 +1521,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                   category={category}
                   products={catProds}
                   markets={markets}
+                  filiaisMaisProximas={filiaisMaisProximas}
                   favProducts={favProducts}
                   onToggleFavProduct={toggleFavProduct}
                   onAdd={handleAddToList}
@@ -1596,6 +1615,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                       key={prod.id}
                       product={prod}
                       markets={markets}
+                      filiaisMaisProximas={filiaisMaisProximas}
                       isFavProduct={favProducts.includes(String(prod.id))}
                       onToggleFavProduct={toggleFavProduct}
                       onAdd={handleAddToList}

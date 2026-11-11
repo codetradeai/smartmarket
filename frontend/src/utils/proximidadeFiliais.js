@@ -142,7 +142,7 @@ export function encontrarFiliaisMaisProximas(latUsuario, lonUsuario, listaFiliai
   const filiais = Array.isArray(listaFiliais) && listaFiliais.length > 0 ? listaFiliais : CATALOGO_PADRAO_FILIAIS;
   const maisProximaPorRede = {};
 
-  for (const fil of listaFiliais) {
+  for (const fil of filiais) {
     const rede = fil.rede;
     const distKm = calcularHaversine(latUsuario, lonUsuario, fil.latitude, fil.longitude);
 

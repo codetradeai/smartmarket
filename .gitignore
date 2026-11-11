@@ -180,3 +180,7 @@ storage_state*.json
 *.env.*
 !*.env.example
 
+# Arquivos brutos intermediários de coleta
+scripts/saida/coleta_*.json
+
+

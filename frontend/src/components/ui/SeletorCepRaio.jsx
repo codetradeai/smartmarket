@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { resolverCoordenadasCep, resolverCoordenadasCepSync } from "../../utils/proximidadeFiliais";
 
 const CIDADES_RAPIDAS = [
@@ -16,7 +16,7 @@ const OPCOES_RAIO = [
   { label: "Todas as distâncias", valor: "todos" },
 ];
 
-export default function SeletorCepRaio({ onFiltroChange, className = "" }) {
+export function SeletorCepRaio({ onFiltroChange, className = "" }) {
   const [cep, setCep] = useState(() => {
     try {
       return localStorage.getItem("sm_user_cep") || "94910-000";
@@ -72,7 +72,7 @@ export default function SeletorCepRaio({ onFiltroChange, className = "" }) {
       }
     }
     atualizarGeo();
-  }, [cep, raioKm]);
+  }, [cep, raioKm, onFiltroChange]);
 
   function aplicarCep(novoCep) {
     const limpo = String(novoCep).replace(/\D/g, "");
@@ -213,4 +213,6 @@ export default function SeletorCepRaio({ onFiltroChange, className = "" }) {
     </div>
   );
 }
+
+export default SeletorCepRaio;
 

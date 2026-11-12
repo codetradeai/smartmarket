@@ -80,6 +80,7 @@ class TamanhoMaximoDosCamposTest {
         r.setNome("Maria");
         r.setEmail("maria@email.com");
         r.setSenha("senha123");
+        r.setCep("90010-000");
         return r;
     }
 

@@ -64,6 +64,18 @@ describe('lojaService', () => {
       expect(rejeitado.userMessage).toBe('CEP não encontrado')
     })
 
+    it('com 400 sem campos.cep, rejeita com o erro original e sem userMessage', async () => {
+      const erro = Object.assign(new Error('Request failed with status code 400'), {
+        response: { status: 400, data: { erro: 'Requisição inválida' } },
+      })
+      api.put.mockRejectedValue(erro)
+
+      const rejeitado = await lojaService.trocarCep('90010000').catch((e) => e)
+
+      expect(rejeitado).toBe(erro)
+      expect(rejeitado.userMessage).toBeUndefined()
+    })
+
     it('com erro de rede (sem response), rejeita com o erro original, sem userMessage', async () => {
       const erro = new Error('Network Error')
       api.put.mockRejectedValue(erro)
@@ -91,6 +103,21 @@ describe('lojaService', () => {
       await lojaService.definirLojaPreferida(12)
 
       expect(api.put).toHaveBeenCalledWith('/usuarios/me/loja-preferida', { lojaId: 12 })
+    })
+
+    it('devolve o corpo da resposta, a localização atualizada', async () => {
+      const localizacao = {
+        cep: '90010000',
+        cidade: 'Porto Alegre',
+        uf: 'RS',
+        latitude: -30.0277,
+        longitude: -51.2287,
+        resolvida: true,
+        lojaPreferidaId: 12,
+      }
+      api.put.mockResolvedValue({ data: localizacao })
+
+      await expect(lojaService.definirLojaPreferida(12)).resolves.toEqual(localizacao)
     })
 
     it('com null envia { lojaId: null } para remover a preferência', async () => {

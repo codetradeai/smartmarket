@@ -2,7 +2,8 @@ import api from "./api"
 
 export const lojaService = {
   /**
-   * Lojas próximas do CEP cadastrado pelo usuário
+   * Lojas que atendem o usuário a partir do CEP cadastrado: vem uma loja por rede
+   * (a preferida, a filial mais próxima ou a loja padrão), da mais perto à mais longe
    */
   async lojasProximas() {
     const response = await api.get("/lojas/proximas")
@@ -42,10 +43,12 @@ export const lojaService = {
   },
 
   /**
-   * Define a loja preferida do usuário; lojaId null remove a preferência
+   * Define a loja preferida do usuário; lojaId null remove a preferência.
+   * Devolve a localização atualizada (LocalizacaoResponse)
    */
   async definirLojaPreferida(lojaId) {
-    await api.put("/usuarios/me/loja-preferida", { lojaId })
+    const response = await api.put("/usuarios/me/loja-preferida", { lojaId })
+    return response.data
   },
 }
 

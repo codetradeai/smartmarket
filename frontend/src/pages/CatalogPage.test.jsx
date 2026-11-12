@@ -83,6 +83,17 @@ describe('CatalogPage', () => {
     jest.useRealTimers()
   })
 
+  describe('lojas próximas (desligado até a API da Fase 3)', () => {
+    it('não mostra o seletor de CEP/raio nem a "loja mais próxima" nos cartões', async () => {
+      await renderizar({}, { grade: true })
+
+      expect(screen.queryByText(/94910-000/)).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Cachoeirinha' })).not.toBeInTheDocument()
+      expect(screen.queryByText(/Até \d+ km/)).not.toBeInTheDocument()
+      expect(screen.queryByText('📍')).not.toBeInTheDocument()
+    })
+  })
+
   describe('carregamento', () => {
     it('mostra "Sincronizando prateleiras..." e depois a quantidade de produtos (catalogo local + API)', async () => {
       configurarServicos()

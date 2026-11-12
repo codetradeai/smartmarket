@@ -156,6 +156,7 @@ class ListaCompraControllerIntegrationTest {
         request.setNome("Usuario Lista");
         request.setEmail(email);
         request.setSenha("senha123");
+        request.setCep("90010-000");
 
         MvcResult resultado = mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)

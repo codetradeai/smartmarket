@@ -1,7 +1,9 @@
 package com.smartmarket.dto.auth;
 
 import jakarta.validation.constraints.Email;
+import com.smartmarket.service.geo.Cep;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,8 +25,17 @@ public class RegisterRequest {
     @Size(min = 6, max = 72, message = "Senha deve ter entre 6 e 72 caracteres")
     private String senha;
 
+    @NotBlank(message = "CEP e obrigatorio")
+    @Pattern(regexp = Cep.REGEX, message = Cep.MENSAGEM_INVALIDO)
+    private String cep;
+
     // Tira os espacos das pontas antes da validacao: "  maria@x.com " passa a ser um e-mail valido.
     public void setEmail(String email) {
         this.email = email == null ? null : email.trim();
+    }
+
+    // Idem para o CEP: " 90010-000 " vale. O hifen e removido so na hora de gravar (AuthService).
+    public void setCep(String cep) {
+        this.cep = cep == null ? null : cep.trim();
     }
 }

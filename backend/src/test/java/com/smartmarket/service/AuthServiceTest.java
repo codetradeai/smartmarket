@@ -7,6 +7,8 @@ import com.smartmarket.model.Papel;
 import com.smartmarket.model.Usuario;
 import com.smartmarket.repository.UsuarioRepository;
 import com.smartmarket.security.JwtTokenProvider;
+import com.smartmarket.service.geo.LocalizacaoCep;
+import com.smartmarket.service.geo.ResolvedorCep;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +41,9 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private ResolvedorCep resolvedorCep;
+
     @InjectMocks
     private AuthService authService;
 
@@ -50,6 +57,7 @@ class AuthServiceTest {
         registerRequest.setNome("Teste Usuario");
         registerRequest.setEmail("teste@email.com");
         registerRequest.setSenha("senha123");
+        registerRequest.setCep("90010-000");
 
         loginRequest = new LoginRequest();
         loginRequest.setEmail("teste@email.com");
@@ -78,6 +86,44 @@ class AuthServiceTest {
         assertThat(response.getEmail()).isEqualTo("teste@email.com");
         assertThat(response.getPapel()).isEqualTo("USER");
         verify(usuarioRepository).save(any(Usuario.class));
+    }
+
+    @Test
+    void register_DeveGravarCepSemHifenELocalizacaoResolvida() {
+        when(resolvedorCep.resolver("90010000"))
+            .thenReturn(Optional.of(new LocalizacaoCep("Porto Alegre", "RS", -30.03, -51.23)));
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(jwtTokenProvider.generateToken(any(Usuario.class))).thenReturn("jwt-token");
+
+        authService.register(registerRequest);
+
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(captor.capture());
+        Usuario gravado = captor.getValue();
+        assertThat(gravado.getCep()).isEqualTo("90010000");
+        assertThat(gravado.getCidade()).isEqualTo("Porto Alegre");
+        assertThat(gravado.getUf()).isEqualTo("RS");
+        assertThat(gravado.getLatitude()).isEqualTo(-30.03);
+        assertThat(gravado.getLongitude()).isEqualTo(-51.23);
+    }
+
+    @Test
+    void register_CepNaoEncontradoCadastraComLocalizacaoNaoResolvida() {
+        when(resolvedorCep.resolver("90010000")).thenReturn(Optional.empty());
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(jwtTokenProvider.generateToken(any(Usuario.class))).thenReturn("jwt-token");
+
+        AuthResponse response = authService.register(registerRequest);
+
+        assertThat(response.getToken()).isEqualTo("jwt-token");
+        ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+        verify(usuarioRepository).save(captor.capture());
+        Usuario gravado = captor.getValue();
+        assertThat(gravado.getCep()).isEqualTo("90010000");
+        assertThat(gravado.getCidade()).isNull();
+        assertThat(gravado.getUf()).isNull();
+        assertThat(gravado.getLatitude()).isNull();
+        assertThat(gravado.getLongitude()).isNull();
     }
 
     @Test

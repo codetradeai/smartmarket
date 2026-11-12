@@ -27,6 +27,12 @@ function renderizar() {
 }
 
 describe('Login em modal: carregamento sob demanda', () => {
+  // O primeiro require do CartaoLogin transforma e instrumenta o módulo e os ícones. Sob cobertura, com a
+  // máquina carregada, isso passava de 5 s dentro do teste e estourava o timeout. Aquece antes, fora dele.
+  beforeAll(() => {
+    require('./CartaoLogin')
+  }, 60000)
+
   // A ordem importa: o React.lazy guarda o módulo resolvido. O teste que libera o chunk vem por último.
   it('fecha com ESC mesmo com o corpo ainda carregando', () => {
     renderizar()

@@ -220,7 +220,7 @@ describe('CatalogPage', () => {
     it('filtra por categoria e volta a mostrar todos os departamentos', async () => {
       await renderizar()
 
-      fireEvent.click(screen.getByTitle('Ver Frios e Laticínios'))
+      fireEvent.click(screen.getByTitle('Ver todos os produtos de Leites e Derivados'))
       expect(screen.getByRole('heading', { level: 2, name: 'Leites e Derivados' })).toBeInTheDocument()
       expect(temCartao('Kefir Natural')).toBe(true)
       expect(temCartao('Quinoa Real')).toBe(false)

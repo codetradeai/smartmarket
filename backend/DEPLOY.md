@@ -90,6 +90,9 @@
    -- Passo 7 (só PostgreSQL): travas de integridade do preço por loja
    \i backend/deploy/07_indice_unico_vinculo_vigente.sql
    ```
+   Para o 06 e o 07, a ordem é: **backup (branch do Neon) → pré-conferência → 06 → conferência pós-06 → 07 →
+   conferência pós-07**, com as consultas em *Conferência antes e depois do 06 e do 07* (no aviso abaixo).
+
    O `\i` só funciona no **psql**. No **SQL Editor do Neon** ele não existe: abra cada arquivo, cole o
    conteúdo e execute, **um arquivo por vez**, na ordem acima.
 
@@ -97,6 +100,7 @@
    nunca em arquivo ou chat):
    ```bash
    psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/06_lojas_por_cep.sql
+   # pare aqui: rode a conferência pós-06 e só siga se tudo bater
    psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/07_indice_unico_vinculo_vigente.sql
    ```
 

@@ -10,17 +10,9 @@ function renderizar(props = {}) {
     onTrocarCep: jest.fn().mockResolvedValue(undefined),
     onExcluir: jest.fn().mockResolvedValue(undefined),
   };
-  render(
-    <SeletorCepRaio
-      localizacao={null}
-      carregando={false}
-      erro={null}
-      raioKm="todos"
-      {...acoes}
-      {...props}
-    />
-  );
-  return acoes;
+  const base = { localizacao: null, carregando: false, erro: null, raioKm: "todos", ...acoes };
+  const { rerender } = render(<SeletorCepRaio {...base} {...props} />);
+  return { ...acoes, rerender: (novas) => rerender(<SeletorCepRaio {...base} {...props} {...novas} />) };
 }
 
 describe("SeletorCepRaio", () => {
@@ -354,6 +346,155 @@ describe("SeletorCepRaio", () => {
       fireEvent.change(screen.getByLabelText("Raio"), { target: { value: "todos" } });
 
       expect(onMudarRaio).toHaveBeenCalledWith("todos");
+    });
+  });
+
+  describe("foco do teclado", () => {
+    const abrirFormulario = (nome = "Alterar CEP") => fireEvent.click(screen.getByRole("button", { name: nome }));
+    const abrirConfirmacao = () => fireEvent.click(screen.getByRole("button", { name: "Remover minha localização" }));
+
+    it("não rouba o foco ao montar nem ao mudar de props", () => {
+      const { rerender } = renderizar({ localizacao: LOCALIZACAO });
+      expect(document.body).toHaveFocus();
+
+      rerender({ raioKm: 5 });
+
+      expect(document.body).toHaveFocus();
+    });
+
+    it("ao abrir o formulário, o foco vai para o campo CEP", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+
+      abrirFormulario();
+
+      expect(screen.getByLabelText("CEP")).toHaveFocus();
+    });
+
+    it("ao abrir o formulário pelo convite, o foco também vai para o campo CEP", () => {
+      renderizar();
+
+      abrirFormulario("Informar CEP");
+
+      expect(screen.getByLabelText("CEP")).toHaveFocus();
+    });
+
+    it("ao abrir a confirmação de remoção, o foco vai para o botão Cancelar", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+
+      abrirConfirmacao();
+
+      expect(screen.getByRole("button", { name: "Cancelar" })).toHaveFocus();
+    });
+
+    it("ao cancelar o formulário, o foco volta para o botão Alterar CEP", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+      abrirFormulario();
+
+      fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      expect(screen.getByRole("button", { name: "Alterar CEP" })).toHaveFocus();
+    });
+
+    it("ao cancelar pelo convite, o foco volta para o botão Informar CEP", () => {
+      renderizar();
+      abrirFormulario("Informar CEP");
+
+      fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      expect(screen.getByRole("button", { name: "Informar CEP" })).toHaveFocus();
+    });
+
+    it("ao cancelar a confirmação de remoção, o foco volta para o botão Alterar CEP", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+      abrirConfirmacao();
+
+      fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+      expect(screen.getByRole("button", { name: "Alterar CEP" })).toHaveFocus();
+    });
+
+    it("depois de salvar o CEP com sucesso, o foco vai para o botão Alterar CEP", async () => {
+      renderizar({ localizacao: LOCALIZACAO });
+      abrirFormulario();
+      fireEvent.change(screen.getByLabelText("CEP"), { target: { value: "90010000" } });
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+      });
+
+      expect(screen.getByRole("button", { name: "Alterar CEP" })).toHaveFocus();
+    });
+
+    it("depois de remover com sucesso, o foco vai para o botão Alterar CEP", async () => {
+      renderizar({ localizacao: LOCALIZACAO });
+      abrirConfirmacao();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Remover" }));
+      });
+
+      expect(screen.getByRole("button", { name: "Alterar CEP" })).toHaveFocus();
+    });
+
+    it("se os botões sumirem por um instante (carregando), o foco vai para eles quando voltarem", async () => {
+      const { rerender } = renderizar({ localizacao: LOCALIZACAO });
+      abrirConfirmacao();
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Remover" }));
+        rerender({ carregando: true });
+      });
+      expect(screen.queryByRole("button", { name: "Alterar CEP" })).not.toBeInTheDocument();
+      rerender({ carregando: false, localizacao: null });
+
+      expect(screen.getByRole("button", { name: "Informar CEP" })).toHaveFocus();
+    });
+
+    it("com falha ao salvar, o foco continua no formulário (não volta para o botão)", async () => {
+      const onTrocarCep = jest.fn().mockRejectedValue(new Error("falhou"));
+      renderizar({ localizacao: LOCALIZACAO, onTrocarCep });
+      abrirFormulario();
+      fireEvent.change(screen.getByLabelText("CEP"), { target: { value: "90010000" } });
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+      });
+
+      expect(screen.getByLabelText("CEP")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Alterar CEP" })).not.toBeInTheDocument();
+    });
+  });
+
+  describe("alerta ligado ao campo", () => {
+    it("sem alerta o campo não tem aria-describedby; com alerta ele aponta para o id do alerta", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+      fireEvent.click(screen.getByRole("button", { name: "Alterar CEP" }));
+      const campo = screen.getByLabelText("CEP");
+      expect(campo).not.toHaveAttribute("aria-describedby");
+
+      fireEvent.change(campo, { target: { value: "9001" } });
+      fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+
+      const alerta = screen.getByRole("alert");
+      expect(alerta.id).not.toBe("");
+      expect(campo).toHaveAttribute("aria-describedby", alerta.id);
+      expect(campo).toHaveAccessibleDescription("Digite um CEP com 8 dígitos.");
+    });
+
+    it("também aponta para o alerta quando o servidor recusa o CEP, e solta quando o alerta some", async () => {
+      const erro = Object.assign(new Error("400"), { userMessage: "CEP inválido" });
+      renderizar({ localizacao: LOCALIZACAO, onTrocarCep: jest.fn().mockRejectedValue(erro) });
+      fireEvent.click(screen.getByRole("button", { name: "Alterar CEP" }));
+      const campo = screen.getByLabelText("CEP");
+      fireEvent.change(campo, { target: { value: "90010000" } });
+
+      await act(async () => {
+        fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+      });
+      expect(campo).toHaveAccessibleDescription("CEP inválido");
+
+      fireEvent.change(campo, { target: { value: "90010" } });
+      expect(campo).not.toHaveAttribute("aria-describedby");
     });
   });
 

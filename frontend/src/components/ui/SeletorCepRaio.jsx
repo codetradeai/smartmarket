@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { cepValido, mascararCep } from "../../utils/cep";
 import { mensagemDeErro } from "../../utils/mensagemDeErro";
 import { OPCOES_RAIO, RAIO_PADRAO, normalizarRaio } from "../../utils/raioLojas";
@@ -36,12 +36,27 @@ export function SeletorCepRaio({
   className = "",
 }) {
   const idCampoCep = useId();
+  const idAlerta = useId();
   const idRaio = useId();
   // "ver" (só o cartão), "editando" (formulário de CEP) ou "removendo" (confirmação): um por vez.
   const [modo, setModo] = useState("ver");
   const [cepDigitado, setCepDigitado] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [alerta, setAlerta] = useState(null);
+  // Para onde o foco do teclado deve ir depois da próxima mudança de modo ("campo", "cancelar" ou
+  // "abrir"). Fica pendente até o elemento existir; null = nada a fazer (ex.: ao montar o cartão).
+  const focoPedido = useRef(null);
+  const refCampoCep = useRef(null);
+  const refCancelarRemocao = useRef(null);
+  const refAbrirFormulario = useRef(null);
+
+  useEffect(() => {
+    const alvo = { campo: refCampoCep, cancelar: refCancelarRemocao, abrir: refAbrirFormulario }[focoPedido.current];
+    if (alvo?.current) {
+      alvo.current.focus();
+      focoPedido.current = null;
+    }
+  });
 
   const cep = typeof localizacao?.cep === "string" ? localizacao.cep.trim() : "";
   const temCep = cep !== "";
@@ -49,6 +64,7 @@ export function SeletorCepRaio({
   const lugar = [localizacao?.cidade, localizacao?.uf].filter(Boolean).join("/") || "você";
 
   function irPara(novoModo) {
+    focoPedido.current = { editando: "campo", removendo: "cancelar", ver: "abrir" }[novoModo];
     setModo(novoModo);
     setCepDigitado("");
     setAlerta(null);
@@ -139,7 +155,12 @@ export function SeletorCepRaio({
           <div className="flex flex-wrap items-center gap-2">
             {mostrarAcoes && (
               <>
-                <button type="button" onClick={() => irPara("editando")} className={botaoSecundario}>
+                <button
+                  ref={refAbrirFormulario}
+                  type="button"
+                  onClick={() => irPara("editando")}
+                  className={botaoSecundario}
+                >
                   {temCep ? "Alterar CEP" : "Informar CEP"}
                 </button>
                 {temCep && (
@@ -183,6 +204,7 @@ export function SeletorCepRaio({
               CEP
             </label>
             <input
+              ref={refCampoCep}
               id={idCampoCep}
               type="text"
               inputMode="numeric"
@@ -192,6 +214,7 @@ export function SeletorCepRaio({
               value={cepDigitado}
               onChange={digitarCep}
               aria-invalid={alerta ? "true" : undefined}
+              aria-describedby={alerta ? idAlerta : undefined}
               className="w-32 px-2.5 py-1.5 bg-white border border-brand-green rounded-xl text-xs font-mono font-bold text-brand-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green shadow-2xs"
             />
           </div>
@@ -201,7 +224,7 @@ export function SeletorCepRaio({
           <button type="button" onClick={() => irPara("ver")} disabled={enviando} className={botaoTexto}>
             Cancelar
           </button>
-          {alerta && <Alerta>{alerta}</Alerta>}
+          {alerta && <Alerta id={idAlerta}>{alerta}</Alerta>}
         </form>
       )}
 
@@ -215,7 +238,13 @@ export function SeletorCepRaio({
             <button type="button" onClick={removerLocalizacao} disabled={enviando} className={botaoPerigo}>
               {enviando ? "Removendo…" : "Remover"}
             </button>
-            <button type="button" onClick={() => irPara("ver")} disabled={enviando} className={botaoTexto}>
+            <button
+              ref={refCancelarRemocao}
+              type="button"
+              onClick={() => irPara("ver")}
+              disabled={enviando}
+              className={botaoTexto}
+            >
               Cancelar
             </button>
           </div>
@@ -231,9 +260,10 @@ export function SeletorCepRaio({
 }
 
 // Mensagem de erro de uma ação, em caixa branca para manter o contraste do texto vermelho.
-function Alerta({ children }) {
+function Alerta({ id, children }) {
   return (
     <p
+      id={id}
       role="alert"
       className="w-full rounded-lg bg-white border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-brand-error"
     >

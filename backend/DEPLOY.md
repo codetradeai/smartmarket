@@ -41,6 +41,7 @@
 - Login falha com erro de CORS no navegador: o valor de `SMARTMARKET_CORS_ORIGINS` está diferente do domínio do site (confira `https`, sem barra no fim).
 - O deploy no Render cai com erro de memória: o plano grátis tem 512 MB; o `Dockerfile` já limita o Java a 75% da RAM. Se persistir, acrescente `-Xmx300m` em `JAVA_OPTS`.
 - Backend não sobe e reclama de coluna/tabela: o `ddl-auto=validate` só valida; rode os scripts de `backend/deploy/` que faltarem (seção 1, passo 5).
+- Depois de aplicar migrations que faltavam, o deploy que falhou no Render **não é refeito sozinho**: use **Manual Deploy → Deploy latest commit**.
 - A primeira consulta depois de um tempo parado demora: o Render hiberna e o Neon pausa o compute; é esperado no plano grátis.
 
 ---
@@ -89,7 +90,18 @@
    -- Passo 7 (só PostgreSQL): travas de integridade do preço por loja
    \i backend/deploy/07_indice_unico_vinculo_vigente.sql
    ```
-   Ou copie e cole o conteúdo de cada arquivo diretamente.
+   O `\i` só funciona no **psql**. No **SQL Editor do Neon** ele não existe: abra cada arquivo, cole o
+   conteúdo e execute, **um arquivo por vez**, na ordem acima.
+
+   Alternativa com psql (use a conexão **direta**, sem `-pooler`; mantenha a URL numa variável de ambiente,
+   nunca em arquivo ou chat):
+   ```bash
+   psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/06_lojas_por_cep.sql
+   psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/07_indice_unico_vinculo_vigente.sql
+   ```
+
+   Se der erro no meio de um script no SQL Editor, o **primeiro comando é `ROLLBACK;`**, antes de qualquer
+   outra coisa.
 
    > ⚠️ **Passos manuais — `06_lojas_por_cep.sql` e depois `07_indice_unico_vinculo_vigente.sql` (lojas por
    > CEP)**: **só por ordem do responsável, à mão no Neon**; nenhum pipeline os aplica. **Ordem obrigatória:
@@ -112,7 +124,8 @@
    >   Rode-o de novo depois de cadastrar um mercado novo para ele ganhar a loja padrão.
    > - Conferência depois do 06: `SELECT count(*) FROM loja;` deve ser igual a
    >   `SELECT count(*) FROM mercado;` e `SELECT count(*) FROM preco_loja;` igual a `SELECT count(*) FROM preco;`
-   >   (até o coletor novo entrar). Cópia idêntica do script em `backend/database/migration_lojas_por_cep.sql`.
+   >   (até o coletor novo entrar; consultas completas em *Conferência antes e depois do 06 e do 07*,
+   >   abaixo). Cópia idêntica do script em `backend/database/migration_lojas_por_cep.sql`.
    > - `preco_loja.produto_id` repete `preco.produto_id` de propósito (leitura direta do preço atual da
    >   loja e a trava abaixo). O 06 o preenche; quem impede a divergência é o 07.
    > - **`07_indice_unico_vinculo_vigente.sql` (só PostgreSQL, rode logo depois do 06, também por ordem do
@@ -127,6 +140,61 @@
    >   sobe um container descartável (nunca o Neon), aplica 01–05 + histórico sintético + 06 duas vezes + 07
    >   duas vezes, e confere contagens, checksum de `preco`, cadeia de vigência, a recusa de dois vínculos
    >   vigentes e a FK composta. Passou em `postgres:16` e `postgres:15-alpine`.
+   >
+   > ### Conferência antes e depois do 06 e do 07
+   >
+   > Consultas validadas em PostgreSQL 16 (ver a issue #159). Rode no SQL Editor do Neon.
+   >
+   > **Pré-conferência (só leitura)**: anote as contagens e o checksum.
+   > ```sql
+   > SELECT to_regclass('public.loja') AS loja, to_regclass('public.preco_loja') AS preco_loja;  -- ambos vazios
+   > SELECT (SELECT count(*) FROM mercado) mercados, (SELECT count(*) FROM produto) produtos,
+   >        (SELECT count(*) FROM preco) precos, (SELECT count(*) FROM usuario) usuarios;       -- anote
+   > SELECT md5(string_agg(id||':'||produto_id||':'||mercado_id||':'||valor||':'||coletado_em||':'||disponivel||':'||coalesce(origem,''), ',' ORDER BY id)) AS checksum_preco FROM preco;  -- ANOTE
+   > ```
+   >
+   > **Pós-06**: tudo `t`, 7 colunas, 0 duplicados. Depois rode o checksum da pré-conferência de novo: tem que
+   > dar o mesmo valor.
+   > ```sql
+   > SELECT (SELECT count(*) FROM loja) = (SELECT count(*) FROM mercado)                     AS uma_loja_por_mercado,
+   >        (SELECT count(*) FROM preco_loja) = (SELECT count(*) FROM preco)                 AS um_vinculo_por_preco,
+   >        (SELECT count(*) FROM preco_loja WHERE vigente_ate IS NULL)
+   >          = (SELECT count(*) FROM (SELECT DISTINCT produto_id, mercado_id FROM preco) x) AS um_vigente_por_par,
+   >        (SELECT count(*) FROM preco p WHERE NOT EXISTS (SELECT 1 FROM preco_loja pl WHERE pl.preco_id = p.id)) = 0 AS nenhum_preco_sem_vinculo,
+   >        (SELECT count(*) FROM preco_loja pl JOIN preco p ON p.id = pl.preco_id WHERE pl.produto_id <> p.produto_id) = 0 AS produto_id_confere;  -- tudo t
+   >
+   > SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public'
+   >  AND ((table_name = 'usuario' AND column_name IN ('cep','cidade','uf','latitude','longitude','loja_preferida_id'))
+   >    OR (table_name = 'promocao' AND column_name = 'loja_id')) ORDER BY 1, 2;  -- 7 linhas
+   >
+   > SELECT loja_id, produto_id, count(*) FROM preco_loja WHERE vigente_ate IS NULL GROUP BY 1, 2 HAVING count(*) > 1;  -- 0 linhas
+   > ```
+   >
+   > **Pós-07**:
+   > ```sql
+   > SELECT (SELECT count(*) FROM pg_indexes WHERE indexname IN ('uk_preco_id_produto','uk_preco_loja_vigente')) AS indices,  -- 2
+   >        (SELECT count(*) FROM pg_constraint WHERE conname = 'fk_preco_loja_preco_produto')                    AS fk;       -- 1
+   > ```
+   >
+   > **Rollback.** O caminho preferido é restaurar a branch de backup do Neon (Restore no console); isso apaga
+   > o que foi gravado depois do backup. Alternativa manual, que devolve o banco ao estado anterior:
+   > ```sql
+   > BEGIN;
+   > DROP TABLE IF EXISTS preco_loja;
+   > ALTER TABLE usuario DROP COLUMN IF EXISTS loja_preferida_id, DROP COLUMN IF EXISTS cep, DROP COLUMN IF EXISTS cidade,
+   >                     DROP COLUMN IF EXISTS uf, DROP COLUMN IF EXISTS latitude, DROP COLUMN IF EXISTS longitude;
+   > ALTER TABLE promocao DROP COLUMN IF EXISTS loja_id;
+   > DROP TABLE IF EXISTS loja;
+   > DROP INDEX IF EXISTS uk_preco_id_produto;
+   > DROP INDEX IF EXISTS idx_produto_codigo_barras;
+   > COMMIT;
+   > ```
+   > ⚠️ **O rollback manual derruba o backend da `main`**, que precisa dessas tabelas e colunas. Só faz
+   > sentido com o Render numa versão anterior ao #155.
+   >
+   > **Depois do redeploy.** Com as conferências ok, faça o deploy manual no Render (**Manual Deploy → Deploy
+   > latest commit**) e rode o smoke: `GET /api/health` → `UP`, e `GET /api/mercados` e
+   > `GET /api/produtos?nome=feijao` respondendo. Só então apague a branch de backup do Neon.
 
    > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
    > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em

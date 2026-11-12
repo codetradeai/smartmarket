@@ -28,21 +28,27 @@ describe("proximidadeFiliais: Utilitário de Georreferenciamento e Haversine RS"
     expect(geoCanoas.cidade).toBe("Canoas");
   });
 
-  test("encontra a filial mais próxima de cada rede sem exigir passagem explícita de lista", () => {
-    // Para Cachoeirinha Centro
-    const filiais = encontrarFiliaisMaisProximas(-29.9511, -51.0944);
-    expect(filiais).toBeDefined();
-    expect(typeof filiais).toBe("object");
+  describe("encontrarFiliaisMaisProximas", () => {
+    const FILIAIS = [
+      { rede: "asun", filial_id: "asun_1", nome_filial: "Asun Cachoeirinha", endereco: "Av. A, 1", cidade: "Cachoeirinha", latitude: -29.9511, longitude: -51.0944 },
+      { rede: "asun", filial_id: "asun_2", nome_filial: "Asun Porto Alegre", endereco: "Av. B, 2", cidade: "Porto Alegre", latitude: -30.0346, longitude: -51.2177 },
+      { rede: "fort", filial_id: "fort_1", nome_filial: "Fort Canoas", endereco: "Av. C, 3", cidade: "Canoas", latitude: -29.9140, longitude: -51.1750 },
+    ];
 
-    // Asun de Cachoeirinha deve estar a menos de 2 km
-    if (filiais.asun) {
-      expect(filiais.asun.distanciaKm).toBeLessThan(3.0);
-      expect(filiais.asun.cidade).toBe("Cachoeirinha");
-    }
+    test("escolhe a filial mais próxima de cada rede entre as recebidas", () => {
+      const r = encontrarFiliaisMaisProximas(-29.9511, -51.0944, FILIAIS);
+      expect(Object.keys(r).sort()).toEqual(["asun", "fort"]);
+      expect(r.asun.filialId).toBe("asun_1");
+      expect(r.asun.distanciaKm).toBeLessThan(1);
+      expect(r.fort.filialId).toBe("fort_1");
+      expect(r.fort.distanciaKm).toBeGreaterThan(5);
+      expect(r.fort.distanciaKm).toBeLessThan(12);
+    });
 
-    // Fort de Canoas deve estar a menos de 10 km
-    if (filiais.fort) {
-      expect(filiais.fort.distanciaKm).toBeLessThan(12.0);
-    }
+    test("sem lista não há catálogo embutido: devolve objeto vazio", () => {
+      expect(encontrarFiliaisMaisProximas(-29.9511, -51.0944)).toEqual({});
+      expect(encontrarFiliaisMaisProximas(-29.9511, -51.0944, [])).toEqual({});
+      expect(encontrarFiliaisMaisProximas(-29.9511, -51.0944, null)).toEqual({});
+    });
   });
 });

@@ -6,6 +6,7 @@ import { nomeCurtoRede, listarNomes, redesComProdutos } from "../utils/redesDoCa
 import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio } from "../components/ui";
 import { encontrarFiliaisMaisProximas, resolverCoordenadasCepSync } from "../utils/proximidadeFiliais";
+import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
 import logoFort from "../../logo/logo-fort.png";
 import logoAsun from "../../logo/logo-asun.png";
 import logoStok from "../../logo/logo-stok.png";
@@ -151,6 +152,9 @@ function getList() {
 function saveList(l) {
   sessionStorage.setItem("sm_list", JSON.stringify(l));
 }
+
+// Referência estável para "nenhuma filial conhecida" (evita recalcular os cartões a cada render)
+const SEM_FILIAIS = Object.freeze({});
 
 // Extrai o preço do produto para uma rede específica
 function getPriceForMarket(product, market) {
@@ -1129,8 +1133,11 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     setVisibleLimit(48);
   }
 
+  // Desligado enquanto a API de lojas próximas (Fase 3) não existe: sem lista de filiais não há
+  // "loja mais próxima" nem distância nos cartões. Ao ligar a flag, passe aqui as lojas vindas da API.
   const filiaisMaisProximas = useMemo(() => {
-    return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon);
+    if (!LOJAS_PROXIMAS_ATIVO) return SEM_FILIAIS;
+    return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon, []);
   }, [userLocalizacao.lat, userLocalizacao.lon]);
 
   const handleLocalizacaoChange = useCallback((novoFiltro) => {
@@ -1478,10 +1485,12 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             </div>
           </div>
 
-          {/* Linha 2: Seletor de CEP e Raio de Proximidade */}
-          <div className="pt-1">
-            <SeletorCepRaio onFiltroChange={handleLocalizacaoChange} />
-          </div>
+          {/* Linha 2: Seletor de CEP e Raio de Proximidade (só com a API de lojas próximas, Fase 3) */}
+          {LOJAS_PROXIMAS_ATIVO && (
+            <div className="pt-1">
+              <SeletorCepRaio onFiltroChange={handleLocalizacaoChange} />
+            </div>
+          )}
 
           {/* Linha 3: Fita de Redes do RS */}
           <FavMarketsStrip

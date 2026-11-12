@@ -6,8 +6,6 @@
  * para exibição contextualizada por CEP no React.
  */
 
-import CATALOGO_PADRAO_FILIAIS from "../data/catalogo_filiais_rs.json";
-
 const RAIO_TERRA_KM = 6371.0;
 
 // Centroids geográficos de fallback para Região Metropolitana de Porto Alegre e RS
@@ -137,9 +135,13 @@ export async function resolverCoordenadasCep(cep) {
 
 /**
  * Encontra a filial mais próxima de cada rede dada a coordenada do usuário.
+ *
+ * A lista de filiais é sempre recebida de fora (cada item com rede, filial_id, nome_filial,
+ * endereco, cidade, latitude e longitude). Não há catálogo embutido: o JSON estático saiu do
+ * repositório e a fonte futura é a API de lojas próximas (Fase 3). Sem lista, devolve {}.
  */
 export function encontrarFiliaisMaisProximas(latUsuario, lonUsuario, listaFiliais) {
-  const filiais = Array.isArray(listaFiliais) && listaFiliais.length > 0 ? listaFiliais : CATALOGO_PADRAO_FILIAIS;
+  const filiais = Array.isArray(listaFiliais) ? listaFiliais : [];
   const maisProximaPorRede = {};
 
   for (const fil of filiais) {

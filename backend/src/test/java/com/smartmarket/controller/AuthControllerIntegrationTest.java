@@ -40,6 +40,7 @@ class AuthControllerIntegrationTest {
         request.setNome("Usuario Teste");
         request.setEmail("teste-auth@email.com");
         request.setSenha("senha123");
+        request.setCep("90010-000");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -57,6 +58,7 @@ class AuthControllerIntegrationTest {
         register.setNome("Usuario Login");
         register.setEmail("login-test@email.com");
         register.setSenha("senha123");
+        register.setCep("90010-000");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -81,6 +83,7 @@ class AuthControllerIntegrationTest {
         request.setNome("Teste");
         request.setEmail("email-invalido");
         request.setSenha("senha123");
+        request.setCep("90010-000");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -100,6 +103,7 @@ class AuthControllerIntegrationTest {
         register.setNome("Usuario Me");
         register.setEmail("me-test@email.com");
         register.setSenha("senha123");
+        register.setCep("90010-000");
 
         String response = mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -120,13 +124,13 @@ class AuthControllerIntegrationTest {
     void register_DeveGravarEmailEmMinusculasERecusarDuplicataPorCaixa() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Maria\",\"email\":\"Maria.Caixa@Email.com\",\"senha\":\"senha123\"}"))
+                .content("{\"nome\":\"Maria\",\"email\":\"Maria.Caixa@Email.com\",\"senha\":\"senha123\",\"cep\":\"90010-000\"}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("maria.caixa@email.com"));
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Outra Maria\",\"email\":\"MARIA.CAIXA@email.com\",\"senha\":\"senha123\"}"))
+                .content("{\"nome\":\"Outra Maria\",\"email\":\"MARIA.CAIXA@email.com\",\"senha\":\"senha123\",\"cep\":\"90010-000\"}"))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.erro").value("Email ja cadastrado"));
     }
@@ -135,7 +139,7 @@ class AuthControllerIntegrationTest {
     void register_DeveAceitarEmailComEspacosNasPontas() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Com Espaco\",\"email\":\"  Espaco.Ponta@Email.com \",\"senha\":\"senha123\"}"))
+                .content("{\"nome\":\"Com Espaco\",\"email\":\"  Espaco.Ponta@Email.com \",\"senha\":\"senha123\",\"cep\":\"90010-000\"}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("espaco.ponta@email.com"));
     }
@@ -144,7 +148,7 @@ class AuthControllerIntegrationTest {
     void login_DeveIgnorarCaixaEEspacosDoEmail() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Login Caixa\",\"email\":\"login.caixa@email.com\",\"senha\":\"senha123\"}"))
+                .content("{\"nome\":\"Login Caixa\",\"email\":\"login.caixa@email.com\",\"senha\":\"senha123\",\"cep\":\"90010-000\"}"))
             .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/auth/login")
@@ -182,7 +186,7 @@ class AuthControllerIntegrationTest {
     void login_ComSenhaErradaContinuaRetornando401() throws Exception {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"nome\":\"Senha Errada\",\"email\":\"senha.errada@email.com\",\"senha\":\"senha123\"}"))
+                .content("{\"nome\":\"Senha Errada\",\"email\":\"senha.errada@email.com\",\"senha\":\"senha123\",\"cep\":\"90010-000\"}"))
             .andExpect(status().isOk());
 
         mockMvc.perform(post("/api/auth/login")

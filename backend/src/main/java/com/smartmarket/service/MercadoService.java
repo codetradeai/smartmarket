@@ -3,8 +3,11 @@ package com.smartmarket.service;
 import com.smartmarket.dto.mercado.MercadoRequest;
 import com.smartmarket.dto.mercado.MercadoResponse;
 import com.smartmarket.exception.ResourceNotFoundException;
+import com.smartmarket.model.Loja;
 import com.smartmarket.model.Mercado;
+import com.smartmarket.repository.LojaRepository;
 import com.smartmarket.repository.MercadoRepository;
+import com.smartmarket.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,8 @@ import java.util.List;
 public class MercadoService {
 
     private final MercadoRepository mercadoRepository;
+    private final LojaRepository lojaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)
     public List<MercadoResponse> listarAtivos() {
@@ -47,7 +52,19 @@ public class MercadoService {
             .ativo(true)
             .build();
 
-        return MercadoResponse.from(mercadoRepository.save(mercado));
+        mercado = mercadoRepository.save(mercado);
+
+        // Todo mercado tem uma loja "padrao": e nela que caem os precos coletados sem filial e e
+        // ela que atende quem ainda nao informou CEP. Nasce na mesma transacao do mercado.
+        lojaRepository.save(Loja.builder()
+            .mercado(mercado)
+            .nome(mercado.getNome())
+            .endereco(mercado.getEndereco())
+            .codigoExterno(Loja.CODIGO_PADRAO)
+            .ativa(true)
+            .build());
+
+        return MercadoResponse.from(mercado);
     }
 
     @Transactional
@@ -66,6 +83,15 @@ public class MercadoService {
     public void remover(Long id) {
         Mercado mercado = mercadoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Mercado", id));
+        // As lojas nascem com o mercado (a padrao, ao menos) e a FK loja -> mercado nao tem cascata:
+        // tira a preferencia de quem escolheu uma delas e apaga as lojas antes do mercado. Preco ja
+        // coletado continua barrando a exclusao (FK de preco_loja/preco), como antes (409).
+        List<Loja> lojas = lojaRepository.findByMercadoIdOrderByIdAsc(id);
+        if (!lojas.isEmpty()) {
+            usuarioRepository.limparLojaPreferida(lojas.stream().map(Loja::getId).toList());
+            lojaRepository.deleteAll(lojas);
+            lojaRepository.flush();
+        }
         mercadoRepository.delete(mercado);
     }
 }

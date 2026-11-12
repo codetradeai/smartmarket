@@ -48,8 +48,7 @@ function renderizar({ login = jest.fn(), comProvider = true } = {}) {
 
 const abrir = async () => {
   fireEvent.click(screen.getByRole('link', { name: 'Entrar' }))
-  // Prazo folgado: na primeira abertura o Jest ainda transforma o chunk lazy (lento com cobertura).
-  await screen.findByLabelText('E-mail', {}, { timeout: 8000 })
+  await screen.findByLabelText('E-mail', {}, { timeout: 4000 })
 }
 const dialogo = () => screen.queryByRole('dialog')
 const preencher = (email, senha) => {
@@ -58,6 +57,10 @@ const preencher = (email, senha) => {
 }
 
 describe('Login em modal', () => {
+  // Paga uma vez, aqui, o custo de transformar o chunk lazy (lento com cobertura e suítes em paralelo),
+  // para ele não cair dentro do primeiro findBy e deixar o teste instável.
+  beforeAll(() => carregar.importarCartaoLogin())
+
   afterEach(() => jest.restoreAllMocks())
 
   describe('abrir', () => {
@@ -220,7 +223,9 @@ describe('Login em modal', () => {
 
       await waitFor(() => expect(dialogo()).not.toBeInTheDocument())
       expect(login).toHaveBeenCalledWith('ana@email.com', 'segredo1')
-      expect(screen.getByTestId('local')).toHaveTextContent(/^\/catalog$/)
+      // O React Router aplica a navegação dentro de startTransition (prioridade menor que o fechamento
+      // do card); com a máquina carregada a rota chega depois do card sumir, então a espera é obrigatória.
+      await waitFor(() => expect(screen.getByTestId('local')).toHaveTextContent(/^\/catalog$/))
     })
 
     it('não sai da página quando o login falha', async () => {

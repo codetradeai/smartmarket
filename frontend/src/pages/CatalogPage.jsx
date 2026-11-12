@@ -1492,11 +1492,15 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             onToggleFav={toggleFavMarket}
           />
 
-          {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados) */}
-          <DepartmentVisualCarousel
-            selectedCat={selectedCat}
-            onSelectCat={setSelectedCat}
-          />
+          {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados).
+              Só aparece fora de Todos+Prateleiras: nesse estado padrão os banners verticais de
+              cada prateleira (CategoryShelf) já cumprem o mesmo papel de navegação por categoria. */}
+          {(viewMode === "grade" || selectedCat !== "todos" || Boolean(search.trim())) && (
+            <DepartmentVisualCarousel
+              selectedCat={selectedCat}
+              onSelectCat={setSelectedCat}
+            />
+          )}
         </div>
       </header>
 

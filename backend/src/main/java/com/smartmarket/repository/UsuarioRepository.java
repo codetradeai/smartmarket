@@ -24,4 +24,16 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update Usuario u set u.lojaPreferida = null where u.lojaPreferida.id in :lojaIds")
     int limparLojaPreferida(@Param("lojaIds") Collection<Long> lojaIds);
+
+    /**
+     * Grava só a localização (cep, cidade, uf, latitude, longitude) do usuário. Não toca em mais nada:
+     * quem leu o usuário antes de esperar a consulta de CEP não sobrescreve, por exemplo, uma troca
+     * de papel feita nesse intervalo. Devolve quantas linhas mudaram (0 = usuário não existe).
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("update Usuario u set u.cep = :cep, u.cidade = :cidade, u.uf = :uf, "
+        + "u.latitude = :latitude, u.longitude = :longitude where u.email = :email")
+    int atualizarLocalizacaoPorEmail(@Param("email") String email, @Param("cep") String cep,
+                                     @Param("cidade") String cidade, @Param("uf") String uf,
+                                     @Param("latitude") Double latitude, @Param("longitude") Double longitude);
 }

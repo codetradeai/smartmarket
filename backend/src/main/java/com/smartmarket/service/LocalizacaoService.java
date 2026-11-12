@@ -14,6 +14,7 @@ import com.smartmarket.service.geo.ResolvedorCep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,6 +34,8 @@ public class LocalizacaoService {
     private final UsuarioRepository usuarioRepository;
     private final LojaRepository lojaRepository;
     private final ResolvedorCep resolvedorCep;
+    // @Transactional não vale em chamada da própria classe; o template abre a transação curta do trocarCep.
+    private final TransactionTemplate transacao;
 
     @Transactional(readOnly = true)
     public LocalizacaoResponse obter(String email) {
@@ -45,16 +48,25 @@ public class LocalizacaoService {
      * ficam nulas) em vez de ficar apontando para o CEP anterior.
      */
     public LocalizacaoResponse trocarCep(String email, String cepInformado) {
-        Usuario usuario = usuario(email);
+        if (!usuarioRepository.existsByEmail(email)) {
+            throw new ResourceNotFoundException("Usuario nao encontrado");
+        }
         String cep = Cep.normalizar(cepInformado);
         LocalizacaoCep local = resolvedorCep.resolver(cep).orElse(null);
 
-        usuario.setCep(cep);
-        usuario.setCidade(local == null ? null : local.cidade());
-        usuario.setUf(local == null ? null : local.uf());
-        usuario.setLatitude(local == null ? null : local.latitude());
-        usuario.setLongitude(local == null ? null : local.longitude());
-        return LocalizacaoResponse.from(usuarioRepository.save(usuario));
+        // Grava só a localização, numa transação curta: o usuário não é carregado antes da espera
+        // pela consulta, então nada que mudou nesse intervalo (ex.: o papel) é sobrescrito.
+        Integer alteradas = transacao.execute(status -> usuarioRepository.atualizarLocalizacaoPorEmail(
+            email, cep,
+            local == null ? null : local.cidade(),
+            local == null ? null : local.uf(),
+            local == null ? null : local.latitude(),
+            local == null ? null : local.longitude()));
+        if (alteradas == null || alteradas == 0) {
+            // O usuário foi apagado durante a consulta.
+            throw new ResourceNotFoundException("Usuario nao encontrado");
+        }
+        return LocalizacaoResponse.from(usuario(email));
     }
 
     /** {@code lojaId} nulo remove a preferência. Loja inexistente ou inativa dá 404. */

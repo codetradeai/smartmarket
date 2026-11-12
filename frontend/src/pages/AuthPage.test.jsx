@@ -342,8 +342,12 @@ describe('AuthPage', () => {
         abrirCadastro()
 
         expect(screen.getByLabelText('CEP')).toHaveAttribute('placeholder', '00000-000')
-        expect(screen.getByText(/preços da loja mais próxima/)).toBeInTheDocument()
-        expect(screen.getByText(/BrasilAPI\/ViaCEP/)).toBeInTheDocument()
+        const aviso = screen.getByText(/identificar a loja mais próxima/)
+        expect(aviso).toBeInTheDocument()
+        expect(aviso).toHaveTextContent(/BrasilAPI\/ViaCEP/)
+        // o aviso diz o que acontece quando a consulta não resolve: a conta é criada mesmo assim
+        expect(aviso).toHaveTextContent(/falhar ou o CEP não for encontrado, sua conta é criada/)
+        expect(screen.getByLabelText('CEP')).toHaveAttribute('aria-describedby', aviso.id)
       })
 
       it('aplica a máscara 00000-000 enquanto digita e ignora o que não é número', () => {

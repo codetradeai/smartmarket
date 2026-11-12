@@ -462,8 +462,10 @@ export default function AuthPage() {
                     aria-describedby="cep-finalidade"
                   />
                   <p id="cep-finalidade" className="mt-1.5 text-xs text-brand-muted leading-relaxed">
-                    Usamos o CEP para mostrar os preços da loja mais próxima de você. Para achar a
-                    localização, ele é consultado em um serviço externo (BrasilAPI/ViaCEP).
+                    Usamos o CEP para identificar a loja mais próxima de você em cada rede (recurso em
+                    liberação). Para achar a localização, ele é consultado em serviços externos
+                    (BrasilAPI/ViaCEP). Se a consulta falhar ou o CEP não for encontrado, sua conta é
+                    criada do mesmo jeito.
                   </p>
                 </div>
 

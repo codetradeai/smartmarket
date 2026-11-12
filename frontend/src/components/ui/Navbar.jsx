@@ -1,5 +1,6 @@
 import { useState, useContext } from "react"
 import { Link, useLocation } from "react-router-dom"
+import LinkEntrar from "../LinkEntrar"
 import { cn } from "../../lib/utils"
 import { AuthContext } from "../../contexts/AuthContext"
 import { Button } from "./Button"
@@ -86,11 +87,11 @@ export function Navbar({
             >
               Comparar preços
             </Link>
-            <Link to="/auth?mode=login" className="hidden lg:inline-flex shrink-0">
+            <LinkEntrar className="hidden lg:inline-flex shrink-0">
               <Button variant="outline" size="sm" className="whitespace-nowrap">
                 Entrar
               </Button>
-            </Link>
+            </LinkEntrar>
             <Link to="/auth?mode=register" className="hidden sm:inline-flex shrink-0">
               <Button variant="primary" size="sm" className="whitespace-nowrap">
                 Criar conta
@@ -152,9 +153,9 @@ export function Navbar({
               Comparar preços
             </Link>
             <div className="flex gap-2 pt-3 border-t border-slate-100">
-              <Link to="/auth?mode=login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+              <LinkEntrar className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">Entrar</Button>
-              </Link>
+              </LinkEntrar>
               <Link to="/auth?mode=register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="primary" size="sm" className="w-full">Criar conta</Button>
               </Link>
@@ -285,11 +286,11 @@ export function Navbar({
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
-              <Link to="/auth?mode=login">
+              <LinkEntrar>
                 <Button variant="outline" size="sm">
                   Entrar
                 </Button>
-              </Link>
+              </LinkEntrar>
               <Link to="/auth?mode=register">
                 <Button variant="primary" size="sm">
                   Cadastrar
@@ -408,11 +409,11 @@ export function Navbar({
             </div>
           ) : (
             <div className="flex gap-2 pt-3 border-t border-slate-100">
-              <Link to="/auth?mode=login" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
+              <LinkEntrar className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">
                   Entrar
                 </Button>
-              </Link>
+              </LinkEntrar>
               <Link to="/auth?mode=register" className="flex-1" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="primary" size="sm" className="w-full">
                   Cadastrar

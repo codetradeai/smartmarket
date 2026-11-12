@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import LinkEntrar from "./LinkEntrar"
 import { ProductImage } from "./ui"
 import { CatalogoCarregando, CatalogoErro } from "./ComCatalogo"
 import { posicaoNaTrilha } from "../utils/dispersaoPrecos"
@@ -112,12 +113,11 @@ export function RaioXCorredor({
             <span aria-hidden="true">→</span>
           </Link>
           {!autenticado && (
-            <Link
-              to="/auth?mode=login"
+            <LinkEntrar
               className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-white/30 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Já tenho conta
-            </Link>
+            </LinkEntrar>
           )}
         </div>
       </div>

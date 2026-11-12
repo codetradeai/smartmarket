@@ -113,3 +113,24 @@ Execução de todos os testes unitários dos scrapers:
 python -m unittest discover -s scraper/tests
 ```
 **Resultado atual**: 367 testes, todos aprovados (32 pulados: exigem Postgres de teste ou rede).
+
+---
+
+## 8. Sistema paralelo removido (2026-11-11)
+
+Os commits `ae84a0b`, `0c68644`, `05880b7`, `7bea534` e `f1121bf` (que chegaram à `main` junto com o merge `bba9fd1`, mas **não** fazem parte dos PRs #147, #149 e #150, que são só frontend) criaram um segundo sistema de coleta ao lado do oficial, e ele foi removido. O que havia e por que saiu:
+
+| Removido | Motivo |
+|---|---|
+| `scripts/scraper_playwright_fort.py`, `testar_bypass_cep_todas_redes.py`, `gerenciador_sessoes.py`, `autenticador_interativo.py`, `scraper_playwright_mercado.py` | Mascaravam `navigator.webdriver`, desligavam `AutomationControlled` e usavam User-Agent de navegador para superar o Cloudflare. O Fort está em `REDES_SUSPENSAS` justamente por esse bloqueio (403); o contrato é parar no primeiro 403, não contorná-lo. |
+| `scripts/orquestrador_coleta_completa.py`, `coletar_direcionado_marcas.py` | Coletavam `/api/catalog_system` de Zaffari e Rissul, caminho que o `robots.txt` das duas redes proíbe (`REDES_SUSPENSAS`). |
+| `frontend/{src,public}/data/{catalogo_filiais_rs,banco_produtos_otimizado}.json`, `scripts/catalogo_filiais_rs.json`, `scripts/saida/*` | Preços de Zaffari e Rissul coletados pelo caminho acima, mais um catálogo de filiais; era uma fonte de dados paralela ao banco e à API. |
+| `scripts/consolidar_ofertas.py`, `motor_proximidade.py` e dependentes | Um segundo motor de resolução de entidade, com schema próprio (`produtos_canonicos`), e um Haversine duplicado em Python. |
+
+**Os coletores oficiais não mudaram.** `scraper/coleta_zaffari.py`, `coleta_rissul.py` e `coleta_fort_atacadista.py` não foram alterados desde antes do sistema paralelo; `coleta_zaffari` e `coleta_rissul` só são importados por `rotina_carga.py` (que os pula via `REDES_SUSPENSAS`) e pelos próprios testes. `executar_pipeline.py` importa o do Fort mas exige `--fixture` (roda só offline). `gerar_catalogo_e_sql.py` apenas lê arquivos `coleta_zaffari.json` e `coleta_rissul.json` que já existam em disco.
+
+**Resolução de entidade: nada foi portado de `consolidar_ofertas.py`.** O EAN como primeira regra já existe em `casamento.py`; a assinatura semântica (categoria + marca + medida, Jaccard ≥ 0,50) é mais frouxa que `casamento_camadas.py`, que exige a mesma marca canônica, embalagem equivalente, variantes duras e todas as guardas entre todos os pares do grupo. A trava anti-outlier de 2,2x foi medida sobre o `equivalentes.json` atual: só 1 dos 266 grupos de T1 a T4 passa de 2,2x (um biscoito Galak 60g, Asun R$ 4,99 contra Fort R$ 1,98, aparentemente o mesmo produto), e a trava o separaria. Usar preço como sinal de identidade em um comparador esconde justamente as maiores economias, então a razão de preço só vale onde a evidência de identidade é fraca: `casamento_camadas.py` já a aplica (máximo de 2,5x) na camada T0, de foto idêntica.
+
+**Frontend.** O seletor de CEP/raio e a "loja mais próxima" do catálogo dependiam desse JSON e foram desligados atrás de `LOJAS_PROXIMAS_ATIVO` (`frontend/src/config/recursos.js`). `SeletorCepRaio` e `utils/proximidadeFiliais.js` ficam no repositório, sem uso e sem catálogo embutido. A funcionalidade volta com a Fase 3 (API de lojas próximas, Haversine no backend Java), religada a essa API e não a um arquivo local.
+
+**CI.** SmartMarket CI Pipeline #342 e Deploy do frontend no GitHub Pages #36 não falharam por causa do scraping: os testes de backend, frontend e scraper passaram, e quem falhou foi o guarda de tamanho do `dist` (`scripts/verificar-tamanho-dist.sh`). Dois vídeos brutos de 27 MB e 77 MB (`frontend/public/video/video_hero*.mp4`, nunca referenciados) levaram o dist a 192 MB no CI (limite 100) e 115 MB no Pages (limite 20). Foram removidos; o dist voltou a 91 MB no CI e 14 MB no Pages.

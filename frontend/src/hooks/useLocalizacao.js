@@ -14,18 +14,24 @@ const buscarTudo = () => Promise.allSettled([lojaService.obterLocalizacao(), loj
  * Devolve { localizacao, lojas, carregando, erro, recarregar, trocarCep, excluir, definirLojaPreferida }.
  */
 export function useLocalizacao({ ativo = true } = {}) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, user } = useAuth()
   const ligado = ativo && isAuthenticated
+  // Dono dos dados: null desligado; o e-mail do usuário ligado. Mudou a chave, mudou o dono.
+  const chave = ligado ? (user?.email ?? "") : null
   const [estado, setEstado] = useState(VAZIO)
   const [carregando, setCarregando] = useState(ligado)
-  const [ligadoAntes, setLigadoAntes] = useState(ligado)
-  // Sobe quando o hook desmonta ou desliga (logout): resposta de uma sessão anterior é descartada.
+  const [chaveAntes, setChaveAntes] = useState(chave)
+  // A mais nova vence: quem vai escrever no estado pega uma versão nova e só aplica o resultado
+  // se ainda for a atual quando a resposta chegar.
+  const versao = useRef(0)
+  // Sobe quando o efeito é desfeito (logout, troca de usuário, desmonte). Uma ação (trocarCep...)
+  // iniciada numa sessão anterior não escreve na seguinte, mesmo pegando versão nova ao terminar.
   const sessao = useRef(0)
 
-  // Ao ligar ou desligar (login/logout), nada do estado anterior pode sobrar: o reset acontece
-  // durante o render, antes de qualquer tela ver os dados do usuário que saiu.
-  if (ligado !== ligadoAntes) {
-    setLigadoAntes(ligado)
+  // Ao ligar, desligar ou trocar de usuário, nada do estado anterior pode sobrar: o reset acontece
+  // durante o render, antes de qualquer tela ver os dados de quem saiu.
+  if (chave !== chaveAntes) {
+    setChaveAntes(chave)
     setEstado(VAZIO)
     setCarregando(ligado)
   }
@@ -42,43 +48,48 @@ export function useLocalizacao({ ativo = true } = {}) {
   }, [])
 
   useEffect(() => {
-    if (!ligado) return undefined
-    const minha = sessao.current
+    if (chave === null) return undefined
+    const minha = ++versao.current
     buscarTudo().then((resultado) => {
-      if (sessao.current === minha) aplicarTudo(resultado)
+      if (versao.current === minha) aplicarTudo(resultado)
     })
     return () => {
+      versao.current += 1
       sessao.current += 1
     }
-  }, [ligado, aplicarTudo])
+  }, [chave, aplicarTudo])
 
   const recarregar = useCallback(async () => {
-    const minha = sessao.current
+    const minha = ++versao.current
     setCarregando(true)
     const resultado = await buscarTudo()
-    if (sessao.current === minha) aplicarTudo(resultado)
+    if (versao.current === minha) aplicarTudo(resultado)
   }, [aplicarTudo])
 
-  const recarregarLojas = useCallback(async () => {
-    const minha = sessao.current
+  // Refaz só as lojas, com a versão da ação que a chamou.
+  const recarregarLojas = useCallback(async (minha) => {
     const [lojas] = await Promise.allSettled([lojaService.lojasProximas()])
-    if (sessao.current !== minha) return
+    if (versao.current !== minha) return
     setEstado((atual) => ({
       ...atual,
       lojas: lojas.status === "fulfilled" ? lojas.value : [],
       erro: lojas.status === "rejected" ? mensagemDeErro(lojas.reason) : null,
     }))
+    setCarregando(false)
   }, [])
 
-  // Chamada que devolve a localização atualizada: se der certo, guarda a resposta e refaz só as lojas;
-  // se falhar, o erro sobe e o estado fica como estava.
+  // Chamada que devolve a localização atualizada. Se falhar, o erro sobe e nada muda (nem invalida
+  // uma carga em andamento). Se der certo, pega uma versão nova (descartando cargas mais antigas),
+  // guarda a resposta e refaz só as lojas.
   const atualizarLocalizacao = useCallback(
     async (chamada) => {
-      const minha = sessao.current
+      const sessaoAntes = sessao.current
       const resposta = await chamada()
-      if (sessao.current !== minha) return resposta
+      if (sessao.current !== sessaoAntes) return resposta
+      const minha = ++versao.current
       setEstado((atual) => ({ ...atual, localizacao: resposta }))
-      await recarregarLojas()
+      setCarregando(false)
+      await recarregarLojas(minha)
       return resposta
     },
     [recarregarLojas],

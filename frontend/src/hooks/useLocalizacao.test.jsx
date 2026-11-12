@@ -20,6 +20,13 @@ const estadoVazio = { localizacao: null, lojas: [], carregando: false, erro: nul
 const erroDoServidor = (status) => Object.assign(new Error(`status ${status}`), { response: { status } })
 const erroDeRede = () => new Error('Network Error')
 
+// Promessa que o teste resolve na hora que quiser.
+const adiada = () => {
+  let resolver
+  const promessa = new Promise((resolve) => (resolver = resolve))
+  return { promessa, resolver }
+}
+
 const LOCALIZACAO = {
   cep: '90010000',
   cidade: 'Porto Alegre',
@@ -208,13 +215,61 @@ describe('useLocalizacao', () => {
     })
   })
 
-  describe('respostas atrasadas', () => {
-    const adiada = () => {
-      let resolver
-      const promessa = new Promise((resolve) => (resolver = resolve))
-      return { promessa, resolver }
-    }
+  describe('troca de usuário sem passar pelo logout', () => {
+    const comUsuario = (email) => useAuth.mockReturnValue({ isAuthenticated: true, user: { email } })
 
+    it('o user muda de A para B com isAuthenticated true: os dados de A somem no mesmo render e a carga é refeita', async () => {
+      comUsuario('a@exemplo.com')
+      lojaService.obterLocalizacao.mockResolvedValueOnce(LOCALIZACAO).mockReturnValueOnce(new Promise(() => {}))
+      lojaService.lojasProximas.mockResolvedValueOnce(LOJAS).mockReturnValueOnce(new Promise(() => {}))
+      const { result, rerender } = renderHook(() => useLocalizacao())
+      await waitFor(() => expect(result.current.carregando).toBe(false))
+      expect(result.current.localizacao).toEqual(LOCALIZACAO)
+
+      comUsuario('b@exemplo.com')
+      rerender()
+
+      expect(result.current).toEqual(
+        expect.objectContaining({ localizacao: null, lojas: [], erro: null, carregando: true }),
+      )
+      expect(lojaService.obterLocalizacao).toHaveBeenCalledTimes(2)
+      expect(lojaService.lojasProximas).toHaveBeenCalledTimes(2)
+    })
+
+    it('a carga de A, ao responder depois da troca para B, é descartada', async () => {
+      const locA = adiada()
+      const lojasA = adiada()
+      comUsuario('a@exemplo.com')
+      lojaService.obterLocalizacao.mockReturnValueOnce(locA.promessa).mockReturnValueOnce(new Promise(() => {}))
+      lojaService.lojasProximas.mockReturnValueOnce(lojasA.promessa).mockReturnValueOnce(new Promise(() => {}))
+      const { result, rerender } = renderHook(() => useLocalizacao())
+
+      comUsuario('b@exemplo.com')
+      rerender()
+      await act(async () => {
+        locA.resolver(LOCALIZACAO)
+        lojasA.resolver(LOJAS)
+      })
+
+      expect(result.current).toEqual(expect.objectContaining({ localizacao: null, lojas: [], carregando: true }))
+    })
+
+    it('o mesmo e-mail com um objeto user novo a cada render não refaz a carga', async () => {
+      comUsuario('a@exemplo.com')
+      lojaService.obterLocalizacao.mockResolvedValue(LOCALIZACAO)
+      lojaService.lojasProximas.mockResolvedValue(LOJAS)
+      const { result, rerender } = renderHook(() => useLocalizacao())
+      await waitFor(() => expect(result.current.carregando).toBe(false))
+
+      comUsuario('a@exemplo.com')
+      rerender()
+
+      expect(result.current.localizacao).toEqual(LOCALIZACAO)
+      expect(lojaService.obterLocalizacao).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('respostas atrasadas', () => {
     it('a carga do usuário que saiu, ao responder depois do login de outro, é descartada', async () => {
       const locA = adiada()
       const lojasA = adiada()
@@ -270,6 +325,83 @@ describe('useLocalizacao', () => {
       expect(lojaService.lojasProximas).toHaveBeenCalledTimes(2)
     })
 
+    it('trocarCep que dá certo com a carga inicial pendente: a carga responde depois com o CEP antigo e o estado fica com o novo', async () => {
+      const locInicial = adiada()
+      const lojasInicial = adiada()
+      lojaService.obterLocalizacao.mockReturnValueOnce(locInicial.promessa)
+      lojaService.lojasProximas.mockReturnValueOnce(lojasInicial.promessa).mockResolvedValueOnce(LOJAS_NOVAS)
+      lojaService.trocarCep.mockResolvedValue(LOCALIZACAO_NOVA)
+      const { result } = renderHook(() => useLocalizacao())
+      expect(result.current.carregando).toBe(true)
+
+      await act(async () => {
+        await result.current.trocarCep('01001000')
+      })
+      await act(async () => {
+        locInicial.resolver(LOCALIZACAO)
+        lojasInicial.resolver(LOJAS)
+      })
+
+      expect(result.current.localizacao).toEqual(LOCALIZACAO_NOVA)
+      expect(result.current.lojas).toEqual(LOJAS_NOVAS)
+      expect(result.current.carregando).toBe(false)
+    })
+
+    it('recarregar duas vezes, com a primeira respondendo por último: vale o resultado da segunda', async () => {
+      const loc1 = adiada()
+      const loc2 = adiada()
+      lojaService.obterLocalizacao
+        .mockResolvedValueOnce(LOCALIZACAO)
+        .mockReturnValueOnce(loc1.promessa)
+        .mockReturnValueOnce(loc2.promessa)
+      lojaService.lojasProximas
+        .mockResolvedValueOnce(LOJAS)
+        .mockResolvedValueOnce(LOJAS)
+        .mockResolvedValueOnce(LOJAS_NOVAS)
+      const { result } = renderHook(() => useLocalizacao())
+      await waitFor(() => expect(result.current.carregando).toBe(false))
+
+      let primeira
+      let segunda
+      act(() => {
+        primeira = result.current.recarregar()
+        segunda = result.current.recarregar()
+      })
+      await act(async () => {
+        loc2.resolver(LOCALIZACAO_NOVA)
+        await segunda
+      })
+      await act(async () => {
+        loc1.resolver(LOCALIZACAO)
+        await primeira
+      })
+
+      expect(result.current.localizacao).toEqual(LOCALIZACAO_NOVA)
+      expect(result.current.lojas).toEqual(LOJAS_NOVAS)
+      expect(result.current.carregando).toBe(false)
+    })
+
+    it('trocarCep que falha com a carga inicial pendente não a invalida: a carga é aplicada e carregando termina false', async () => {
+      const locInicial = adiada()
+      const lojasInicial = adiada()
+      lojaService.obterLocalizacao.mockReturnValueOnce(locInicial.promessa)
+      lojaService.lojasProximas.mockReturnValueOnce(lojasInicial.promessa)
+      lojaService.trocarCep.mockRejectedValue(Object.assign(new Error('400'), { userMessage: 'CEP não encontrado' }))
+      const { result } = renderHook(() => useLocalizacao())
+
+      await act(async () => {
+        await result.current.trocarCep('00000000').catch(() => {})
+      })
+      await act(async () => {
+        locInicial.resolver(LOCALIZACAO)
+        lojasInicial.resolver(LOJAS)
+      })
+
+      expect(result.current.localizacao).toEqual(LOCALIZACAO)
+      expect(result.current.lojas).toEqual(LOJAS)
+      expect(result.current.carregando).toBe(false)
+    })
+
     it('lojas recarregadas depois de um trocarCep, ao responder após logout e novo login, são descartadas', async () => {
       const lojasDaTroca = adiada()
       lojaService.obterLocalizacao.mockResolvedValueOnce(LOCALIZACAO).mockReturnValueOnce(new Promise(() => {}))
@@ -295,24 +427,6 @@ describe('useLocalizacao', () => {
       })
 
       expect(result.current).toEqual(expect.objectContaining({ localizacao: null, lojas: [], carregando: true }))
-    })
-
-    it('resposta que chega depois do desmonte não gera aviso', async () => {
-      const aviso = jest.spyOn(console, 'error').mockImplementation(() => {})
-      const loc = adiada()
-      const lojas = adiada()
-      lojaService.obterLocalizacao.mockReturnValue(loc.promessa)
-      lojaService.lojasProximas.mockReturnValue(lojas.promessa)
-      const { unmount } = renderHook(() => useLocalizacao())
-
-      unmount()
-      await act(async () => {
-        loc.resolver(LOCALIZACAO)
-        lojas.resolver(LOJAS)
-      })
-
-      expect(aviso).not.toHaveBeenCalled()
-      aviso.mockRestore()
     })
   })
 

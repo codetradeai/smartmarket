@@ -2,7 +2,7 @@
 
 > Pré-requisitos: conta no [Neon](https://neon.tech) e no [Render](https://render.com).
 >
-> **Situação atual (nov/2026):** o banco de produção do Neon **já está pronto** (schema, 8 mercados e 530 produtos/preços aplicados; nenhum usuário). Pule a seção 1 e vá direto ao [passo a passo rápido](#passo-a-passo-rápido-render--github-pages). A seção 1 só vale para criar um banco novo do zero.
+> **Situação atual (nov/2026):** o banco de produção do Neon **já está pronto** (schema, 8 mercados e 530 produtos/preços aplicados; já tem usuários cadastrados — 4 em 12/11/2026). As migrations `06_lojas_por_cep.sql` e `07_indice_unico_vinculo_vigente.sql` já foram aplicadas em produção (12/11/2026). Pule a seção 1 e vá direto ao [passo a passo rápido](#passo-a-passo-rápido-render--github-pages). A seção 1 só vale para criar um banco novo do zero.
 >
 > O frontend está no GitHub Pages (`docs/DEPLOY-PAGES.md`), não mais na Vercel.
 

@@ -12,9 +12,13 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,19 +36,26 @@ public class ResolvedorCep {
     private final RestClient brasilApi;
     private final RestClient viaCep;
     private final long timeoutMs;
-    // Roda a consulta numa thread à parte para poder dar um teto ao tempo total; daemon para
-    // não segurar o desligamento da aplicação.
-    private final ExecutorService executor = Executors.newCachedThreadPool(r -> {
-        Thread t = new Thread(r, "resolvedor-cep");
-        t.setDaemon(true);
-        return t;
-    });
+    // Roda a consulta numa thread à parte para poder dar um teto ao tempo total. Pool limitado
+    // (threads e fila), para um pico de cadastros ou um serviço externo preso não criar threads
+    // sem limite; daemon para não segurar o desligamento da aplicação.
+    private final ExecutorService executor;
 
     public ResolvedorCep(
         @Value("${smartmarket.cep.brasilapi-url:https://brasilapi.com.br/api/cep/v2}") String brasilApiUrl,
         @Value("${smartmarket.cep.viacep-url:https://viacep.com.br/ws}") String viaCepUrl,
-        @Value("${smartmarket.cep.timeout-ms:2000}") long timeoutMs) {
+        @Value("${smartmarket.cep.timeout-ms:2000}") long timeoutMs,
+        @Value("${smartmarket.cep.max-concorrentes:4}") int maxConcorrentes,
+        @Value("${smartmarket.cep.fila-maxima:16}") int filaMaxima) {
         this.timeoutMs = timeoutMs;
+        BlockingQueue<Runnable> fila = filaMaxima > 0 ? new ArrayBlockingQueue<>(filaMaxima) : new SynchronousQueue<>();
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(maxConcorrentes, maxConcorrentes, 30, TimeUnit.SECONDS, fila, r -> {
+            Thread t = new Thread(r, "resolvedor-cep");
+            t.setDaemon(true);
+            return t;
+        });
+        pool.allowCoreThreadTimeOut(true); // sem consultas, as threads ociosas somem
+        this.executor = pool;
         JdkClientHttpRequestFactory fabrica = new JdkClientHttpRequestFactory(
             HttpClient.newBuilder().connectTimeout(Duration.ofMillis(timeoutMs)).build());
         fabrica.setReadTimeout(Duration.ofMillis(timeoutMs));
@@ -54,7 +65,14 @@ public class ResolvedorCep {
 
     /** @param cep 8 dígitos, sem hífen. Nunca lança: falha vira {@code Optional.empty()}. */
     public Optional<LocalizacaoCep> resolver(String cep) {
-        Future<Optional<LocalizacaoCep>> tarefa = executor.submit(() -> consultar(cep));
+        Future<Optional<LocalizacaoCep>> tarefa;
+        try {
+            tarefa = executor.submit(() -> consultar(cep));
+        } catch (RejectedExecutionException e) {
+            // Threads e fila cheias: segue sem localização em vez de acumular consultas.
+            log.warn("Consulta de CEP descartada: limite de consultas simultaneas atingido");
+            return Optional.empty();
+        }
         try {
             return tarefa.get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

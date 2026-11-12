@@ -67,8 +67,12 @@ class ResolvedorCepTest {
     }
 
     private ResolvedorCep resolvedor(long timeoutMs) {
+        return resolvedor(timeoutMs, 4, 16);
+    }
+
+    private ResolvedorCep resolvedor(long timeoutMs, int maxConcorrentes, int filaMaxima) {
         servidor.start();
-        return new ResolvedorCep(base + "/brasilapi", base + "/viacep", timeoutMs);
+        return new ResolvedorCep(base + "/brasilapi", base + "/viacep", timeoutMs, maxConcorrentes, filaMaxima);
     }
 
     @Test
@@ -149,7 +153,7 @@ class ResolvedorCepTest {
 
     @Test
     void servidorForaDoArNaoPropagaErro() {
-        ResolvedorCep resolvedor = new ResolvedorCep("http://127.0.0.1:9/brasilapi", "http://127.0.0.1:9/viacep", 2000);
+        ResolvedorCep resolvedor = new ResolvedorCep("http://127.0.0.1:9/brasilapi", "http://127.0.0.1:9/viacep", 2000, 4, 16);
 
         assertThat(resolvedor.resolver("90010000")).isEmpty();
     }
@@ -182,5 +186,31 @@ class ResolvedorCepTest {
         // A BrasilAPI come o orcamento todo: a reserva nao tem tempo e o resultado e "nao resolvido".
         assertThat(local).isEmpty();
         assertThat(ms).isLessThan(1500);
+    }
+
+    @Test
+    void comOLimiteDeConcorrentesCheioASegundaChamadaVoltaVaziaSemEsperarOTeto() throws Exception {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_OK, 5000);
+        responde("/viacep/90010000/json/", chamadasViaCep, 200, VIACEP_OK, 5000);
+        // 1 thread e sem fila: a consulta presa ocupa o unico lugar.
+        ResolvedorCep resolvedor = resolvedor(1500, 1, 0);
+
+        java.util.concurrent.CompletableFuture<Optional<LocalizacaoCep>> presa =
+            java.util.concurrent.CompletableFuture.supplyAsync(() -> resolvedor.resolver("90010000"));
+        long limite = System.nanoTime() + 3_000_000_000L;
+        while (chamadasBrasilApi.get() == 0 && System.nanoTime() < limite) {
+            Thread.sleep(10);
+        }
+        assertThat(chamadasBrasilApi.get()).as("a primeira consulta chegou ao servidor").isEqualTo(1);
+
+        long inicio = System.nanoTime();
+        Optional<LocalizacaoCep> segunda = resolvedor.resolver("90010000");
+        long ms = (System.nanoTime() - inicio) / 1_000_000;
+
+        assertThat(segunda).isEmpty();
+        // Rejeitada na hora: bem abaixo do teto de 1500 ms.
+        assertThat(ms).isLessThan(500);
+        assertThat(chamadasBrasilApi.get()).as("a segunda nem chegou ao servidor").isEqualTo(1);
+        assertThat(presa.get(5, java.util.concurrent.TimeUnit.SECONDS)).isEmpty();
     }
 }

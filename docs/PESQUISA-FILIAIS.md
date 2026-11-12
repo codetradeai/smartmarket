@@ -106,6 +106,15 @@
 5. **Termos de uso** das cinco redes **não foram lidos**. O robots.txt permite os caminhos acima, mas não substitui os termos, nem a reserva `ai-train=no` da Asun.
 6. Os 403, 429 e 503 podem ser intermitentes (Cloudflare e WAFs reagem a volume e a horário); uma segunda rodada em outro momento pode dar resultado diferente. Não repeti para respeitar a regra de retirada.
 
+## 7.1 Atualização (2026-11-11, Fase 2): resultado do teste mínimo na VipCommerce
+
+Autorizado pelo responsável: só o login anônimo que os coletores já usam, no máximo 2 filiais, ~10 produtos, 2 s entre requisições, User-Agent identificado, sem enumerar IDs.
+
+- Feito: 1 login e 1 busca (`arroz`, página 1) na **Master** (org 193, `filial/1/centro_distribuicao/1`). Resposta 200: 20 itens de 216, com `preco`, `oferta`, `disponivel`, `codigo_barras` etc.
+- **Inconclusivo.** Nem a resposta de busca nem o token (claims `iss`, `aud`, `org: 193`, sem filial) trazem qualquer outro ID de filial ou de centro de distribuição; as páginas e fixtures já consultadas só mostram a `filial/1`. Sem um segundo ID vindo de fonte pública, **não testei outra filial** (enumerar IDs estava vetado). Continua em aberto se o mesmo produto muda de preço entre filiais.
+- O **Stok** não foi chamado: mesma plataforma, mesmo formato de resposta.
+- Decisão registrada: o preço continua **por rede**, gravado na loja padrão; Asun suspensa (403); GraphQL da Asun não consultado; Carrefour fica na loja padrão (sem caminho permitido comprovado); CEP bem formado "não encontrado" cadastra com localização não resolvida (Fase 3).
+
 ## 8. Decisões que ficam com você
 
 - O `POST …/auth/loja/login` da VipCommerce (Master e Stok) com o `key` público do site é **login ou não**? Isso decide se dá para testar preço por filial nessas duas redes.

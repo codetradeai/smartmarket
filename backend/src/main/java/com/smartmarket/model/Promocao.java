@@ -27,6 +27,11 @@ public class Promocao {
     @JoinColumn(name = "mercado_id", nullable = false)
     private Mercado mercado;
 
+    /** Opcional: nulo = a promoção vale para a rede toda (todas as lojas do mercado). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loja_id")
+    private Loja loja;
+
     @Column(name = "valor_original", nullable = false)
     private BigDecimal valorOriginal;
 

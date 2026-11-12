@@ -1,0 +1,11 @@
+{
+  "versao": 1,
+  "descricao": "MODELO para preencher: uma linha por loja, copiada para lojas.json quando estiver completa. Nao e carregado no banco. Campos obrigatorios: mercado (carrefour, asun, atacadao, master, stok), nome, codigo_externo (id da filial na rede; 'padrao' e reservado) e fonte_url (pagina publica de onde veio o dado). cep (8 digitos), endereco, cidade e uf (2 letras) sao opcionais, mas sem CEP a loja nao e localizada. latitude e longitude: deixe nulas para o geocodificador preencher a partir do CEP. Referencia da pesquisa: docs/PESQUISA-FILIAIS.md.",
+  "lojas": [
+    {"mercado": "carrefour", "nome": null, "endereco": null, "cep": null, "cidade": null, "uf": "RS", "codigo_externo": null, "fonte_url": null, "latitude": null, "longitude": null},
+    {"mercado": "asun",      "nome": null, "endereco": null, "cep": null, "cidade": null, "uf": "RS", "codigo_externo": null, "fonte_url": null, "latitude": null, "longitude": null},
+    {"mercado": "atacadao",  "nome": null, "endereco": null, "cep": null, "cidade": null, "uf": "RS", "codigo_externo": null, "fonte_url": null, "latitude": null, "longitude": null},
+    {"mercado": "master",    "nome": null, "endereco": null, "cep": null, "cidade": null, "uf": "RS", "codigo_externo": null, "fonte_url": null, "latitude": null, "longitude": null},
+    {"mercado": "stok",      "nome": null, "endereco": null, "cep": null, "cidade": null, "uf": "RS", "codigo_externo": null, "fonte_url": null, "latitude": null, "longitude": null}
+  ]
+}

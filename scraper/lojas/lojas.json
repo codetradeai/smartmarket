@@ -1,0 +1,18 @@
+{
+  "versao": 1,
+  "descricao": "Lista curada de lojas (filiais) das redes ativas. So entra aqui o que veio de pagina publica permitida pelo robots.txt, com a URL em fonte_url (ver docs/PESQUISA-FILIAIS.md). Modelo das linhas a preencher: lojas_modelo.json. Carregar no banco: python scraper/carregar_lojas.py. Coordenadas faltantes: python scraper/geocodificar_lojas.py (grava aqui, uma vez por CEP).",
+  "lojas": [
+    {
+      "mercado": "asun",
+      "nome": "Asun Cavalhada",
+      "endereco": "Av. Cavalhada, 2985",
+      "cep": "91740001",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "1540",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.1026,
+      "longitude": -51.2312
+    }
+  ]
+}

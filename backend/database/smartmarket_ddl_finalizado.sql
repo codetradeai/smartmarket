@@ -12,6 +12,8 @@ DROP TABLE IF EXISTS favorito CASCADE;
 DROP TABLE IF EXISTS item_lista CASCADE;
 DROP TABLE IF EXISTS lista_compra CASCADE;
 DROP TABLE IF EXISTS promocao CASCADE;
+DROP TABLE IF EXISTS preco_loja CASCADE;
+DROP TABLE IF EXISTS loja CASCADE;
 DROP TABLE IF EXISTS preco CASCADE;
 DROP TABLE IF EXISTS produto CASCADE;
 DROP TABLE IF EXISTS mercado CASCADE;
@@ -303,6 +305,91 @@ CREATE TABLE vinculo_produto (
 CREATE INDEX idx_vinculo_produto_a ON vinculo_produto(produto_a_id);
 CREATE INDEX idx_vinculo_produto_b ON vinculo_produto(produto_b_id);
 CREATE INDEX idx_vinculo_produto_status ON vinculo_produto(status);
+
+-- ============================================================
+-- LOJA, PRECO_LOJA E LOCALIZACAO (mesma estrutura de deploy/06_lojas_por_cep.sql,
+-- sem a carga de dados: aqui o banco nasce vazio)
+-- ============================================================
+
+CREATE TABLE loja (
+    id BIGSERIAL PRIMARY KEY,
+    mercado_id BIGINT NOT NULL,
+    nome VARCHAR(255) NOT NULL,
+    endereco VARCHAR(500),
+    cidade VARCHAR(120),
+    uf VARCHAR(2),
+    cep VARCHAR(8),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    codigo_externo VARCHAR(100) NOT NULL,
+    ativa BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_loja_mercado
+        FOREIGN KEY (mercado_id)
+        REFERENCES mercado(id),
+
+    CONSTRAINT uk_loja_mercado_codigo
+        UNIQUE (mercado_id, codigo_externo),
+
+    CONSTRAINT chk_loja_latitude
+        CHECK (latitude IS NULL OR latitude BETWEEN -90 AND 90),
+
+    CONSTRAINT chk_loja_longitude
+        CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180)
+);
+
+-- vigente_ate NULL = vinculo corrente; o mesmo preco pode valer em varias lojas.
+-- produto_id repete preco.produto_id de proposito (FK composta impede divergencia) para
+-- permitir o indice unico parcial abaixo: uma loja, um preco vigente por produto.
+CREATE UNIQUE INDEX uk_preco_id_produto ON preco(id, produto_id);
+
+CREATE TABLE preco_loja (
+    id BIGSERIAL PRIMARY KEY,
+    preco_id BIGINT NOT NULL,
+    produto_id BIGINT NOT NULL,
+    loja_id BIGINT NOT NULL,
+    disponivel BOOLEAN NOT NULL DEFAULT TRUE,
+    vigente_desde TIMESTAMP NOT NULL,
+    vigente_ate TIMESTAMP,
+    confirmado_em TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_preco_loja_preco_produto
+        FOREIGN KEY (preco_id, produto_id)
+        REFERENCES preco(id, produto_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_preco_loja_loja
+        FOREIGN KEY (loja_id)
+        REFERENCES loja(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_preco_loja_vigencia
+        CHECK (vigente_ate IS NULL OR vigente_ate >= vigente_desde)
+);
+
+-- Localizacao do usuario (opcional; LGPD: pode ser editada e excluida)
+ALTER TABLE usuario ADD COLUMN cep VARCHAR(8) CHECK (cep IS NULL OR LENGTH(cep) = 8);
+ALTER TABLE usuario ADD COLUMN cidade VARCHAR(120);
+ALTER TABLE usuario ADD COLUMN uf VARCHAR(2);
+ALTER TABLE usuario ADD COLUMN latitude DOUBLE PRECISION;
+ALTER TABLE usuario ADD COLUMN longitude DOUBLE PRECISION;
+ALTER TABLE usuario ADD COLUMN loja_preferida_id BIGINT REFERENCES loja(id) ON DELETE SET NULL;
+
+-- Promocao por loja (NULL = vale para a rede toda)
+ALTER TABLE promocao ADD COLUMN loja_id BIGINT REFERENCES loja(id) ON DELETE CASCADE;
+
+CREATE INDEX idx_loja_mercado ON loja(mercado_id);
+CREATE INDEX idx_loja_lat_long ON loja(latitude, longitude);
+CREATE INDEX idx_preco_loja_loja_vigente ON preco_loja(loja_id, vigente_ate);
+CREATE INDEX idx_preco_loja_preco ON preco_loja(preco_id);
+CREATE INDEX idx_preco_loja_loja_produto ON preco_loja(loja_id, produto_id);
+-- so PostgreSQL (mesma regra de deploy/07_indice_unico_vinculo_vigente.sql)
+CREATE UNIQUE INDEX uk_preco_loja_vigente ON preco_loja(loja_id, produto_id) WHERE vigente_ate IS NULL;
+CREATE INDEX idx_promocao_loja ON promocao(loja_id);
+CREATE INDEX idx_usuario_loja_preferida ON usuario(loja_preferida_id);
+CREATE INDEX idx_produto_codigo_barras ON produto(codigo_barras);
 
 -- ============================================================
 -- FIM DO SCRIPT

@@ -8,7 +8,7 @@ Documento técnico oficial da expansão de cobertura de dados, engenharia de scr
 
 O SmartMarket expandiu sua cobertura geográfica e mercadológica para as **8 maiores redes de supermercados e atacarejos do Rio Grande do Sul**, com coletores, enriquecimento cadastral e comparação.
 
-> **Situação atual:** a rotina diária coleta **5 das 8 redes**. O Fort está **suspenso** por bloqueio 403 do Cloudflare (2026-11-09). Zaffari e Rissul estão **suspensas** em `scraper/rotina_carga.py` (`REDES_SUSPENSAS`), porque o `robots.txt` das duas proíbe `/api/` e os coletores usam `/api/catalog_system/...`; o catálogo e os preços dessas duas são históricos. Detalhes em [diagnostico-scraper.md](diagnostico-scraper.md).
+> **Situação atual:** a rotina diária coleta **4 das 8 redes** (Carrefour, Atacadão, Master e Stok). O Fort está **suspenso** por bloqueio 403 do Cloudflare (2026-11-09). A Asun está **suspensa** pelo mesmo motivo (403 do Cloudflare em `sense.osuper.com.br` ao coletor com User-Agent identificado, 2026-11-11) até haver autorização da Asun/OSuper, já solicitada pelo responsável do projeto. Zaffari e Rissul estão **suspensas** em `scraper/rotina_carga.py` (`REDES_SUSPENSAS`), porque o `robots.txt` das duas proíbe `/api/` e os coletores usam `/api/catalog_system/...`; o catálogo e os preços dessas duas são históricos. Detalhes em [diagnostico-scraper.md](diagnostico-scraper.md).
 
 ### Redes Monitoradas
 
@@ -16,9 +16,9 @@ O SmartMarket expandiu sua cobertura geográfica e mercadológica para as **8 ma
 | :---: | :--- | :--- | :--- | :--- |
 | **1** | **Fort Atacadista** | Atacarejo | Canoas / Grande Porto Alegre | API Sense / OSuper |
 | **2** | **Carrefour Mercado** | Hipermercado | Porto Alegre (Av. Ipiranga) | Storefront headless (stream React Router) |
-| **3** | **Asun Supermercados** | Varejo Regional | Região Metropolitana / Litoral | API Sense / OSuper |
+| **3** | **Asun Supermercados** | Varejo Regional | Região Metropolitana / Litoral | API Sense / OSuper (suspensa na rotina) |
 | **4** | **Atacadão** | Atacado / Varejo | Porto Alegre (Av. Sertório) | API VTEX Catalog System |
-| **5** | **Master Supermercados** | Supermercado | Erechim / Porto Alegre | API VipCommerce (Org 80) |
+| **5** | **Master Supermercados** | Supermercado | Erechim / Porto Alegre | API VipCommerce (Org 193) |
 | **6** | **Companhia Zaffari / Bourbon** | Supermercado Premium | Porto Alegre / RS | API VTEX Catalog System (suspensa na rotina) |
 | **7** | **Supermercados Rissul** | Supermercado | Vale dos Sinos / Região Metropolitana | API VTEX Catalog System (suspensa na rotina) |
 | **8** | **Stok Center** | Atacarejo | Passo Fundo / RS | API VipCommerce (Org 130) |
@@ -38,10 +38,15 @@ Os módulos foram implementados em Python 3.11+, seguindo o padrão de injeção
 - **Padrão**: VipCommerce Gateway API.
 - **Autenticação**: Obtenção dinâmica de JWT através de `POST /org/{orgId}/auth/loja/login`.
 - **Preços em Promoção**: Tratamento de `oferta.preco_antigo` para identificar o valor regular e o valor promocional ativo.
+- **Organização**: Master = org **193** (`ORG_ID` em `coleta_master.py`; a versão anterior desta doc dizia 80, o que estava errado), Stok = org **130**. Os dois coletam em `filial/1/centro_distribuicao/1`.
+- **Preço por filial (teste mínimo, 2026-11-11)**: com o login anônimo que o coletor já usa, 1 login e 1 busca (`arroz`, página 1: 20 itens, 216 no total) na Master, 2 s entre requisições, User-Agent identificado. **Inconclusivo:** nem a resposta (sem campos de filial ou centro de distribuição) nem o token (claims `org` 193, sem filial) revelam outro ID de filial, e as páginas e fixtures já consultadas só têm a `filial/1`. Sem um segundo ID vindo de fonte pública, não enumeramos IDs; **não sabemos** se o mesmo produto muda de preço entre filiais. O Stok, mesma plataforma e mesma resposta, não foi chamado. Decisão: o preço continua por rede, gravado na loja padrão.
 
 ### 2.3. Asun Supermercados (`coleta_asun.py`)
 - **Padrão**: OSuper / Sense Platform.
 - **Endpoint**: `https://sense.osuper.com.br/{empresa}/{filial}/category/{id}` (mesma API do Fort).
+- **Identificação**: o coletor usa o User-Agent identificado (`identificacao.user_agent`, contato de `SMARTMARKET_CONTATO`), sem `Origin`/`Referer` da loja. Com isso o Cloudflare responde **403**, e a rede está **suspensa** em `REDES_SUSPENSAS` (não contornar: nada de proxy, troca de headers ou anti-bot) até haver autorização.
+- **Content-Signal**: o `robots.txt` do OSuper/Asun declara `Content-Signal: search=yes,ai-train=no,use=reference`. `ai-train=no` é reserva de direitos contra treino de IA; o uso aqui (comparar preços) não é treino, mas o dado coletado **não deve ser usado para treinar modelos**.
+- **Filiais**: a home pública lista 24 lojas ativas (`storeId` 1540 a 1563), mas só a página `/2780/nossas-lojas` traz endereço, e só da loja ativa por padrão (Cavalhada, 1540). O GraphQL do storefront **não foi consultado** (decisão do responsável).
 
 ---
 

@@ -9,6 +9,7 @@ from unittest import mock
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
+import coleta_asun
 import coleta_fort_atacadista as fort
 import coleta_master
 import coleta_stok
@@ -79,6 +80,23 @@ class ModulosUsamOUserAgentTest(unittest.TestCase):
             fort.buscar_pagina("https://x/a", headers=fort.HEADERS, params={}, timeout=1)
         self.assertEqual(get.call_args.kwargs["headers"]["User-Agent"], UA)
         self.assertNotIn("User-Agent", fort.HEADERS)
+
+    def test_asun_identifica_o_bot_sem_origin_nem_referer_da_loja(self):
+        with mock.patch.dict(os.environ, CONTATO), mock.patch("requests.get", return_value=resposta(corpo={})) as get:
+            coleta_asun.buscar_pagina("https://x/a", headers=coleta_asun.HEADERS, params={}, timeout=1)
+        enviados = get.call_args.kwargs["headers"]
+        self.assertEqual(enviados["User-Agent"], UA)
+        for navegador in ("Mozilla", "Chrome", "Safari", "AppleWebKit"):
+            self.assertNotIn(navegador, enviados["User-Agent"])
+        self.assertNotIn("Origin", enviados)
+        self.assertNotIn("Referer", enviados)
+        self.assertNotIn("User-Agent", coleta_asun.HEADERS)
+
+    def test_asun_sem_variavel_nao_faz_requisicao(self):
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch("requests.get") as get:
+            with self.assertRaises(identificacao.ErroConfiguracao):
+                coleta_asun.buscar_pagina("https://x/a", headers=coleta_asun.HEADERS, params={}, timeout=1)
+        get.assert_not_called()
 
     def test_ean_pagina(self):
         with mock.patch.dict(os.environ, CONTATO), \

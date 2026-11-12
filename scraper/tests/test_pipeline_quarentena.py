@@ -28,7 +28,11 @@ INSTANTE = datetime(2026, 10, 4, 13, tzinfo=timezone.utc)
 
 
 class FakeBanco:
-    """Banco em memória que entende só as consultas de pipeline.carregar."""
+    """Banco em memória que entende só as consultas de pipeline.carregar.
+
+    O vínculo preço x loja é simulado como "sem vínculo vigente" (toda coleta cria preco): estes
+    testes cobrem quarentena e savepoints; a semântica dos vínculos (confirmar, fechar antes de
+    abrir, reaproveitar) é coberta em test_lojas_postgres.py com PostgreSQL real."""
 
     def __init__(self, source_products=None, eventos=None):
         self.estado = {'source_products': dict(source_products or {}), 'eventos': dict(eventos or {}),
@@ -91,8 +95,16 @@ class FakeCursor:
         self._um, self._todos = None, []
         if s.upper().startswith('SELECT EXISTS'):
             self._um = (True,)
+        elif s.startswith('SELECT to_regclass'):
+            self._um = (True,)  # tabelas loja e preco_loja existem
         elif s.startswith('SELECT id FROM mercado'):
             self._um = (1,)
+        elif s.startswith('SELECT id FROM loja'):
+            self._um = (1,)  # loja padrao do mercado
+        elif s.startswith('SELECT pl.id, pl.preco_id'):
+            self._um = None  # sem vinculo vigente
+        elif s.startswith('SELECT p.id FROM preco_loja'):
+            self._um = None  # nenhum preco vigente em outra loja para reaproveitar
         elif s.startswith('SELECT produto_id, source_signature FROM smartmarket_ingest.source_product'):
             self._um = e['source_products'].get(tuple(params))
         elif "information_schema.columns WHERE table_name='produto'" in s:
@@ -106,9 +118,11 @@ class FakeCursor:
         elif s.startswith('SELECT payload_hash FROM smartmarket_ingest.event'):
             h = e['eventos'].get(tuple(params))
             self._um = (h,) if h else None
-        elif s.startswith('INSERT INTO preco'):
+        elif s.startswith('INSERT INTO preco('):
             e['precos'].append(params)
             self._um = (len(e['precos']),)
+        elif s.startswith('INSERT INTO preco_loja'):
+            e.setdefault('vinculos', []).append(params)
         elif s.startswith('INSERT INTO smartmarket_ingest.event'):
             *chave, instante, h, _preco_id, _run = params
             e['eventos'][(*chave, instante)] = h

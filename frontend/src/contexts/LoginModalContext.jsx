@@ -8,7 +8,7 @@ export const LoginModalContext = createContext(null)
 
 /**
  * Controla o card de login em modal. Precisa ficar dentro do Router (o card tem link para o cadastro e
- * o modal fecha sozinho quando a rota muda). A rota /auth continua existindo para o cadastro com CEP,
+ * o modal fecha sozinho quando a rota muda). A rota /auth continua existindo para o cadastro,
  * o ProtectedRoute e o redirecionamento de sessão expirada.
  */
 export function LoginModalProvider({ children }) {

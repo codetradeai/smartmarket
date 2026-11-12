@@ -17,7 +17,7 @@ const BENEFICIOS = [
 
 /**
  * Corpo do card de login (carregado sob demanda pelo LoginDialogo). Usa o mesmo `login` do AuthContext
- * que a página /auth; o cadastro continua em /auth?mode=register por causa do CEP obrigatório.
+ * que a página /auth; o cadastro continua na página /auth?mode=register.
  */
 export default function CartaoLogin({ onFechar }) {
   const { login, isLoading } = useAuth()

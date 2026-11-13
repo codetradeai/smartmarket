@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -43,6 +44,11 @@ import java.util.concurrent.TimeUnit;
  * faz o resultado virar vazio: a cidade já obtida é preservada. CEP sem rua (CEP geral da cidade)
  * mantém a coordenada da BrasilAPI. Com smartmarket.cep.refinar-por-rua=false nada disso acontece.
  *
+ * <p><b>Segunda tentativa por bairro (Fase 4E).</b> Se a consulta pela rua não der resultado válido e
+ * o CEP trouxer bairro, uma segunda consulta ao Nominatim usa só "bairro, cidade, UF, Brasil", com as
+ * mesmas travas (cidade confere, até 30 km) e mais uma: o resultado não pode ser a própria cidade. As
+ * duas tentativas dividem o mesmo teto do refino, e o cache guarda a coordenada aceita de qualquer uma.
+ *
  * <p>Nada do CEP, da rua ou da coordenada vai para o log: só status e o nome da exceção.
  */
 @Component
@@ -55,6 +61,8 @@ public class ResolvedorCep {
     /** Política de uso do Nominatim: no máximo 1 requisição por segundo. */
     private static final long INTERVALO_NOMINATIM_NANOS = TimeUnit.SECONDS.toNanos(1);
     private static final int LIMITE_CACHE = 5000;
+    /** addresstype do Nominatim de resultados que são a cidade (ou algo maior), não um lugar dentro dela. */
+    private static final Set<String> TIPOS_DE_CIDADE = Set.of("city", "town", "municipality", "county", "state", "region", "country");
 
     private final RestClient brasilApi;
     private final RestClient viaCep;
@@ -233,24 +241,37 @@ public class ResolvedorCep {
     }
 
     /**
-     * Procura a rua no Nominatim. Devolve a coordenada aceita ({lat, lon}) ou vazio. Roda dentro do
-     * teto do refino: o tempo de espera pela vez no limite de 1 requisição por segundo conta nele.
+     * Procura a coordenada no Nominatim: primeiro pela rua e, se isso não der resultado válido e o CEP
+     * tem bairro, uma segunda vez só pelo bairro. Devolve a coordenada aceita ({lat, lon}) ou vazio.
+     * As duas tentativas dividem <b>um único</b> teto (smartmarket.cep.refino-timeout-ms), contado do
+     * início: o pior caso do refino continua sendo o teto, não o dobro. A espera pela vez no limite de
+     * 1 requisição por segundo também conta nele, então a segunda tentativa só sai se a vaga (1 s depois
+     * da primeira) couber no que sobrou do teto.
      */
-    @SuppressWarnings("unchecked")
     private Optional<double[]> consultarNominatim(Consulta c) {
         long limite = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(refinoTimeoutMs);
+        Optional<double[]> porRua = buscarNoNominatim(montarConsultaPorRua(c), c, limite, false);
+        if (porRua.isPresent() || c.bairro() == null || Thread.currentThread().isInterrupted()) {
+            return porRua;
+        }
+        return buscarNoNominatim(montarConsultaPorBairro(c), c, limite, true);
+    }
+
+    /** Uma consulta ao Nominatim, dentro do prazo {@code limite} (System.nanoTime). Nunca lança. */
+    @SuppressWarnings("unchecked")
+    private Optional<double[]> buscarNoNominatim(String consulta, Consulta c, long limite, boolean porBairro) {
         try {
             if (!aguardarVezNominatim(limite)) {
                 log.debug("Refino de CEP sem a vez no limite do Nominatim");
                 return Optional.empty();
             }
             List<Map<String, Object>> resultados = nominatim.get()
-                .uri("/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=br&q={q}", montarConsulta(c))
+                .uri("/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=br&q={q}", consulta)
                 .retrieve().body(List.class);
             if (resultados == null || resultados.isEmpty()) {
                 return Optional.empty();
             }
-            return aceitar(resultados.get(0), c);
+            return aceitar(resultados.get(0), c, porBairro);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Optional.empty();
@@ -263,11 +284,21 @@ public class ResolvedorCep {
         }
     }
 
-    private static String montarConsulta(Consulta c) {
+    /** "rua, bairro (se houver), cidade, UF, Brasil". */
+    private static String montarConsultaPorRua(Consulta c) {
         StringBuilder q = new StringBuilder(c.rua());
         if (c.bairro() != null) {
             q.append(", ").append(c.bairro());
         }
+        return completarConsulta(q, c);
+    }
+
+    /** "bairro, cidade, UF, Brasil". Só é chamada com bairro. */
+    private static String montarConsultaPorBairro(Consulta c) {
+        return completarConsulta(new StringBuilder(c.bairro()), c);
+    }
+
+    private static String completarConsulta(StringBuilder q, Consulta c) {
         if (c.local().cidade() != null) {
             q.append(", ").append(c.local().cidade());
         }
@@ -277,9 +308,17 @@ public class ResolvedorCep {
         return q.append(", Brasil").toString();
     }
 
-    /** Aceita o resultado só se a cidade bate com a do CEP e, havendo coordenada do CEP, se está a até 30 km. */
-    private static Optional<double[]> aceitar(Map<String, Object> resultado, Consulta c) {
+    /**
+     * Aceita o resultado só se a cidade bate com a do CEP e, havendo coordenada do CEP, se está a até 30 km.
+     * Na consulta só por bairro vale mais uma trava: o resultado não pode ser a própria cidade (um bairro
+     * com o nome da cidade, ou um bairro que o OpenStreetMap não conhece, pode devolver o limite do
+     * município, e o centro dele é exatamente o que o refino existe para evitar).
+     */
+    private static Optional<double[]> aceitar(Map<String, Object> resultado, Consulta c, boolean porBairro) {
         if (!(resultado.get("address") instanceof Map<?, ?> endereco)) {
+            return Optional.empty();
+        }
+        if (porBairro && resultado.get("addresstype") instanceof String tipo && TIPOS_DE_CIDADE.contains(tipo)) {
             return Optional.empty();
         }
         String cidadeDoCep = semAcentoNemCaixa(c.local().cidade());

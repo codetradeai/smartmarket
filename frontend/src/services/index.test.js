@@ -6,6 +6,7 @@ import mercadoService from './mercadoService'
 import listaService from './listaService'
 import favoritoService from './favoritoService'
 import adminService from './adminService'
+import lojaService from './lojaService'
 
 describe('services (barrel)', () => {
   it('reexporta o cliente HTTP e todos os servicos', () => {
@@ -16,5 +17,6 @@ describe('services (barrel)', () => {
     expect(servicos.listaService).toBe(listaService)
     expect(servicos.favoritoService).toBe(favoritoService)
     expect(servicos.adminService).toBe(adminService)
+    expect(servicos.lojaService).toBe(lojaService)
   })
 })

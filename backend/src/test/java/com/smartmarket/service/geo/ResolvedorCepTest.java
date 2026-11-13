@@ -444,7 +444,9 @@ class ResolvedorCepTest {
         resolvedor.resolver("90010000");
         resolvedor.resolver("90010000");
 
-        assertThat(chamadasNominatim.get()).isEqualTo(2);
+        // 2 resoluções x 2 consultas cada (rua e, como o CEP tem bairro, a segunda só pelo bairro, da Fase 4E).
+        // Se o "vazio" tivesse ido para o cache, a segunda resolução não chamaria o serviço e seriam só 2.
+        assertThat(chamadasNominatim.get()).isEqualTo(4);
     }
 
     @Test
@@ -502,6 +504,245 @@ class ResolvedorCepTest {
         assertThat(chamadasNominatim.get()).isZero();
     }
 
+    // ---------- Fase 4E: segunda tentativa só por bairro, quando a rua não deu resultado válido ----------
+
+    private static final String BRASILAPI_RUA_SEM_BAIRRO = """
+        {"cep":"90010000","state":"RS","city":"Porto Alegre","neighborhood":null,"street":"Rua dos Andradas",
+         "location":{"type":"Point","coordinates":{"longitude":"-51.2300","latitude":"-30.0300"}}}""";
+    private static final String BRASILAPI_BAIRRO_SEM_RUA = """
+        {"cep":"90010000","state":"RS","city":"Porto Alegre","neighborhood":"Centro Histórico","street":null,
+         "location":{"type":"Point","coordinates":{"longitude":"-51.2300","latitude":"-30.0300"}}}""";
+    private static final String CONSULTA_POR_BAIRRO = "Centro Histórico, Porto Alegre, RS, Brasil";
+    private static final String NOMINATIM_BAIRRO = """
+        [{"lat":"-30.0310","lon":"-51.2200","addresstype":"suburb",
+          "address":{"suburb":"Centro Histórico","city":"Porto Alegre","state":"Rio Grande do Sul"}}]""";
+
+    /**
+     * Nominatim que responde conforme o "q": consultas que começam por "Rua dos Andradas" são a da rua
+     * (resposta {@code statusRua}/{@code corpoRua}); as demais são a só do bairro ({@code corpoBairro}, com
+     * atraso opcional). Devolve a lista, em ordem, dos "q" recebidos.
+     */
+    private List<String> nominatimPorTentativa(int statusRua, String corpoRua, String corpoBairro, long atrasoBairroMs) {
+        List<String> consultas = Collections.synchronizedList(new ArrayList<>());
+        servidor.createContext("/nominatim/search", troca -> {
+            chamadasNominatim.incrementAndGet();
+            String q = "";
+            for (String par : troca.getRequestURI().getRawQuery().split("&")) {
+                String[] kv = par.split("=", 2);
+                if (kv[0].equals("q")) {
+                    q = URLDecoder.decode(kv[1], StandardCharsets.UTF_8);
+                }
+            }
+            consultas.add(q);
+            try {
+                if (q.startsWith("Rua dos Andradas")) {
+                    enviar(troca, statusRua, corpoRua);
+                } else {
+                    if (atrasoBairroMs > 0) {
+                        Thread.sleep(atrasoBairroMs);
+                    }
+                    enviar(troca, 200, corpoBairro);
+                }
+            } catch (InterruptedException | IOException ignorado) {
+                // cliente desistiu (timeout): esperado no teste de lentidao
+            }
+        });
+        return consultas;
+    }
+
+    @Test
+    void ruaOkNaoFazASegundaConsultaPorBairro() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, NOMINATIM_RUA, NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2000).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.0346);
+        assertThat(consultas).hasSize(1);
+        assertThat(consultas.get(0)).startsWith("Rua dos Andradas");
+    }
+
+    @Test
+    void ruaVaziaEBairroOkDevolveACoordenadaDoBairro() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, "[]", NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.uf()).isEqualTo("RS");
+        assertThat(local.latitude()).isEqualTo(-30.031);
+        assertThat(local.longitude()).isEqualTo(-51.22);
+        assertThat(consultas).hasSize(2);
+        assertThat(consultas.get(0)).isEqualTo("Rua dos Andradas, Centro Histórico, Porto Alegre, RS, Brasil");
+        assertThat(consultas.get(1)).isEqualTo(CONSULTA_POR_BAIRRO);
+    }
+
+    @Test
+    void ruaComErroDoServicoEBairroOkDevolveACoordenadaDoBairro() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(500, "{}", NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.031);
+        assertThat(consultas).hasSize(2);
+    }
+
+    @Test
+    void ruaComCidadeErradaEBairroOkDevolveACoordenadaDoBairro() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, "[{\"lat\":\"-29.9177\",\"lon\":\"-51.1839\",\"address\":{\"city\":\"Canoas\"}}]",
+            NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.031);
+        assertThat(local.longitude()).isEqualTo(-51.22);
+    }
+
+    @Test
+    void ruaA38KmEBairroOkDevolveACoordenadaDoBairro() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, nominatimComLat(-30.0300 + 0.342), NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.031);
+    }
+
+    @Test
+    void ruaEBairroVaziosSegueSemCoordenadasComAsDuasConsultas() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, "[]", "[]", 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.uf()).isEqualTo("RS");
+        assertThat(local.temCoordenadas()).isFalse();
+        assertThat(consultas).hasSize(2);
+    }
+
+    @Test
+    void bairroComCidadeErradaSegueSemCoordenadas() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, "[]",
+            "[{\"lat\":\"-29.9177\",\"lon\":\"-51.1839\",\"addresstype\":\"suburb\",\"address\":{\"suburb\":\"Centro\",\"city\":\"Canoas\"}}]", 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.temCoordenadas()).isFalse();
+    }
+
+    @Test
+    void bairroA38KmDaCoordenadaDoCepSegueSemCoordenadas() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, "[]", nominatimComLat(-30.0300 + 0.342), 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.temCoordenadas()).isFalse();
+    }
+
+    @Test
+    void bairroA25KmDaCoordenadaDoCepEAceito() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, "[]", nominatimComLat(-30.0300 + 0.225), 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.0300 + 0.225);
+    }
+
+    @Test
+    void bairroQueDevolveAPropriaCidadeNuncaViraCoordenadaDoUsuario() {
+        // Cidade confere e fica perto, mas o resultado é o limite do município: seria o centro da cidade.
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        nominatimPorTentativa(200, "[]",
+            "[{\"lat\":\"-30.0277\",\"lon\":\"-51.2287\",\"addresstype\":\"municipality\",\"address\":{\"municipality\":\"Porto Alegre\"}}]", 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.temCoordenadas()).isFalse();
+    }
+
+    @Test
+    void timeoutNaSegundaTentativaSegueSemCoordenadasDentroDoTetoUnico() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        // A segunda consulta sai ~1 s depois da primeira (limite de 1 req/s) e fica presa; o teto único
+        // de 1800 ms corta tudo, em vez de dar mais 1800 ms para a segunda.
+        List<String> consultas = nominatimPorTentativa(200, "[]", NOMINATIM_BAIRRO, 5000);
+        ResolvedorCep resolvedor = resolvedorComRefino(2000, 1800);
+
+        long inicio = System.nanoTime();
+        LocalizacaoCep local = resolvedor.resolver("90010000").orElseThrow();
+        long ms = (System.nanoTime() - inicio) / 1_000_000;
+
+        assertThat(consultas).as("a segunda tentativa saiu e ficou presa").hasSize(2);
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.temCoordenadas()).isFalse();
+        assertThat(ms).isGreaterThanOrEqualTo(1700).isLessThan(2800);
+    }
+
+    @Test
+    void semTempoNoTetoUnicoParaAVagaDaSegundaTentativaElaNaoSai() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, "[]", NOMINATIM_BAIRRO, 0);
+        // Teto de 500 ms: a vaga da segunda consulta só chegaria 1 s depois da primeira.
+        ResolvedorCep resolvedor = resolvedorComRefino(2000, 500);
+
+        long inicio = System.nanoTime();
+        LocalizacaoCep local = resolvedor.resolver("90010000").orElseThrow();
+        long ms = (System.nanoTime() - inicio) / 1_000_000;
+
+        assertThat(consultas).hasSize(1);
+        assertThat(local.temCoordenadas()).isFalse();
+        assertThat(ms).isLessThan(1000);
+    }
+
+    @Test
+    void cepSemBairroNaoFazSegundaConsultaEFicaSemCoordenadas() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_RUA_SEM_BAIRRO, 0);
+        List<String> consultas = nominatimPorTentativa(200, "[]", NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(consultas).hasSize(1);
+        assertThat(consultas.get(0)).isEqualTo("Rua dos Andradas, Porto Alegre, RS, Brasil");
+        assertThat(local.cidade()).isEqualTo("Porto Alegre");
+        assertThat(local.temCoordenadas()).isFalse();
+    }
+
+    @Test
+    void cepComBairroMasSemRuaMantemACoordenadaDaBrasilApiENaoChamaONominatim() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_BAIRRO_SEM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, NOMINATIM_RUA, NOMINATIM_BAIRRO, 0);
+
+        LocalizacaoCep local = resolvedorComRefino(2000, 2500).resolver("90010000").orElseThrow();
+
+        assertThat(local.latitude()).isEqualTo(-30.03);
+        assertThat(local.longitude()).isEqualTo(-51.23);
+        assertThat(consultas).isEmpty();
+    }
+
+    @Test
+    void coordenadaDoBairroVaiParaOCacheEOMesmoCepNaoChamaONominatimDeNovo() {
+        responde("/brasilapi/90010000", chamadasBrasilApi, 200, BRASILAPI_COM_RUA, 0);
+        List<String> consultas = nominatimPorTentativa(200, "[]", NOMINATIM_BAIRRO, 0);
+        ResolvedorCep resolvedor = resolvedorComRefino(2000, 2500);
+
+        LocalizacaoCep primeira = resolvedor.resolver("90010000").orElseThrow();
+        LocalizacaoCep segunda = resolvedor.resolver("90010000").orElseThrow();
+
+        assertThat(segunda).isEqualTo(primeira);
+        assertThat(segunda.latitude()).isEqualTo(-30.031);
+        assertThat(consultas).hasSize(2);
+    }
+
     @Test
     void nenhumaMensagemDeLogContemOCepOuARua() {
         ch.qos.logback.classic.Logger logger =
@@ -525,7 +766,7 @@ class ResolvedorCepTest {
             assertThat(registro.list).isNotEmpty();
             for (ILoggingEvent evento : registro.list) {
                 assertThat(evento.getFormattedMessage())
-                    .doesNotContain("90010000", "90020000", "90010-000", "Andradas", "Farrapos", "-30.0");
+                    .doesNotContain("90010000", "90020000", "90010-000", "Andradas", "Farrapos", "Centro Hist", "-30.0");
                 assertThat(evento.getThrowableProxy()).isNull();
             }
         } finally {

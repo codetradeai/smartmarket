@@ -345,6 +345,8 @@ describe('AuthPage', () => {
         const aviso = screen.getByText(/identificar a loja mais próxima/)
         expect(aviso).toBeInTheDocument()
         expect(aviso).toHaveTextContent(/BrasilAPI\/ViaCEP/)
+        // a rua do CEP também vai ao Nominatim (OpenStreetMap), sem identificar o usuário
+        expect(aviso).toHaveTextContent(/rua do CEP é consultada no Nominatim \(OpenStreetMap\), sem identificar você/)
         // o aviso diz o que acontece quando a consulta não resolve: a conta é criada mesmo assim
         expect(aviso).toHaveTextContent(/falhar ou o CEP não for encontrado, sua conta é criada/)
         expect(screen.getByLabelText('CEP')).toHaveAttribute('aria-describedby', aviso.id)

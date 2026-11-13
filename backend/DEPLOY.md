@@ -364,6 +364,16 @@ Adicione em **Environment → Add Environment Variable**:
 
 > **Nunca** grave esses valores em arquivos versionados.
 
+**Localização pela rua do CEP (Fase 4C) — opcionais, com padrão; nada a configurar e sem migration de banco.** O backend refina a coordenada do usuário consultando o Nominatim (OpenStreetMap) com a rua, o bairro e a cidade do CEP:
+
+| Variável (propriedade) | Padrão | Notas |
+|---|---|---|
+| `SMARTMARKET_CEP_NOMINATIM_URL` (`smartmarket.cep.nominatim-url`) | `https://nominatim.openstreetmap.org` | trocar só para um Nominatim próprio |
+| `SMARTMARKET_CEP_REFINAR_POR_RUA` (`smartmarket.cep.refinar-por-rua`) | `true` | `false` desliga o refino e volta ao comportamento anterior (coordenada da BrasilAPI, que costuma ser o centro da cidade) |
+| `SMARTMARKET_CEP_USER_AGENT` (`smartmarket.cep.user-agent`) | `SmartMarket/1.0 (+https://github.com/smartmarket-team/smartmarket)` | o Nominatim exige um User-Agent identificado |
+
+O teto do refino (`smartmarket.cep.refino-timeout-ms`, 2000 ms) é separado do teto de BrasilAPI + ViaCEP (`smartmarket.cep.timeout-ms`, 2000 ms); se estourar, o cadastro segue com cidade e UF, sem coordenadas. A aplicação faz no máximo 1 requisição por segundo ao Nominatim (política de uso do serviço) e guarda em memória as últimas 5000 ruas resolvidas, então um pico de cadastros não passa desse ritmo (quem não consegue a vez dentro do teto fica sem coordenada e pode atualizar o CEP depois). **Privacidade:** o Nominatim recebe rua, bairro, cidade e UF do CEP, sem nome, e-mail nem identificador do usuário; o backend não grava CEP, rua nem coordenada em log. Coordenadas © colaboradores do OpenStreetMap.
+
 ### 2.3 URL JDBC para o Neon
 
 A connection string do Neon é no formato `postgresql://...`.

@@ -315,3 +315,46 @@ class BuscaHttpTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GerarSqlLojasTest(unittest.TestCase):
+    """gerar_sql_lojas: SQL do 08 gerado a partir da lista curada (offline, sem banco)."""
+
+    def sql_de(self, lojas, data='2026-11-12'):
+        import gerar_sql_lojas
+        with tempfile.TemporaryDirectory() as pasta:
+            arquivo = Path(pasta) / 'lojas.json'
+            arquivo.write_text(json.dumps({'versao': 1, 'lojas': lojas}), encoding='utf-8')
+            return gerar_sql_lojas.gerar_sql(carregar_lojas.ler_lojas(arquivo), data=data)
+
+    def test_apostrofo_do_nome_e_do_endereco_e_escapado(self):
+        loja = dict(LOJA_OK, mercado='zaffari', nome="Zaffari Mont'Serrat", endereco="Rua D'Ouro, 1",
+                    codigo_externo='zaffari-mont-serrat')
+        sql = self.sql_de([loja])
+        self.assertIn("'Zaffari Mont''Serrat'", sql)
+        self.assertIn("'Rua D''Ouro, 1'", sql)
+
+    def test_loja_sem_cep_e_sem_coordenada_gera_null(self):
+        loja = dict(LOJA_OK, mercado='asun', nome='Asun Guaiba', codigo_externo='asun-guaiba', cep=None)
+        sql = self.sql_de([loja])
+        valores = [l for l in sql.splitlines() if "'asun-guaiba'" in l and l.lstrip().startswith('(')]
+        self.assertEqual(len(valores), 1)
+        self.assertEqual(valores[0].count('NULL'), 3, valores[0])  # cep, latitude, longitude
+        self.assertNotIn("''", valores[0])
+
+    def test_saida_e_deterministica_para_a_mesma_entrada(self):
+        lojas = [dict(LOJA_OK), dict(LOJA_OK, nome='Asun Dois', codigo_externo='1501')]
+        self.assertEqual(self.sql_de(lojas), self.sql_de(lojas))
+
+    def test_nenhuma_linha_de_valores_usa_o_codigo_padrao(self):
+        arquivo = RAIZ / 'lojas' / 'lojas.json'
+        import gerar_sql_lojas
+        sql = gerar_sql_lojas.gerar_sql(carregar_lojas.ler_lojas(arquivo), data='2026-11-12')
+        valores = [l for l in sql.splitlines() if l.startswith('    (')]
+        self.assertEqual(len(valores), 82)
+        self.assertFalse([l for l in valores if "'padrao'" in l])
+        self.assertNotIn('DELETE', sql.upper())
+
+    def test_loja_com_codigo_padrao_nem_chega_ao_gerador(self):
+        with self.assertRaises(ErroIngestao):
+            self.sql_de([dict(LOJA_OK, codigo_externo='padrao')])

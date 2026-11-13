@@ -1,4 +1,4 @@
-import { linkComoChegar } from './linkComoChegar'
+import { linkComoChegar, linkWaze } from './linkComoChegar'
 
 const BASE = 'https://www.google.com/maps/dir/?api=1&destination='
 
@@ -86,5 +86,103 @@ describe('linkComoChegar', () => {
     expect(url.searchParams.get('destination')).toBe('-30.0346,-51.2177')
     expect(url.origin).toBe('https://www.google.com')
     expect(url.pathname).toBe('/maps/dir/')
+  })
+})
+
+describe('linkWaze', () => {
+  const BASE_WAZE = 'https://waze.com/ul?ll='
+  const FIM = '&navigate=yes'
+
+  describe('pares válidos', () => {
+    it('monta o link do Waze com o ponto da loja e a navegação ligada', () => {
+      expect(linkWaze(-30.0346, -51.2177)).toBe(`${BASE_WAZE}-30.0346,-51.2177${FIM}`)
+    })
+
+    it('tira os zeros à direita', () => {
+      expect(linkWaze(-30.03, -51.2)).toBe(`${BASE_WAZE}-30.03,-51.2${FIM}`)
+    })
+
+    it('limita a seis casas decimais, arredondando', () => {
+      expect(linkWaze(-30.12345678, -51.98765432)).toBe(`${BASE_WAZE}-30.123457,-51.987654${FIM}`)
+    })
+
+    it('nunca usa notação científica, mesmo com número minúsculo', () => {
+      expect(linkWaze(1e-9, 1)).toBe(`${BASE_WAZE}0,1${FIM}`)
+      expect(linkWaze(1e-9, 1)).not.toMatch(/e-/)
+    })
+
+    it.each([
+      [90, 180],
+      [-90, -180],
+      [90, -180],
+      [-90, 180],
+    ])('aceita o limite da faixa (%p, %p)', (lat, lon) => {
+      expect(linkWaze(lat, lon)).toBe(`${BASE_WAZE}${lat},${lon}${FIM}`)
+    })
+  })
+
+  describe('pares ausentes ou inválidos: sem link', () => {
+    it.each([
+      [null, null],
+      [undefined, undefined],
+      [-30.03, null],
+      [null, -51.2],
+      [-30.03, undefined],
+      [undefined, -51.2],
+      ['-30.03', '-51.2'],
+      ['', ''],
+      [NaN, -51.2],
+      [-30.03, NaN],
+      [Infinity, -51.2],
+      [-30.03, -Infinity],
+      [{}, []],
+      [true, false],
+      [90.0001, -51.2],
+      [-90.0001, -51.2],
+      [-30.03, 180.0001],
+      [-30.03, -180.0001],
+      [200, 300],
+    ])('(%p, %p) devolve null', (lat, lon) => {
+      expect(linkWaze(lat, lon)).toBeNull()
+    })
+
+    it('sem argumentos devolve null', () => {
+      expect(linkWaze()).toBeNull()
+    })
+  })
+
+  it('valida exatamente como o link do Google Maps: um existe se, e só se, o outro existe', () => {
+    const pares = [
+      [-30.0346, -51.2177],
+      [0, 0],
+      [90, 180],
+      [91, 0],
+      [0, 181],
+      [null, -51.2],
+      [-30.03, undefined],
+      ['-30', '-51'],
+      [NaN, 1],
+      [1, Infinity],
+    ]
+
+    for (const [lat, lon] of pares) {
+      expect(linkWaze(lat, lon) === null).toBe(linkComoChegar(lat, lon) === null)
+    }
+  })
+
+  it('usa o mesmo ponto do Google Maps, com a mesma formatação', () => {
+    const ponto = (url) => (url.match(/-?\d+(\.\d+)?,-?\d+(\.\d+)?/) || [])[0]
+
+    expect(ponto(linkWaze(-30.12345678, -51.98765432))).toBe(ponto(linkComoChegar(-30.12345678, -51.98765432)))
+  })
+
+  it('o link leva só o ponto da loja: nenhuma origem nem dado do usuário', () => {
+    const url = new URL(linkWaze(-30.0346, -51.2177))
+
+    expect([...url.searchParams.keys()].sort()).toEqual(['ll', 'navigate'])
+    expect(url.searchParams.get('ll')).toBe('-30.0346,-51.2177')
+    expect(url.searchParams.get('navigate')).toBe('yes')
+    expect(url.origin).toBe('https://waze.com')
+    expect(url.pathname).toBe('/ul')
   })
 })

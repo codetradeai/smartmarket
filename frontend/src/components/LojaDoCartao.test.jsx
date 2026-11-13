@@ -24,7 +24,7 @@ describe('LojaDoCartao', () => {
       render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
 
       expect(screen.getByText('Carrefour Centro')).toBeInTheDocument()
-      expect(screen.getByText('• 3,5 km')).toBeInTheDocument()
+      expect(screen.getByText('3,5 km')).toBeInTheDocument()
     })
 
     it('mostra o prefixo quando ele é pedido e não mostra quando não é', () => {
@@ -105,11 +105,14 @@ describe('LojaDoCartao', () => {
       expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
     })
 
-    it('o link só leva o ponto da loja: nada do usuário nem endereço', () => {
+    it('os links só levam o ponto da loja: nada do usuário nem endereço', () => {
       render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
 
-      const href = screen.getByRole('link').getAttribute('href')
-      expect(href).not.toMatch(/origin|Andradas|Porto|90010/i)
+      const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'))
+      expect(hrefs).toHaveLength(2)
+      for (const href of hrefs) {
+        expect(href).not.toMatch(/origin|Andradas|Porto|90010/i)
+      }
     })
 
     it.each([
@@ -172,9 +175,7 @@ describe('LojaDoCartao', () => {
   it('sem coordenadas o chip fica igual ao de antes, sem o link', () => {
     render(<LojaDoCartao filial={SEM_COORDENADAS} nomeRede="Carrefour" />)
 
-    expect(screen.getByText('Carrefour Centro').closest('[title]')).toHaveTextContent(
-      /^📍\s*Carrefour Centro\s*•\s*3,5 km$/
-    )
+    expect(screen.getByText('Carrefour Centro').closest('[title]')).toHaveTextContent(/^📍\s*Carrefour Centro\s*3,5 km$/)
   })
 
   // O jsdom não faz layout: estas classes são a trava contra voltar ao chip de uma linha só, em que o
@@ -188,8 +189,11 @@ describe('LojaDoCartao', () => {
     it.each([
       ['completo', false],
       ['compacto', true],
-    ])('o chip %s quebra em linhas (flex-wrap) em vez de espremer tudo numa só', (_nome, compacto) => {
-      expect(chip({ compacto })).toHaveClass('flex', 'flex-wrap')
+    ])('o chip %s é uma coluna: o nome numa linha e os detalhes (que quebram sozinhos) em outra', (_nome, compacto) => {
+      const caixa = chip({ compacto })
+
+      expect(caixa).toHaveClass('flex', 'flex-col')
+      expect(screen.getByText('3,5 km').parentElement).toHaveClass('flex', 'flex-wrap')
     })
 
     it('o nome da loja é truncado só se for maior que o chip (max-w-full), e nunca encolhe a zero', () => {
@@ -212,13 +216,123 @@ describe('LojaDoCartao', () => {
       expect(nome.parentElement).toContainElement(screen.getByText('📍'))
     })
 
-    it('a distância, o preço e o link nunca encolhem (shrink-0), e o link fica à direita', () => {
+    it('a distância, o preço e os links nunca encolhem (shrink-0), e os links ficam juntos, à direita', () => {
       chip({ preco: 7.9 })
 
-      expect(screen.getByText('• 3,5 km')).toHaveClass('shrink-0')
+      expect(screen.getByText('3,5 km')).toHaveClass('shrink-0')
       expect(screen.getByText('• R$ 7.90')).toHaveClass('shrink-0')
-      const link = screen.getByRole('link', { name: /Como chegar/ })
-      expect(link).toHaveClass('shrink-0', 'ml-auto')
+      const google = screen.getByRole('link', { name: /Como chegar/ })
+      const waze = screen.getByRole('link', { name: /Waze/ })
+      expect(google).toHaveClass('shrink-0')
+      expect(waze).toHaveClass('shrink-0')
+      expect(google.parentElement).toBe(waze.parentElement)
+      expect(google.parentElement).toHaveClass('ml-auto', 'shrink-0')
+    })
+  })
+
+  describe('o "•" nunca fica solto no começo de uma linha', () => {
+    // A linha de detalhes sempre começa pela distância (ou pelo preço, ou pelos links): o "•" só separa
+    // a distância do preço. Assim, quando os itens quebram de linha, nenhuma linha começa com símbolo.
+    const detalhes = (props) => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" {...props} />)
+      return screen.getByText('Carrefour Centro').closest('[title]').lastElementChild
+    }
+
+    it('com distância e preço, o "•" fica entre os dois', () => {
+      const linha = detalhes({ preco: 7.9 })
+
+      expect(linha.textContent).toMatch(/^3,5 km• R\$ 7\.90/)
+      expect(linha.textContent.startsWith('•')).toBe(false)
+    })
+
+    it('com distância e links (sem preço), não há nenhum "•"', () => {
+      const linha = detalhes()
+
+      expect(linha.textContent).toMatch(/^3,5 km/)
+      expect(linha.textContent).not.toMatch(/•/)
+    })
+
+    it('com preço mas sem distância, o preço abre a linha sem "•"', () => {
+      const linha = detalhes({ filial: { ...FILIAL, distanciaKm: null }, preco: 7.9 })
+
+      expect(linha.textContent).toMatch(/^R\$ 7\.90/)
+      expect(linha.textContent).not.toMatch(/•/)
+    })
+
+    it('só com links (sem distância nem preço), a linha de detalhes não tem "•"', () => {
+      render(<LojaDoCartao filial={{ ...FILIAL, distanciaKm: null }} nomeRede="Carrefour" />)
+
+      const linha = screen.getByText('Carrefour Centro').closest('[title]').lastElementChild
+      expect(linha.textContent).toBe('Como chegarWaze')
+    })
+
+    it('sem nada para a linha de detalhes (sem distância, preço nem coordenadas), ela nem existe', () => {
+      render(<LojaDoCartao filial={{ ...FILIAL, distanciaKm: null, latitude: null, longitude: null }} nomeRede="Carrefour" />)
+
+      const caixa = screen.getByText('Carrefour Centro').closest('[title]')
+      expect(caixa.children).toHaveLength(1)
+    })
+  })
+
+  describe('Waze', () => {
+    const impedirNavegacao = (evento) => evento.preventDefault()
+    beforeEach(() => document.addEventListener('click', impedirNavegacao, true))
+    afterEach(() => document.removeEventListener('click', impedirNavegacao, true))
+
+    it('com coordenadas mostra o link do Waze, em outra aba, sem referrer e com rótulo acessível', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+
+      const link = screen.getByRole('link', { name: 'Abrir a rota até Carrefour Centro no Waze (abre em outra aba)' })
+      expect(link).toHaveTextContent('Waze')
+      expect(link).toHaveAttribute('href', 'https://waze.com/ul?ll=-30.0346,-51.2177&navigate=yes')
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link.getAttribute('rel').split(/\s+/).sort()).toEqual(['noopener', 'noreferrer'])
+      expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
+    })
+
+    it('o rótulo do Waze não se confunde com o do Google Maps (cada link tem um nome só)', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+
+      expect(screen.getAllByRole('link', { name: /Como chegar a Carrefour Centro/ })).toHaveLength(1)
+      expect(screen.getAllByRole('link', { name: /Waze/ })).toHaveLength(1)
+    })
+
+    it('os dois links aparecem na ordem Como chegar, Waze', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+
+      expect(screen.getAllByRole('link').map((link) => link.textContent)).toEqual(['Como chegar', 'Waze'])
+    })
+
+    it.each([
+      ['coordenadas nulas', { latitude: null, longitude: null }],
+      ['só a latitude', { latitude: -30.03, longitude: null }],
+      ['só a longitude', { latitude: null, longitude: -51.2 }],
+      ['texto no lugar de número', { latitude: '-30.03', longitude: '-51.2' }],
+      ['fora da faixa', { latitude: 95, longitude: -51.2 }],
+    ])('sem coordenadas válidas (%s) não há link do Waze', (_nome, coordenadas) => {
+      render(<LojaDoCartao filial={{ ...FILIAL, ...coordenadas }} nomeRede="Carrefour" />)
+
+      expect(screen.queryByText('Waze')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
+
+    it('o link do Waze aparece também na versão compacta', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" compacto />)
+
+      expect(screen.getByRole('link', { name: /no Waze/ })).toBeInTheDocument()
+    })
+
+    it('clicar no Waze NÃO dispara o clique do cartão (não abre o detalhe do produto)', () => {
+      const aoClicarNoCartao = jest.fn()
+      render(
+        <div onClick={aoClicarNoCartao}>
+          <LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />
+        </div>
+      )
+
+      fireEvent.click(screen.getByRole('link', { name: /no Waze/ }))
+
+      expect(aoClicarNoCartao).not.toHaveBeenCalled()
     })
   })
 })

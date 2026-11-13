@@ -114,12 +114,12 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
     const cartao = cartaoDe('Atum Sólido')
     // Referência: Carrefour (a mais barata, R$ 7,90), com o prefixo do cartão completo.
     const referencia = within(cartao).getByTitle(tituloDaReferencia('Carrefour Centro • 3,5 km'))
-    expect(referencia).toHaveTextContent(/^📍\s*Loja de referência:\s*Carrefour Centro\s*•\s*3,5 km$/)
+    expect(referencia).toHaveTextContent(/^📍\s*Loja de referência:\s*Carrefour Centro\s*3,5 km$/)
     // Fort (a mais perto, 2,5 km) só aparece na linha "Mais perto", com o preço da rede dela.
     const maisPerto = within(cartao).getByTitle(
       'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
     )
-    expect(maisPerto).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*•\s*2,5 km\s*•\s*R\$ 9\.90$/)
+    expect(maisPerto).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
     expect(within(cartao).getAllByText('Fort Cachoeirinha')).toHaveLength(1)
   })
 
@@ -284,6 +284,8 @@ const FORT_COM_COORDENADAS = { ...FORT_CACHOEIRINHA, latitude: -29.9511, longitu
 const CARREFOUR_COM_COORDENADAS = { ...CARREFOUR_CENTRO, latitude: -30.0346, longitude: -51.2177 }
 const LINK_FORT = 'https://www.google.com/maps/dir/?api=1&destination=-29.9511,-51.0944'
 const LINK_CARREFOUR = 'https://www.google.com/maps/dir/?api=1&destination=-30.0346,-51.2177'
+const LINK_WAZE_FORT = 'https://waze.com/ul?ll=-29.9511,-51.0944&navigate=yes'
+const LINK_WAZE_CARREFOUR = 'https://waze.com/ul?ll=-30.0346,-51.2177&navigate=yes'
 // A caixa da rede na fita de redes: o pai do botão "Filtrar por ...".
 const redeNaFita = (nome) => screen.getByRole('button', { name: `Filtrar por ${nome}` }).parentElement
 
@@ -431,7 +433,7 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
           'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
         )
 
-        expect(linha).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*•\s*2,5 km\s*•\s*R\$ 9\.90$/)
+        expect(linha).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
       })
 
       it('quando a mais perto É a mais barata, não repete: só a loja de referência', async () => {
@@ -492,17 +494,50 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
         expect(within(cartao).queryByRole('link')).not.toBeInTheDocument()
         expect(within(cartao).queryByText('Como chegar')).not.toBeInTheDocument()
         expect(within(cartao).getByText('Carrefour Centro')).toBeInTheDocument()
-        expect(within(cartao).getByText('• 3,5 km')).toBeInTheDocument()
+        expect(within(cartao).getByText('3,5 km')).toBeInTheDocument()
       })
 
-      it('com coordenadas só numa das lojas, só ela tem link', async () => {
+      it('com coordenadas só numa das lojas, só ela tem links (Google Maps e Waze)', async () => {
         usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_COM_COORDENADAS] })
         await renderizar({ grade })
 
         const links = within(cartaoDe('Atum Sólido')).getAllByRole('link')
 
-        expect(links).toHaveLength(1)
-        expect(links[0]).toHaveAttribute('href', LINK_CARREFOUR)
+        expect(links.map((link) => link.getAttribute('href'))).toEqual([LINK_CARREFOUR, LINK_WAZE_CARREFOUR])
+      })
+
+      it('com coordenadas, cada loja do cartão também tem o seu link do Waze, com os mesmos atributos de segurança', async () => {
+        usarLocalizacao({ lojas: [FORT_COM_COORDENADAS, CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        const cartao = cartaoDe('Atum Sólido')
+
+        const wazeCarrefour = within(cartao).getByRole('link', { name: 'Abrir a rota até Carrefour Centro no Waze (abre em outra aba)' })
+        const wazeFort = within(cartao).getByRole('link', { name: 'Abrir a rota até Fort Cachoeirinha no Waze (abre em outra aba)' })
+        expect(wazeCarrefour).toHaveAttribute('href', LINK_WAZE_CARREFOUR)
+        expect(wazeFort).toHaveAttribute('href', LINK_WAZE_FORT)
+        for (const link of [wazeCarrefour, wazeFort]) {
+          expect(link).toHaveAttribute('target', '_blank')
+          expect(link.getAttribute('rel').split(/\s+/).sort()).toEqual(['noopener', 'noreferrer'])
+          expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
+        }
+        expect(within(cartao).getAllByRole('link')).toHaveLength(4)
+      })
+
+      it('sem coordenadas não há Waze, e com meia coordenada também não', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, { ...CARREFOUR_CENTRO, latitude: -30.0346, longitude: null }] })
+        await renderizar({ grade })
+
+        expect(within(cartaoDe('Atum Sólido')).queryByText('Waze')).not.toBeInTheDocument()
+      })
+
+      it('clicar no Waze NÃO abre o detalhe do produto', async () => {
+        usarLocalizacao({ lojas: [CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        fireEvent.click(within(cartaoDe('Atum Sólido')).getByRole('link', { name: /no Waze/ }))
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
       })
 
       it('com meia coordenada, não há link', async () => {
@@ -540,7 +575,11 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
         .map((link) => link.getAttribute('href'))
 
       expect(hrefs.join(' ')).not.toMatch(/90010|Porto|origin/i)
-      expect(hrefs.every((href) => /^https:\/\/www\.google\.com\/maps\/dir\/\?api=1&destination=-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(href))).toBe(true)
+      const ponto = '-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?'
+      const google = new RegExp(`^https://www\\.google\\.com/maps/dir/\\?api=1&destination=${ponto}$`)
+      const waze = new RegExp(`^https://waze\\.com/ul\\?ll=${ponto}&navigate=yes$`)
+      expect(hrefs).toHaveLength(4)
+      expect(hrefs.every((href) => google.test(href) || waze.test(href))).toBe(true)
     })
   })
 })

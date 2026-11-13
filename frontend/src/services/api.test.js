@@ -1,17 +1,26 @@
-import api from './api'
+import api, { TEMPO_LIMITE_MS } from './api'
+import { ATRASO_AVISO_MS, servidorAcordando } from '../utils/servidorAcordando'
 
 const [interceptorRequisicao] = api.interceptors.request.handlers
 const [interceptorResposta] = api.interceptors.response.handlers
 
 describe('api (axios)', () => {
+  // Relógio falso em todos os testes: o interceptor de requisição agora arma um temporizador de 8 s
+  // (aviso "servidor acordando"), e os testes que não o encerram não podem deixá-lo vivo.
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+
   afterEach(() => {
     localStorage.clear()
     jest.restoreAllMocks()
+    jest.useRealTimers()
   })
 
-  it('usa a URL base padrao do backend Spring Boot e timeout de 10s', () => {
+  it('usa a URL base padrao do backend Spring Boot e espera ate 200s (cold start do Render)', () => {
     expect(api.defaults.baseURL).toBe('http://localhost:8080/api')
-    expect(api.defaults.timeout).toBe(10000)
+    expect(TEMPO_LIMITE_MS).toBe(200000)
+    expect(api.defaults.timeout).toBe(TEMPO_LIMITE_MS)
     expect(api.defaults.headers['Content-Type']).toBe('application/json')
   })
 
@@ -190,6 +199,129 @@ describe('api (axios)', () => {
       })
 
       await expect(interceptorResposta.rejected({ response: { status: 401 } })).rejects.toBeDefined()
+    })
+  })
+
+  describe('aviso de servidor acordando (chamada que passa de 8 s sem resposta)', () => {
+    // Configs das chamadas abertas pelo teste; o afterEach as encerra (encerrar é idempotente)
+    // para o estado de módulo do aviso não vazar para o teste seguinte.
+    let configs
+
+    const novaRequisicao = () => {
+      const config = interceptorRequisicao.fulfilled({ headers: {} })
+      configs.push(config)
+      return config
+    }
+
+    beforeEach(() => {
+      configs = []
+    })
+
+    afterEach(() => {
+      configs.forEach((config) => config.encerrarAvisoDeServidor?.())
+    })
+
+    it('o interceptor de requisicao comeca a contar e o aviso fica desligado ate 8 s', () => {
+      const config = novaRequisicao()
+
+      jest.advanceTimersByTime(ATRASO_AVISO_MS - 1)
+
+      expect(typeof config.encerrarAvisoDeServidor).toBe('function')
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('liga o aviso apos 8 s sem resposta e a resposta bem sucedida o desliga', () => {
+      const config = novaRequisicao()
+      jest.advanceTimersByTime(ATRASO_AVISO_MS)
+      expect(servidorAcordando()).toBe(true)
+
+      const resposta = { status: 200, data: {}, config }
+      expect(interceptorResposta.fulfilled(resposta)).toBe(resposta)
+
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('uma resposta rapida nunca liga o aviso', () => {
+      const config = novaRequisicao()
+      jest.advanceTimersByTime(2000)
+
+      interceptorResposta.fulfilled({ status: 200, data: {}, config })
+      jest.advanceTimersByTime(ATRASO_AVISO_MS * 2)
+
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('um erro HTTP (500) tambem desliga o aviso e continua rejeitando o erro', async () => {
+      const config = novaRequisicao()
+      jest.advanceTimersByTime(ATRASO_AVISO_MS)
+      expect(servidorAcordando()).toBe(true)
+      const erro = { response: { status: 500 }, config }
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('um erro sem resposta (rede, timeout ou cancelamento) tambem desliga o aviso', async () => {
+      const config = novaRequisicao()
+      jest.advanceTimersByTime(ATRASO_AVISO_MS)
+      const erro = Object.assign(new Error('timeout of 200000ms exceeded'), { code: 'ECONNABORTED', config })
+
+      await expect(interceptorResposta.rejected(erro)).rejects.toBe(erro)
+
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('resposta ou erro sem config (ex.: falha de configuracao) nao quebram nem mexem no aviso', async () => {
+      novaRequisicao()
+      jest.advanceTimersByTime(ATRASO_AVISO_MS)
+      expect(servidorAcordando()).toBe(true)
+
+      expect(interceptorResposta.fulfilled({ status: 200 })).toEqual({ status: 200 })
+      await expect(interceptorResposta.rejected(new Error('falha'))).rejects.toThrow('falha')
+
+      expect(servidorAcordando()).toBe(true)
+    })
+
+    it('de ponta a ponta, uma chamada real do axios liga o aviso aos 8 s e o desliga ao receber a resposta', async () => {
+      let responder
+      const adapter = (config) => {
+        configs.push(config)
+        return new Promise((resolve) => {
+          responder = () => resolve({ data: { ok: true }, status: 200, statusText: 'OK', headers: {}, config })
+        })
+      }
+
+      const chamada = api.get('/lento', { adapter })
+      await jest.advanceTimersByTimeAsync(ATRASO_AVISO_MS - 1)
+      expect(servidorAcordando()).toBe(false)
+      await jest.advanceTimersByTimeAsync(1)
+      expect(servidorAcordando()).toBe(true)
+
+      responder()
+
+      await expect(chamada).resolves.toMatchObject({ data: { ok: true } })
+      expect(servidorAcordando()).toBe(false)
+    })
+
+    it('de ponta a ponta, uma chamada real do axios que falha tambem desliga o aviso', async () => {
+      let falhar
+      const adapter = (config) => {
+        configs.push(config)
+        return new Promise((_, rejeitar) => {
+          falhar = () => rejeitar(Object.assign(new Error('Network Error'), { code: 'ERR_NETWORK', config }))
+        })
+      }
+
+      const chamada = api.get('/lento', { adapter })
+      const rejeitada = expect(chamada).rejects.toThrow('Network Error')
+      await jest.advanceTimersByTimeAsync(ATRASO_AVISO_MS)
+      expect(servidorAcordando()).toBe(true)
+
+      falhar()
+
+      await rejeitada
+      expect(servidorAcordando()).toBe(false)
     })
   })
 })

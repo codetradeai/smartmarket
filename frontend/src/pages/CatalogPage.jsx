@@ -8,6 +8,7 @@ import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio, AvisoServid
 import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
 import { useLocalizacao } from "../hooks/useLocalizacao";
 import { filiaisParaCartoes, redeMaisPerto } from "../utils/lojasDoCatalogo";
+import { deslocamentoParaRevelar } from "../utils/rolagemParaRevelar";
 import LojaDoCartao from "../components/LojaDoCartao";
 import { normalizarRaio } from "../utils/raioLojas";
 import { CHAVES } from "../services/storageKeys";
@@ -430,8 +431,24 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
 }
 
 function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggleFav, redeMaisPertoId = null }) {
+  const faixaRef = useRef(null);
+
+  // A fita rola na horizontal e a rede mais perto pode estar fora da tela (a 8ª rede fica a ~1 000 px
+  // no mobile): rola SÓ a fita (nunca a página) para o selo "Mais perto" ficar à vista. Só quando a
+  // rede mais perto muda, para não brigar com a rolagem do usuário.
+  useEffect(() => {
+    const faixa = faixaRef.current;
+    const item = faixa?.querySelector('[data-mais-perto="true"]');
+    if (!faixa || !item) return;
+    const deslocamento = deslocamentoParaRevelar(faixa.getBoundingClientRect(), item.getBoundingClientRect());
+    if (deslocamento !== 0) faixa.scrollLeft += deslocamento;
+  }, [redeMaisPertoId, markets]);
+
   return (
-    <div className="bg-white rounded-2xl border border-brand-border/70 p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3 shadow-xs overflow-x-auto no-scrollbar">
+    <div
+      ref={faixaRef}
+      className="bg-white rounded-2xl border border-brand-border/70 p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3 shadow-xs overflow-x-auto no-scrollbar"
+    >
       <div className="flex items-center gap-2 shrink-0 px-2.5 sm:px-3.5 py-1.5 border-r border-brand-border/60">
         <span className="text-amber-500 text-base">⭐</span>
         <span className="text-xs sm:text-sm font-extrabold text-brand-navy whitespace-nowrap tracking-tight">
@@ -448,6 +465,7 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
           return (
             <div
               key={m.id}
+              data-mais-perto={ehMaisPerto ? "true" : undefined}
               onClick={() => onSelectMkt(isSelected ? "todos" : m.id)}
               className={`group relative flex items-center justify-between gap-1.5 h-13 sm:h-14 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
                 isSelected

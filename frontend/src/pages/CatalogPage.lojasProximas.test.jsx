@@ -357,6 +357,68 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
       expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument()
     })
 
+    describe('a fita rola até o selo (a rede mais perto pode estar fora da tela)', () => {
+      // O jsdom não faz layout: os retângulos são simulados. A fita (overflow-x-auto) mostra de 0 a 300 px
+      // e o selo anda para a esquerda conforme a fita rola, como no navegador (por isso o efeito, que roda
+      // de novo quando a lista de redes chega, tem de ser idempotente: na segunda passada já está à vista).
+      let espiao
+      const simularLayout = (rectDoSelo) => {
+        const original = Element.prototype.getBoundingClientRect
+        espiao = jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+          if (this.matches?.('[data-mais-perto="true"]')) {
+            const rolagem = this.closest('.overflow-x-auto')?.scrollLeft ?? 0
+            return { left: rectDoSelo.left - rolagem, right: rectDoSelo.right - rolagem, top: 0, bottom: 0, width: 0, height: 0 }
+          }
+          if (this.className?.includes?.('overflow-x-auto') && this.querySelector?.('button[aria-label^="Filtrar por"]')) {
+            return { left: 0, right: 300, top: 0, bottom: 0, width: 300, height: 0 }
+          }
+          return original.call(this)
+        })
+      }
+      const faixaDeRedes = () => screen.getByRole('button', { name: 'Filtrar por Carrefour' }).parentElement.parentElement.parentElement
+      afterEach(() => espiao?.mockRestore())
+
+      it('selo fora da tela, à direita: rola só a fita, até ele aparecer, com a folga de 8 px', async () => {
+        simularLayout({ left: 1000, right: 1100 })
+        const carrefourPerto = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: 1.4 })
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, carrefourPerto] })
+
+        await renderizar()
+
+        expect(faixaDeRedes().scrollLeft).toBe(1100 - 300 + 8)
+      })
+
+      it('selo que já está à vista: a fita não rola', async () => {
+        simularLayout({ left: 100, right: 200 })
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+        await renderizar()
+
+        expect(faixaDeRedes().scrollLeft).toBe(0)
+      })
+
+      it('sem rede mais perto (sem distância), a fita não rola', async () => {
+        simularLayout({ left: 1000, right: 1100 })
+        const semDistancia = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: null })
+        usarLocalizacao({ lojas: [semDistancia] })
+
+        await renderizar()
+
+        expect(screen.queryByText('Mais perto')).not.toBeInTheDocument()
+        expect(faixaDeRedes().scrollLeft).toBe(0)
+      })
+
+      it('a rede mais perto tem o marcador que a localiza, e só ela', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+        await renderizar()
+
+        const marcadas = document.querySelectorAll('[data-mais-perto="true"]')
+        expect(marcadas).toHaveLength(1)
+        expect(marcadas[0]).toBe(redeNaFita('Fort Atacadista'))
+      })
+    })
+
     describe.each([
       ['grade', true],
       ['prateleiras', false],

@@ -5,8 +5,11 @@ import { redesComEquivalenteConfirmado } from "../utils/equivalentes";
 import { nomeCurtoRede, listarNomes, redesComProdutos } from "../utils/redesDoCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio } from "../components/ui";
-import { encontrarFiliaisMaisProximas, resolverCoordenadasCepSync } from "../utils/proximidadeFiliais";
 import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
+import { useLocalizacao } from "../hooks/useLocalizacao";
+import { filiaisParaCartoes } from "../utils/lojasDoCatalogo";
+import { normalizarRaio } from "../utils/raioLojas";
+import { CHAVES } from "../services/storageKeys";
 import logoFort from "../../logo/logo-fort.png";
 import logoAsun from "../../logo/logo-asun.png";
 import logoStok from "../../logo/logo-stok.png";
@@ -156,6 +159,11 @@ function saveList(l) {
 // Referência estável para "nenhuma filial conhecida" (evita recalcular os cartões a cada render)
 const SEM_FILIAIS = Object.freeze({});
 
+// Indicação da loja nos cartões: só o nome e a distância ("3.5 km", quando a API a calculou).
+// Nunca endereço nem nada que sugira preço por loja: o preço é da rede.
+const textoDistancia = (km) => (typeof km === "number" ? `${km.toFixed(1)} km` : null);
+const tituloDaLoja = (filial, km) => [filial.nomeFilial, textoDistancia(km)].filter(Boolean).join(" • ");
+
 // Extrai o preço do produto para uma rede específica
 function getPriceForMarket(product, market) {
   if (!product || !product.prices) return null;
@@ -185,10 +193,8 @@ function getProductPricing(product, markets, filiaisMaisProximas = {}) {
       );
       const clubeNome = product.clubPrices?.[m.id] || m.clube || "Preço Clube";
 
-      // Vincula a filial física mais próxima da rede correspondente
-      const mPrimeiroNome = (m.name || "").toLowerCase().split(" ")[0];
-      const filialMaisProx = filiaisMaisProximas[m.name] || 
-        Object.values(filiaisMaisProximas).find((f) => f.nomeFilial?.toLowerCase().includes(mPrimeiroNome)) || null;
+      // Loja que atende o usuário nesta rede (a lista já vem indexada pelo id da rede)
+      const filialMaisProx = filiaisMaisProximas[String(m.id)] ?? null;
 
       return {
         market: m,
@@ -638,11 +644,13 @@ function ProductCard({
               {pricing.bestFilial && (
                 <div
                   className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 bg-emerald-50/90 border border-emerald-200/90 px-2.5 py-1 rounded-xl"
-                  title={`${pricing.bestFilial.nomeFilial} - ${pricing.bestFilial.endereco} (${pricing.bestFilial.cidade})`}
+                  title={tituloDaLoja(pricing.bestFilial, pricing.bestDistanciaKm)}
                 >
                   <span className="shrink-0 text-xs">📍</span>
                   <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
-                  <span className="text-emerald-700 font-extrabold shrink-0">• {pricing.bestDistanciaKm?.toFixed(1)} km</span>
+                  {textoDistancia(pricing.bestDistanciaKm) && (
+                    <span className="text-emerald-700 font-extrabold shrink-0">• {textoDistancia(pricing.bestDistanciaKm)}</span>
+                  )}
                 </div>
               )}
 
@@ -808,11 +816,13 @@ function ProductCard({
             {pricing.bestFilial && (
               <div
                 className="flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg truncate"
-                title={`${pricing.bestFilial.nomeFilial} (${pricing.bestFilial.cidade})`}
+                title={tituloDaLoja(pricing.bestFilial, pricing.bestDistanciaKm)}
               >
                 <span className="shrink-0 text-xs">📍</span>
                 <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
-                <span className="text-emerald-700 font-extrabold shrink-0">• {pricing.bestDistanciaKm?.toFixed(1)} km</span>
+                {textoDistancia(pricing.bestDistanciaKm) && (
+                  <span className="text-emerald-700 font-extrabold shrink-0">• {textoDistancia(pricing.bestDistanciaKm)}</span>
+                )}
               </div>
             )}
 
@@ -1101,65 +1111,46 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   const [selectedProductDetail, setSelectedProductDetail] = useState(null);
   const [visibleLimit, setVisibleLimit] = useState(48);
 
-  // Localização do usuário e filiais mais próximas
-  const [userLocalizacao, setUserLocalizacao] = useState(() => {
+  // Localização do usuário (CEP na conta, via API) e as lojas que o atendem. Desligado, não chama a API.
+  const {
+    localizacao,
+    lojas,
+    carregando: carregandoLocalizacao,
+    erro: erroLocalizacao,
+    trocarCep,
+    excluir,
+  } = useLocalizacao({ ativo: LOJAS_PROXIMAS_ATIVO });
+  // Raio das lojas: preferência de tela (não pessoal) guardada no navegador. O CEP, não: vive na conta.
+  const [raioKm, setRaioKm] = useState(() => {
     try {
-      const cepSalvo = localStorage.getItem("sm_user_cep") || "94910-000";
-      const raioSalvo = localStorage.getItem("sm_user_raio_km");
-      const geo = resolverCoordenadasCepSync(cepSalvo);
-      return {
-        cep: cepSalvo,
-        raioKm: raioSalvo ? (raioSalvo === "todos" ? "todos" : Number(raioSalvo)) : 15,
-        cidade: geo.cidade,
-        lat: geo.lat,
-        lon: geo.lon,
-      };
+      return normalizarRaio(localStorage.getItem(CHAVES.raioLojas));
     } catch {
-      return {
-        cep: "94910-000",
-        raioKm: 15,
-        cidade: "Cachoeirinha",
-        lat: -29.9511,
-        lon: -51.0944,
-      };
+      return normalizarRaio(null);
     }
   });
+  const mudarRaio = useCallback((valor) => {
+    setRaioKm(valor);
+    try {
+      localStorage.setItem(CHAVES.raioLojas, String(valor));
+    } catch {
+      // sem localStorage: o raio vale só nesta visita
+    }
+  }, []);
 
   // "Ver mais" recomeça em 48 sempre que a consulta muda (ajuste de estado na renderização)
-  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode, userLocalizacao?.cep, userLocalizacao?.raioKm].join("|");
+  const consultaAtual = [selectedCat, search, mktFilter, sortBy, viewMode, localizacao?.cep, raioKm].join("|");
   const [consultaAnterior, setConsultaAnterior] = useState(consultaAtual);
   if (consultaAtual !== consultaAnterior) {
     setConsultaAnterior(consultaAtual);
     setVisibleLimit(48);
   }
 
-  // Desligado enquanto a API de lojas próximas (Fase 3) não existe: sem lista de filiais não há
-  // "loja mais próxima" nem distância nos cartões. Ao ligar a flag, passe aqui as lojas vindas da API.
+  // Com a flag desligada não há "loja mais próxima" nos cartões. Ligada, vem das lojas da API, no
+  // formato dos cartões e indexadas pelo id da MESMA lista de redes que getProductPricing usa.
   const filiaisMaisProximas = useMemo(() => {
     if (!LOJAS_PROXIMAS_ATIVO) return SEM_FILIAIS;
-    return encontrarFiliaisMaisProximas(userLocalizacao.lat, userLocalizacao.lon, []);
-  }, [userLocalizacao.lat, userLocalizacao.lon]);
-
-  const handleLocalizacaoChange = useCallback((novoFiltro) => {
-    setUserLocalizacao((ant) => {
-      if (
-        ant.cep === novoFiltro.cep &&
-        ant.raioKm === novoFiltro.raioKm &&
-        ant.lat === novoFiltro.lat &&
-        ant.lon === novoFiltro.lon
-      ) {
-        return ant;
-      }
-      return {
-        ...ant,
-        cep: novoFiltro.cep,
-        raioKm: novoFiltro.raioKm,
-        cidade: novoFiltro.cidade,
-        lat: novoFiltro.lat,
-        lon: novoFiltro.lon,
-      };
-    });
-  }, []);
+    return filiaisParaCartoes(lojas, markets, raioKm);
+  }, [lojas, markets, raioKm]);
 
   // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());
@@ -1488,7 +1479,15 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
           {/* Linha 2: Seletor de CEP e Raio de Proximidade (só com a API de lojas próximas, Fase 3) */}
           {LOJAS_PROXIMAS_ATIVO && (
             <div className="pt-1">
-              <SeletorCepRaio onFiltroChange={handleLocalizacaoChange} />
+              <SeletorCepRaio
+                localizacao={localizacao}
+                carregando={carregandoLocalizacao}
+                erro={erroLocalizacao}
+                raioKm={raioKm}
+                onMudarRaio={mudarRaio}
+                onTrocarCep={trocarCep}
+                onExcluir={excluir}
+              />
             </div>
           )}
 

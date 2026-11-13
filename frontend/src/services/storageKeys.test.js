@@ -115,6 +115,27 @@ describe('storageKeys', () => {
     })
   })
 
+  describe('raioLojas (preferência não pessoal)', () => {
+    it('tem a chave sm_raio_lojas_km', () => {
+      expect(CHAVES.raioLojas).toBe('sm_raio_lojas_km')
+    })
+
+    it('não é privada: continua ativa no logout e na entrada de outro usuário, sem cópia por dono', () => {
+      localStorage.setItem(CHAVES.owner, 'ana@email.com')
+      localStorage.setItem('sm_raio_lojas_km', '5')
+
+      guardarDadosPrivados()
+
+      expect(localStorage.getItem('sm_raio_lojas_km')).toBe('5')
+      expect(localStorage.getItem('sm_raio_lojas_km:ana@email.com')).toBeNull()
+
+      ativarDadosDoUsuario('b@email.com')
+
+      expect(localStorage.getItem('sm_raio_lojas_km')).toBe('5')
+      expect(localStorage.getItem('sm_raio_lojas_km:b@email.com')).toBeNull()
+    })
+  })
+
   describe('ativarDadosDoUsuario', () => {
     it('A favorita, sai, B entra e ve vazio, A volta e ve os dados dele', () => {
       // A entra e favorita

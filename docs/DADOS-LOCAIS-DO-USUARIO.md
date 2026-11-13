@@ -11,6 +11,29 @@ sincronizado com o servidor e como a sessão (login, logout, token expirado) tra
 | Favoritos de mercado (`sm_fav_markets`) | `localStorage` | Só os ids numéricos (`/favoritos`). |
 | Alertas de preço (`sm_price_alerts`) | `localStorage` | **Não.** Não existe `alertaService`; o `AlertaController` do backend não é chamado pelo front. |
 | Lista de compras (`sm_list`) | `sessionStorage` (some ao fechar a aba) | **Não.** O `listaService` existe em `frontend/src/services`, mas nenhuma página o usa. |
+| Raio das lojas do catálogo (`sm_raio_lojas_km`) | `localStorage` | **Não.** É uma preferência de tela (3, 5, 10 ou 20 km, ou `todos`), não um dado pessoal. |
+
+### CEP e localização: não ficam no navegador
+
+O CEP do usuário, a cidade e as coordenadas moram **na conta**, no backend
+(`GET/PUT/DELETE /api/usuarios/me/localizacao`, usados por `lojaService` e pelo hook
+`useLocalizacao`). O front **nunca** grava CEP, cidade ou coordenadas em `localStorage` ou
+`sessionStorage`; ao remover a localização, o backend apaga os três campos.
+
+As chaves `sm_user_cep` e `sm_user_raio_km`, do seletor antigo (que guardava o CEP no navegador),
+**não são mais lidas nem gravadas**. Um navegador que usou aquela versão pode ainda ter essas
+chaves; elas são inofensivas para o app, mas o CEP que sobrou lá continua visível nas
+ferramentas do navegador até alguém limpar os dados do site.
+
+### Raio das lojas (`sm_raio_lojas_km`)
+
+- Valores aceitos: `3`, `5`, `10`, `20` ou `todos`; qualquer outra coisa lida do navegador vira
+  `todos` (`normalizarRaio`, em `frontend/src/utils/raioLojas.js`).
+- Registrada em `CHAVES.raioLojas` (`frontend/src/services/storageKeys.js`) e **de fora** de
+  `PRIVADAS_LOCAL` de propósito: não é arquivada por dono nem apagada no logout. No mesmo
+  navegador, o usuário seguinte vê o raio que o anterior deixou, e isso é aceitável porque o
+  raio não identifica ninguém.
+- Lojas sem distância calculada continuam aparecendo em qualquer raio.
 
 Consequências que o produto precisa assumir (e que a interface deve refletir):
 

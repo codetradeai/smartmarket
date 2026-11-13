@@ -5,6 +5,10 @@ export const CHAVES = {
   favProducts: "sm_fav_products",
   favMarkets: "sm_fav_markets",
   priceAlerts: "sm_price_alerts",
+  // Raio (km) escolhido para filtrar as lojas do catálogo. Preferência de tela, NAO pessoal: fica
+  // de fora de PRIVADAS_LOCAL de proposito (nao e arquivada por dono nem apagada no logout).
+  // O CEP nunca vai para o navegador: ele mora na conta, via API.
+  raioLojas: "sm_raio_lojas_km",
   // Marca que os dados antigos (sem namespace) ja foram adotados por alguem.
   migrado: "sm_dados_migrados",
 }

@@ -31,6 +31,20 @@ jest.mock('../data/equivalentes.json', () => ({
     { id: 'g2', confianca: 'provavel', camada: 'T4', itens: ['p3', 'p4'] },
   ],
 }))
+// O catálogo usa useLocalizacao (que lê useAuth); aqui não há AuthProvider e a flag de lojas próximas está desligada.
+jest.mock('../hooks/useAuth', () => ({
+  useAuth: () => ({ isAuthenticated: true, user: { email: 'ana@exemplo.com' } }),
+}))
+jest.mock('../services/lojaService', () => ({
+  __esModule: true,
+  default: {
+    obterLocalizacao: jest.fn(),
+    lojasProximas: jest.fn(),
+    trocarCep: jest.fn(),
+    excluirLocalizacao: jest.fn(),
+    definirLojaPreferida: jest.fn(),
+  },
+}))
 jest.mock('../services', () => ({
   produtoService: { buscarCatalogoComPrecos: jest.fn() },
   mercadoService: { listar: jest.fn() },

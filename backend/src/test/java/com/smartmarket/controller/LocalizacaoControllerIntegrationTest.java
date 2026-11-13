@@ -234,6 +234,107 @@ class LocalizacaoControllerIntegrationTest {
         assertThat(posA).isLessThan(posB);
     }
 
+    // ---------------------------------------------------------------- coordenadas da loja ("Como chegar")
+
+    private void preferir(String auth, Loja loja) throws Exception {
+        mockMvc.perform(put("/api/usuarios/me/loja-preferida").header("Authorization", auth)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"lojaId\":" + loja.getId() + "}"))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void filialDevolveALatitudeELongitudeDaLoja() throws Exception {
+        String auth = cadastra(PORTO_ALEGRE);
+
+        var a = linhaDe(proximas(auth), comFiliais);
+
+        assertThat(a.get("lojaId").asLong()).isEqualTo(perto.getId());
+        assertThat(a.get("latitude").asDouble()).isEqualTo(-30.0300);
+        assertThat(a.get("longitude").asDouble()).isEqualTo(-51.2200);
+    }
+
+    @Test
+    void lojaPadraoDevolveLatitudeELongitudeNulasMasAsChavesExistem() throws Exception {
+        String auth = cadastra(PORTO_ALEGRE);
+
+        var b = linhaDe(proximas(auth), soPadrao);
+
+        assertThat(b.get("padrao").asBoolean()).isTrue();
+        assertThat(b.has("latitude")).isTrue();
+        assertThat(b.has("longitude")).isTrue();
+        assertThat(b.get("latitude").isNull()).isTrue();
+        assertThat(b.get("longitude").isNull()).isTrue();
+    }
+
+    @Test
+    void lojaPadraoNuncaExpoeCoordenadasMesmoQueOBancoTenha() throws Exception {
+        padraoSoPadrao.setLatitude(-30.0346);
+        padraoSoPadrao.setLongitude(-51.2177);
+        lojaRepository.save(padraoSoPadrao);
+        // sem localizacao resolvida: as duas redes caem na loja padrao
+        String auth = cadastra(null);
+
+        String corpo = proximas(auth);
+
+        for (Mercado rede : java.util.List.of(comFiliais, soPadrao)) {
+            var linha = linhaDe(corpo, rede);
+            assertThat(linha.get("padrao").asBoolean()).isTrue();
+            assertThat(linha.get("latitude").isNull()).isTrue();
+            assertThat(linha.get("longitude").isNull()).isTrue();
+        }
+    }
+
+    @Test
+    void lojaPreferidaComCoordenadasDevolveAsDela() throws Exception {
+        String auth = cadastra(PORTO_ALEGRE);
+        preferir(auth, longe);
+
+        var a = linhaDe(proximas(auth), comFiliais);
+
+        assertThat(a.get("lojaId").asLong()).isEqualTo(longe.getId());
+        assertThat(a.get("latitude").asDouble()).isEqualTo(-29.9500);
+        assertThat(a.get("longitude").asDouble()).isEqualTo(-51.0900);
+    }
+
+    @Test
+    void lojaPreferidaSemCoordenadasDevolveLatitudeELongitudeNulas() throws Exception {
+        Loja semCoordenadas = loja(soPadrao, "Rede B sem coordenadas", "g1", null, null);
+        String auth = cadastra(PORTO_ALEGRE);
+        preferir(auth, semCoordenadas);
+
+        var b = linhaDe(proximas(auth), soPadrao);
+
+        assertThat(b.get("lojaId").asLong()).isEqualTo(semCoordenadas.getId());
+        assertThat(b.get("padrao").asBoolean()).isFalse();
+        assertThat(b.get("latitude").isNull()).isTrue();
+        assertThat(b.get("longitude").isNull()).isTrue();
+        assertThat(b.get("distanciaKm").isNull()).isTrue();
+    }
+
+    @Test
+    void coordenadaIncompletaNaLojaNaoVazaMeiaCoordenada() throws Exception {
+        Loja soLatitude = loja(soPadrao, "Rede B so latitude", "g3", -30.0, null);
+        String auth = cadastra(PORTO_ALEGRE);
+        preferir(auth, soLatitude);
+
+        var b = linhaDe(proximas(auth), soPadrao);
+
+        assertThat(b.get("lojaId").asLong()).isEqualTo(soLatitude.getId());
+        assertThat(b.get("latitude").isNull()).isTrue();
+        assertThat(b.get("longitude").isNull()).isTrue();
+    }
+
+    @Test
+    void asCoordenadasDevolvidasSaoDaLojaENaoDoUsuario() throws Exception {
+        String auth = cadastra(PORTO_ALEGRE);
+
+        var a = linhaDe(proximas(auth), comFiliais);
+
+        // O usuario esta em (-30.0346, -51.2177): a resposta nao pode devolver a posicao dele.
+        assertThat(a.get("latitude").asDouble()).isNotEqualTo(PORTO_ALEGRE.latitude());
+        assertThat(a.get("longitude").asDouble()).isNotEqualTo(PORTO_ALEGRE.longitude());
+    }
+
     // ---------------------------------------------------------------- loja preferida
 
     @Test

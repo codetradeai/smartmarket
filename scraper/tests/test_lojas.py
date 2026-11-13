@@ -98,7 +98,8 @@ class ArquivosVersionadosTest(unittest.TestCase):
     def test_modelo_cobre_as_redes_e_nao_e_carregavel(self):
         caminho = carregar_lojas.ARQUIVO_PADRAO.with_name("lojas_modelo.json")
         bruto = json.loads(caminho.read_text(encoding="utf-8"))
-        self.assertEqual({l["mercado"] for l in bruto["lojas"]}, {"carrefour", "asun", "atacadao", "master", "stok"})
+        self.assertEqual({l["mercado"] for l in bruto["lojas"]},
+                         {"fort", "carrefour", "asun", "atacadao", "master", "zaffari", "rissul", "stok"})
         with self.assertRaisesRegex(ErroIngestao, "lojas_invalidas"):
             carregar_lojas.ler_lojas(caminho)
 
@@ -151,6 +152,14 @@ class GeocodificacaoTest(unittest.TestCase):
         busca2 = BuscaFalsa({})
         self.assertEqual(self.rodar(busca2)["ja_tinham"], 1)
         self.assertEqual(busca2.chamadas, [])
+
+    def test_etapa_do_cep_guarda_a_coordenada_do_cep_e_a_precisao(self):
+        self.gravar(LOJA_OK)
+
+        self.rodar(BuscaFalsa({geo.URL_BRASILAPI.format(cep="90010000"): brasilapi()}))
+
+        g = self.ler()[0]["geocodificacao"]
+        self.assertEqual((g["precisao"], g["cep_latitude"], g["cep_longitude"]), ("cep", -30.03, -51.23))
 
     def test_lojas_no_mesmo_cep_fazem_uma_unica_consulta(self):
         self.gravar(LOJA_OK, {**LOJA_OK, "nome": "Outra", "codigo_externo": "1501"})
@@ -273,6 +282,228 @@ class GeocodificacaoTest(unittest.TestCase):
         self.assertEqual(geo.main(["--arquivo", str(self.arquivo.with_name("nao_existe.json"))]), 1)
 
 
+class GeocodificacaoPorEnderecoTest(unittest.TestCase):
+    """Etapa --por-endereco: Nominatim por endereço estruturado, só aceita a cidade da loja (HTTP simulado)."""
+
+    LOJA = {**LOJA_OK, "mercado": "fort", "nome": "Fort Canoas", "endereco": "Av. Farroupilha, 4803 - Marechal Rondon",
+            "cep": "92020475", "cidade": "Canoas", "uf": "RS", "codigo_externo": "545",
+            "latitude": -29.91778, "longitude": -51.18361,
+            "geocodificacao": {"status": "resolvida", "fonte": "brasilapi_v2", "em": "2026-11-13T02:04:00+00:00"}}
+
+    def setUp(self):
+        self.pasta = tempfile.TemporaryDirectory()
+        self.addCleanup(self.pasta.cleanup)
+        self.arquivo = Path(self.pasta.name) / "lojas.json"
+        self.pausas = []
+        self.urls = []
+
+    def gravar(self, *lojas):
+        self.arquivo.write_text(json.dumps({"versao": 1, "lojas": list(lojas)}), encoding="utf-8")
+
+    def ler(self):
+        return json.loads(self.arquivo.read_text(encoding="utf-8"))["lojas"]
+
+    def busca(self, *respostas):
+        """Devolve as respostas em ordem (uma por chamada); um valor Exception é levantado."""
+        fila = list(respostas)
+
+        def buscar(url):
+            self.urls.append(url)
+            resposta = fila.pop(0)
+            if isinstance(resposta, Exception):
+                raise resposta
+            return resposta
+        return buscar
+
+    def rodar(self, buscar, **kw):
+        return geo.geocodificar_por_endereco(self.arquivo, buscar=buscar, dormir=self.pausas.append, **kw)
+
+    @staticmethod
+    def achado(lat="-29.9", lng="-51.1", **endereco):
+        return [{"lat": lat, "lon": lng, "address": endereco}]
+
+    def test_monta_a_consulta_estruturada_sem_o_bairro(self):
+        from urllib.parse import parse_qs, urlparse
+        self.gravar(self.LOJA)
+
+        self.rodar(self.busca([]))
+
+        url = urlparse(self.urls[0])
+        self.assertEqual(f"{url.scheme}://{url.netloc}{url.path}", "https://nominatim.openstreetmap.org/search")
+        self.assertEqual({k: v[0] for k, v in parse_qs(url.query).items()},
+                         {"street": "4803 Avenida Farroupilha", "city": "Canoas", "state": "Rio Grande do Sul",
+                          "countrycodes": "br", "format": "jsonv2", "addressdetails": "1", "limit": "1"})
+
+    def test_endereco_sem_numero_vai_so_com_o_logradouro(self):
+        from urllib.parse import parse_qs, urlparse
+        self.gravar({**self.LOJA, "endereco": "Av. Florianópolis, S/N - Nova Tramandaí", "cidade": "Tramandaí"},
+                    {**self.LOJA, "codigo_externo": "2", "endereco": "Rua Lateral da BR-101 - Centro"})
+
+        self.rodar(self.busca([], []))
+
+        ruas = [parse_qs(urlparse(u).query)["street"][0] for u in self.urls]
+        self.assertEqual(ruas, ["Avenida Florianópolis", "Rua Lateral da BR-101"])
+
+    def test_aceita_cidade_igual_sem_acento_e_sem_caixa_e_grava_com_precisao_de_endereco(self):
+        self.gravar({**self.LOJA, "cidade": "Gravataí"})
+
+        resumo = self.rodar(self.busca(self.achado("-29.9181", "-51.1822", town="GRAVATAI")))
+        loja = self.ler()[0]
+
+        self.assertEqual(resumo["resolvidas_endereco"], 1)
+        self.assertEqual((loja["latitude"], loja["longitude"]), (-29.9181, -51.1822))
+        g = loja["geocodificacao"]
+        self.assertEqual((g["status"], g["fonte"], g["precisao"]), ("resolvida", "nominatim", "endereco"))
+        self.assertRegex(g["em"], r"^\d{4}-\d\d-\d\dT")
+
+    def test_rejeita_cidade_diferente_e_a_loja_mantem_o_que_tinha(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca(self.achado("-30.0", "-51.2", city="Porto Alegre")))
+        loja = self.ler()[0]
+
+        self.assertEqual(resumo["rejeitadas_cidade"], 1)
+        self.assertEqual((loja["latitude"], loja["longitude"]), (-29.91778, -51.18361))
+        self.assertEqual(loja["geocodificacao"]["endereco"], "rejeitada_cidade_diferente")
+        self.assertEqual(loja["geocodificacao"]["precisao"], "cep")  # a coordenada que ficou veio do CEP
+
+    def test_endereco_nao_encontrado_e_registrado_e_nao_apaga_coordenada(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca([]))
+
+        self.assertEqual(resumo["nao_encontradas"], 1)
+        self.assertEqual(self.ler()[0]["latitude"], -29.91778)
+        self.assertEqual(self.ler()[0]["geocodificacao"]["endereco"], "nao_encontrado")
+
+    def test_429_para_e_salva_o_que_ja_resolveu_sem_anular_nada(self):
+        self.gravar(self.LOJA, {**self.LOJA, "codigo_externo": "2"}, {**self.LOJA, "codigo_externo": "3"})
+
+        resumo = self.rodar(self.busca(self.achado("-29.91", "-51.19", city="Canoas"), geo.ServicoBloqueou("http_429")))
+        lojas = self.ler()
+
+        self.assertEqual(resumo["interrompido"], "http_429")
+        self.assertEqual(len(self.urls), 2)  # não tentou a terceira
+        self.assertEqual((lojas[0]["latitude"], lojas[0]["geocodificacao"]["precisao"]), (-29.91, "endereco"))
+        # as duas restantes seguem com a coordenada do CEP (a regra da repetição não roda com a etapa incompleta)
+        self.assertEqual([l["latitude"] for l in lojas[1:]], [-29.91778, -29.91778])
+
+    def test_loja_ja_resolvida_por_endereco_e_pulada_e_refazer_consulta_de_novo(self):
+        resolvida = {**self.LOJA, "latitude": -29.9, "longitude": -51.1,
+                     "geocodificacao": {"status": "resolvida", "fonte": "nominatim", "precisao": "endereco", "em": "x"}}
+        self.gravar(resolvida)
+
+        resumo = self.rodar(self.busca())
+        self.assertEqual((resumo["ja_resolvidas"], self.urls), (1, []))
+
+        self.rodar(self.busca(self.achado("-29.95", "-51.15", city="Canoas")), refazer=True)
+        self.assertEqual(len(self.urls), 1)
+        self.assertEqual(self.ler()[0]["latitude"], -29.95)
+
+    def test_pausa_de_2s_entre_chamadas_e_nenhuma_antes_da_primeira(self):
+        self.gravar(self.LOJA, {**self.LOJA, "codigo_externo": "2"})
+
+        self.rodar(self.busca([], []))
+
+        self.assertEqual(self.pausas, [2.0])
+
+    KM_POR_GRAU_DE_LATITUDE = 111.195  # 2*pi*6371/360
+
+    def achado_a_km_do_cep(self, km):
+        """Resultado do Nominatim 'km' ao norte da coordenada do CEP da LOJA (cidade correta)."""
+        return self.achado(str(self.LOJA["latitude"] + km / self.KM_POR_GRAU_DE_LATITUDE), str(self.LOJA["longitude"]),
+                           city="Canoas")
+
+    def test_resultado_a_38_km_do_cep_e_rejeitado_e_a_loja_mantem_a_coordenada_do_cep(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(38)))
+        loja = self.ler()[0]
+
+        self.assertEqual(resumo["rejeitadas_longe_do_cep"], 1)
+        self.assertEqual((loja["latitude"], loja["longitude"]), (-29.91778, -51.18361))
+        self.assertEqual(loja["geocodificacao"]["endereco"], "rejeitada_longe_do_cep")
+        self.assertEqual(loja["geocodificacao"]["precisao"], "cep")
+
+    def test_resultado_a_25_km_do_cep_e_aceito_e_a_coordenada_do_cep_fica_guardada(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(25)))
+        loja = self.ler()[0]
+
+        self.assertEqual((resumo["resolvidas_endereco"], resumo["rejeitadas_longe_do_cep"]), (1, 0))
+        self.assertAlmostEqual(loja["latitude"], -29.91778 + 25 / self.KM_POR_GRAU_DE_LATITUDE, places=5)
+        g = loja["geocodificacao"]
+        self.assertEqual((g["precisao"], g["cep_latitude"], g["cep_longitude"]), ("endereco", -29.91778, -51.18361))
+
+    def test_refazer_compara_com_a_coordenada_do_cep_guardada_e_nao_com_a_atual(self):
+        # a coordenada atual já é a do endereço (a 25 km do CEP); o novo resultado está a 38 km do CEP, só 13 km da atual
+        atual_lat = self.LOJA["latitude"] + 25 / self.KM_POR_GRAU_DE_LATITUDE
+        resolvida = {**self.LOJA, "latitude": atual_lat,
+                     "geocodificacao": {"status": "resolvida", "fonte": "nominatim", "precisao": "endereco", "em": "x",
+                                        "cep_latitude": -29.91778, "cep_longitude": -51.18361}}
+        self.gravar(resolvida)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(38)), refazer=True)
+
+        self.assertEqual(resumo["rejeitadas_longe_do_cep"], 1)
+        self.assertEqual(self.ler()[0]["latitude"], atual_lat)
+
+    def test_loja_sem_coordenada_de_cep_nao_tem_trava_de_distancia(self):
+        sem_cep = {**self.LOJA, "latitude": None, "longitude": None,
+                   "geocodificacao": {"status": "nao_encontrada", "fonte": "brasilapi_v2+viacep"}}
+        self.gravar(sem_cep)
+
+        resumo = self.rodar(self.busca(self.achado("-20.0", "-40.0", city="Canoas")))
+
+        self.assertEqual(resumo["resolvidas_endereco"], 1)
+
+    def test_loja_sem_endereco_ou_sem_cidade_e_pulada(self):
+        self.gravar({**self.LOJA, "endereco": None}, {**self.LOJA, "codigo_externo": "2", "cidade": None})
+
+        resumo = self.rodar(self.busca())
+
+        self.assertEqual((resumo["sem_endereco"], self.urls), (2, []))
+
+
+class CoordenadaRepetidaTest(unittest.TestCase):
+    """Dentro da mesma rede, coordenadas idênticas viram null: melhor sem distância do que distância errada."""
+
+    def loja(self, mercado, codigo, lat, lng, **extra):
+        return {**LOJA_OK, "mercado": mercado, "codigo_externo": codigo, "latitude": lat, "longitude": lng,
+                "geocodificacao": {"status": "resolvida", "fonte": "brasilapi_v2", "precisao": "cep"}, **extra}
+
+    def test_anula_todas_as_lojas_da_rede_que_dividem_a_coordenada(self):
+        lojas = [self.loja("zaffari", "a", -30.0, -51.0), self.loja("zaffari", "b", -30.0, -51.0),
+                 self.loja("zaffari", "c", -30.0, -51.0), self.loja("zaffari", "d", -30.1, -51.1)]
+
+        anuladas = geo.anular_coordenadas_repetidas(lojas)
+
+        self.assertEqual(anuladas, ["a", "b", "c"])
+        self.assertEqual([(l["latitude"], l["longitude"]) for l in lojas[:3]], [(None, None)] * 3)
+        self.assertEqual(lojas[0]["geocodificacao"]["status"], "coordenada_repetida")
+        self.assertEqual((lojas[3]["latitude"], lojas[3]["geocodificacao"]["status"]), (-30.1, "resolvida"))
+
+    def test_redes_diferentes_no_mesmo_ponto_nao_se_anulam(self):
+        lojas = [self.loja("fort", "a", -30.0, -51.0), self.loja("asun", "b", -30.0, -51.0),
+                 self.loja("zaffari", "c", -30.0, -51.0)]
+
+        self.assertEqual(geo.anular_coordenadas_repetidas(lojas), [])
+        self.assertEqual([l["latitude"] for l in lojas], [-30.0, -30.0, -30.0])
+
+    def test_so_a_rede_com_repeticao_e_anulada_quando_ha_mistura(self):
+        lojas = [self.loja("fort", "a", -30.0, -51.0), self.loja("asun", "b", -30.0, -51.0),
+                 self.loja("asun", "c", -30.0, -51.0)]
+
+        self.assertEqual(geo.anular_coordenadas_repetidas(lojas), ["b", "c"])
+        self.assertEqual(lojas[0]["latitude"], -30.0)
+
+    def test_loja_sem_coordenada_nao_conta_como_repetida(self):
+        lojas = [self.loja("asun", "a", None, None), self.loja("asun", "b", None, None)]
+
+        self.assertEqual(geo.anular_coordenadas_repetidas(lojas), [])
+
+
 class BuscaHttpTest(unittest.TestCase):
     """buscar_json com requests simulado: 404 vira None; 403/429/503 bloqueiam; User-Agent identificado."""
 
@@ -315,3 +546,46 @@ class BuscaHttpTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GerarSqlLojasTest(unittest.TestCase):
+    """gerar_sql_lojas: SQL do 08 gerado a partir da lista curada (offline, sem banco)."""
+
+    def sql_de(self, lojas, data='2026-11-12'):
+        import gerar_sql_lojas
+        with tempfile.TemporaryDirectory() as pasta:
+            arquivo = Path(pasta) / 'lojas.json'
+            arquivo.write_text(json.dumps({'versao': 1, 'lojas': lojas}), encoding='utf-8')
+            return gerar_sql_lojas.gerar_sql(carregar_lojas.ler_lojas(arquivo), data=data)
+
+    def test_apostrofo_do_nome_e_do_endereco_e_escapado(self):
+        loja = dict(LOJA_OK, mercado='zaffari', nome="Zaffari Mont'Serrat", endereco="Rua D'Ouro, 1",
+                    codigo_externo='zaffari-mont-serrat')
+        sql = self.sql_de([loja])
+        self.assertIn("'Zaffari Mont''Serrat'", sql)
+        self.assertIn("'Rua D''Ouro, 1'", sql)
+
+    def test_loja_sem_cep_e_sem_coordenada_gera_null(self):
+        loja = dict(LOJA_OK, mercado='asun', nome='Asun Guaiba', codigo_externo='asun-guaiba', cep=None)
+        sql = self.sql_de([loja])
+        valores = [l for l in sql.splitlines() if "'asun-guaiba'" in l and l.lstrip().startswith('(')]
+        self.assertEqual(len(valores), 1)
+        self.assertEqual(valores[0].count('NULL'), 3, valores[0])  # cep, latitude, longitude
+        self.assertNotIn("''", valores[0])
+
+    def test_saida_e_deterministica_para_a_mesma_entrada(self):
+        lojas = [dict(LOJA_OK), dict(LOJA_OK, nome='Asun Dois', codigo_externo='1501')]
+        self.assertEqual(self.sql_de(lojas), self.sql_de(lojas))
+
+    def test_nenhuma_linha_de_valores_usa_o_codigo_padrao(self):
+        arquivo = RAIZ / 'lojas' / 'lojas.json'
+        import gerar_sql_lojas
+        sql = gerar_sql_lojas.gerar_sql(carregar_lojas.ler_lojas(arquivo), data='2026-11-12')
+        valores = [l for l in sql.splitlines() if l.startswith('    (')]
+        self.assertEqual(len(valores), 82)
+        self.assertFalse([l for l in valores if "'padrao'" in l])
+        self.assertNotIn('DELETE', sql.upper())
+
+    def test_loja_com_codigo_padrao_nem_chega_ao_gerador(self):
+        with self.assertRaises(ErroIngestao):
+            self.sql_de([dict(LOJA_OK, codigo_externo='padrao')])

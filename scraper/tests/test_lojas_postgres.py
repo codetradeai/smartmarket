@@ -282,5 +282,80 @@ class CarregarLojasPostgresTest(unittest.TestCase):
             carregar_lojas([self.LOJA], dsn='host=localhost dbname=smartmarket')
 
 
+@unittest.skipUnless(DSN, 'Defina SMARTMARKET_TEST_DSN para integração PostgreSQL local')
+class SqlFiliais08Test(unittest.TestCase):
+    """O 08_lojas_filiais.sql gerado, aplicado como o responsável o aplicaria (mas num banco descartável)."""
+
+    MERCADOS = ((1, 'Fort Atacadista'), (3, 'Asun Supermercados'), (6, 'Zaffari / Bourbon'))
+
+    @classmethod
+    def setUpClass(cls):
+        import psycopg
+        import gerar_sql_lojas
+        from carregar_lojas import ler_lojas
+        cls.psycopg = psycopg
+        cls.sql = gerar_sql_lojas.gerar_sql(ler_lojas(), data='2026-11-12')
+        cls.dsn = criar_banco_descartavel()
+
+    def setUp(self):
+        with self.psycopg.connect(self.dsn) as conn:
+            conn.execute('TRUNCATE loja, mercado CASCADE')
+            for mid, nome in self.MERCADOS:
+                conn.execute('INSERT INTO mercado(id, nome) VALUES(%s,%s)', (mid, nome))
+                conn.execute("INSERT INTO loja(mercado_id, nome, codigo_externo) VALUES(%s,%s,'padrao')", (mid, nome))
+
+    def aplicar(self):
+        with self.psycopg.connect(self.dsn, autocommit=True) as conn:
+            conn.execute(self.sql)
+
+    def lojas(self):
+        with self.psycopg.connect(self.dsn) as conn:
+            return conn.execute('SELECT mercado_id, codigo_externo, nome, endereco, cidade, uf, cep, latitude, longitude, ativa '
+                                'FROM loja ORDER BY mercado_id, codigo_externo').fetchall()
+
+    def test_01_aplicar_duas_vezes_deixa_as_mesmas_82_lojas_e_a_padrao_intacta(self):
+        self.aplicar()
+        primeira = self.lojas()
+        self.aplicar()
+
+        self.assertEqual(self.lojas(), primeira)
+        reais = [l for l in primeira if l[1] != 'padrao']
+        self.assertEqual(len(reais), 82)
+        self.assertEqual(sorted(l[0] for l in primeira if l[1] == 'padrao'), [1, 3, 6])
+
+    def test_02_nao_reativa_loja_desativada_e_atualiza_so_os_dados(self):
+        self.aplicar()
+        with self.psycopg.connect(self.dsn) as conn:
+            conn.execute("UPDATE loja SET ativa=FALSE, nome='nome velho' WHERE codigo_externo='zaffari-anita-garibaldi'")
+        self.aplicar()
+        (loja,) = [l for l in self.lojas() if l[1] == 'zaffari-anita-garibaldi']
+        self.assertEqual((loja[2], loja[9]), ('Zaffari Anita Garibaldi', False))
+
+    def test_03_apostrofo_chega_ao_banco_intacto_e_loja_sem_cep_fica_null(self):
+        self.aplicar()
+        por_codigo = {l[1]: l for l in self.lojas()}
+        self.assertEqual(por_codigo['zaffari-anita-garibaldi'][3], "Rua Anita Garibaldi, 536 - Mont'Serrat")
+        self.assertIsNone(por_codigo['asun-guaiba'][6])
+        self.assertIsNone(por_codigo['asun-guaiba'][7])
+
+    def test_04_mercado_com_nome_errado_aborta_sem_inserir_nada(self):
+        with self.psycopg.connect(self.dsn) as conn:
+            conn.execute("UPDATE mercado SET nome='Outra Rede' WHERE id=3")
+        antes = self.lojas()
+        with self.assertRaisesRegex(self.psycopg.errors.RaiseException, 'mercado 3'):
+            self.aplicar()
+        self.assertEqual(self.lojas(), antes)
+
+    def test_05_mercado_inexistente_aborta_sem_inserir_nada(self):
+        with self.psycopg.connect(self.dsn) as conn:
+            conn.execute('TRUNCATE loja, mercado CASCADE')
+            for mid, nome in self.MERCADOS[:2]:
+                conn.execute('INSERT INTO mercado(id, nome) VALUES(%s,%s)', (mid, nome))
+        antes = self.lojas()
+        with self.assertRaisesRegex(self.psycopg.errors.RaiseException, 'mercado 6'):
+            self.aplicar()
+        self.assertEqual(self.lojas(), antes)
+
+
 if __name__ == '__main__':
     unittest.main()

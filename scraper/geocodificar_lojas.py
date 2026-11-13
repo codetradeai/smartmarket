@@ -14,16 +14,21 @@ coordenada na fonte, a loja fica com status ``sem_coordenada`` para preenchiment
 import argparse
 import json
 import os
+import re
 import tempfile
 import time
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 
 from carregar_lojas import ARQUIVO_PADRAO, normalizar_cep
 from identificacao import com_user_agent
 
 URL_BRASILAPI = 'https://brasilapi.com.br/api/cep/v2/{cep}'
 URL_VIACEP = 'https://viacep.com.br/ws/{cep}/json/'
+URL_NOMINATIM = 'https://nominatim.openstreetmap.org/search'
+ABREVIACOES_LOGRADOURO = {'av.': 'Avenida', 'av': 'Avenida', 'r.': 'Rua', 'estr.': 'Estrada', 'rod.': 'Rodovia'}
 PAUSA_ENTRE_CHAMADAS = 2.0
 STATUS_BLOQUEIO = (403, 429, 503)
 
@@ -157,6 +162,8 @@ def geocodificar_arquivo(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dormir=t
             if resultado['status'] == 'resolvida':
                 loja['latitude'], loja['longitude'] = resultado['latitude'], resultado['longitude']
             loja['geocodificacao'] = {'status': resultado['status'], 'fonte': resultado['fonte'], 'em': agora}
+            if resultado['status'] == 'resolvida':
+                loja['geocodificacao']['precisao'] = 'cep'  # centro do CEP/cidade, não o endereço da loja
             chave = {'resolvida': 'resolvidas', 'sem_coordenada': 'sem_coordenada',
                      'nao_encontrada': 'nao_encontradas'}[resultado['status']]
             resumo['reaproveitadas' if reaproveitada else chave] += 1
@@ -167,13 +174,122 @@ def geocodificar_arquivo(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dormir=t
     return resumo
 
 
+def _sem_acento(texto):
+    base = unicodedata.normalize('NFKD', str(texto or ''))
+    return ''.join(c for c in base if not unicodedata.combining(c)).casefold().strip()
+
+
+def consulta_nominatim(loja):
+    """URL da busca estruturada: logradouro e número (sem o bairro), cidade e estado."""
+    principal = re.split(r'\s+-\s+', loja['endereco'].strip(), maxsplit=1)[0]  # o que vem depois de " - " é bairro/complemento
+    logradouro, _, numero = principal.rpartition(',')
+    if not logradouro:  # sem vírgula: só o logradouro
+        logradouro, numero = principal, ''
+    palavras = logradouro.strip().split(' ', 1)
+    palavras[0] = ABREVIACOES_LOGRADOURO.get(palavras[0].casefold(), palavras[0])
+    rua = ' '.join(palavras)
+    numero = numero.strip()
+    street = f'{numero} {rua}' if re.fullmatch(r'\d+[A-Za-z]?', numero) else rua  # "S/N" e afins ficam de fora
+    parametros = {'street': street, 'city': loja['cidade'], 'state': 'Rio Grande do Sul', 'countrycodes': 'br',
+                  'format': 'jsonv2', 'addressdetails': '1', 'limit': '1'}
+    return f'{URL_NOMINATIM}?{urlencode(parametros)}'
+
+
+def _coordenadas_nominatim(achado):
+    try:
+        latitude, longitude = float(achado['lat']), float(achado['lon'])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if -90 <= latitude <= 90 and -180 <= longitude <= 180 and (latitude, longitude) != (0.0, 0.0):
+        return latitude, longitude
+    return None
+
+
+def _cidade_devolvida(achado):
+    endereco = achado.get('address') or {}
+    return endereco.get('city') or endereco.get('town') or endereco.get('municipality')
+
+
+def geocodificar_por_endereco(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dormir=time.sleep, refazer=False):
+    """Refina as coordenadas pelo endereço (Nominatim/OpenStreetMap), uma chamada por loja e 2 s entre elas.
+
+    Só aceita o resultado se a cidade devolvida for a da loja (sem acento e sem caixa); senão a loja mantém
+    o que tinha e ganha ``geocodificacao.endereco = "rejeitada_cidade_diferente"``. Endereço que o Nominatim
+    não acha fica registrado como ``"nao_encontrado"``. Loja já resolvida por endereço, ou com tentativa
+    registrada, é pulada (a menos de ``refazer``). Ao terminar a etapa COMPLETA, aplica a regra da coordenada
+    repetida dentro da mesma rede; se um 403/429/503 interrompeu, salva o que já resolveu e não aplica a regra.
+    """
+    dados = json.loads(Path(caminho).read_text(encoding='utf-8'))
+    lojas = dados.get('lojas', [])
+    ritmo = _Ritmo(dormir)
+    resumo = {'resolvidas_endereco': 0, 'rejeitadas_cidade': 0, 'nao_encontradas': 0, 'ja_resolvidas': 0,
+              'sem_endereco': 0, 'anuladas_repetidas': [], 'interrompido': None}
+    agora = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    for loja in lojas:  # a coordenada que veio do CEP antes desta etapa passa a ser marcada como tal
+        g = loja.get('geocodificacao')
+        if g and loja.get('latitude') is not None and 'precisao' not in g:
+            g['precisao'] = 'cep'
+    try:
+        for loja in lojas:
+            g = loja.get('geocodificacao') or {}
+            if not loja.get('endereco') or not loja.get('cidade'):
+                resumo['sem_endereco'] += 1
+                continue
+            if not refazer and (g.get('precisao') == 'endereco' or g.get('endereco')):
+                resumo['ja_resolvidas'] += 1
+                continue
+            resposta = ritmo.chamar(buscar, consulta_nominatim(loja))
+            achado = resposta[0] if isinstance(resposta, list) and resposta else None
+            coordenadas = _coordenadas_nominatim(achado) if achado else None
+            g = loja.setdefault('geocodificacao', {})
+            if coordenadas is None:
+                g['endereco'] = 'nao_encontrado'
+                resumo['nao_encontradas'] += 1
+            elif _sem_acento(_cidade_devolvida(achado)) != _sem_acento(loja['cidade']):
+                g['endereco'] = 'rejeitada_cidade_diferente'
+                resumo['rejeitadas_cidade'] += 1
+            else:
+                loja['latitude'], loja['longitude'] = coordenadas
+                loja['geocodificacao'] = {'status': 'resolvida', 'fonte': 'nominatim', 'precisao': 'endereco', 'em': agora}
+                resumo['resolvidas_endereco'] += 1
+        resumo['anuladas_repetidas'] = anular_coordenadas_repetidas(lojas)
+    except ServicoBloqueou as exc:
+        resumo['interrompido'] = str(exc)
+    finally:
+        _gravar_atomico(caminho, dados)
+    return resumo
+
+
+def anular_coordenadas_repetidas(lojas):
+    """Dentro da MESMA rede, coordenadas idênticas viram null (melhor sem distância do que distância errada).
+
+    Devolve os ``codigo_externo`` das lojas anuladas. Redes diferentes no mesmo ponto não se afetam.
+    """
+    por_ponto = {}
+    for loja in lojas:
+        if loja.get('latitude') is not None and loja.get('longitude') is not None:
+            por_ponto.setdefault((loja['mercado'], loja['latitude'], loja['longitude']), []).append(loja)
+    anuladas = []
+    for grupo in por_ponto.values():
+        if len(grupo) < 2:
+            continue
+        for loja in grupo:
+            loja['latitude'] = loja['longitude'] = None
+            loja.setdefault('geocodificacao', {})['status'] = 'coordenada_repetida'
+            anuladas.append(loja['codigo_externo'])
+    return anuladas
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--arquivo', type=Path, default=ARQUIVO_PADRAO)
     parser.add_argument('--refazer', action='store_true', help='Consulta de novo lojas com tentativa registrada')
+    parser.add_argument('--por-endereco', action='store_true',
+                        help='Refina pelo endereço (Nominatim) em vez de consultar o CEP; depois anula coordenadas repetidas na rede')
     args = parser.parse_args(argv)
     try:
-        resumo = geocodificar_arquivo(args.arquivo, refazer=args.refazer)
+        etapa = geocodificar_por_endereco if args.por_endereco else geocodificar_arquivo
+        resumo = etapa(args.arquivo, refazer=args.refazer)
     except (OSError, ValueError) as exc:
         print(json.dumps({'status': 'falhou', 'motivo': str(exc)}, ensure_ascii=False))
         return 1

@@ -11,12 +11,13 @@
       "uf": "RS",
       "codigo_externo": "545",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.911571,
+      "longitude": -51.1635307,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -28,12 +29,13 @@
       "uf": "RS",
       "codigo_externo": "345",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -29.16806,
-      "longitude": -51.17944,
+      "latitude": -29.17391,
+      "longitude": -51.173771,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -45,12 +47,13 @@
       "uf": "RS",
       "codigo_externo": "945",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -29.94218,
-      "longitude": -50.99278,
+      "latitude": -29.9328268,
+      "longitude": -51.0582512,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -62,12 +65,13 @@
       "uf": "RS",
       "codigo_externo": "845",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0243435,
+      "longitude": -51.1201929,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -79,12 +83,13 @@
       "uf": "RS",
       "codigo_externo": "445",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -29.67833,
-      "longitude": -51.13056,
+      "latitude": -29.676491,
+      "longitude": -51.1384766,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -96,12 +101,13 @@
       "uf": "RS",
       "codigo_externo": "885",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -29.7175,
-      "longitude": -52.42583,
+      "latitude": -29.7250559,
+      "longitude": -52.4334118,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -113,12 +119,13 @@
       "uf": "RS",
       "codigo_externo": "370",
       "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
-      "latitude": -30.08111,
-      "longitude": -51.02333,
+      "latitude": -30.0871864,
+      "longitude": -51.0553739,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -130,12 +137,13 @@
       "uf": "RS",
       "codigo_externo": "1543",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.74556,
-      "longitude": -50.00972,
+      "latitude": -29.769026,
+      "longitude": -50.0250234,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -147,12 +155,13 @@
       "uf": "RS",
       "codigo_externo": "1542",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.18111,
-      "longitude": -50.20556,
+      "latitude": -30.1474802,
+      "longitude": -50.1930475,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -164,12 +173,13 @@
       "uf": "RS",
       "codigo_externo": "1541",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.93314,
-      "longitude": -50.1063,
+      "latitude": -29.9556511,
+      "longitude": -50.1308433,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -181,12 +191,13 @@
       "uf": "RS",
       "codigo_externo": "asun-magisterio",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.25885,
-      "longitude": -50.23866,
+      "latitude": -30.2900456,
+      "longitude": -50.2549724,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -198,12 +209,13 @@
       "uf": "RS",
       "codigo_externo": "asun-mariluz",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.93314,
-      "longitude": -50.1063,
+      "latitude": -29.9485733,
+      "longitude": -50.1260328,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -215,12 +227,13 @@
       "uf": "RS",
       "codigo_externo": "asun-noiva-do-mar",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.80083,
-      "longitude": -50.04361,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "coordenada_repetida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -232,12 +245,13 @@
       "uf": "RS",
       "codigo_externo": "asun-nova-tramandai",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.98472,
-      "longitude": -50.13361,
+      "latitude": -30.040186,
+      "longitude": -50.1572409,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -254,7 +268,9 @@
       "geocodificacao": {
         "status": "resolvida",
         "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "em": "2026-11-13T02:04:57+00:00",
+        "precisao": "cep",
+        "endereco": "nao_encontrado"
       }
     },
     {
@@ -266,12 +282,13 @@
       "uf": "RS",
       "codigo_externo": "asun-pinhal-centro",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.25885,
-      "longitude": -50.23866,
+      "latitude": -30.2519033,
+      "longitude": -50.2385065,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -283,12 +300,13 @@
       "uf": "RS",
       "codigo_externo": "asun-quintao",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.25778,
-      "longitude": -50.50972,
+      "latitude": -30.3565012,
+      "longitude": -50.2767788,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -300,12 +318,13 @@
       "uf": "RS",
       "codigo_externo": "asun-torres",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.33528,
-      "longitude": -49.72694,
+      "latitude": -29.3217232,
+      "longitude": -49.7665912,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -317,12 +336,13 @@
       "uf": "RS",
       "codigo_externo": "asun-tramandai",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.98472,
-      "longitude": -50.13361,
+      "latitude": -30.0030609,
+      "longitude": -50.171894,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -339,7 +359,9 @@
       "geocodificacao": {
         "status": "resolvida",
         "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "em": "2026-11-13T02:04:57+00:00",
+        "precisao": "cep",
+        "endereco": "nao_encontrado"
       }
     },
     {
@@ -351,12 +373,13 @@
       "uf": "RS",
       "codigo_externo": "asun-xangri-la-2",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.80083,
-      "longitude": -50.04361,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "coordenada_repetida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -368,12 +391,13 @@
       "uf": "RS",
       "codigo_externo": "asun-azenha",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0616946,
+      "longitude": -51.171191,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -385,8 +409,14 @@
       "uf": "RS",
       "codigo_externo": "1540",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.1026,
-      "longitude": -51.2312
+      "latitude": -30.1025756,
+      "longitude": -51.2311271,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
+      }
     },
     {
       "mercado": "asun",
@@ -397,12 +427,13 @@
       "uf": "RS",
       "codigo_externo": "asun-conceicao",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0171736,
+      "longitude": -51.1593984,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -414,12 +445,13 @@
       "uf": "RS",
       "codigo_externo": "asun-juca-batista",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.1619985,
+      "longitude": -51.1838576,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -431,12 +463,13 @@
       "uf": "RS",
       "codigo_externo": "asun-plinio",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0210791,
+      "longitude": -51.1817435,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -448,12 +481,13 @@
       "uf": "RS",
       "codigo_externo": "asun-pontal",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0806659,
+      "longitude": -51.2476248,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -465,12 +499,13 @@
       "uf": "RS",
       "codigo_externo": "asun-republica",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0383442,
+      "longitude": -51.2231435,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -482,12 +517,13 @@
       "uf": "RS",
       "codigo_externo": "asun-restinga",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.1584845,
+      "longitude": -51.1472022,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -499,12 +535,13 @@
       "uf": "RS",
       "codigo_externo": "asun-santana",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.040837,
+      "longitude": -51.21169,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -516,12 +553,13 @@
       "uf": "RS",
       "codigo_externo": "asun-cachoeirinha",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.95111,
-      "longitude": -51.09389,
+      "latitude": -29.953001,
+      "longitude": -51.1039564,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -533,12 +571,13 @@
       "uf": "RS",
       "codigo_externo": "1560",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.95111,
-      "longitude": -51.09389,
+      "latitude": -29.9351103,
+      "longitude": -51.0795984,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -550,12 +589,13 @@
       "uf": "RS",
       "codigo_externo": "asun-canoas-fatima",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": null,
-      "longitude": null,
+      "latitude": -29.9407166,
+      "longitude": -51.1845732,
       "geocodificacao": {
-        "status": "nao_encontrada",
-        "fonte": "brasilapi_v2+viacep",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "resolvida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -567,12 +607,13 @@
       "uf": "RS",
       "codigo_externo": "asun-canoas-florianopolis",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.9063397,
+      "longitude": -51.2106648,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -584,12 +625,13 @@
       "uf": "RS",
       "codigo_externo": "asun-canoas-igara",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.9047387,
+      "longitude": -51.1527247,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -601,12 +643,13 @@
       "uf": "RS",
       "codigo_externo": "asun-canoas-niteroi",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.9559629,
+      "longitude": -51.1734978,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -618,12 +661,13 @@
       "uf": "RS",
       "codigo_externo": "asun-central-park",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.95111,
-      "longitude": -51.09389,
+      "latitude": -29.8903621,
+      "longitude": -51.0905343,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -635,12 +679,13 @@
       "uf": "RS",
       "codigo_externo": "asun-dois-irmaos",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.58028,
-      "longitude": -51.08528,
+      "latitude": -29.5789591,
+      "longitude": -51.0930541,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -652,12 +697,13 @@
       "uf": "RS",
       "codigo_externo": "1562",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.99932,
-      "longitude": -51.30822,
+      "latitude": -30.0038861,
+      "longitude": -51.3121662,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -669,12 +715,13 @@
       "uf": "RS",
       "codigo_externo": "asun-estancia-velha",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.64833,
-      "longitude": -51.17389,
+      "latitude": -29.6638075,
+      "longitude": -51.1965972,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -686,12 +733,13 @@
       "uf": "RS",
       "codigo_externo": "asun-gravatai-centro",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.94218,
-      "longitude": -50.99278,
+      "latitude": -29.9399309,
+      "longitude": -50.9941085,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -704,7 +752,10 @@
       "codigo_externo": "asun-guaiba",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
       "latitude": null,
-      "longitude": null
+      "longitude": null,
+      "geocodificacao": {
+        "endereco": "nao_encontrado"
+      }
     },
     {
       "mercado": "asun",
@@ -715,12 +766,13 @@
       "uf": "RS",
       "codigo_externo": "asun-montenegro",
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
-      "latitude": -29.68861,
-      "longitude": -51.46111,
+      "latitude": -29.6869568,
+      "longitude": -51.4583443,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -732,12 +784,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-moinhos",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0234669,
+      "longitude": -51.2015662,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -749,12 +802,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-carlos-gomes",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0282166,
+      "longitude": -51.1824915,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -766,12 +820,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-lucas-de-oliveira",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.029233,
+      "longitude": -51.1941365,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -783,12 +838,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-teresopolis",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0662346,
+      "longitude": -51.1868322,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -800,12 +856,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-lindoia",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0080867,
+      "longitude": -51.1518349,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -817,12 +874,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-parkshopping-canoas",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.9153687,
+      "longitude": -51.1647989,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -834,12 +892,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-wallig",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0122608,
+      "longitude": -51.1607353,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -851,12 +910,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-total",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0262167,
+      "longitude": -51.2123437,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -868,12 +928,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-protasio-alves",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.038876,
+      "longitude": -51.1226433,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -885,8 +946,14 @@
       "uf": "RS",
       "codigo_externo": "zaffari-passo-fundo",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": null,
-      "longitude": null
+      "latitude": -28.2611307,
+      "longitude": -52.41384,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
+      }
     },
     {
       "mercado": "zaffari",
@@ -897,12 +964,14 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-otto-niemeyer",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
+        "status": "coordenada_repetida",
         "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "em": "2026-11-13T02:04:57+00:00",
+        "precisao": "cep",
+        "endereco": "nao_encontrado"
       }
     },
     {
@@ -914,12 +983,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-menino-deus",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0512052,
+      "longitude": -51.223768,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -931,12 +1001,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-marechal-floriano",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0318508,
+      "longitude": -51.2271774,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -948,12 +1019,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-lima-e-silva",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0381383,
+      "longitude": -51.2210932,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -965,12 +1037,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-ipiranga",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0446407,
+      "longitude": -51.1977664,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -982,12 +1055,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-ipanema",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "coordenada_repetida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -999,12 +1073,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-higienopolis",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0200538,
+      "longitude": -51.1809551,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1016,12 +1091,14 @@
       "uf": "RS",
       "codigo_externo": "zaffari-fernando-machado",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
+        "status": "coordenada_repetida",
         "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "em": "2026-11-13T02:04:57+00:00",
+        "precisao": "cep",
+        "endereco": "rejeitada_cidade_diferente"
       }
     },
     {
@@ -1033,12 +1110,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-fernandes-vieira",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0327064,
+      "longitude": -51.2114037,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1050,12 +1128,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-cristovao-colombo",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0210305,
+      "longitude": -51.2069733,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1067,12 +1146,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-caxias-san-pellegrino",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.16806,
-      "longitude": -51.17944,
+      "latitude": -29.1713894,
+      "longitude": -51.1912303,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1084,12 +1164,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-centerlar",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -29.9996531,
+      "longitude": -51.1313278,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1101,12 +1182,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-caxias-sinimbu",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.16806,
-      "longitude": -51.17944,
+      "latitude": -29.1687605,
+      "longitude": -51.1759491,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1118,12 +1200,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-caxias-exposicao",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.16806,
-      "longitude": -51.17944,
+      "latitude": -29.1687775,
+      "longitude": -51.1759389,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1135,12 +1218,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-caxias-centro",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.16806,
-      "longitude": -51.17944,
+      "latitude": -28.8766431,
+      "longitude": -50.9751487,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1152,12 +1236,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-cavalhada",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.1084791,
+      "longitude": -51.228654,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1169,12 +1254,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-cabral",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0339191,
+      "longitude": -51.2023107,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1186,12 +1272,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-boulevard",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.008942,
+      "longitude": -51.1443765,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1203,12 +1290,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-bordini",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0222238,
+      "longitude": -51.196548,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1220,12 +1308,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-anita-garibaldi",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0266954,
+      "longitude": -51.1903298,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1237,12 +1326,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-rua-da-praia",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0308811,
+      "longitude": -51.2322914,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1254,12 +1344,13 @@
       "uf": "RS",
       "codigo_externo": "zaffari-hipica",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "coordenada_repetida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1271,12 +1362,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-assis-brasil",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0061148,
+      "longitude": -51.1844907,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1288,12 +1380,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-sao-leopoldo",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.76028,
-      "longitude": -51.14722,
+      "latitude": -29.7692496,
+      "longitude": -51.1464348,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1305,12 +1398,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-passo-fundo",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": null,
-      "longitude": null,
+      "latitude": -28.2535865,
+      "longitude": -52.3935258,
       "geocodificacao": {
-        "status": "nao_encontrada",
-        "fonte": "brasilapi_v2+viacep",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "resolvida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1322,12 +1416,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-novo-hamburgo",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": null,
-      "longitude": null,
+      "latitude": -29.6937395,
+      "longitude": -51.1312526,
       "geocodificacao": {
-        "status": "nao_encontrada",
-        "fonte": "brasilapi_v2+viacep",
-        "em": "2026-11-13T02:04:57+00:00"
+        "status": "resolvida",
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1339,12 +1434,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-ipiranga",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0553096,
+      "longitude": -51.1869541,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1356,12 +1452,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-country",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -30.03283,
-      "longitude": -51.23019,
+      "latitude": -30.0228625,
+      "longitude": -51.1555463,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     },
     {
@@ -1373,12 +1470,13 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-bourbon-canoas",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -29.91778,
-      "longitude": -51.18361,
+      "latitude": -29.9150646,
+      "longitude": -51.1758369,
       "geocodificacao": {
         "status": "resolvida",
-        "fonte": "brasilapi_v2",
-        "em": "2026-11-13T02:04:57+00:00"
+        "fonte": "nominatim",
+        "precisao": "endereco",
+        "em": "2026-11-13T10:50:12+00:00"
       }
     }
   ]

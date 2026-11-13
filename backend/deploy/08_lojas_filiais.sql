@@ -1,7 +1,7 @@
 -- ============================================================
 -- SmartMarket - Deploy Script 08: lojas (filiais) reais de Fort, Asun e Zaffari/Bourbon no RS
 -- ============================================================
--- Gerado por scraper/gerar_sql_lojas.py em 2026-11-12 a partir de scraper/lojas/lojas.json.
+-- Gerado por scraper/gerar_sql_lojas.py em 2026-11-13 a partir de scraper/lojas/lojas.json.
 -- NAO edite a mao: altere o JSON e gere de novo.
 -- Lojas: 82 (fort 7, asun 36, zaffari 39).
 --
@@ -33,7 +33,7 @@ END $$;
 -- Fort Atacadista Canoas
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Canoas', 'Av. Farroupilha, 4803 - Marechal Rondon', 'Canoas', 'RS', '92020475', -29.91778, -51.18361, '545')
+    (1, 'Fort Atacadista Canoas', 'Av. Farroupilha, 4803 - Marechal Rondon', 'Canoas', 'RS', '92020475', -29.911571, -51.1635307, '545')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -46,7 +46,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Caxias do Sul
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Caxias do Sul', 'Rua Tronca, 1370 - Exposição', 'Caxias do Sul', 'RS', '95010100', -29.16806, -51.17944, '345')
+    (1, 'Fort Atacadista Caxias do Sul', 'Rua Tronca, 1370 - Exposição', 'Caxias do Sul', 'RS', '95010100', -29.17391, -51.173771, '345')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -59,7 +59,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Gravataí
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Gravataí', 'Av. Dorival Cândido Luz de Oliveira, 6845 - Bom Princípio', 'Gravataí', 'RS', '94070001', -29.94218, -50.99278, '945')
+    (1, 'Fort Atacadista Gravataí', 'Av. Dorival Cândido Luz de Oliveira, 6845 - Bom Princípio', 'Gravataí', 'RS', '94070001', -29.9328268, -51.0582512, '945')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -72,7 +72,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Porto Alegre
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Porto Alegre', 'Av. Manoel Elias, 745 - Passo das Pedras', 'Porto Alegre', 'RS', '91240261', -30.03283, -51.23019, '845')
+    (1, 'Fort Atacadista Porto Alegre', 'Av. Manoel Elias, 745 - Passo das Pedras', 'Porto Alegre', 'RS', '91240261', -30.0243435, -51.1201929, '845')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -85,7 +85,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Novo Hamburgo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Novo Hamburgo', 'Rua Vinte e Quatro de Maio, 368 - Operário', 'Novo Hamburgo', 'RS', '93315138', -29.67833, -51.13056, '445')
+    (1, 'Fort Atacadista Novo Hamburgo', 'Rua Vinte e Quatro de Maio, 368 - Operário', 'Novo Hamburgo', 'RS', '93315138', -29.676491, -51.1384766, '445')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -98,7 +98,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Santa Cruz do Sul
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Santa Cruz do Sul', 'Av. Paul Harris, 291 - Centro', 'Santa Cruz do Sul', 'RS', '96810408', -29.7175, -52.42583, '885')
+    (1, 'Fort Atacadista Santa Cruz do Sul', 'Av. Paul Harris, 291 - Centro', 'Santa Cruz do Sul', 'RS', '96810408', -29.7250559, -52.4334118, '885')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -111,7 +111,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Fort Atacadista Viamão
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (1, 'Fort Atacadista Viamão', 'Av. Senador Salgado Filho, 7131 - Jardim Krahe', 'Viamão', 'RS', '94450000', -30.08111, -51.02333, '370')
+    (1, 'Fort Atacadista Viamão', 'Av. Senador Salgado Filho, 7131 - Jardim Krahe', 'Viamão', 'RS', '94450000', -30.0871864, -51.0553739, '370')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -124,7 +124,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Capão da Canoa
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Capão da Canoa', 'R. Peri, 4215 - Centro', 'Capão da Canoa', 'RS', '95555000', -29.74556, -50.00972, '1543')
+    (3, 'Asun Capão da Canoa', 'R. Peri, 4215 - Centro', 'Capão da Canoa', 'RS', '95555000', -29.769026, -50.0250234, '1543')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -137,7 +137,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Cidreira
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Cidreira', 'Parque IX', 'Cidreira', 'RS', '95595000', -30.18111, -50.20556, '1542')
+    (3, 'Asun Cidreira', 'Parque IX', 'Cidreira', 'RS', '95595000', -30.1474802, -50.1930475, '1542')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -150,7 +150,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Imbé
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Imbé', 'Av. Caxias do Sul, 1559 - Quadra 265 - Centro', 'Imbé', 'RS', '95625970', -29.93314, -50.1063, '1541')
+    (3, 'Asun Imbé', 'Av. Caxias do Sul, 1559 - Quadra 265 - Centro', 'Imbé', 'RS', '95625970', -29.9556511, -50.1308433, '1541')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -163,7 +163,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Magistério
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Magistério', 'R. Osvaldo Aranha, 251 - Magistério', 'Balneário Pinhal', 'RS', '95599000', -30.25885, -50.23866, 'asun-magisterio')
+    (3, 'Asun Magistério', 'R. Osvaldo Aranha, 251 - Magistério', 'Balneário Pinhal', 'RS', '95599000', -30.2900456, -50.2549724, 'asun-magisterio')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -176,7 +176,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Mariluz
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Mariluz', 'Av. Paraguassú, 2474 - Balneário Mariluz', 'Imbé', 'RS', '95625000', -29.93314, -50.1063, 'asun-mariluz')
+    (3, 'Asun Mariluz', 'Av. Paraguassú, 2474 - Balneário Mariluz', 'Imbé', 'RS', '95625000', -29.9485733, -50.1260328, 'asun-mariluz')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -189,7 +189,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Noiva do Mar
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Noiva do Mar', 'Av. Paraguassu, 801 - Centro', 'Xangri-lá', 'RS', '95588000', -29.80083, -50.04361, 'asun-noiva-do-mar')
+    (3, 'Asun Noiva do Mar', 'Av. Paraguassu, 801 - Centro', 'Xangri-lá', 'RS', '95588000', NULL, NULL, 'asun-noiva-do-mar')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -202,7 +202,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Nova Tramandaí
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Nova Tramandaí', 'Av. Florianópolis, S/N - Nova Tramandaí', 'Tramandaí', 'RS', '95590000', -29.98472, -50.13361, 'asun-nova-tramandai')
+    (3, 'Asun Nova Tramandaí', 'Av. Florianópolis, S/N - Nova Tramandaí', 'Tramandaí', 'RS', '95590000', -30.040186, -50.1572409, 'asun-nova-tramandai')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -228,7 +228,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Pinhal Centro
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Pinhal Centro', 'Av. Pampa, 400', 'Balneário Pinhal', 'RS', '95599000', -30.25885, -50.23866, 'asun-pinhal-centro')
+    (3, 'Asun Pinhal Centro', 'Av. Pampa, 400', 'Balneário Pinhal', 'RS', '95599000', -30.2519033, -50.2385065, 'asun-pinhal-centro')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -241,7 +241,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Quintão
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Quintão', 'Av. Esparta, 4717 - Quintão', 'Palmares do Sul', 'RS', '95548000', -30.25778, -50.50972, 'asun-quintao')
+    (3, 'Asun Quintão', 'Av. Esparta, 4717 - Quintão', 'Palmares do Sul', 'RS', '95548000', -30.3565012, -50.2767788, 'asun-quintao')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -254,7 +254,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Torres
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Torres', 'Av. Castelo Branco, 1010 - Centro', 'Torres', 'RS', '95560000', -29.33528, -49.72694, 'asun-torres')
+    (3, 'Asun Torres', 'Av. Castelo Branco, 1010 - Centro', 'Torres', 'RS', '95560000', -29.3217232, -49.7665912, 'asun-torres')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -267,7 +267,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Tramandaí
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Tramandaí', 'Av. Fernandes Bastos, 1201 - Centro', 'Tramandaí', 'RS', '95590000', -29.98472, -50.13361, 'asun-tramandai')
+    (3, 'Asun Tramandaí', 'Av. Fernandes Bastos, 1201 - Centro', 'Tramandaí', 'RS', '95590000', -30.0030609, -50.171894, 'asun-tramandai')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -293,7 +293,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Xangri-lá 2
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Xangri-lá 2', 'Av. Paraguassu, 55 - Centro', 'Xangri-lá', 'RS', '95588000', -29.80083, -50.04361, 'asun-xangri-la-2')
+    (3, 'Asun Xangri-lá 2', 'Av. Paraguassu, 55 - Centro', 'Xangri-lá', 'RS', '95588000', NULL, NULL, 'asun-xangri-la-2')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -306,7 +306,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Azenha
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Azenha', 'Av. Bento Gonçalves, 68 - Azenha', 'Porto Alegre', 'RS', '90650000', -30.03283, -51.23019, 'asun-azenha')
+    (3, 'Asun Azenha', 'Av. Bento Gonçalves, 68 - Azenha', 'Porto Alegre', 'RS', '90650000', -30.0616946, -51.171191, 'asun-azenha')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -319,7 +319,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Cavalhada
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Cavalhada', 'Av. da Cavalhada, 2985 - Cavalhada', 'Porto Alegre', 'RS', '91740001', -30.1026, -51.2312, '1540')
+    (3, 'Asun Cavalhada', 'Av. da Cavalhada, 2985 - Cavalhada', 'Porto Alegre', 'RS', '91740001', -30.1025756, -51.2311271, '1540')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -332,7 +332,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Conceição
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Conceição', 'Av. Francisco Trein, 687 - Cristo Redentor', 'Porto Alegre', 'RS', '91350200', -30.03283, -51.23019, 'asun-conceicao')
+    (3, 'Asun Conceição', 'Av. Francisco Trein, 687 - Cristo Redentor', 'Porto Alegre', 'RS', '91350200', -30.0171736, -51.1593984, 'asun-conceicao')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -345,7 +345,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Juca Batista
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Juca Batista', 'Av. Juca Batista, 7365', 'Porto Alegre', 'RS', '91770001', -30.03283, -51.23019, 'asun-juca-batista')
+    (3, 'Asun Juca Batista', 'Av. Juca Batista, 7365', 'Porto Alegre', 'RS', '91770001', -30.1619985, -51.1838576, 'asun-juca-batista')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -358,7 +358,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Plínio
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Plínio', 'Av. Plínio Brasil Milano, 1609 - Higienópolis', 'Porto Alegre', 'RS', '90520002', -30.03283, -51.23019, 'asun-plinio')
+    (3, 'Asun Plínio', 'Av. Plínio Brasil Milano, 1609 - Higienópolis', 'Porto Alegre', 'RS', '90520002', -30.0210791, -51.1817435, 'asun-plinio')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -371,7 +371,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Pontal
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Pontal', 'Av. Padre Cacique, 2893 - Cristal', 'Porto Alegre', 'RS', '90810240', -30.03283, -51.23019, 'asun-pontal')
+    (3, 'Asun Pontal', 'Av. Padre Cacique, 2893 - Cristal', 'Porto Alegre', 'RS', '90810240', -30.0806659, -51.2476248, 'asun-pontal')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -384,7 +384,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun República
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun República', 'R. da República, 500 - Cidade Baixa', 'Porto Alegre', 'RS', '90050320', -30.03283, -51.23019, 'asun-republica')
+    (3, 'Asun República', 'R. da República, 500 - Cidade Baixa', 'Porto Alegre', 'RS', '90050320', -30.0383442, -51.2231435, 'asun-republica')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -397,7 +397,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Restinga
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Restinga', 'Estr. João Antônio da Silveira, 1134 - Restinga', 'Porto Alegre', 'RS', '91790512', -30.03283, -51.23019, 'asun-restinga')
+    (3, 'Asun Restinga', 'Estr. João Antônio da Silveira, 1134 - Restinga', 'Porto Alegre', 'RS', '91790512', -30.1584845, -51.1472022, 'asun-restinga')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -410,7 +410,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Santana
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Santana', 'R. Gen. Jacinto Osório, 126 - Santana', 'Porto Alegre', 'RS', '90040290', -30.03283, -51.23019, 'asun-santana')
+    (3, 'Asun Santana', 'R. Gen. Jacinto Osório, 126 - Santana', 'Porto Alegre', 'RS', '90040290', -30.040837, -51.21169, 'asun-santana')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -423,7 +423,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Cachoeirinha
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Cachoeirinha', 'Av. Gen. Flores da Cunha, 952 - Centro', 'Cachoeirinha', 'RS', '94910001', -29.95111, -51.09389, 'asun-cachoeirinha')
+    (3, 'Asun Cachoeirinha', 'Av. Gen. Flores da Cunha, 952 - Centro', 'Cachoeirinha', 'RS', '94910001', -29.953001, -51.1039564, 'asun-cachoeirinha')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -436,7 +436,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Cachoeirinha Centro 2
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Cachoeirinha Centro 2', 'Av. Gen. Flores da Cunha, 823 - Centro', 'Cachoeirinha', 'RS', '94910001', -29.95111, -51.09389, '1560')
+    (3, 'Asun Cachoeirinha Centro 2', 'Av. Gen. Flores da Cunha, 823 - Centro', 'Cachoeirinha', 'RS', '94910001', -29.9351103, -51.0795984, '1560')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -449,7 +449,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Canoas Fátima
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Canoas Fátima', 'R. Cairú, 1880 - Rio Branco', 'Canoas', 'RS', '92200021', NULL, NULL, 'asun-canoas-fatima')
+    (3, 'Asun Canoas Fátima', 'R. Cairú, 1880 - Rio Branco', 'Canoas', 'RS', '92200021', -29.9407166, -51.1845732, 'asun-canoas-fatima')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -462,7 +462,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Canoas Florianópolis
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Canoas Florianópolis', 'R. Florianópolis, 1850 - Mathias Velho', 'Canoas', 'RS', '92330500', -29.91778, -51.18361, 'asun-canoas-florianopolis')
+    (3, 'Asun Canoas Florianópolis', 'R. Florianópolis, 1850 - Mathias Velho', 'Canoas', 'RS', '92330500', -29.9063397, -51.2106648, 'asun-canoas-florianopolis')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -475,7 +475,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Canoas Igara
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Canoas Igara', 'Av. Boqueirão, 2100 - Igara', 'Canoas', 'RS', '92032420', -29.91778, -51.18361, 'asun-canoas-igara')
+    (3, 'Asun Canoas Igara', 'Av. Boqueirão, 2100 - Igara', 'Canoas', 'RS', '92032420', -29.9047387, -51.1527247, 'asun-canoas-igara')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -488,7 +488,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Canoas Niterói
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Canoas Niterói', 'R. Júlio de Castilhos, 263 - Niterói', 'Canoas', 'RS', '92120030', -29.91778, -51.18361, 'asun-canoas-niteroi')
+    (3, 'Asun Canoas Niterói', 'R. Júlio de Castilhos, 263 - Niterói', 'Canoas', 'RS', '92120030', -29.9559629, -51.1734978, 'asun-canoas-niteroi')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -501,7 +501,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Central Park
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Central Park', 'Av. Frederico Augusto Ritter, 3581 - City', 'Cachoeirinha', 'RS', '94931001', -29.95111, -51.09389, 'asun-central-park')
+    (3, 'Asun Central Park', 'Av. Frederico Augusto Ritter, 3581 - City', 'Cachoeirinha', 'RS', '94931001', -29.8903621, -51.0905343, 'asun-central-park')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -514,7 +514,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Dois Irmãos
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Dois Irmãos', 'Av. Irineu Becker, 585 - Primavera', 'Dois Irmãos', 'RS', '93950000', -29.58028, -51.08528, 'asun-dois-irmaos')
+    (3, 'Asun Dois Irmãos', 'Av. Irineu Becker, 585 - Primavera', 'Dois Irmãos', 'RS', '93950000', -29.5789591, -51.0930541, 'asun-dois-irmaos')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -527,7 +527,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Eldorado
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Eldorado', 'Estr. da Arrozeira, 10 - Centro', 'Eldorado do Sul', 'RS', '92990000', -29.99932, -51.30822, '1562')
+    (3, 'Asun Eldorado', 'Estr. da Arrozeira, 10 - Centro', 'Eldorado do Sul', 'RS', '92990000', -30.0038861, -51.3121662, '1562')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -540,7 +540,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Estância Velha
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Estância Velha', 'R. Portão, 511 - Centro', 'Estância Velha', 'RS', '93600090', -29.64833, -51.17389, 'asun-estancia-velha')
+    (3, 'Asun Estância Velha', 'R. Portão, 511 - Centro', 'Estância Velha', 'RS', '93600090', -29.6638075, -51.1965972, 'asun-estancia-velha')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -553,7 +553,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Gravataí Centro
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Gravataí Centro', 'R. Dr. Luiz Bastos do Prado, 1750 - Centro', 'Gravataí', 'RS', '94010020', -29.94218, -50.99278, 'asun-gravatai-centro')
+    (3, 'Asun Gravataí Centro', 'R. Dr. Luiz Bastos do Prado, 1750 - Centro', 'Gravataí', 'RS', '94010020', -29.9399309, -50.9941085, 'asun-gravatai-centro')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -579,7 +579,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Asun Montenegro
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (3, 'Asun Montenegro', 'R. Cap. Porfírio, 1781 - Centro', 'Montenegro', 'RS', '92510305', -29.68861, -51.46111, 'asun-montenegro')
+    (3, 'Asun Montenegro', 'R. Cap. Porfírio, 1781 - Centro', 'Montenegro', 'RS', '92510305', -29.6869568, -51.4583443, 'asun-montenegro')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -592,7 +592,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Moinhos
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Moinhos', 'Rua Olavo Barreto Viana, 18', 'Porto Alegre', 'RS', '90570070', -30.03283, -51.23019, 'zaffari-moinhos')
+    (6, 'Zaffari Moinhos', 'Rua Olavo Barreto Viana, 18', 'Porto Alegre', 'RS', '90570070', -30.0234669, -51.2015662, 'zaffari-moinhos')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -605,7 +605,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Carlos Gomes
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Carlos Gomes', 'Av. Carlos Gomes, 707', 'Porto Alegre', 'RS', '90470133', -30.03283, -51.23019, 'zaffari-carlos-gomes')
+    (6, 'Zaffari Carlos Gomes', 'Av. Carlos Gomes, 707', 'Porto Alegre', 'RS', '90470133', -30.0282166, -51.1824915, 'zaffari-carlos-gomes')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -618,7 +618,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Lucas de Oliveira
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Lucas de Oliveira', 'Av. Coronel Lucas de Oliveira, 740', 'Porto Alegre', 'RS', '90460001', -30.03283, -51.23019, 'zaffari-lucas-de-oliveira')
+    (6, 'Zaffari Lucas de Oliveira', 'Av. Coronel Lucas de Oliveira, 740', 'Porto Alegre', 'RS', '90460001', -30.029233, -51.1941365, 'zaffari-lucas-de-oliveira')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -631,7 +631,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Teresópolis
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Teresópolis', 'Av. Cel. Aparício Borges, 250', 'Porto Alegre', 'RS', '90680570', -30.03283, -51.23019, 'zaffari-teresopolis')
+    (6, 'Zaffari Teresópolis', 'Av. Cel. Aparício Borges, 250', 'Porto Alegre', 'RS', '90680570', -30.0662346, -51.1868322, 'zaffari-teresopolis')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -644,7 +644,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Lindoia
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Lindoia', 'Av. Panamericana, 240', 'Porto Alegre', 'RS', '91050000', -30.03283, -51.23019, 'zaffari-lindoia')
+    (6, 'Zaffari Lindoia', 'Av. Panamericana, 240', 'Porto Alegre', 'RS', '91050000', -30.0080867, -51.1518349, 'zaffari-lindoia')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -657,7 +657,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari ParkShopping Canoas
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari ParkShopping Canoas', 'Av. Farroupilha, 4545 - ParkShopping Canoas', 'Canoas', 'RS', '92020475', -29.91778, -51.18361, 'hipermercado-zaffari-parkshopping-canoas')
+    (6, 'Hipermercado Zaffari ParkShopping Canoas', 'Av. Farroupilha, 4545 - ParkShopping Canoas', 'Canoas', 'RS', '92020475', -29.9153687, -51.1647989, 'hipermercado-zaffari-parkshopping-canoas')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -670,7 +670,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Wallig
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Wallig', 'Av. Assis Brasil, 2611', 'Porto Alegre', 'RS', '91010006', -30.03283, -51.23019, 'hipermercado-zaffari-wallig')
+    (6, 'Hipermercado Zaffari Wallig', 'Av. Assis Brasil, 2611', 'Porto Alegre', 'RS', '91010006', -30.0122608, -51.1607353, 'hipermercado-zaffari-wallig')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -683,7 +683,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Total
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Total', 'Av. Cristóvão Colombo, 545 - Prédio 6 - Shopping Total', 'Porto Alegre', 'RS', '90560000', -30.03283, -51.23019, 'zaffari-total')
+    (6, 'Zaffari Total', 'Av. Cristóvão Colombo, 545 - Prédio 6 - Shopping Total', 'Porto Alegre', 'RS', '90560000', -30.0262167, -51.2123437, 'zaffari-total')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -696,7 +696,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Protásio Alves
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Protásio Alves', 'Av. Protásio Alves, 2700 - Petrópolis', 'Porto Alegre', 'RS', '90410006', -30.03283, -51.23019, 'zaffari-protasio-alves')
+    (6, 'Zaffari Protásio Alves', 'Av. Protásio Alves, 2700 - Petrópolis', 'Porto Alegre', 'RS', '90410006', -30.038876, -51.1226433, 'zaffari-protasio-alves')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -709,7 +709,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Passo Fundo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Passo Fundo', 'Rua Uruguai, 1483 - Vila Vergueiro', 'Passo Fundo', 'RS', NULL, NULL, NULL, 'zaffari-passo-fundo')
+    (6, 'Zaffari Passo Fundo', 'Rua Uruguai, 1483 - Vila Vergueiro', 'Passo Fundo', 'RS', NULL, -28.2611307, -52.41384, 'zaffari-passo-fundo')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -722,7 +722,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Otto Niemeyer
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Otto Niemeyer', 'Rua Otto Niemeyer, 601 - Tristeza', 'Porto Alegre', 'RS', '91910001', -30.03283, -51.23019, 'hipermercado-zaffari-otto-niemeyer')
+    (6, 'Hipermercado Zaffari Otto Niemeyer', 'Rua Otto Niemeyer, 601 - Tristeza', 'Porto Alegre', 'RS', '91910001', NULL, NULL, 'hipermercado-zaffari-otto-niemeyer')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -735,7 +735,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Menino Deus
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Menino Deus', 'Rua Múcio Teixeira, 680 - Menino Deus', 'Porto Alegre', 'RS', '90150090', -30.03283, -51.23019, 'zaffari-menino-deus')
+    (6, 'Zaffari Menino Deus', 'Rua Múcio Teixeira, 680 - Menino Deus', 'Porto Alegre', 'RS', '90150090', -30.0512052, -51.223768, 'zaffari-menino-deus')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -748,7 +748,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Marechal Floriano
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Marechal Floriano', 'Rua Marechal Floriano Peixoto, 333 - Centro', 'Porto Alegre', 'RS', '90020061', -30.03283, -51.23019, 'zaffari-marechal-floriano')
+    (6, 'Zaffari Marechal Floriano', 'Rua Marechal Floriano Peixoto, 333 - Centro', 'Porto Alegre', 'RS', '90020061', -30.0318508, -51.2271774, 'zaffari-marechal-floriano')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -761,7 +761,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Lima e Silva
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Lima e Silva', 'Rua Lima e Silva, 606 - Cidade Baixa', 'Porto Alegre', 'RS', '90050100', -30.03283, -51.23019, 'zaffari-lima-e-silva')
+    (6, 'Zaffari Lima e Silva', 'Rua Lima e Silva, 606 - Cidade Baixa', 'Porto Alegre', 'RS', '90050100', -30.0381383, -51.2210932, 'zaffari-lima-e-silva')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -774,7 +774,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Ipiranga
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Ipiranga', 'Av. Ipiranga, 3000 - Santa Cecília', 'Porto Alegre', 'RS', '90610000', -30.03283, -51.23019, 'hipermercado-zaffari-ipiranga')
+    (6, 'Hipermercado Zaffari Ipiranga', 'Av. Ipiranga, 3000 - Santa Cecília', 'Porto Alegre', 'RS', '90610000', -30.0446407, -51.1977664, 'hipermercado-zaffari-ipiranga')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -787,7 +787,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Ipanema
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Ipanema', 'Av. Juca Batista, 925 - Ipanema', 'Porto Alegre', 'RS', '91770001', -30.03283, -51.23019, 'zaffari-ipanema')
+    (6, 'Zaffari Ipanema', 'Av. Juca Batista, 925 - Ipanema', 'Porto Alegre', 'RS', '91770001', NULL, NULL, 'zaffari-ipanema')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -800,7 +800,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Higienópolis
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Higienópolis', 'Av. Plínio Brasil Milano, 1000 - Higienópolis', 'Porto Alegre', 'RS', '90520900', -30.03283, -51.23019, 'hipermercado-zaffari-higienopolis')
+    (6, 'Hipermercado Zaffari Higienópolis', 'Av. Plínio Brasil Milano, 1000 - Higienópolis', 'Porto Alegre', 'RS', '90520900', -30.0200538, -51.1809551, 'hipermercado-zaffari-higienopolis')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -813,7 +813,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Fernando Machado
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Fernando Machado', 'Rua Fernando Machado, 860 - Centro', 'Porto Alegre', 'RS', '90010320', -30.03283, -51.23019, 'zaffari-fernando-machado')
+    (6, 'Zaffari Fernando Machado', 'Rua Fernando Machado, 860 - Centro', 'Porto Alegre', 'RS', '90010320', NULL, NULL, 'zaffari-fernando-machado')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -826,7 +826,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Fernandes Vieira
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Fernandes Vieira', 'Rua Fernandes Vieira, 401 - Bom Fim', 'Porto Alegre', 'RS', '90035091', -30.03283, -51.23019, 'zaffari-fernandes-vieira')
+    (6, 'Zaffari Fernandes Vieira', 'Rua Fernandes Vieira, 401 - Bom Fim', 'Porto Alegre', 'RS', '90035091', -30.0327064, -51.2114037, 'zaffari-fernandes-vieira')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -839,7 +839,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Cristóvão Colombo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Cristóvão Colombo', 'Av. Cristóvão Colombo, 1271 - Floresta', 'Porto Alegre', 'RS', '90560004', -30.03283, -51.23019, 'hipermercado-zaffari-cristovao-colombo')
+    (6, 'Hipermercado Zaffari Cristóvão Colombo', 'Av. Cristóvão Colombo, 1271 - Floresta', 'Porto Alegre', 'RS', '90560004', -30.0210305, -51.2069733, 'hipermercado-zaffari-cristovao-colombo')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -852,7 +852,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Caxias San Pellegrino
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Caxias San Pellegrino', 'Av. Rio Branco, 425 - Loja 106 - São Pelegrino', 'Caxias do Sul', 'RS', '95010060', -29.16806, -51.17944, 'zaffari-caxias-san-pellegrino')
+    (6, 'Zaffari Caxias San Pellegrino', 'Av. Rio Branco, 425 - Loja 106 - São Pelegrino', 'Caxias do Sul', 'RS', '95010060', -29.1713894, -51.1912303, 'zaffari-caxias-san-pellegrino')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -865,7 +865,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Centerlar
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Centerlar', 'Av. Sertório, 8000 - Sarandi', 'Porto Alegre', 'RS', '91130720', -30.03283, -51.23019, 'hipermercado-zaffari-centerlar')
+    (6, 'Hipermercado Zaffari Centerlar', 'Av. Sertório, 8000 - Sarandi', 'Porto Alegre', 'RS', '91130720', -29.9996531, -51.1313278, 'hipermercado-zaffari-centerlar')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -878,7 +878,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Caxias Sinimbu
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Caxias Sinimbu', 'Rua Sinimbu, 135 - Lourdes', 'Caxias do Sul', 'RS', '95020000', -29.16806, -51.17944, 'zaffari-caxias-sinimbu')
+    (6, 'Zaffari Caxias Sinimbu', 'Rua Sinimbu, 135 - Lourdes', 'Caxias do Sul', 'RS', '95020000', -29.1687605, -51.1759491, 'zaffari-caxias-sinimbu')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -891,7 +891,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Caxias Exposição
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Caxias Exposição', 'Rua Alfredo Chaves, 1332 - Exposição', 'Caxias do Sul', 'RS', '95020460', -29.16806, -51.17944, 'zaffari-caxias-exposicao')
+    (6, 'Zaffari Caxias Exposição', 'Rua Alfredo Chaves, 1332 - Exposição', 'Caxias do Sul', 'RS', '95020460', -29.1687775, -51.1759389, 'zaffari-caxias-exposicao')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -904,7 +904,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Caxias Centro
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Caxias Centro', 'Rua Borges de Medeiros, 391 - Centro', 'Caxias do Sul', 'RS', '95020310', -29.16806, -51.17944, 'hipermercado-zaffari-caxias-centro')
+    (6, 'Hipermercado Zaffari Caxias Centro', 'Rua Borges de Medeiros, 391 - Centro', 'Caxias do Sul', 'RS', '95020310', -28.8766431, -50.9751487, 'hipermercado-zaffari-caxias-centro')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -917,7 +917,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Cavalhada
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Cavalhada', 'Av. Cavalhada, 3621 - Cavalhada', 'Porto Alegre', 'RS', '91751830', -30.03283, -51.23019, 'hipermercado-zaffari-cavalhada')
+    (6, 'Hipermercado Zaffari Cavalhada', 'Av. Cavalhada, 3621 - Cavalhada', 'Porto Alegre', 'RS', '91751830', -30.1084791, -51.228654, 'hipermercado-zaffari-cavalhada')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -930,7 +930,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Cabral
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Cabral', 'Rua Cabral, 600 - Rio Branco', 'Porto Alegre', 'RS', '90420121', -30.03283, -51.23019, 'zaffari-cabral')
+    (6, 'Zaffari Cabral', 'Rua Cabral, 600 - Rio Branco', 'Porto Alegre', 'RS', '90420121', -30.0339191, -51.2023107, 'zaffari-cabral')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -943,7 +943,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Boulevard
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Boulevard', 'Av. Assis Brasil, 4320 - São Sebastião', 'Porto Alegre', 'RS', '91110000', -30.03283, -51.23019, 'zaffari-boulevard')
+    (6, 'Zaffari Boulevard', 'Av. Assis Brasil, 4320 - São Sebastião', 'Porto Alegre', 'RS', '91110000', -30.008942, -51.1443765, 'zaffari-boulevard')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -956,7 +956,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Bordini
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Bordini', 'Rua Cel. Bordini, 530 - Auxiliadora', 'Porto Alegre', 'RS', '90440002', -30.03283, -51.23019, 'zaffari-bordini')
+    (6, 'Zaffari Bordini', 'Rua Cel. Bordini, 530 - Auxiliadora', 'Porto Alegre', 'RS', '90440002', -30.0222238, -51.196548, 'zaffari-bordini')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -969,7 +969,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Anita Garibaldi
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Anita Garibaldi', 'Rua Anita Garibaldi, 536 - Mont''Serrat', 'Porto Alegre', 'RS', '90450000', -30.03283, -51.23019, 'zaffari-anita-garibaldi')
+    (6, 'Zaffari Anita Garibaldi', 'Rua Anita Garibaldi, 536 - Mont''Serrat', 'Porto Alegre', 'RS', '90450000', -30.0266954, -51.1903298, 'zaffari-anita-garibaldi')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -982,7 +982,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Rua da Praia
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Rua da Praia', 'Rua dos Andradas, 933 - Centro', 'Porto Alegre', 'RS', '90020005', -30.03283, -51.23019, 'zaffari-rua-da-praia')
+    (6, 'Zaffari Rua da Praia', 'Rua dos Andradas, 933 - Centro', 'Porto Alegre', 'RS', '90020005', -30.0308811, -51.2322914, 'zaffari-rua-da-praia')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -995,7 +995,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Zaffari Hípica
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Zaffari Hípica', 'Av. Juca Batista, 4255 - Hípica', 'Porto Alegre', 'RS', '91755000', -30.03283, -51.23019, 'zaffari-hipica')
+    (6, 'Zaffari Hípica', 'Av. Juca Batista, 4255 - Hípica', 'Porto Alegre', 'RS', '91755000', NULL, NULL, 'zaffari-hipica')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1008,7 +1008,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Assis Brasil
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Assis Brasil', 'Av. Assis Brasil, 164', 'Porto Alegre', 'RS', '91010000', -30.03283, -51.23019, 'hipermercado-bourbon-assis-brasil')
+    (6, 'Hipermercado Bourbon Assis Brasil', 'Av. Assis Brasil, 164', 'Porto Alegre', 'RS', '91010000', -30.0061148, -51.1844907, 'hipermercado-bourbon-assis-brasil')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1021,7 +1021,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon São Leopoldo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon São Leopoldo', 'Av. Primeiro de Março, 821', 'São Leopoldo', 'RS', '93010210', -29.76028, -51.14722, 'hipermercado-bourbon-sao-leopoldo')
+    (6, 'Hipermercado Bourbon São Leopoldo', 'Av. Primeiro de Março, 821', 'São Leopoldo', 'RS', '93010210', -29.7692496, -51.1464348, 'hipermercado-bourbon-sao-leopoldo')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1034,7 +1034,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Passo Fundo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Passo Fundo', 'Av. Brasil Leste, 200', 'Passo Fundo', 'RS', '99050000', NULL, NULL, 'hipermercado-bourbon-passo-fundo')
+    (6, 'Hipermercado Bourbon Passo Fundo', 'Av. Brasil Leste, 200', 'Passo Fundo', 'RS', '99050000', -28.2535865, -52.3935258, 'hipermercado-bourbon-passo-fundo')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1047,7 +1047,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Novo Hamburgo
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Novo Hamburgo', 'Av. Primeiro de Março, 1111', 'Novo Hamburgo', 'RS', '93320010', NULL, NULL, 'hipermercado-bourbon-novo-hamburgo')
+    (6, 'Hipermercado Bourbon Novo Hamburgo', 'Av. Primeiro de Março, 1111', 'Novo Hamburgo', 'RS', '93320010', -29.6937395, -51.1312526, 'hipermercado-bourbon-novo-hamburgo')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1060,7 +1060,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Ipiranga
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Ipiranga', 'Av. Ipiranga, 5200', 'Porto Alegre', 'RS', '90610000', -30.03283, -51.23019, 'hipermercado-bourbon-ipiranga')
+    (6, 'Hipermercado Bourbon Ipiranga', 'Av. Ipiranga, 5200', 'Porto Alegre', 'RS', '90610000', -30.0553096, -51.1869541, 'hipermercado-bourbon-ipiranga')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1073,7 +1073,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Country
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Country', 'Av. Túlio de Rose, 100', 'Porto Alegre', 'RS', '91340110', -30.03283, -51.23019, 'hipermercado-bourbon-country')
+    (6, 'Hipermercado Bourbon Country', 'Av. Túlio de Rose, 100', 'Porto Alegre', 'RS', '91340110', -30.0228625, -51.1555463, 'hipermercado-bourbon-country')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,
@@ -1086,7 +1086,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Bourbon Canoas
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Bourbon Canoas', 'Av. Getúlio Vargas, 5765', 'Canoas', 'RS', '92010011', -29.91778, -51.18361, 'hipermercado-bourbon-canoas')
+    (6, 'Hipermercado Bourbon Canoas', 'Av. Getúlio Vargas, 5765', 'Canoas', 'RS', '92010011', -29.9150646, -51.1758369, 'hipermercado-bourbon-canoas')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,

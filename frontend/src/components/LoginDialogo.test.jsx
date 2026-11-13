@@ -1,9 +1,12 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../contexts/AuthContext'
 import { LoginModalProvider } from '../contexts/LoginModalContext'
 import LinkEntrar from './LinkEntrar'
 import * as carregar from './carregarCartaoLogin'
+import { ATRASO_AVISO_MS, iniciarChamada } from '../utils/servidorAcordando'
+
+const MSG_SERVIDOR_ACORDANDO = 'O servidor estava dormindo e está acordando; pode levar alguns minutos.'
 
 // A primeira abertura baixa e transforma o chunk lazy, o que demora mais com a cobertura ligada.
 jest.setTimeout(20000)
@@ -62,6 +65,33 @@ describe('Login em modal', () => {
   beforeAll(() => carregar.importarCartaoLogin())
 
   afterEach(() => jest.restoreAllMocks())
+
+  describe('aviso de servidor acordando', () => {
+    it('aparece no card quando uma chamada passa de 8 s e some quando ela termina', async () => {
+      renderizar()
+      // Abre com o relógio real (o chunk lazy precisa carregar) e só então liga o relógio falso.
+      await abrir()
+      jest.useFakeTimers()
+      const encerrar = iniciarChamada()
+      try {
+        const card = screen.getByRole('dialog', { name: 'Entrar no SmartMarket' })
+        expect(within(card).queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+
+        act(() => {
+          jest.advanceTimersByTime(ATRASO_AVISO_MS)
+        })
+        expect(within(card).getByText(MSG_SERVIDOR_ACORDANDO)).toBeInTheDocument()
+
+        act(() => {
+          encerrar()
+        })
+        expect(within(card).queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+      } finally {
+        encerrar()
+        jest.useRealTimers()
+      }
+    })
+  })
 
   describe('abrir', () => {
     it('abre o card sobre a página atual, sem navegar', async () => {

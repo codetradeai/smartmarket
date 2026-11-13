@@ -4,6 +4,9 @@ import { produtoService, mercadoService, favoritoService } from '../services'
 import lojaService from '../services/lojaService'
 import { PRODUCTS } from '../data'
 import { carregarProdutos } from '../utils/carregarProdutos'
+import { ATRASO_AVISO_MS, iniciarChamada } from '../utils/servidorAcordando'
+
+const MSG_SERVIDOR_ACORDANDO = 'O servidor estava dormindo e está acordando; pode levar alguns minutos.'
 
 // O catálogo chega por import() dinâmico; carrega a fixture uma vez antes dos testes para que o
 // primeiro import (lento com a máquina ocupada) não estoure o prazo do findBy de cada teste.
@@ -102,6 +105,30 @@ describe('CatalogPage', () => {
 
   afterEach(() => {
     jest.useRealTimers()
+  })
+
+  describe('aviso de servidor acordando', () => {
+    it('aparece no catálogo quando uma chamada passa de 8 s e some quando ela termina', async () => {
+      await renderizar()
+      // O catálogo carrega com o relógio real (import dinâmico); o relógio falso entra só agora.
+      jest.useFakeTimers()
+      const encerrar = iniciarChamada()
+      try {
+        expect(screen.queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+
+        act(() => {
+          jest.advanceTimersByTime(ATRASO_AVISO_MS)
+        })
+        expect(screen.getByText(MSG_SERVIDOR_ACORDANDO)).toBeInTheDocument()
+
+        act(() => {
+          encerrar()
+        })
+        expect(screen.queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+      } finally {
+        encerrar()
+      }
+    })
   })
 
   describe('lojas próximas (desligado até a API da Fase 3)', () => {

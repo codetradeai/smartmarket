@@ -4,8 +4,11 @@ import AuthPage from './AuthPage'
 import { useAuth } from '../hooks/useAuth'
 import { MARKETS, REDES_COM_PRODUTOS } from '../catalogoResumo'
 import { listarNomes, nomeCurtoRede, redesComProdutos } from '../utils/redesDoCatalogo'
+import { ATRASO_AVISO_MS, iniciarChamada } from '../utils/servidorAcordando'
 
 jest.mock('../hooks/useAuth', () => ({ useAuth: jest.fn() }))
+
+const MSG_SERVIDOR_ACORDANDO = 'O servidor estava dormindo e está acordando; pode levar alguns minutos.'
 
 function renderizar(entrada = '/auth') {
   const container = render(
@@ -50,6 +53,48 @@ describe('AuthPage', () => {
 
   afterEach(() => {
     jest.useRealTimers()
+  })
+
+  describe('aviso de servidor acordando', () => {
+    it('aparece no card, no login e no cadastro, quando uma chamada passa de 8 s, e some quando termina', () => {
+      jest.useFakeTimers()
+      renderizar()
+      const encerrar = iniciarChamada()
+      try {
+        expect(screen.queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+
+        act(() => {
+          jest.advanceTimersByTime(ATRASO_AVISO_MS)
+        })
+        expect(screen.getByText(MSG_SERVIDOR_ACORDANDO)).toBeInTheDocument()
+
+        fireEvent.click(abaCriarConta())
+        expect(screen.getByText(MSG_SERVIDOR_ACORDANDO)).toBeInTheDocument()
+
+        act(() => {
+          encerrar()
+        })
+        expect(screen.queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+      } finally {
+        encerrar()
+      }
+    })
+
+    it('não aparece quando as chamadas respondem antes de 8 s', () => {
+      jest.useFakeTimers()
+      renderizar()
+      const encerrar = iniciarChamada()
+
+      act(() => {
+        jest.advanceTimersByTime(ATRASO_AVISO_MS - 1)
+      })
+      encerrar()
+      act(() => {
+        jest.advanceTimersByTime(ATRASO_AVISO_MS)
+      })
+
+      expect(screen.queryByText(MSG_SERVIDOR_ACORDANDO)).not.toBeInTheDocument()
+    })
   })
 
   describe('abas e mensagens iniciais', () => {

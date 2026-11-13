@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import CampoSenha from "../components/CampoSenha"
 import { atalhosDemoHabilitados, credenciaisDemo } from "../services/authService"
-import { Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
+import { AvisoServidorAcordando, Button, Input, Modal, ModalHeader, ModalTitle, ModalBody, ModalFooter } from "../components/ui"
 import logoImg from "../assets/logo.png"
 import { MARKETS, REDES_COM_PRODUTOS } from "../catalogoResumo"
 import { cepValido, mascararCep, somenteDigitosCep } from "../utils/cep"
@@ -333,6 +333,8 @@ export default function AuthPage() {
 
           {/* Card Principal */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-brand-border/80 shadow-[0_4px_24px_rgba(13,33,55,0.08)]">
+            {/* Servidor hibernado (plano Free): login e cadastro esperam por ele; só aparece após 8 s sem resposta */}
+            <AvisoServidorAcordando className="mb-4" />
             {tab === "login" ? (
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <Input

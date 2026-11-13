@@ -2,10 +2,11 @@
  * Chaves de recursos do frontend.
  *
  * LOJAS_PROXIMAS_ATIVO: seletor de CEP/raio e "loja mais próxima" no catálogo.
- * Fica DESLIGADO de propósito. A primeira versão lia um JSON estático de filiais
- * (frontend/src/data/catalogo_filiais_rs.json), que saiu do repositório junto com o
- * sistema paralelo de coleta (ver docs/EXPANSAO_RS_SCRAPERS.md). Só ligue quando a
- * Fase 3 (API de lojas próximas, Haversine no backend Java) existir e o CatalogPage
- * receber a lista de lojas dela. Não religue a um arquivo local.
+ * Continua DESLIGADO de propósito. A Fase 3 (API de lojas próximas, Haversine no backend Java)
+ * já existe e o CatalogPage já recebe as lojas dela (hook useLocalizacao); o que falta é dado:
+ * só ligue quando houver ao menos uma filial real, com coordenadas, em produção. Sem isso a
+ * loja mais próxima não tem distância e a loja padrão (sem distância) fica fora dos cartões.
+ * Nunca alimente o catálogo com um arquivo local de filiais (o JSON antigo saiu do repositório,
+ * ver docs/EXPANSAO_RS_SCRAPERS.md).
  */
 export const LOJAS_PROXIMAS_ATIVO = false;

@@ -21,9 +21,11 @@ O CEP do usuário, a cidade e as coordenadas moram **na conta**, no backend
 `sessionStorage`; ao remover a localização, o backend apaga os três campos.
 
 As chaves `sm_user_cep` e `sm_user_raio_km`, do seletor antigo (que guardava o CEP no navegador),
-**não são mais lidas nem gravadas**. Um navegador que usou aquela versão pode ainda ter essas
-chaves; elas são inofensivas para o app, mas o CEP que sobrou lá continua visível nas
-ferramentas do navegador até alguém limpar os dados do site.
+**não são mais lidas nem gravadas** e são **apagadas**: `removerChavesLegadasDeLocalizacao()`
+(`frontend/src/services/storageKeys.js`) roda na carga do app (`AuthProvider`) e no logout, no 401
+e na sessão vencida (todos passam por `guardarDadosPrivados()`). Ela só remove essas duas chaves,
+não lança se o `localStorage` falhar e não mexe em mais nada. Assim, o CEP que a versão antiga
+deixou num navegador some na primeira visita depois da atualização.
 
 ### Raio das lojas (`sm_raio_lojas_km`)
 

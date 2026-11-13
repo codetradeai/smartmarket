@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { ArrowRight, ListChecks, Mail, MapPin, Scale } from "lucide-react"
 import { useAuth } from "../hooks/useAuth"
-import { Button, Input } from "./ui"
+import { AvisoServidorAcordando, Button, Input } from "./ui"
 import CampoSenha from "./CampoSenha"
 
 // Mesmo destino padrão da página /auth: quem entra pelo card vai direto para o catálogo.
@@ -84,6 +84,8 @@ export default function CartaoLogin({ onFechar }) {
               {erro}
             </p>
           )}
+
+          <AvisoServidorAcordando />
 
           <Button
             type="submit"

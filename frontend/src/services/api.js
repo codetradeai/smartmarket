@@ -1,6 +1,13 @@
 import axios from "axios"
 import { guardarDadosPrivados } from "./storageKeys"
 import { urlPublica } from "../utils/urlPublica"
+import { iniciarChamada } from "../utils/servidorAcordando"
+
+// Tempo máximo de espera por uma chamada. Alto de propósito: o backend no plano Free do Render hiberna
+// e leva de 1 a ~3 min para responder à primeira chamada (cold start). Com 10 s a chamada falhava com
+// "sem servidor" antes de ele acordar. Quem espera vê o aviso "servidor acordando" (AvisoServidorAcordando)
+// a partir de 8 s. Mesmo teto do curl do workflow keep-alive (200 s).
+export const TEMPO_LIMITE_MS = 200000
 
 // A tela de autenticação também responde em /login e /register, então o caminho da página
 // não distingue "senha errada" de "sessão expirada": olha-se a chamada que falhou.
@@ -20,12 +27,14 @@ export const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: TEMPO_LIMITE_MS,
 })
 
 // Request Interceptor: Injeta automaticamente o token JWT
 api.interceptors.request.use(
   (config) => {
+    // Começa a contar o tempo sem resposta; o interceptor de resposta encerra (sucesso ou erro).
+    config.encerrarAvisoDeServidor = iniciarChamada()
     try {
       const token = localStorage.getItem("sm_token")
       if (token) {
@@ -41,8 +50,13 @@ api.interceptors.request.use(
 
 // Response Interceptor: Trata expiração de sessão e erros de permissão
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    response?.config?.encerrarAvisoDeServidor?.()
+    return response
+  },
   (error) => {
+    // Qualquer desfecho (erro HTTP, rede, timeout, cancelamento) encerra a espera do aviso.
+    error?.config?.encerrarAvisoDeServidor?.()
     const status = error?.response?.status
 
     // 401 de /auth/login ou /auth/register é credencial errada, não sessão expirada: não

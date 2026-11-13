@@ -4,7 +4,7 @@ import ComCatalogo from "../components/ComCatalogo";
 import { redesComEquivalenteConfirmado } from "../utils/equivalentes";
 import { nomeCurtoRede, listarNomes, redesComProdutos } from "../utils/redesDoCatalogo";
 import { produtoService, mercadoService, favoritoService } from "../services";
-import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio } from "../components/ui";
+import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio, AvisoServidorAcordando } from "../components/ui";
 import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
 import { useLocalizacao } from "../hooks/useLocalizacao";
 import { filiaisParaCartoes } from "../utils/lojasDoCatalogo";
@@ -1517,6 +1517,9 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
 
       {/* 2. CONTEÚDO PRINCIPAL DO CATÁLOGO */}
       <main className="w-full max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 space-y-8">
+        {/* Servidor hibernado (plano Free): só aparece quando uma chamada passa de 8 s sem resposta */}
+        <AvisoServidorAcordando />
+
         {/* Banner de Contexto de Busca Ativa */}
         {search.trim() && (
           <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-4 flex items-center justify-between gap-4">

@@ -84,6 +84,9 @@ function usarLocalizacao(extra = {}) {
 
 const esperarCarregamento = () => screen.findByText(/produtos disponíveis/, undefined, { timeout: 4000 })
 const cartaoDe = (nome) => screen.getByRole('heading', { level: 3, name: nome }).closest('.group')
+// Tooltip da loja: nome e distância, mais o aviso de que o preço é da rede (no Atum, Carrefour é a mais barata).
+const tituloDaReferencia = (nomeEDistancia) =>
+  `${nomeEDistancia}. O preço vale para toda a rede Carrefour; a loja é só referência.`
 
 // `grade: true` troca a visão padrão (prateleiras) pela grade de cartões completos.
 async function renderizar({ grade = true } = {}) {
@@ -103,14 +106,21 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
     sessionStorage.clear()
   })
 
-  it('o cartão mostra a loja da rede mais barata do produto, e não a de outra rede', async () => {
+  it('a loja de referência do cartão é a da rede mais barata; a outra rede só aparece na linha "Mais perto"', async () => {
     usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
 
     await renderizar()
 
     const cartao = cartaoDe('Atum Sólido')
-    expect(within(cartao).getByText('Carrefour Centro')).toBeInTheDocument()
-    expect(within(cartao).queryByText('Fort Cachoeirinha')).not.toBeInTheDocument()
+    // Referência: Carrefour (a mais barata, R$ 7,90), com o prefixo do cartão completo.
+    const referencia = within(cartao).getByTitle(tituloDaReferencia('Carrefour Centro • 3,5 km'))
+    expect(referencia).toHaveTextContent(/^📍\s*Loja de referência:\s*Carrefour Centro\s*3,5 km$/)
+    // Fort (a mais perto, 2,5 km) só aparece na linha "Mais perto", com o preço da rede dela.
+    const maisPerto = within(cartao).getByTitle(
+      'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
+    )
+    expect(maisPerto).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
+    expect(within(cartao).getAllByText('Fort Cachoeirinha')).toHaveLength(1)
   })
 
   describe.each([
@@ -121,11 +131,27 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
       usarLocalizacao({ lojas: [CARREFOUR_CENTRO] })
       await renderizar({ grade })
 
-      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle('Carrefour Centro • 3,5 km')
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(tituloDaReferencia('Carrefour Centro • 3,5 km'))
 
       expect(indicacao).toHaveTextContent('Carrefour Centro')
       expect(indicacao).toHaveTextContent('3,5 km')
       expect(indicacao.getAttribute('title')).not.toMatch(/Andradas|Porto Alegre|Rua/)
+    })
+
+    it('o tooltip diz que o preço vale para a rede toda; só o cartão completo tem o prefixo "Loja de referência"', async () => {
+      usarLocalizacao({ lojas: [CARREFOUR_CENTRO] })
+      await renderizar({ grade })
+
+      const cartao = cartaoDe('Atum Sólido')
+
+      expect(
+        within(cartao).getByTitle(/O preço vale para toda a rede Carrefour; a loja é só referência\.$/)
+      ).toBeInTheDocument()
+      if (grade) {
+        expect(within(cartao).getByText('Loja de referência:')).toBeInTheDocument()
+      } else {
+        expect(within(cartao).queryByText(/Loja de referência/)).not.toBeInTheDocument()
+      }
     })
 
     it.each([
@@ -137,7 +163,7 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
       usarLocalizacao({ lojas: [lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm })] })
       await renderizar({ grade })
 
-      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(`Carrefour Centro • ${esperado}`)
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(tituloDaReferencia(`Carrefour Centro • ${esperado}`))
 
       expect(indicacao).toHaveTextContent(esperado)
       expect(indicacao.textContent).not.toMatch(/\d\.\d/)
@@ -148,9 +174,11 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
       usarLocalizacao({ lojas: [semDistancia] })
       await renderizar({ grade })
 
-      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle('Carrefour Centro')
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(tituloDaReferencia('Carrefour Centro'))
 
-      expect(indicacao).toHaveTextContent(/^📍\s*Carrefour Centro$/)
+      // O cartão completo leva o prefixo "Loja de referência:"; o compacto só o nome.
+      const prefixo = grade ? 'Loja de referência:\\s*' : ''
+      expect(indicacao).toHaveTextContent(new RegExp(`^📍\\s*${prefixo}Carrefour Centro$`))
       expect(indicacao.textContent).not.toMatch(/undefined|null|km/)
     })
   })
@@ -248,5 +276,310 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
 
     expect(cartaoDe('Atum Sólido')).toBeInTheDocument()
     expect(screen.getByText('Carregando sua localização…')).toBeInTheDocument()
+  })
+})
+
+// Fort Atacadista (id 1) tem o Atum a R$ 9,90 e Carrefour (id 2), a R$ 7,90: Carrefour é a mais barata.
+const FORT_COM_COORDENADAS = { ...FORT_CACHOEIRINHA, latitude: -29.9511, longitude: -51.0944 }
+const CARREFOUR_COM_COORDENADAS = { ...CARREFOUR_CENTRO, latitude: -30.0346, longitude: -51.2177 }
+const LINK_FORT = 'https://www.google.com/maps/dir/?api=1&destination=-29.9511,-51.0944'
+const LINK_CARREFOUR = 'https://www.google.com/maps/dir/?api=1&destination=-30.0346,-51.2177'
+const LINK_WAZE_FORT = 'https://waze.com/ul?ll=-29.9511,-51.0944&navigate=yes'
+const LINK_WAZE_CARREFOUR = 'https://waze.com/ul?ll=-30.0346,-51.2177&navigate=yes'
+// A caixa da rede na fita de redes: o pai do botão "Filtrar por ...".
+const redeNaFita = (nome) => screen.getByRole('button', { name: `Filtrar por ${nome}` }).parentElement
+
+describe('CatalogPage: rede mais perto e "Como chegar"', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+    localStorage.clear()
+    sessionStorage.clear()
+  })
+
+  describe('destaque da rede mais perto', () => {
+    it('a rede com a menor distância leva o selo "Mais perto" na fita de redes, e só ela', async () => {
+      usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+      await renderizar()
+
+      expect(within(redeNaFita('Fort Atacadista')).getByText('Mais perto')).toBeInTheDocument()
+      expect(within(redeNaFita('Carrefour')).queryByText('Mais perto')).not.toBeInTheDocument()
+      expect(screen.getAllByText('Mais perto')).toHaveLength(1)
+    })
+
+    it('o seletor de CEP nomeia a rede mais perto, com a distância', async () => {
+      usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+      await renderizar()
+
+      expect(screen.getByText('A rede mais perto é Fort Atacadista (2,5 km).')).toBeInTheDocument()
+    })
+
+    it('o destaque acompanha o raio: com a Fort fora do raio, a mais perto passa a ser a Carrefour', async () => {
+      localStorage.setItem('sm_raio_lojas_km', '5')
+      const fortLonge = lojaDaApi({ ...FORT_CACHOEIRINHA, distanciaKm: 9 })
+      usarLocalizacao({ lojas: [fortLonge, CARREFOUR_CENTRO] })
+
+      await renderizar()
+
+      expect(within(redeNaFita('Carrefour')).getByText('Mais perto')).toBeInTheDocument()
+      expect(screen.getAllByText('Mais perto')).toHaveLength(1)
+      expect(screen.getByText('A rede mais perto é Carrefour (3,5 km).')).toBeInTheDocument()
+    })
+
+    it('nenhuma loja com distância: sem selo, sem frase e sem linha "Mais perto" nos cartões', async () => {
+      const fortSemDistancia = lojaDaApi({ ...FORT_CACHOEIRINHA, distanciaKm: null })
+      const carrefourSemDistancia = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: null })
+      usarLocalizacao({ lojas: [fortSemDistancia, carrefourSemDistancia] })
+
+      await renderizar()
+
+      expect(screen.queryByText('Mais perto')).not.toBeInTheDocument()
+      expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument()
+      expect(within(cartaoDe('Atum Sólido')).queryByText('Mais perto:')).not.toBeInTheDocument()
+    })
+
+    it('empate na menor distância: não destaca nenhuma rede', async () => {
+      const fortA3 = lojaDaApi({ ...FORT_CACHOEIRINHA, distanciaKm: 3 })
+      const carrefourA3 = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: 3 })
+      usarLocalizacao({ lojas: [fortA3, carrefourA3] })
+
+      await renderizar()
+
+      expect(screen.queryByText('Mais perto')).not.toBeInTheDocument()
+      expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument()
+    })
+
+    it('sem lojas (sem CEP ou sem resposta) não há destaque', async () => {
+      usarLocalizacao({ localizacao: null, lojas: [] })
+
+      await renderizar()
+
+      expect(screen.queryByText('Mais perto')).not.toBeInTheDocument()
+      expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument()
+    })
+
+    describe('a fita rola até o selo (a rede mais perto pode estar fora da tela)', () => {
+      // O jsdom não faz layout: os retângulos são simulados. A fita (overflow-x-auto) mostra de 0 a 300 px
+      // e o selo anda para a esquerda conforme a fita rola, como no navegador (por isso o efeito, que roda
+      // de novo quando a lista de redes chega, tem de ser idempotente: na segunda passada já está à vista).
+      let espiao
+      const simularLayout = (rectDoSelo) => {
+        const original = Element.prototype.getBoundingClientRect
+        espiao = jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function () {
+          if (this.matches?.('[data-mais-perto="true"]')) {
+            const rolagem = this.closest('.overflow-x-auto')?.scrollLeft ?? 0
+            return { left: rectDoSelo.left - rolagem, right: rectDoSelo.right - rolagem, top: 0, bottom: 0, width: 0, height: 0 }
+          }
+          if (this.className?.includes?.('overflow-x-auto') && this.querySelector?.('button[aria-label^="Filtrar por"]')) {
+            return { left: 0, right: 300, top: 0, bottom: 0, width: 300, height: 0 }
+          }
+          return original.call(this)
+        })
+      }
+      const faixaDeRedes = () => screen.getByRole('button', { name: 'Filtrar por Carrefour' }).parentElement.parentElement.parentElement
+      afterEach(() => espiao?.mockRestore())
+
+      it('selo fora da tela, à direita: rola só a fita, até ele aparecer, com a folga de 8 px', async () => {
+        simularLayout({ left: 1000, right: 1100 })
+        const carrefourPerto = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: 1.4 })
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, carrefourPerto] })
+
+        await renderizar()
+
+        expect(faixaDeRedes().scrollLeft).toBe(1100 - 300 + 8)
+      })
+
+      it('selo que já está à vista: a fita não rola', async () => {
+        simularLayout({ left: 100, right: 200 })
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+        await renderizar()
+
+        expect(faixaDeRedes().scrollLeft).toBe(0)
+      })
+
+      it('sem rede mais perto (sem distância), a fita não rola', async () => {
+        simularLayout({ left: 1000, right: 1100 })
+        const semDistancia = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: null })
+        usarLocalizacao({ lojas: [semDistancia] })
+
+        await renderizar()
+
+        expect(screen.queryByText('Mais perto')).not.toBeInTheDocument()
+        expect(faixaDeRedes().scrollLeft).toBe(0)
+      })
+
+      it('a rede mais perto tem o marcador que a localiza, e só ela', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+
+        await renderizar()
+
+        const marcadas = document.querySelectorAll('[data-mais-perto="true"]')
+        expect(marcadas).toHaveLength(1)
+        expect(marcadas[0]).toBe(redeNaFita('Fort Atacadista'))
+      })
+    })
+
+    describe.each([
+      ['grade', true],
+      ['prateleiras', false],
+    ])('linha "Mais perto" no cartão (%s)', (_visao, grade) => {
+      it('quando a mais perto NÃO é a mais barata, mostra a loja, a distância e o preço da rede dela', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+        await renderizar({ grade })
+
+        const linha = within(cartaoDe('Atum Sólido')).getByTitle(
+          'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
+        )
+
+        expect(linha).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
+      })
+
+      it('quando a mais perto É a mais barata, não repete: só a loja de referência', async () => {
+        const fortLonge = lojaDaApi({ ...FORT_CACHOEIRINHA, distanciaKm: 5 })
+        const carrefourPerto = lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm: 2 })
+        usarLocalizacao({ lojas: [fortLonge, carrefourPerto] })
+        await renderizar({ grade })
+
+        const cartao = cartaoDe('Atum Sólido')
+
+        expect(within(cartao).queryByText('Mais perto:')).not.toBeInTheDocument()
+        expect(within(cartao).getByText('Carrefour Centro')).toBeInTheDocument()
+        expect(within(cartao).queryByText('Fort Cachoeirinha')).not.toBeInTheDocument()
+        // mas a rede mais perto continua destacada na fita
+        expect(within(redeNaFita('Carrefour')).getByText('Mais perto')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('"Como chegar"', () => {
+    // O jsdom não navega: o preventDefault na captura evita o aviso "Not implemented: navigation"
+    // sem impedir que o clique suba pela árvore (que é o que os testes observam).
+    const impedirNavegacao = (evento) => evento.preventDefault()
+    beforeEach(() => document.addEventListener('click', impedirNavegacao, true))
+    afterEach(() => document.removeEventListener('click', impedirNavegacao, true))
+
+    describe.each([
+      ['grade', true],
+      ['prateleiras', false],
+    ])('no cartão (%s)', (_visao, grade) => {
+      it('com coordenadas, cada loja do cartão tem o seu link do Google Maps', async () => {
+        usarLocalizacao({ lojas: [FORT_COM_COORDENADAS, CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        const cartao = cartaoDe('Atum Sólido')
+
+        const doCarrefour = within(cartao).getByRole('link', {
+          name: 'Como chegar a Carrefour Centro (abre o mapa em outra aba)',
+        })
+        const doFort = within(cartao).getByRole('link', {
+          name: 'Como chegar a Fort Cachoeirinha (abre o mapa em outra aba)',
+        })
+        expect(doCarrefour).toHaveAttribute('href', LINK_CARREFOUR)
+        expect(doFort).toHaveAttribute('href', LINK_FORT)
+        for (const link of [doCarrefour, doFort]) {
+          expect(link).toHaveAttribute('target', '_blank')
+          expect(link.getAttribute('rel').split(/\s+/).sort()).toEqual(['noopener', 'noreferrer'])
+          expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
+        }
+      })
+
+      it('sem coordenadas (null) não há link, mas a loja e a distância continuam aparecendo', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_CENTRO] })
+        await renderizar({ grade })
+
+        const cartao = cartaoDe('Atum Sólido')
+
+        expect(within(cartao).queryByRole('link')).not.toBeInTheDocument()
+        expect(within(cartao).queryByText('Como chegar')).not.toBeInTheDocument()
+        expect(within(cartao).getByText('Carrefour Centro')).toBeInTheDocument()
+        expect(within(cartao).getByText('3,5 km')).toBeInTheDocument()
+      })
+
+      it('com coordenadas só numa das lojas, só ela tem links (Google Maps e Waze)', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        const links = within(cartaoDe('Atum Sólido')).getAllByRole('link')
+
+        expect(links.map((link) => link.getAttribute('href'))).toEqual([LINK_CARREFOUR, LINK_WAZE_CARREFOUR])
+      })
+
+      it('com coordenadas, cada loja do cartão também tem o seu link do Waze, com os mesmos atributos de segurança', async () => {
+        usarLocalizacao({ lojas: [FORT_COM_COORDENADAS, CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        const cartao = cartaoDe('Atum Sólido')
+
+        const wazeCarrefour = within(cartao).getByRole('link', { name: 'Abrir a rota até Carrefour Centro no Waze (abre em outra aba)' })
+        const wazeFort = within(cartao).getByRole('link', { name: 'Abrir a rota até Fort Cachoeirinha no Waze (abre em outra aba)' })
+        expect(wazeCarrefour).toHaveAttribute('href', LINK_WAZE_CARREFOUR)
+        expect(wazeFort).toHaveAttribute('href', LINK_WAZE_FORT)
+        for (const link of [wazeCarrefour, wazeFort]) {
+          expect(link).toHaveAttribute('target', '_blank')
+          expect(link.getAttribute('rel').split(/\s+/).sort()).toEqual(['noopener', 'noreferrer'])
+          expect(link).toHaveAttribute('referrerpolicy', 'no-referrer')
+        }
+        expect(within(cartao).getAllByRole('link')).toHaveLength(4)
+      })
+
+      it('sem coordenadas não há Waze, e com meia coordenada também não', async () => {
+        usarLocalizacao({ lojas: [FORT_CACHOEIRINHA, { ...CARREFOUR_CENTRO, latitude: -30.0346, longitude: null }] })
+        await renderizar({ grade })
+
+        expect(within(cartaoDe('Atum Sólido')).queryByText('Waze')).not.toBeInTheDocument()
+      })
+
+      it('clicar no Waze NÃO abre o detalhe do produto', async () => {
+        usarLocalizacao({ lojas: [CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        fireEvent.click(within(cartaoDe('Atum Sólido')).getByRole('link', { name: /no Waze/ }))
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      })
+
+      it('com meia coordenada, não há link', async () => {
+        usarLocalizacao({ lojas: [{ ...CARREFOUR_CENTRO, latitude: -30.0346, longitude: null }] })
+        await renderizar({ grade })
+
+        expect(within(cartaoDe('Atum Sólido')).queryByRole('link')).not.toBeInTheDocument()
+      })
+
+      it('clicar no link NÃO abre o detalhe do produto', async () => {
+        usarLocalizacao({ lojas: [CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        fireEvent.click(within(cartaoDe('Atum Sólido')).getByRole('link', { name: /Como chegar a Carrefour Centro/ }))
+
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+      })
+
+      it('clicar no resto do cartão continua abrindo o detalhe (controle do teste anterior)', async () => {
+        usarLocalizacao({ lojas: [CARREFOUR_COM_COORDENADAS] })
+        await renderizar({ grade })
+
+        fireEvent.click(within(cartaoDe('Atum Sólido')).getByRole('button', { name: 'Atum Sólido' }))
+
+        expect(screen.getByRole('dialog', { name: 'Atum Sólido' })).toBeInTheDocument()
+      })
+    })
+
+    it('o link não leva nada do usuário: nem o CEP, nem a cidade dele, nem a origem', async () => {
+      usarLocalizacao({ lojas: [FORT_COM_COORDENADAS, CARREFOUR_COM_COORDENADAS] })
+      await renderizar()
+
+      const hrefs = within(cartaoDe('Atum Sólido'))
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('href'))
+
+      expect(hrefs.join(' ')).not.toMatch(/90010|Porto|origin/i)
+      const ponto = '-?\\d+(\\.\\d+)?,-?\\d+(\\.\\d+)?'
+      const google = new RegExp(`^https://www\\.google\\.com/maps/dir/\\?api=1&destination=${ponto}$`)
+      const waze = new RegExp(`^https://waze\\.com/ul\\?ll=${ponto}&navigate=yes$`)
+      expect(hrefs).toHaveLength(4)
+      expect(hrefs.every((href) => google.test(href) || waze.test(href))).toBe(true)
+    })
   })
 })

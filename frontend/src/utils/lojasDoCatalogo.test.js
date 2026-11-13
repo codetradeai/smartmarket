@@ -1,5 +1,5 @@
 import { MARKETS } from '../catalogoResumo'
-import { filiaisParaCartoes } from './lojasDoCatalogo'
+import { filiaisParaCartoes, redeMaisPerto } from './lojasDoCatalogo'
 
 const lojaDaApi = (extra = {}) => ({
   mercadoId: 1,
@@ -25,6 +25,8 @@ describe('filiaisParaCartoes', () => {
         endereco: 'Av. Flores da Cunha, 1000',
         cidade: 'Cachoeirinha',
         uf: 'RS',
+        latitude: null,
+        longitude: null,
         distanciaKm: 3.2,
         lojaId: 11,
         padrao: false,
@@ -55,6 +57,8 @@ describe('filiaisParaCartoes', () => {
         endereco: 'Av. Flores da Cunha, 1000',
         cidade: 'Cachoeirinha',
         uf: 'RS',
+        latitude: null,
+        longitude: null,
         distanciaKm: null,
         lojaId: 11,
         padrao: false,
@@ -68,6 +72,30 @@ describe('filiaisParaCartoes', () => {
       expect(filiaisParaCartoes([padraoComDistancia], MARKETS, 'todos').fort).toEqual(
         expect.objectContaining({ padrao: true, distanciaKm: 7.5 }),
       )
+    })
+  })
+
+  describe('coordenadas da loja (Como chegar)', () => {
+    it('passam para o cartão como par', () => {
+      const comCoordenadas = lojaDaApi({ latitude: -29.9511, longitude: -51.0944 })
+
+      expect(filiaisParaCartoes([comCoordenadas], MARKETS, 'todos').fort).toEqual(
+        expect.objectContaining({ latitude: -29.9511, longitude: -51.0944 }),
+      )
+    })
+
+    it.each([
+      ['nulas', { latitude: null, longitude: null }],
+      ['ausentes', {}],
+      ['só a latitude', { latitude: -29.9511, longitude: null }],
+      ['só a longitude', { latitude: null, longitude: -51.0944 }],
+      ['texto no lugar de número', { latitude: '-29.9511', longitude: '-51.0944' }],
+      ['NaN', { latitude: NaN, longitude: -51.0944 }],
+    ])('coordenadas %s viram as duas nulas', (_nome, coordenadas) => {
+      const resultado = filiaisParaCartoes([lojaDaApi(coordenadas)], MARKETS, 'todos').fort
+
+      expect(resultado.latitude).toBeNull()
+      expect(resultado.longitude).toBeNull()
     })
   })
 
@@ -122,6 +150,75 @@ describe('filiaisParaCartoes', () => {
         'fort',
         'zaffari',
       ])
+    })
+  })
+})
+
+describe('redeMaisPerto', () => {
+  const fortA4Km = lojaDaApi({ distanciaKm: 4 })
+  const zaffariA2Km = lojaDaApi({
+    mercadoId: 2,
+    mercadoNome: 'Zaffari / Bourbon',
+    lojaId: 21,
+    lojaNome: 'Zaffari Bourbon Wallig',
+    distanciaKm: 2,
+  })
+  const doApi = (...lojas) => filiaisParaCartoes(lojas, MARKETS, 'todos')
+
+  it('devolve a rede da loja com a menor distância, com o nome da rede e a distância', () => {
+    expect(redeMaisPerto(doApi(fortA4Km, zaffariA2Km), MARKETS)).toEqual({
+      id: 'zaffari',
+      nome: expect.stringMatching(/Zaffari/),
+      distanciaKm: 2,
+    })
+  })
+
+  it('usa o nome da rede do catálogo, e não o da loja', () => {
+    const rede = MARKETS.find((m) => m.id === 'zaffari')
+
+    expect(redeMaisPerto(doApi(fortA4Km, zaffariA2Km), MARKETS).nome).toBe(rede.name)
+  })
+
+  it('com uma só rede com distância, é ela', () => {
+    expect(redeMaisPerto(doApi(fortA4Km), MARKETS)).toEqual(expect.objectContaining({ id: 'fort', distanciaKm: 4 }))
+  })
+
+  it('ignora a loja sem distância e escolhe entre as que têm', () => {
+    const fortSemDistancia = lojaDaApi({ distanciaKm: null })
+
+    expect(redeMaisPerto(doApi(fortSemDistancia, zaffariA2Km), MARKETS).id).toBe('zaffari')
+  })
+
+  it('sem nenhuma loja com distância não há destaque', () => {
+    const fortSemDistancia = lojaDaApi({ distanciaKm: null })
+    const zaffariSemDistancia = lojaDaApi({ ...zaffariA2Km, distanciaKm: null })
+
+    expect(redeMaisPerto(doApi(fortSemDistancia, zaffariSemDistancia), MARKETS)).toBeNull()
+  })
+
+  it('empate na menor distância não destaca ninguém', () => {
+    const zaffariA4Km = lojaDaApi({ ...zaffariA2Km, distanciaKm: 4 })
+
+    expect(redeMaisPerto(doApi(fortA4Km, zaffariA4Km), MARKETS)).toBeNull()
+  })
+
+  it('o empate só conta na menor: duas redes mais longe com a mesma distância não atrapalham', () => {
+    const zaffariA4Km = lojaDaApi({ ...zaffariA2Km, distanciaKm: 4 })
+    const outraA1Km = { ...zaffariA2Km, distanciaKm: 1 }
+    const filiais = { ...doApi(fortA4Km, zaffariA4Km), asun: { ...outraA1Km, nomeFilial: 'Asun Centro' } }
+
+    expect(redeMaisPerto(filiais, MARKETS)).toEqual(expect.objectContaining({ id: 'asun', distanciaKm: 1 }))
+  })
+
+  it.each([[null], [undefined], [{}], ['texto']])('filiais %p: sem destaque', (filiais) => {
+    expect(redeMaisPerto(filiais, MARKETS)).toBeNull()
+  })
+
+  it('markets que não é lista não quebra: cai no nome da loja', () => {
+    expect(redeMaisPerto(doApi(zaffariA2Km), null)).toEqual({
+      id: 'zaffari',
+      nome: 'Zaffari Bourbon Wallig',
+      distanciaKm: 2,
     })
   })
 })

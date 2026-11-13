@@ -550,13 +550,89 @@ describe("SeletorCepRaio", () => {
   });
 
   describe("texto de apoio", () => {
+    const FRASE_PRECO = "O preço é o mesmo em toda a rede; a loja é só referência para você saber onde ir.";
+
     it("diz que o preço é o mesmo em toda a rede e não tem mais o texto sobre distância física real", () => {
       renderizar({ localizacao: LOCALIZACAO });
 
-      expect(
-        screen.getByText("O preço é o mesmo em toda a rede. A loja mais próxima aparece só como referência.")
-      ).toBeInTheDocument();
+      expect(screen.getByText(FRASE_PRECO)).toBeInTheDocument();
       expect(document.body.textContent).not.toMatch(/distância física real/);
+    });
+
+    it("a frase antiga do rodapé não existe mais (ela subiu e mudou de texto)", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+
+      expect(document.body.textContent).not.toMatch(/A loja mais próxima aparece só como referência/);
+    });
+
+    it("a frase fica logo abaixo de 'Lojas perto de ...' e antes do aviso das lojas sem distância", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+
+      const lugar = screen.getByText("Lojas perto de Porto Alegre/RS");
+      const frase = screen.getByText(FRASE_PRECO);
+      const semDistancia = screen.getByText("Lojas sem distância calculada continuam aparecendo.");
+      const depois = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(depois(lugar, frase)).toBe(true);
+      expect(depois(frase, semDistancia)).toBe(true);
+    });
+
+    it.each([
+      ["carregando", { carregando: true, localizacao: LOCALIZACAO }],
+      ["sem CEP", { localizacao: null }],
+      ["CEP não resolvido", { localizacao: { cep: "90010000", resolvida: false } }],
+      ["erro ao carregar", { erro: "Erro 500 do servidor." }],
+    ])("a frase aparece também em %s", (_caso, props) => {
+      renderizar(props);
+
+      expect(screen.getByText(FRASE_PRECO)).toBeInTheDocument();
+    });
+
+    describe("rede mais perto", () => {
+      const REDE = { id: "fort", nome: "Fort Atacadista", distanciaKm: 2.5 };
+
+      it("diz qual é a rede mais perto, com a distância em formato brasileiro", () => {
+        renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: REDE });
+
+        expect(screen.getByText("A rede mais perto é Fort Atacadista (2,5 km).")).toBeInTheDocument();
+      });
+
+      it("fica depois da frase do preço", () => {
+        renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: REDE });
+
+        const frase = screen.getByText(FRASE_PRECO);
+        const rede = screen.getByText(/A rede mais perto é/);
+        expect(Boolean(frase.compareDocumentPosition(rede) & Node.DOCUMENT_POSITION_FOLLOWING)).toBe(true);
+      });
+
+      it("sem destaque (null) a frase não aparece", () => {
+        renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: null });
+
+        expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument();
+      });
+
+      it("sem a prop a frase não aparece", () => {
+        renderizar({ localizacao: LOCALIZACAO });
+
+        expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument();
+      });
+
+      it("com o CEP não resolvido não afirma nenhuma rede mais perto", () => {
+        renderizar({ localizacao: { cep: "90010000", resolvida: false }, redeMaisPerto: REDE });
+
+        expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument();
+      });
+
+      it("sem distância no objeto, a frase vem sem o parêntese", () => {
+        renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: { id: "fort", nome: "Fort Atacadista", distanciaKm: null } });
+
+        expect(screen.getByText("A rede mais perto é Fort Atacadista.")).toBeInTheDocument();
+      });
+
+      it("enquanto carrega a localização, não mostra a rede mais perto", () => {
+        renderizar({ carregando: true, localizacao: LOCALIZACAO, redeMaisPerto: REDE });
+
+        expect(screen.queryByText(/A rede mais perto é/)).not.toBeInTheDocument();
+      });
     });
   });
 });

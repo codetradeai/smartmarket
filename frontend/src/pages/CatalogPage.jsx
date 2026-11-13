@@ -7,7 +7,8 @@ import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio, AvisoServidorAcordando } from "../components/ui";
 import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
 import { useLocalizacao } from "../hooks/useLocalizacao";
-import { filiaisParaCartoes } from "../utils/lojasDoCatalogo";
+import { filiaisParaCartoes, redeMaisPerto } from "../utils/lojasDoCatalogo";
+import LojaDoCartao from "../components/LojaDoCartao";
 import { normalizarRaio } from "../utils/raioLojas";
 import { CHAVES } from "../services/storageKeys";
 import logoFort from "../../logo/logo-fort.png";
@@ -159,13 +160,6 @@ function saveList(l) {
 // Referência estável para "nenhuma filial conhecida" (evita recalcular os cartões a cada render)
 const SEM_FILIAIS = Object.freeze({});
 
-// Indicação da loja nos cartões: só o nome e a distância ("3,5 km", quando a API a calculou).
-// Nunca endereço nem nada que sugira preço por loja: o preço é da rede.
-const textoDistancia = (km) =>
-  typeof km === "number"
-    ? `${km.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`
-    : null;
-const tituloDaLoja = (filial, km) => [filial.nomeFilial, textoDistancia(km)].filter(Boolean).join(" • ");
 
 // Extrai o preço do produto para uma rede específica
 function getPriceForMarket(product, market) {
@@ -235,6 +229,9 @@ function getProductPricing(product, markets, filiaisMaisProximas = {}) {
     closestPrice: Number(closest.price),
     closestFilial: closest.filialMaisProxima,
     closestDistanciaKm: closest.distanciaKm,
+    // Só há "mais perto" para destacar se alguma loja tem distância E ela é de outra rede que não a
+    // mais barata (se for a mesma, a loja de referência do cartão já é a mais perto).
+    maisPertoDiferente: comDistancia.length > 0 && closest.market.id !== cheapest.market.id,
   };
 }
 
@@ -432,7 +429,7 @@ function DepartmentVisualCarousel({ selectedCat, onSelectCat }) {
   );
 }
 
-function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggleFav }) {
+function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggleFav, redeMaisPertoId = null }) {
   return (
     <div className="bg-white rounded-2xl border border-brand-border/70 p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-3 shadow-xs overflow-x-auto no-scrollbar">
       <div className="flex items-center gap-2 shrink-0 px-2.5 sm:px-3.5 py-1.5 border-r border-brand-border/60">
@@ -447,11 +444,12 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
           const isFav = favs.includes(String(m.id));
           const logoSrc = MARKET_LOGOS[m.id];
           const opticalClass = MARKET_LOGO_OPTICAL_CLASS[m.id] || "max-h-9 sm:max-h-10";
+          const ehMaisPerto = redeMaisPertoId !== null && String(m.id) === String(redeMaisPertoId);
           return (
             <div
               key={m.id}
               onClick={() => onSelectMkt(isSelected ? "todos" : m.id)}
-              className={`group flex items-center justify-between gap-1.5 h-13 sm:h-14 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
+              className={`group relative flex items-center justify-between gap-1.5 h-13 sm:h-14 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer select-none flex-1 min-w-[118px] sm:min-w-[130px] ${
                 isSelected
                   ? "bg-emerald-50/90 border-brand-green ring-2 ring-brand-green/35 shadow-xs"
                   : isFav
@@ -460,6 +458,16 @@ function FavMarketsStrip({ markets, selectedMkt, onSelectMkt, favs = [], onToggl
               }`}
               title={`Clique na logo para filtrar por ${m.name} ou na estrela para favoritar a rede`}
             >
+              {/* Selo da rede com a loja mais perto do usuário (só com distância calculada). Fica na
+                  folga do contêiner (p-2.5), que corta o que passa dela. */}
+              {ehMaisPerto && (
+                <span
+                  className="absolute -top-2 left-2 z-10 inline-flex items-center gap-0.5 rounded-full bg-emerald-700 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-white shadow-xs pointer-events-none"
+                  title={`${m.name} tem a loja mais perto de você`}
+                >
+                  <span aria-hidden="true">📍</span> Mais perto
+                </span>
+              )}
               <button
                 type="button"
                 aria-pressed={isSelected}
@@ -643,18 +651,22 @@ function ProductCard({
                 )}
               </div>
 
-              {/* Indicação da Filial Mais Próxima do Usuário */}
+              {/* Loja de referência da rede do melhor preço. O preço é da REDE; a loja só ajuda a saber onde ir. */}
               {pricing.bestFilial && (
-                <div
-                  className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 bg-emerald-50/90 border border-emerald-200/90 px-2.5 py-1 rounded-xl"
-                  title={tituloDaLoja(pricing.bestFilial, pricing.bestDistanciaKm)}
-                >
-                  <span className="shrink-0 text-xs">📍</span>
-                  <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
-                  {textoDistancia(pricing.bestDistanciaKm) && (
-                    <span className="text-emerald-700 font-extrabold shrink-0">• {textoDistancia(pricing.bestDistanciaKm)}</span>
-                  )}
-                </div>
+                <LojaDoCartao
+                  filial={pricing.bestFilial}
+                  nomeRede={pricing.bestMarket.name}
+                  rotulo="Loja de referência:"
+                />
+              )}
+              {/* A rede mais perto, quando não é a do melhor preço: mostra a troca entre preço e distância. */}
+              {pricing.maisPertoDiferente && pricing.closestFilial && (
+                <LojaDoCartao
+                  filial={pricing.closestFilial}
+                  nomeRede={pricing.closestMarket.name}
+                  rotulo="Mais perto:"
+                  preco={pricing.closestPrice}
+                />
               )}
 
               <div className="text-[11px] text-brand-muted flex items-center justify-between px-1">
@@ -815,16 +827,21 @@ function ProductCard({
               )}
             </div>
 
-            {/* Indicação da Filial Mais Próxima */}
-            {pricing.bestFilial && (
-              <div
-                className="flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg truncate"
-                title={tituloDaLoja(pricing.bestFilial, pricing.bestDistanciaKm)}
-              >
-                <span className="shrink-0 text-xs">📍</span>
-                <span className="truncate">{pricing.bestFilial.nomeFilial}</span>
-                {textoDistancia(pricing.bestDistanciaKm) && (
-                  <span className="text-emerald-700 font-extrabold shrink-0">• {textoDistancia(pricing.bestDistanciaKm)}</span>
+            {/* Loja da rede do melhor preço (sem o prefixo, o espaço é curto: o tooltip diz que o preço é da rede)
+                e, quando a rede mais perto é outra, a linha "Mais perto". */}
+            {(pricing.bestFilial || (pricing.maisPertoDiferente && pricing.closestFilial)) && (
+              <div className="mt-1 space-y-1">
+                {pricing.bestFilial && (
+                  <LojaDoCartao filial={pricing.bestFilial} nomeRede={pricing.bestMarket.name} compacto />
+                )}
+                {pricing.maisPertoDiferente && pricing.closestFilial && (
+                  <LojaDoCartao
+                    filial={pricing.closestFilial}
+                    nomeRede={pricing.closestMarket.name}
+                    rotulo="Mais perto:"
+                    preco={pricing.closestPrice}
+                    compacto
+                  />
                 )}
               </div>
             )}
@@ -1154,6 +1171,12 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     if (!LOJAS_PROXIMAS_ATIVO) return SEM_FILIAIS;
     return filiaisParaCartoes(lojas, markets, raioKm);
   }, [lojas, markets, raioKm]);
+
+  // A rede com a loja mais perto (selo na fita de redes e frase no seletor). Nula sem distância ou com empate.
+  const redeMaisPertoDaPagina = useMemo(
+    () => redeMaisPerto(filiaisMaisProximas, markets),
+    [filiaisMaisProximas, markets],
+  );
 
   // Quantidades na lista de compras (contador mostra quantos produtos diferentes existem na lista)
   const [listQuantities, setListQuantities] = useState(() => getList());
@@ -1487,6 +1510,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                 carregando={carregandoLocalizacao}
                 erro={erroLocalizacao}
                 raioKm={raioKm}
+                redeMaisPerto={redeMaisPertoDaPagina}
                 onMudarRaio={mudarRaio}
                 onTrocarCep={trocarCep}
                 onExcluir={excluir}
@@ -1501,6 +1525,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
             onSelectMkt={setMktFilter}
             favs={favMarkets}
             onToggleFav={toggleFavMarket}
+            redeMaisPertoId={redeMaisPertoDaPagina?.id ?? null}
           />
 
           {/* Linha 3: Banners dos Setores abaixo das logos (Modelo Master Supermercados).

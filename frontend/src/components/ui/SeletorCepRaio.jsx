@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { cepValido, mascararCep } from "../../utils/cep";
 import { mensagemDeErro } from "../../utils/mensagemDeErro";
 import { OPCOES_RAIO, RAIO_PADRAO, normalizarRaio } from "../../utils/raioLojas";
+import { textoDistancia } from "../../utils/textoDistancia";
 
 const ROTULOS_RAIO = {
   3: "Até 3 km",
@@ -30,6 +31,7 @@ export function SeletorCepRaio({
   carregando = false,
   erro = null,
   raioKm = RAIO_PADRAO,
+  redeMaisPerto = null,
   onMudarRaio,
   onTrocarCep,
   onExcluir,
@@ -193,8 +195,20 @@ export function SeletorCepRaio({
         )}
       </div>
 
+      {/* Logo abaixo de "Lojas perto de ...": o preço é da rede, a loja só ajuda a saber onde ir. */}
+      <p className="text-[11px] text-brand-muted mt-2">
+        O preço é o mesmo em toda a rede; a loja é só referência para você saber onde ir.
+      </p>
+
+      {mostrarRaio && redeMaisPerto?.nome && (
+        <p className="text-[11px] font-bold text-emerald-900 mt-1">
+          {`A rede mais perto é ${redeMaisPerto.nome}`}
+          {textoDistancia(redeMaisPerto.distanciaKm) ? ` (${textoDistancia(redeMaisPerto.distanciaKm)}).` : "."}
+        </p>
+      )}
+
       {mostrarRaio && (
-        <p className="text-[11px] text-brand-muted mt-2">Lojas sem distância calculada continuam aparecendo.</p>
+        <p className="text-[11px] text-brand-muted mt-1">Lojas sem distância calculada continuam aparecendo.</p>
       )}
 
       {!carregando && modo === "editando" && (
@@ -251,10 +265,6 @@ export function SeletorCepRaio({
           {alerta && <Alerta>{alerta}</Alerta>}
         </div>
       )}
-
-      <p className="text-[11px] text-brand-muted mt-2.5 pt-2.5 border-t border-emerald-200/50">
-        O preço é o mesmo em toda a rede. A loja mais próxima aparece só como referência.
-      </p>
     </div>
   );
 }

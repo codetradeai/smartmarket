@@ -98,7 +98,8 @@ class ArquivosVersionadosTest(unittest.TestCase):
     def test_modelo_cobre_as_redes_e_nao_e_carregavel(self):
         caminho = carregar_lojas.ARQUIVO_PADRAO.with_name("lojas_modelo.json")
         bruto = json.loads(caminho.read_text(encoding="utf-8"))
-        self.assertEqual({l["mercado"] for l in bruto["lojas"]}, {"carrefour", "asun", "atacadao", "master", "stok"})
+        self.assertEqual({l["mercado"] for l in bruto["lojas"]},
+                         {"fort", "carrefour", "asun", "atacadao", "master", "zaffari", "rissul", "stok"})
         with self.assertRaisesRegex(ErroIngestao, "lojas_invalidas"):
             carregar_lojas.ler_lojas(caminho)
 

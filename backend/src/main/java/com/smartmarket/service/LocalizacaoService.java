@@ -151,9 +151,13 @@ public class LocalizacaoService {
                 usuario.getLatitude(), usuario.getLongitude(), loja.getLatitude(), loja.getLongitude());
             distancia = Math.round(km * 100.0) / 100.0;
         }
+        // As coordenadas da loja só saem como par e nunca na loja padrão: ela representa a rede, não um
+        // lugar, e uma coordenada nela seria um ponto enganoso no mapa ("Como chegar" do catálogo).
+        boolean expoeCoordenadas = !loja.ehPadrao() && loja.getLatitude() != null && loja.getLongitude() != null;
         return new LojaProximaResponse(
             loja.getMercado().getId(), loja.getMercado().getNome(),
             loja.getId(), loja.getNome(), loja.getEndereco(), loja.getCidade(), loja.getUf(),
+            expoeCoordenadas ? loja.getLatitude() : null, expoeCoordenadas ? loja.getLongitude() : null,
             distancia, loja.ehPadrao(), preferida);
     }
 

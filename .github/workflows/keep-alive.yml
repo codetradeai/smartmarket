@@ -1,0 +1,42 @@
+name: Manter o backend acordado (keep-alive)
+
+# O plano Free do Render hiberna o serviço depois de ~15 min sem requisição e leva ~160 s para
+# subir de novo, o que para quem usa o site parece "site quebrado". Este workflow faz uma
+# requisição ao /api/health a cada 10 minutos para o serviço não hibernar.
+#
+# Limites (detalhes em backend/DEPLOY.md): o GitHub pode atrasar ou até pular execuções agendadas,
+# então isto REDUZ as hibernações, não garante 100% de disponibilidade. A alternativa definitiva é
+# o plano pago do Render (decisão do responsável do projeto).
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+# Menor privilégio: o job só faz uma requisição HTTP pública, não lê nem escreve o repositório.
+permissions:
+  contents: read
+
+# Duas execuções ao mesmo tempo (agendada + manual) não fazem sentido: a nova espera a anterior.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: GET /api/health
+    runs-on: ubuntu-latest
+    # O curl espera até 200 s (cold start de ~160 s); 5 min cobre isso com folga e nada mais.
+    timeout-minutes: 5
+    env:
+      # URL pública do backend (não é segredo). Se o serviço mudar de endereço, troque aqui.
+      HEALTH_URL: https://smartmarket-8xhq.onrender.com/api/health
+    steps:
+      - name: Acordar e verificar o backend
+        run: |
+          set -euo pipefail
+          # -f: falha em HTTP >= 400; -sS: sem barra de progresso, mas mostra o erro.
+          resposta="$(curl --max-time 200 -fsS "$HEALTH_URL")"
+          # Resposta inesperada (página de erro do proxy, JSON diferente) também falha o job.
+          echo "Resposta: $(printf '%s' "$resposta" | head -c 300)"
+          printf '%s' "$resposta" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"UP"' \
+            || { echo "::error::O backend respondeu, mas não com {\"status\":\"UP\"}"; exit 1; }

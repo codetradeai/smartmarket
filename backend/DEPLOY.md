@@ -42,7 +42,21 @@
 - O deploy no Render cai com erro de memória: o plano grátis tem 512 MB; o `Dockerfile` já limita o Java a 75% da RAM. Se persistir, acrescente `-Xmx300m` em `JAVA_OPTS`.
 - Backend não sobe e reclama de coluna/tabela: o `ddl-auto=validate` só valida; rode os scripts de `backend/deploy/` que faltarem (seção 1, passo 5).
 - Depois de aplicar migrations que faltavam, o deploy que falhou no Render **não é refeito sozinho**: use **Manual Deploy → Deploy latest commit**.
-- A primeira consulta depois de um tempo parado demora: o Render hiberna e o Neon pausa o compute; é esperado no plano grátis.
+- A primeira consulta depois de um tempo parado demora: o Render hiberna e o Neon pausa o compute; é esperado no plano grátis. Para reduzir isso, veja [Manter o backend acordado](#manter-o-backend-acordado-keep-alive).
+
+### Manter o backend acordado (keep-alive)
+
+O plano Free do Render hiberna o serviço depois de ~15 min sem requisição e leva de 1 a ~3 min para subir de novo (medido em 13/11/2026: 65 s), o que para quem usa o site parece "site quebrado". O workflow `.github/workflows/keep-alive.yml` roda a cada 10 minutos (e sob demanda, em **Actions > Manter o backend acordado (keep-alive) > Run workflow**) e faz `curl --max-time 200 -fsS https://smartmarket-8xhq.onrender.com/api/health`; o job falha se a resposta não for `{"status":"UP"}`. Não usa secrets, declara `permissions: contents: read` e tem `timeout-minutes: 5`. Se o endereço do serviço mudar, troque `HEALTH_URL` no arquivo.
+
+**O que isto não garante:**
+- **Não é 100% de disponibilidade.** O GitHub pode atrasar (em horários de pico, por vários minutos) ou até pular execuções agendadas; se o intervalo entre duas requisições passar de ~15 min, o Render hiberna do mesmo jeito. O workflow reduz as hibernações, não as elimina.
+- **Workflows agendados podem ser desativados.** Em repositório público, o GitHub desativa os agendamentos depois de 60 dias sem atividade no repositório; se acontecer, reative em Actions.
+- **O health não toca no banco.** Ele mantém o Render acordado, mas o Neon continua pausando o compute por inatividade; a primeira consulta que usa o banco depois de uma pausa pode demorar um pouco mais.
+- **Horas do plano Free.** Um serviço ligado 24 h gasta ~744 h por mês, perto do teto de 750 h do plano Free do Render por workspace. Se houver outros serviços Free no mesmo workspace, o teto pode estourar; confira o uso no painel do Render.
+
+Uma falha do workflow serve de alerta: o GitHub avisa por e-mail quem editou o agendamento por último, e é um sinal de que o backend caiu ou está lento demais.
+
+**Alternativa definitiva:** o plano pago do Render (instância sempre ligada, sem hibernação). A troca de plano é decisão do responsável pelo projeto; se for adotada, o `keep-alive.yml` pode ser removido.
 
 ---
 

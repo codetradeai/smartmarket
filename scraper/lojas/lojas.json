@@ -1,11 +1,385 @@
 {
   "versao": 1,
-  "descricao": "Lista curada de lojas (filiais) das redes ativas. So entra aqui o que veio de pagina publica permitida pelo robots.txt, com a URL em fonte_url (ver docs/PESQUISA-FILIAIS.md). Modelo das linhas a preencher: lojas_modelo.json. Carregar no banco: python scraper/carregar_lojas.py. Coordenadas faltantes: python scraper/geocodificar_lojas.py (grava aqui, uma vez por CEP).",
+  "descricao": "Lista curada de lojas (filiais) das redes do catálogo (por ora Fort, Asun e Zaffari/Bourbon no RS, levantadas em 2026-11-12). So entra aqui o que veio de pagina publica permitida pelo robots.txt, com a URL em fonte_url (ver docs/PESQUISA-FILIAIS.md). Modelo das linhas a preencher: lojas_modelo.json. Carregar no banco: python scraper/carregar_lojas.py. Coordenadas faltantes: python scraper/geocodificar_lojas.py (grava aqui, uma vez por CEP).",
   "lojas": [
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Canoas",
+      "endereco": "Av. Farroupilha, 4803 - Marechal Rondon",
+      "cep": "92020475",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "545",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Caxias do Sul",
+      "endereco": "Rua Tronca, 1370 - Exposição",
+      "cep": "95010100",
+      "cidade": "Caxias do Sul",
+      "uf": "RS",
+      "codigo_externo": "345",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -29.16806,
+      "longitude": -51.17944,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Gravataí",
+      "endereco": "Av. Dorival Cândido Luz de Oliveira, 6845 - Bom Princípio",
+      "cep": "94070001",
+      "cidade": "Gravataí",
+      "uf": "RS",
+      "codigo_externo": "945",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -29.94218,
+      "longitude": -50.99278,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Porto Alegre",
+      "endereco": "Av. Manoel Elias, 745 - Passo das Pedras",
+      "cep": "91240261",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "845",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Novo Hamburgo",
+      "endereco": "Rua Vinte e Quatro de Maio, 368 - Operário",
+      "cep": "93315138",
+      "cidade": "Novo Hamburgo",
+      "uf": "RS",
+      "codigo_externo": "445",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -29.67833,
+      "longitude": -51.13056,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Santa Cruz do Sul",
+      "endereco": "Av. Paul Harris, 291 - Centro",
+      "cep": "96810408",
+      "cidade": "Santa Cruz do Sul",
+      "uf": "RS",
+      "codigo_externo": "885",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -29.7175,
+      "longitude": -52.42583,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "fort",
+      "nome": "Fort Atacadista Viamão",
+      "endereco": "Av. Senador Salgado Filho, 7131 - Jardim Krahe",
+      "cep": "94450000",
+      "cidade": "Viamão",
+      "uf": "RS",
+      "codigo_externo": "370",
+      "fonte_url": "https://www.fortatacadista.com.br/3036/nossas-lojas",
+      "latitude": -30.08111,
+      "longitude": -51.02333,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Capão da Canoa",
+      "endereco": "R. Peri, 4215 - Centro",
+      "cep": "95555000",
+      "cidade": "Capão da Canoa",
+      "uf": "RS",
+      "codigo_externo": "1543",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.74556,
+      "longitude": -50.00972,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Cidreira",
+      "endereco": "Parque IX",
+      "cep": "95595000",
+      "cidade": "Cidreira",
+      "uf": "RS",
+      "codigo_externo": "1542",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.18111,
+      "longitude": -50.20556,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Imbé",
+      "endereco": "Av. Caxias do Sul, 1559 - Quadra 265 - Centro",
+      "cep": "95625970",
+      "cidade": "Imbé",
+      "uf": "RS",
+      "codigo_externo": "1541",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.93314,
+      "longitude": -50.1063,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Magistério",
+      "endereco": "R. Osvaldo Aranha, 251 - Magistério",
+      "cep": "95599000",
+      "cidade": "Balneário Pinhal",
+      "uf": "RS",
+      "codigo_externo": "asun-magisterio",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.25885,
+      "longitude": -50.23866,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Mariluz",
+      "endereco": "Av. Paraguassú, 2474 - Balneário Mariluz",
+      "cep": "95625000",
+      "cidade": "Imbé",
+      "uf": "RS",
+      "codigo_externo": "asun-mariluz",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.93314,
+      "longitude": -50.1063,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Noiva do Mar",
+      "endereco": "Av. Paraguassu, 801 - Centro",
+      "cep": "95588000",
+      "cidade": "Xangri-lá",
+      "uf": "RS",
+      "codigo_externo": "asun-noiva-do-mar",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.80083,
+      "longitude": -50.04361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Nova Tramandaí",
+      "endereco": "Av. Florianópolis, S/N - Nova Tramandaí",
+      "cep": "95590000",
+      "cidade": "Tramandaí",
+      "uf": "RS",
+      "codigo_externo": "asun-nova-tramandai",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.98472,
+      "longitude": -50.13361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Osório",
+      "endereco": "Rua Lateral da BR-101 - Centro",
+      "cep": "95520000",
+      "cidade": "Osório",
+      "uf": "RS",
+      "codigo_externo": "asun-osorio",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.88667,
+      "longitude": -50.26972,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Pinhal Centro",
+      "endereco": "Av. Pampa, 400",
+      "cep": "95599000",
+      "cidade": "Balneário Pinhal",
+      "uf": "RS",
+      "codigo_externo": "asun-pinhal-centro",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.25885,
+      "longitude": -50.23866,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Quintão",
+      "endereco": "Av. Esparta, 4717 - Quintão",
+      "cep": "95548000",
+      "cidade": "Palmares do Sul",
+      "uf": "RS",
+      "codigo_externo": "asun-quintao",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.25778,
+      "longitude": -50.50972,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Torres",
+      "endereco": "Av. Castelo Branco, 1010 - Centro",
+      "cep": "95560000",
+      "cidade": "Torres",
+      "uf": "RS",
+      "codigo_externo": "asun-torres",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.33528,
+      "longitude": -49.72694,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Tramandaí",
+      "endereco": "Av. Fernandes Bastos, 1201 - Centro",
+      "cep": "95590000",
+      "cidade": "Tramandaí",
+      "uf": "RS",
+      "codigo_externo": "asun-tramandai",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.98472,
+      "longitude": -50.13361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Xangri-lá",
+      "endereco": "Rua Pedro Higino da Silveira, 1041 - Centro",
+      "cep": "95588000",
+      "cidade": "Xangri-lá",
+      "uf": "RS",
+      "codigo_externo": "asun-xangri-la",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.80083,
+      "longitude": -50.04361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Xangri-lá 2",
+      "endereco": "Av. Paraguassu, 55 - Centro",
+      "cep": "95588000",
+      "cidade": "Xangri-lá",
+      "uf": "RS",
+      "codigo_externo": "asun-xangri-la-2",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.80083,
+      "longitude": -50.04361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Azenha",
+      "endereco": "Av. Bento Gonçalves, 68 - Azenha",
+      "cep": "90650000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-azenha",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
     {
       "mercado": "asun",
       "nome": "Asun Cavalhada",
-      "endereco": "Av. Cavalhada, 2985",
+      "endereco": "Av. da Cavalhada, 2985 - Cavalhada",
       "cep": "91740001",
       "cidade": "Porto Alegre",
       "uf": "RS",
@@ -13,6 +387,999 @@
       "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
       "latitude": -30.1026,
       "longitude": -51.2312
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Conceição",
+      "endereco": "Av. Francisco Trein, 687 - Cristo Redentor",
+      "cep": "91350200",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-conceicao",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Juca Batista",
+      "endereco": "Av. Juca Batista, 7365",
+      "cep": "91770001",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-juca-batista",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Plínio",
+      "endereco": "Av. Plínio Brasil Milano, 1609 - Higienópolis",
+      "cep": "90520002",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-plinio",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Pontal",
+      "endereco": "Av. Padre Cacique, 2893 - Cristal",
+      "cep": "90810240",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-pontal",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun República",
+      "endereco": "R. da República, 500 - Cidade Baixa",
+      "cep": "90050320",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-republica",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Restinga",
+      "endereco": "Estr. João Antônio da Silveira, 1134 - Restinga",
+      "cep": "91790512",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-restinga",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Santana",
+      "endereco": "R. Gen. Jacinto Osório, 126 - Santana",
+      "cep": "90040290",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "asun-santana",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Cachoeirinha",
+      "endereco": "Av. Gen. Flores da Cunha, 952 - Centro",
+      "cep": "94910001",
+      "cidade": "Cachoeirinha",
+      "uf": "RS",
+      "codigo_externo": "asun-cachoeirinha",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.95111,
+      "longitude": -51.09389,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Cachoeirinha Centro 2",
+      "endereco": "Av. Gen. Flores da Cunha, 823 - Centro",
+      "cep": "94910001",
+      "cidade": "Cachoeirinha",
+      "uf": "RS",
+      "codigo_externo": "1560",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.95111,
+      "longitude": -51.09389,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Canoas Fátima",
+      "endereco": "R. Cairú, 1880 - Rio Branco",
+      "cep": "92200021",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "asun-canoas-fatima",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": null,
+      "longitude": null,
+      "geocodificacao": {
+        "status": "nao_encontrada",
+        "fonte": "brasilapi_v2+viacep",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Canoas Florianópolis",
+      "endereco": "R. Florianópolis, 1850 - Mathias Velho",
+      "cep": "92330500",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "asun-canoas-florianopolis",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Canoas Igara",
+      "endereco": "Av. Boqueirão, 2100 - Igara",
+      "cep": "92032420",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "asun-canoas-igara",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Canoas Niterói",
+      "endereco": "R. Júlio de Castilhos, 263 - Niterói",
+      "cep": "92120030",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "asun-canoas-niteroi",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Central Park",
+      "endereco": "Av. Frederico Augusto Ritter, 3581 - City",
+      "cep": "94931001",
+      "cidade": "Cachoeirinha",
+      "uf": "RS",
+      "codigo_externo": "asun-central-park",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.95111,
+      "longitude": -51.09389,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Dois Irmãos",
+      "endereco": "Av. Irineu Becker, 585 - Primavera",
+      "cep": "93950000",
+      "cidade": "Dois Irmãos",
+      "uf": "RS",
+      "codigo_externo": "asun-dois-irmaos",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.58028,
+      "longitude": -51.08528,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Eldorado",
+      "endereco": "Estr. da Arrozeira, 10 - Centro",
+      "cep": "92990000",
+      "cidade": "Eldorado do Sul",
+      "uf": "RS",
+      "codigo_externo": "1562",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.99932,
+      "longitude": -51.30822,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Estância Velha",
+      "endereco": "R. Portão, 511 - Centro",
+      "cep": "93600090",
+      "cidade": "Estância Velha",
+      "uf": "RS",
+      "codigo_externo": "asun-estancia-velha",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.64833,
+      "longitude": -51.17389,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Gravataí Centro",
+      "endereco": "R. Dr. Luiz Bastos do Prado, 1750 - Centro",
+      "cep": "94010020",
+      "cidade": "Gravataí",
+      "uf": "RS",
+      "codigo_externo": "asun-gravatai-centro",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.94218,
+      "longitude": -50.99278,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Guaíba",
+      "endereco": "Av. Adão Foques, 2813 - Jardim Iolanda",
+      "cep": null,
+      "cidade": "Guaíba",
+      "uf": "RS",
+      "codigo_externo": "asun-guaiba",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "mercado": "asun",
+      "nome": "Asun Montenegro",
+      "endereco": "R. Cap. Porfírio, 1781 - Centro",
+      "cep": "92510305",
+      "cidade": "Montenegro",
+      "uf": "RS",
+      "codigo_externo": "asun-montenegro",
+      "fonte_url": "https://www.asunonline.com.br/2780/nossas-lojas",
+      "latitude": -29.68861,
+      "longitude": -51.46111,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Moinhos",
+      "endereco": "Rua Olavo Barreto Viana, 18",
+      "cep": "90570070",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-moinhos",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Carlos Gomes",
+      "endereco": "Av. Carlos Gomes, 707",
+      "cep": "90470133",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-carlos-gomes",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Lucas de Oliveira",
+      "endereco": "Av. Coronel Lucas de Oliveira, 740",
+      "cep": "90460001",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-lucas-de-oliveira",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Teresópolis",
+      "endereco": "Av. Cel. Aparício Borges, 250",
+      "cep": "90680570",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-teresopolis",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Lindoia",
+      "endereco": "Av. Panamericana, 240",
+      "cep": "91050000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-lindoia",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari ParkShopping Canoas",
+      "endereco": "Av. Farroupilha, 4545 - ParkShopping Canoas",
+      "cep": "92020475",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-parkshopping-canoas",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Wallig",
+      "endereco": "Av. Assis Brasil, 2611",
+      "cep": "91010006",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-wallig",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Total",
+      "endereco": "Av. Cristóvão Colombo, 545 - Prédio 6 - Shopping Total",
+      "cep": "90560000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-total",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Protásio Alves",
+      "endereco": "Av. Protásio Alves, 2700 - Petrópolis",
+      "cep": "90410006",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-protasio-alves",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Passo Fundo",
+      "endereco": "Rua Uruguai, 1483 - Vila Vergueiro",
+      "cep": null,
+      "cidade": "Passo Fundo",
+      "uf": "RS",
+      "codigo_externo": "zaffari-passo-fundo",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": null,
+      "longitude": null
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Otto Niemeyer",
+      "endereco": "Rua Otto Niemeyer, 601 - Tristeza",
+      "cep": "91910001",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-otto-niemeyer",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Menino Deus",
+      "endereco": "Rua Múcio Teixeira, 680 - Menino Deus",
+      "cep": "90150090",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-menino-deus",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Marechal Floriano",
+      "endereco": "Rua Marechal Floriano Peixoto, 333 - Centro",
+      "cep": "90020061",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-marechal-floriano",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Lima e Silva",
+      "endereco": "Rua Lima e Silva, 606 - Cidade Baixa",
+      "cep": "90050100",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-lima-e-silva",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Ipiranga",
+      "endereco": "Av. Ipiranga, 3000 - Santa Cecília",
+      "cep": "90610000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-ipiranga",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Ipanema",
+      "endereco": "Av. Juca Batista, 925 - Ipanema",
+      "cep": "91770001",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-ipanema",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Higienópolis",
+      "endereco": "Av. Plínio Brasil Milano, 1000 - Higienópolis",
+      "cep": "90520900",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-higienopolis",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Fernando Machado",
+      "endereco": "Rua Fernando Machado, 860 - Centro",
+      "cep": "90010320",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-fernando-machado",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Fernandes Vieira",
+      "endereco": "Rua Fernandes Vieira, 401 - Bom Fim",
+      "cep": "90035091",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-fernandes-vieira",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Cristóvão Colombo",
+      "endereco": "Av. Cristóvão Colombo, 1271 - Floresta",
+      "cep": "90560004",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-cristovao-colombo",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Caxias San Pellegrino",
+      "endereco": "Av. Rio Branco, 425 - Loja 106 - São Pelegrino",
+      "cep": "95010060",
+      "cidade": "Caxias do Sul",
+      "uf": "RS",
+      "codigo_externo": "zaffari-caxias-san-pellegrino",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.16806,
+      "longitude": -51.17944,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Centerlar",
+      "endereco": "Av. Sertório, 8000 - Sarandi",
+      "cep": "91130720",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-centerlar",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Caxias Sinimbu",
+      "endereco": "Rua Sinimbu, 135 - Lourdes",
+      "cep": "95020000",
+      "cidade": "Caxias do Sul",
+      "uf": "RS",
+      "codigo_externo": "zaffari-caxias-sinimbu",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.16806,
+      "longitude": -51.17944,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Caxias Exposição",
+      "endereco": "Rua Alfredo Chaves, 1332 - Exposição",
+      "cep": "95020460",
+      "cidade": "Caxias do Sul",
+      "uf": "RS",
+      "codigo_externo": "zaffari-caxias-exposicao",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.16806,
+      "longitude": -51.17944,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Caxias Centro",
+      "endereco": "Rua Borges de Medeiros, 391 - Centro",
+      "cep": "95020310",
+      "cidade": "Caxias do Sul",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-caxias-centro",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.16806,
+      "longitude": -51.17944,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Zaffari Cavalhada",
+      "endereco": "Av. Cavalhada, 3621 - Cavalhada",
+      "cep": "91751830",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-zaffari-cavalhada",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Cabral",
+      "endereco": "Rua Cabral, 600 - Rio Branco",
+      "cep": "90420121",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-cabral",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Boulevard",
+      "endereco": "Av. Assis Brasil, 4320 - São Sebastião",
+      "cep": "91110000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-boulevard",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Bordini",
+      "endereco": "Rua Cel. Bordini, 530 - Auxiliadora",
+      "cep": "90440002",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-bordini",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Anita Garibaldi",
+      "endereco": "Rua Anita Garibaldi, 536 - Mont'Serrat",
+      "cep": "90450000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-anita-garibaldi",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Rua da Praia",
+      "endereco": "Rua dos Andradas, 933 - Centro",
+      "cep": "90020005",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-rua-da-praia",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Zaffari Hípica",
+      "endereco": "Av. Juca Batista, 4255 - Hípica",
+      "cep": "91755000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "zaffari-hipica",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Assis Brasil",
+      "endereco": "Av. Assis Brasil, 164",
+      "cep": "91010000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-assis-brasil",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon São Leopoldo",
+      "endereco": "Av. Primeiro de Março, 821",
+      "cep": "93010210",
+      "cidade": "São Leopoldo",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-sao-leopoldo",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.76028,
+      "longitude": -51.14722,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Passo Fundo",
+      "endereco": "Av. Brasil Leste, 200",
+      "cep": "99050000",
+      "cidade": "Passo Fundo",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-passo-fundo",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": null,
+      "longitude": null,
+      "geocodificacao": {
+        "status": "nao_encontrada",
+        "fonte": "brasilapi_v2+viacep",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Novo Hamburgo",
+      "endereco": "Av. Primeiro de Março, 1111",
+      "cep": "93320010",
+      "cidade": "Novo Hamburgo",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-novo-hamburgo",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": null,
+      "longitude": null,
+      "geocodificacao": {
+        "status": "nao_encontrada",
+        "fonte": "brasilapi_v2+viacep",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Ipiranga",
+      "endereco": "Av. Ipiranga, 5200",
+      "cep": "90610000",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-ipiranga",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Country",
+      "endereco": "Av. Túlio de Rose, 100",
+      "cep": "91340110",
+      "cidade": "Porto Alegre",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-country",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -30.03283,
+      "longitude": -51.23019,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
+    },
+    {
+      "mercado": "zaffari",
+      "nome": "Hipermercado Bourbon Canoas",
+      "endereco": "Av. Getúlio Vargas, 5765",
+      "cep": "92010011",
+      "cidade": "Canoas",
+      "uf": "RS",
+      "codigo_externo": "hipermercado-bourbon-canoas",
+      "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
+      "latitude": -29.91778,
+      "longitude": -51.18361,
+      "geocodificacao": {
+        "status": "resolvida",
+        "fonte": "brasilapi_v2",
+        "em": "2026-11-13T02:04:57+00:00"
+      }
     }
   ]
 }

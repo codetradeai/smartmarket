@@ -153,6 +153,14 @@ class GeocodificacaoTest(unittest.TestCase):
         self.assertEqual(self.rodar(busca2)["ja_tinham"], 1)
         self.assertEqual(busca2.chamadas, [])
 
+    def test_etapa_do_cep_guarda_a_coordenada_do_cep_e_a_precisao(self):
+        self.gravar(LOJA_OK)
+
+        self.rodar(BuscaFalsa({geo.URL_BRASILAPI.format(cep="90010000"): brasilapi()}))
+
+        g = self.ler()[0]["geocodificacao"]
+        self.assertEqual((g["precisao"], g["cep_latitude"], g["cep_longitude"]), ("cep", -30.03, -51.23))
+
     def test_lojas_no_mesmo_cep_fazem_uma_unica_consulta(self):
         self.gravar(LOJA_OK, {**LOJA_OK, "nome": "Outra", "codigo_externo": "1501"})
         busca = BuscaFalsa({geo.URL_BRASILAPI.format(cep="90010000"): brasilapi()})
@@ -398,6 +406,57 @@ class GeocodificacaoPorEnderecoTest(unittest.TestCase):
         self.rodar(self.busca([], []))
 
         self.assertEqual(self.pausas, [2.0])
+
+    KM_POR_GRAU_DE_LATITUDE = 111.195  # 2*pi*6371/360
+
+    def achado_a_km_do_cep(self, km):
+        """Resultado do Nominatim 'km' ao norte da coordenada do CEP da LOJA (cidade correta)."""
+        return self.achado(str(self.LOJA["latitude"] + km / self.KM_POR_GRAU_DE_LATITUDE), str(self.LOJA["longitude"]),
+                           city="Canoas")
+
+    def test_resultado_a_38_km_do_cep_e_rejeitado_e_a_loja_mantem_a_coordenada_do_cep(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(38)))
+        loja = self.ler()[0]
+
+        self.assertEqual(resumo["rejeitadas_longe_do_cep"], 1)
+        self.assertEqual((loja["latitude"], loja["longitude"]), (-29.91778, -51.18361))
+        self.assertEqual(loja["geocodificacao"]["endereco"], "rejeitada_longe_do_cep")
+        self.assertEqual(loja["geocodificacao"]["precisao"], "cep")
+
+    def test_resultado_a_25_km_do_cep_e_aceito_e_a_coordenada_do_cep_fica_guardada(self):
+        self.gravar(self.LOJA)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(25)))
+        loja = self.ler()[0]
+
+        self.assertEqual((resumo["resolvidas_endereco"], resumo["rejeitadas_longe_do_cep"]), (1, 0))
+        self.assertAlmostEqual(loja["latitude"], -29.91778 + 25 / self.KM_POR_GRAU_DE_LATITUDE, places=5)
+        g = loja["geocodificacao"]
+        self.assertEqual((g["precisao"], g["cep_latitude"], g["cep_longitude"]), ("endereco", -29.91778, -51.18361))
+
+    def test_refazer_compara_com_a_coordenada_do_cep_guardada_e_nao_com_a_atual(self):
+        # a coordenada atual já é a do endereço (a 25 km do CEP); o novo resultado está a 38 km do CEP, só 13 km da atual
+        atual_lat = self.LOJA["latitude"] + 25 / self.KM_POR_GRAU_DE_LATITUDE
+        resolvida = {**self.LOJA, "latitude": atual_lat,
+                     "geocodificacao": {"status": "resolvida", "fonte": "nominatim", "precisao": "endereco", "em": "x",
+                                        "cep_latitude": -29.91778, "cep_longitude": -51.18361}}
+        self.gravar(resolvida)
+
+        resumo = self.rodar(self.busca(self.achado_a_km_do_cep(38)), refazer=True)
+
+        self.assertEqual(resumo["rejeitadas_longe_do_cep"], 1)
+        self.assertEqual(self.ler()[0]["latitude"], atual_lat)
+
+    def test_loja_sem_coordenada_de_cep_nao_tem_trava_de_distancia(self):
+        sem_cep = {**self.LOJA, "latitude": None, "longitude": None,
+                   "geocodificacao": {"status": "nao_encontrada", "fonte": "brasilapi_v2+viacep"}}
+        self.gravar(sem_cep)
+
+        resumo = self.rodar(self.busca(self.achado("-20.0", "-40.0", city="Canoas")))
+
+        self.assertEqual(resumo["resolvidas_endereco"], 1)
 
     def test_loja_sem_endereco_ou_sem_cidade_e_pulada(self):
         self.gravar({**self.LOJA, "endereco": None}, {**self.LOJA, "codigo_externo": "2", "cidade": None})

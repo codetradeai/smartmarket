@@ -17,7 +17,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     },
     {
@@ -35,7 +37,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.16806,
+        "cep_longitude": -51.17944
       }
     },
     {
@@ -53,7 +57,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.94218,
+        "cep_longitude": -50.99278
       }
     },
     {
@@ -71,7 +77,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -89,7 +97,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.67833,
+        "cep_longitude": -51.13056
       }
     },
     {
@@ -107,7 +117,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.7175,
+        "cep_longitude": -52.42583
       }
     },
     {
@@ -125,7 +137,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.08111,
+        "cep_longitude": -51.02333
       }
     },
     {
@@ -143,7 +157,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.74556,
+        "cep_longitude": -50.00972
       }
     },
     {
@@ -161,7 +177,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.18111,
+        "cep_longitude": -50.20556
       }
     },
     {
@@ -179,7 +197,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.93314,
+        "cep_longitude": -50.1063
       }
     },
     {
@@ -197,7 +217,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.25885,
+        "cep_longitude": -50.23866
       }
     },
     {
@@ -215,7 +237,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.93314,
+        "cep_longitude": -50.1063
       }
     },
     {
@@ -233,7 +257,9 @@
         "status": "coordenada_repetida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.80083,
+        "cep_longitude": -50.04361
       }
     },
     {
@@ -251,7 +277,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.98472,
+        "cep_longitude": -50.13361
       }
     },
     {
@@ -270,7 +298,9 @@
         "fonte": "brasilapi_v2",
         "em": "2026-11-13T02:04:57+00:00",
         "precisao": "cep",
-        "endereco": "nao_encontrado"
+        "endereco": "nao_encontrado",
+        "cep_latitude": -29.88667,
+        "cep_longitude": -50.26972
       }
     },
     {
@@ -288,7 +318,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.25885,
+        "cep_longitude": -50.23866
       }
     },
     {
@@ -306,7 +338,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.25778,
+        "cep_longitude": -50.50972
       }
     },
     {
@@ -324,7 +358,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.33528,
+        "cep_longitude": -49.72694
       }
     },
     {
@@ -342,7 +378,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.98472,
+        "cep_longitude": -50.13361
       }
     },
     {
@@ -361,7 +399,9 @@
         "fonte": "brasilapi_v2",
         "em": "2026-11-13T02:04:57+00:00",
         "precisao": "cep",
-        "endereco": "nao_encontrado"
+        "endereco": "nao_encontrado",
+        "cep_latitude": -29.80083,
+        "cep_longitude": -50.04361
       }
     },
     {
@@ -379,7 +419,9 @@
         "status": "coordenada_repetida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.80083,
+        "cep_longitude": -50.04361
       }
     },
     {
@@ -397,7 +439,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -433,7 +477,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -451,7 +497,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -469,7 +517,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -487,7 +537,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -505,7 +557,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -523,7 +577,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -541,7 +597,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -559,7 +617,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.95111,
+        "cep_longitude": -51.09389
       }
     },
     {
@@ -577,7 +637,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.95111,
+        "cep_longitude": -51.09389
       }
     },
     {
@@ -613,7 +675,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     },
     {
@@ -631,7 +695,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     },
     {
@@ -649,7 +715,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     },
     {
@@ -667,7 +735,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.95111,
+        "cep_longitude": -51.09389
       }
     },
     {
@@ -685,7 +755,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.58028,
+        "cep_longitude": -51.08528
       }
     },
     {
@@ -703,7 +775,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.99932,
+        "cep_longitude": -51.30822
       }
     },
     {
@@ -721,7 +795,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.64833,
+        "cep_longitude": -51.17389
       }
     },
     {
@@ -739,7 +815,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.94218,
+        "cep_longitude": -50.99278
       }
     },
     {
@@ -772,7 +850,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.68861,
+        "cep_longitude": -51.46111
       }
     },
     {
@@ -790,7 +870,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -808,7 +890,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -826,7 +910,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -844,7 +930,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -862,7 +950,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -880,7 +970,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     },
     {
@@ -898,7 +990,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -916,7 +1010,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -934,7 +1030,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -971,7 +1069,9 @@
         "fonte": "brasilapi_v2",
         "em": "2026-11-13T02:04:57+00:00",
         "precisao": "cep",
-        "endereco": "nao_encontrado"
+        "endereco": "nao_encontrado",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -989,7 +1089,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1007,7 +1109,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1025,7 +1129,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1043,7 +1149,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1061,7 +1169,9 @@
         "status": "coordenada_repetida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1079,7 +1189,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1098,7 +1210,9 @@
         "fonte": "brasilapi_v2",
         "em": "2026-11-13T02:04:57+00:00",
         "precisao": "cep",
-        "endereco": "rejeitada_cidade_diferente"
+        "endereco": "rejeitada_cidade_diferente",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1116,7 +1230,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1134,7 +1250,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1152,7 +1270,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.16806,
+        "cep_longitude": -51.17944
       }
     },
     {
@@ -1170,7 +1290,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1188,7 +1310,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.16806,
+        "cep_longitude": -51.17944
       }
     },
     {
@@ -1206,7 +1330,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.16806,
+        "cep_longitude": -51.17944
       }
     },
     {
@@ -1218,13 +1344,16 @@
       "uf": "RS",
       "codigo_externo": "hipermercado-zaffari-caxias-centro",
       "fonte_url": "https://www.grupozaffari.com.br/en/portugues-do-brasil-lojas/",
-      "latitude": -28.8766431,
-      "longitude": -50.9751487,
+      "latitude": null,
+      "longitude": null,
       "geocodificacao": {
-        "status": "resolvida",
+        "status": "rejeitada_revisao",
         "fonte": "nominatim",
-        "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.16806,
+        "cep_longitude": -51.17944,
+        "endereco": "rejeitada_longe_do_cep",
+        "motivo": "Nominatim devolveu -28.8766431,-50.9751487 para Rua Borges de Medeiros, 391 (Caxias do Sul): 38.0 km do centro do CEP, provavelmente o distrito de Criúva (mesma rua, mesmo município). Sem coordenada confiável até revisão manual."
       }
     },
     {
@@ -1242,7 +1371,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1260,7 +1391,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1278,7 +1411,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1296,7 +1431,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1314,7 +1451,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1332,7 +1471,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1350,7 +1491,9 @@
         "status": "coordenada_repetida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1368,7 +1511,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1386,7 +1531,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.76028,
+        "cep_longitude": -51.14722
       }
     },
     {
@@ -1440,7 +1587,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1458,7 +1607,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -30.03283,
+        "cep_longitude": -51.23019
       }
     },
     {
@@ -1476,7 +1627,9 @@
         "status": "resolvida",
         "fonte": "nominatim",
         "precisao": "endereco",
-        "em": "2026-11-13T10:50:12+00:00"
+        "em": "2026-11-13T10:50:12+00:00",
+        "cep_latitude": -29.91778,
+        "cep_longitude": -51.18361
       }
     }
   ]

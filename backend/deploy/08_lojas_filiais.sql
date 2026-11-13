@@ -904,7 +904,7 @@ ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
 -- Hipermercado Zaffari Caxias Centro
 INSERT INTO loja (mercado_id, nome, endereco, cidade, uf, cep, latitude, longitude, codigo_externo)
 VALUES
-    (6, 'Hipermercado Zaffari Caxias Centro', 'Rua Borges de Medeiros, 391 - Centro', 'Caxias do Sul', 'RS', '95020310', -28.8766431, -50.9751487, 'hipermercado-zaffari-caxias-centro')
+    (6, 'Hipermercado Zaffari Caxias Centro', 'Rua Borges de Medeiros, 391 - Centro', 'Caxias do Sul', 'RS', '95020310', NULL, NULL, 'hipermercado-zaffari-caxias-centro')
 ON CONFLICT (mercado_id, codigo_externo) DO UPDATE
     SET nome      = EXCLUDED.nome,
         endereco  = EXCLUDED.endereco,

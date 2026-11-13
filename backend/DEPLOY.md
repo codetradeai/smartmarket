@@ -237,9 +237,9 @@
    >           count(l.id) FILTER (WHERE l.latitude IS NULL OR l.longitude IS NULL) AS sem_coordenadas
    >    FROM mercado m LEFT JOIN loja l ON l.mercado_id = m.id AND l.codigo_externo <> 'padrao'
    >    WHERE m.id IN (1, 3, 6) GROUP BY m.id, m.nome ORDER BY m.id;
-   >    -- esperado: Fort 7 (7 com coordenadas), Asun 36 (33 com), Zaffari 39 (35 com): 82 lojas, 75 com coordenadas, 7 sem
+   >    -- esperado: Fort 7 (7 com coordenadas), Asun 36 (33 com), Zaffari 39 (34 com): 82 lojas, 74 com coordenadas, 8 sem
    >    -- (Asun Guaíba, Asun Noiva do Mar, Asun Xangri-lá 2, Hipermercado Zaffari Otto Niemeyer, Zaffari Fernando Machado,
-   >    --  Zaffari Ipanema e Zaffari Hípica: sem coordenada confiável, então ficam sem distância)
+   >    --  Zaffari Ipanema, Zaffari Hípica e Hipermercado Zaffari Caxias Centro: sem coordenada confiável, então ficam sem distância)
    >    SELECT count(*) FROM loja WHERE codigo_externo = 'padrao';   -- continua 1 por mercado (8)
    >    SELECT count(*) FROM preco_loja;                              -- igual ao de antes (o 08 não toca em preço)
    >    ```
@@ -249,7 +249,9 @@
    > **Origem das coordenadas.** As coordenadas das lojas vêm do endereço, pelo Nominatim (OpenStreetMap):
    > *coordenadas © colaboradores do OpenStreetMap, via Nominatim* (licença ODbL). A geocodificação só aceita o
    > resultado quando a cidade devolvida é a da loja e **anula** (deixa `NULL`, a loja fica sem distância) as lojas
-   > de uma mesma rede que terminarem no mesmo ponto: melhor sem distância do que distância errada. Duas lojas
+   > de uma mesma rede que terminarem no mesmo ponto: melhor sem distância do que distância errada. Também rejeita o
+   > resultado do endereço que fica a mais de 30 km da coordenada do CEP (o Nominatim achou a mesma rua em outro
+   > distrito do município; o Caxias Centro foi o único caso e ficou para revisão manual, `rejeitada_revisao`). Duas lojas
    > da Asun ainda usam a coordenada do CEP (centro da cidade, menos precisa): Asun Osório e Asun Xangri-lá.
    > Como gerar de novo: `python scraper/geocodificar_lojas.py --por-endereco` e depois
    > `python scraper/gerar_sql_lojas.py`. O ritmo é de uma chamada a cada 2 s, com User-Agent identificado, e

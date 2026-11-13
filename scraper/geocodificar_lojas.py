@@ -14,6 +14,7 @@ coordenada na fonte, a loja fica com status ``sem_coordenada`` para preenchiment
 import argparse
 import json
 import os
+import math
 import re
 import tempfile
 import time
@@ -28,6 +29,7 @@ from identificacao import com_user_agent
 URL_BRASILAPI = 'https://brasilapi.com.br/api/cep/v2/{cep}'
 URL_VIACEP = 'https://viacep.com.br/ws/{cep}/json/'
 URL_NOMINATIM = 'https://nominatim.openstreetmap.org/search'
+DISTANCIA_MAXIMA_DO_CEP_KM = 30  # resultado do endereço mais longe que isso da coordenada do CEP é rejeitado
 ABREVIACOES_LOGRADOURO = {'av.': 'Avenida', 'av': 'Avenida', 'r.': 'Rua', 'estr.': 'Estrada', 'rod.': 'Rodovia'}
 PAUSA_ENTRE_CHAMADAS = 2.0
 STATUS_BLOQUEIO = (403, 429, 503)
@@ -164,6 +166,9 @@ def geocodificar_arquivo(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dormir=t
             loja['geocodificacao'] = {'status': resultado['status'], 'fonte': resultado['fonte'], 'em': agora}
             if resultado['status'] == 'resolvida':
                 loja['geocodificacao']['precisao'] = 'cep'  # centro do CEP/cidade, não o endereço da loja
+                # guardada à parte: a etapa por endereço sobrescreve latitude/longitude e compara com ela
+                loja['geocodificacao']['cep_latitude'] = resultado['latitude']
+                loja['geocodificacao']['cep_longitude'] = resultado['longitude']
             chave = {'resolvida': 'resolvidas', 'sem_coordenada': 'sem_coordenada',
                      'nao_encontrada': 'nao_encontradas'}[resultado['status']]
             resumo['reaproveitadas' if reaproveitada else chave] += 1
@@ -205,6 +210,21 @@ def _coordenadas_nominatim(achado):
     return None
 
 
+def distancia_km(lat1, lon1, lat2, lon2):
+    """Distância em km pelo círculo máximo (Haversine, raio médio da Terra de 6371 km)."""
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    a = math.sin((phi2 - phi1) / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2
+    return 2 * 6371.0 * math.asin(math.sqrt(a))
+
+
+def _coordenada_do_cep(loja):
+    """(lat, lon) do CEP guardada na loja; None se a loja nunca teve coordenada de CEP."""
+    g = loja.get('geocodificacao') or {}
+    if g.get('cep_latitude') is not None and g.get('cep_longitude') is not None:
+        return g['cep_latitude'], g['cep_longitude']
+    return None
+
+
 def _cidade_devolvida(achado):
     endereco = achado.get('address') or {}
     return endereco.get('city') or endereco.get('town') or endereco.get('municipality')
@@ -222,13 +242,15 @@ def geocodificar_por_endereco(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dor
     dados = json.loads(Path(caminho).read_text(encoding='utf-8'))
     lojas = dados.get('lojas', [])
     ritmo = _Ritmo(dormir)
-    resumo = {'resolvidas_endereco': 0, 'rejeitadas_cidade': 0, 'nao_encontradas': 0, 'ja_resolvidas': 0,
-              'sem_endereco': 0, 'anuladas_repetidas': [], 'interrompido': None}
+    resumo = {'resolvidas_endereco': 0, 'rejeitadas_cidade': 0, 'rejeitadas_longe_do_cep': 0, 'nao_encontradas': 0,
+              'ja_resolvidas': 0, 'sem_endereco': 0, 'anuladas_repetidas': [], 'interrompido': None}
     agora = datetime.now(timezone.utc).isoformat(timespec='seconds')
-    for loja in lojas:  # a coordenada que veio do CEP antes desta etapa passa a ser marcada como tal
+    for loja in lojas:  # a coordenada que veio do CEP antes desta etapa passa a ser marcada e guardada como tal
         g = loja.get('geocodificacao')
         if g and loja.get('latitude') is not None and 'precisao' not in g:
             g['precisao'] = 'cep'
+        if g and g.get('precisao') == 'cep' and loja.get('latitude') is not None and _coordenada_do_cep(loja) is None:
+            g['cep_latitude'], g['cep_longitude'] = loja['latitude'], loja['longitude']
     try:
         for loja in lojas:
             g = loja.get('geocodificacao') or {}
@@ -248,9 +270,15 @@ def geocodificar_por_endereco(caminho=ARQUIVO_PADRAO, *, buscar=buscar_json, dor
             elif _sem_acento(_cidade_devolvida(achado)) != _sem_acento(loja['cidade']):
                 g['endereco'] = 'rejeitada_cidade_diferente'
                 resumo['rejeitadas_cidade'] += 1
+            elif (cep := _coordenada_do_cep(loja)) and distancia_km(*cep, *coordenadas) > DISTANCIA_MAXIMA_DO_CEP_KM:
+                g['endereco'] = 'rejeitada_longe_do_cep'  # mesma cidade e mesma rua, mas em outro distrito
+                resumo['rejeitadas_longe_do_cep'] += 1
             else:
                 loja['latitude'], loja['longitude'] = coordenadas
-                loja['geocodificacao'] = {'status': 'resolvida', 'fonte': 'nominatim', 'precisao': 'endereco', 'em': agora}
+                novo = {'status': 'resolvida', 'fonte': 'nominatim', 'precisao': 'endereco', 'em': agora}
+                if cep:
+                    novo['cep_latitude'], novo['cep_longitude'] = cep
+                loja['geocodificacao'] = novo
                 resumo['resolvidas_endereco'] += 1
         resumo['anuladas_repetidas'] = anular_coordenadas_repetidas(lojas)
     except ServicoBloqueou as exc:

@@ -3,11 +3,15 @@ import { textoDistancia } from "../utils/textoDistancia"
 
 const AVISO_PRECO = (rede) => `O preço vale para toda a rede ${rede}; a loja é só referência.`
 
+// O chip QUEBRA em linhas (flex-wrap) em vez de espremer tudo numa só: com prefixo, distância, preço e
+// link na mesma linha, o nome da loja era o primeiro a encolher e sumia ("Za…", ou nada) em cartões
+// estreitos. Assim o nome fica na primeira linha (truncado só se for maior que o cartão) e a distância,
+// o preço e o link caem para a linha de baixo quando não cabem.
 const CLASSE_CHIP = {
   completo:
-    "flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 bg-emerald-50/90 border border-emerald-200/90 px-2.5 py-1 rounded-xl",
+    "flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug font-bold text-emerald-900 bg-emerald-50/90 border border-emerald-200/90 px-2.5 py-1.5 rounded-xl",
   compacto:
-    "flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg",
+    "flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[10px] leading-snug font-bold text-emerald-900 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg",
 }
 
 /**
@@ -32,11 +36,19 @@ export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, pre
 
   return (
     <div className={CLASSE_CHIP[compacto ? "compacto" : "completo"]} title={titulo}>
-      <span aria-hidden="true" className="shrink-0 text-xs">
-        📍
+      {/* Pin e prefixo ficam juntos. O nome vai ao lado do prefixo se couber; senão desce para a linha
+          de baixo e usa a largura inteira do chip, e só é truncado (com o tooltip completo) se ainda
+          assim for maior que o chip. Sem prefixo, o nome fica ao lado do pin. */}
+      <span className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1">
+        <span className={`inline-flex min-w-0 max-w-full items-center gap-1${rotulo ? " shrink-0" : ""}`}>
+          <span aria-hidden="true" className="shrink-0 text-xs">
+            📍
+          </span>
+          {rotulo && <span className="font-semibold text-emerald-800">{rotulo}</span>}
+          {!rotulo && <span className="truncate min-w-0 max-w-full">{filial.nomeFilial}</span>}
+        </span>
+        {rotulo && <span className="truncate min-w-0 max-w-full">{filial.nomeFilial}</span>}
       </span>
-      {rotulo && <span className="shrink-0 font-semibold text-emerald-800">{rotulo}</span>}
-      <span className="truncate min-w-0">{filial.nomeFilial}</span>
       {distancia && <span className="text-emerald-700 font-extrabold shrink-0">• {distancia}</span>}
       {precoValido && <span className="font-extrabold shrink-0">• R$ {preco.toFixed(2)}</span>}
       {link && (

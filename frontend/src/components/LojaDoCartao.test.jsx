@@ -172,6 +172,53 @@ describe('LojaDoCartao', () => {
   it('sem coordenadas o chip fica igual ao de antes, sem o link', () => {
     render(<LojaDoCartao filial={SEM_COORDENADAS} nomeRede="Carrefour" />)
 
-    expect(screen.getByText('Carrefour Centro').parentElement).toHaveTextContent(/^📍\s*Carrefour Centro\s*•\s*3,5 km$/)
+    expect(screen.getByText('Carrefour Centro').closest('[title]')).toHaveTextContent(
+      /^📍\s*Carrefour Centro\s*•\s*3,5 km$/
+    )
+  })
+
+  // O jsdom não faz layout: estas classes são a trava contra voltar ao chip de uma linha só, em que o
+  // nome da loja encolhia até sumir ("Za…", ou nada) e o link "Como chegar" era cortado em cartões estreitos.
+  describe('layout para cartões estreitos (conferido no navegador a 360 px e a 1440 px)', () => {
+    const chip = (props = {}) => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" {...props} />)
+      return screen.getByText('Carrefour Centro').closest('[title]')
+    }
+
+    it.each([
+      ['completo', false],
+      ['compacto', true],
+    ])('o chip %s quebra em linhas (flex-wrap) em vez de espremer tudo numa só', (_nome, compacto) => {
+      expect(chip({ compacto })).toHaveClass('flex', 'flex-wrap')
+    })
+
+    it('o nome da loja é truncado só se for maior que o chip (max-w-full), e nunca encolhe a zero', () => {
+      chip()
+
+      expect(screen.getByText('Carrefour Centro')).toHaveClass('truncate', 'min-w-0', 'max-w-full')
+    })
+
+    it('com prefixo, o pin e o prefixo não encolhem (o nome é que desce de linha se faltar espaço)', () => {
+      chip({ rotulo: 'Loja de referência:' })
+
+      const grupoDoPrefixo = screen.getByText('Loja de referência:').parentElement
+      expect(grupoDoPrefixo).toHaveClass('shrink-0')
+    })
+
+    it('sem prefixo, o nome fica ao lado do pin, no mesmo grupo (não desce sozinho sob o pin)', () => {
+      chip()
+
+      const nome = screen.getByText('Carrefour Centro')
+      expect(nome.parentElement).toContainElement(screen.getByText('📍'))
+    })
+
+    it('a distância, o preço e o link nunca encolhem (shrink-0), e o link fica à direita', () => {
+      chip({ preco: 7.9 })
+
+      expect(screen.getByText('• 3,5 km')).toHaveClass('shrink-0')
+      expect(screen.getByText('• R$ 7.90')).toHaveClass('shrink-0')
+      const link = screen.getByRole('link', { name: /Como chegar/ })
+      expect(link).toHaveClass('shrink-0', 'ml-auto')
+    })
   })
 })

@@ -89,6 +89,10 @@
 
    -- Passo 7 (só PostgreSQL): travas de integridade do preço por loja
    \i backend/deploy/07_indice_unico_vinculo_vigente.sql
+
+   -- Passo 8 (opcional, só por ordem do responsável): filiais reais de Fort, Asun e Zaffari/Bourbon
+   -- (roteiro próprio em "Passo manual — 08_lojas_filiais.sql", mais abaixo)
+   \i backend/deploy/08_lojas_filiais.sql
    ```
    Para o 06 e o 07, a ordem é: **backup (branch do Neon) → pré-conferência → 06 → conferência pós-06 → 07 →
    conferência pós-07**, com as consultas em *Conferência antes e depois do 06 e do 07* (no aviso abaixo).
@@ -199,6 +203,59 @@
    > **Depois do redeploy.** Com as conferências ok, faça o deploy manual no Render (**Manual Deploy → Deploy
    > latest commit**) e rode o smoke: `GET /api/health` → `UP`, e `GET /api/mercados` e
    > `GET /api/produtos?nome=feijao` respondendo. Só então apague a branch de backup do Neon.
+
+   > ⚠️ **Passo manual — `08_lojas_filiais.sql` (filiais reais de Fort, Asun e Zaffari/Bourbon)**: **só por
+   > ordem do responsável, à mão no Neon, depois do 06 e do 07**; nenhum pipeline o aplica. Traz 82 lojas
+   > (Fort 7, Asun 36, Zaffari/Bourbon 39) levantadas em 12/11/2026 das páginas oficiais das redes (a
+   > `fonte_url` de cada uma está em `scraper/lojas/lojas.json`). Ligar `LOJAS_PROXIMAS_ATIVO` é uma decisão
+   > **separada**, depois da aplicação e da conferência. O arquivo é **gerado** (`python scraper/gerar_sql_lojas.py`);
+   > não o edite à mão: altere o JSON e gere de novo.
+   >
+   > O que o script faz: `BEGIN`/`COMMIT`; uma **pré-conferência** que aborta tudo (`RAISE EXCEPTION`) se o
+   > mercado 1, 3 ou 6 não existir ou o nome dele não contiver Fort, Asun ou Zaffari; e um `INSERT` por loja
+   > com `ON CONFLICT (mercado_id, codigo_externo) DO UPDATE` (atualiza só nome, endereço, cidade, UF, CEP e
+   > coordenadas). Nunca apaga linha, nunca toca a loja padrão e nunca muda `ativa` de loja existente.
+   > Idempotente: rodar duas vezes deixa as mesmas 82 lojas (testado em PostgreSQL 16 descartável).
+   >
+   > **Roteiro** (SQL Editor do Neon, um arquivo por vez):
+   >
+   > 1. **Backup:** crie uma **branch do banco no Neon** a partir de produção e anote o nome dela.
+   > 2. **Pré-conferência (só leitura):**
+   >    ```sql
+   >    SELECT id, nome FROM mercado ORDER BY id;     -- 1 Fort, 3 Asun, 6 Zaffari / Bourbon (o nome precisa conter a rede)
+   >    SELECT mercado_id, count(*) AS lojas FROM loja GROUP BY mercado_id ORDER BY mercado_id;
+   >    -- anote os números: depois do 08, cada mercado deve ter essas lojas + as novas
+   >    ```
+   > 3. **Aplicar:** cole o conteúdo de `backend/deploy/08_lojas_filiais.sql` e execute. Se o `RAISE EXCEPTION`
+   >    disparar, nada foi inserido: leia a mensagem (diz qual mercado), corrija o nome do mercado ou avise o
+   >    grupo, e **comece pelo `ROLLBACK;`** se o editor mostrar transação aberta. Com psql:
+   >    `psql "$NEON_URL" -v ON_ERROR_STOP=1 -f backend/deploy/08_lojas_filiais.sql` (conexão direta, sem `-pooler`).
+   > 4. **Pós-conferência (o `SELECT` no fim do próprio arquivo já mostra a primeira):**
+   >    ```sql
+   >    SELECT m.id, m.nome, count(l.id) AS lojas,
+   >           count(l.id) FILTER (WHERE l.latitude IS NOT NULL AND l.longitude IS NOT NULL) AS com_coordenadas,
+   >           count(l.id) FILTER (WHERE l.latitude IS NULL OR l.longitude IS NULL) AS sem_coordenadas
+   >    FROM mercado m LEFT JOIN loja l ON l.mercado_id = m.id AND l.codigo_externo <> 'padrao'
+   >    WHERE m.id IN (1, 3, 6) GROUP BY m.id, m.nome ORDER BY m.id;
+   >    -- esperado: Fort 7 (7 com coordenadas), Asun 36 (33 com), Zaffari 39 (34 com): 82 lojas, 74 com coordenadas, 8 sem
+   >    -- (Asun Guaíba, Asun Noiva do Mar, Asun Xangri-lá 2, Hipermercado Zaffari Otto Niemeyer, Zaffari Fernando Machado,
+   >    --  Zaffari Ipanema, Zaffari Hípica e Hipermercado Zaffari Caxias Centro: sem coordenada confiável, então ficam sem distância)
+   >    SELECT count(*) FROM loja WHERE codigo_externo = 'padrao';   -- continua 1 por mercado (8)
+   >    SELECT count(*) FROM preco_loja;                              -- igual ao de antes (o 08 não toca em preço)
+   >    ```
+   > 5. **Desfazer:** restaure a branch de backup do Neon (Restore no console); isso apaga o que foi gravado
+   >    depois do backup. Só apague a branch de backup depois de conferir tudo.
+   >
+   > **Origem das coordenadas.** As coordenadas das lojas vêm do endereço, pelo Nominatim (OpenStreetMap):
+   > *coordenadas © colaboradores do OpenStreetMap, via Nominatim* (licença ODbL). A geocodificação só aceita o
+   > resultado quando a cidade devolvida é a da loja e **anula** (deixa `NULL`, a loja fica sem distância) as lojas
+   > de uma mesma rede que terminarem no mesmo ponto: melhor sem distância do que distância errada. Também rejeita o
+   > resultado do endereço que fica a mais de 30 km da coordenada do CEP (o Nominatim achou a mesma rua em outro
+   > distrito do município; o Caxias Centro foi o único caso e ficou para revisão manual, `rejeitada_revisao`). Duas lojas
+   > da Asun ainda usam a coordenada do CEP (centro da cidade, menos precisa): Asun Osório e Asun Xangri-lá.
+   > Como gerar de novo: `python scraper/geocodificar_lojas.py --por-endereco` e depois
+   > `python scraper/gerar_sql_lojas.py`. O ritmo é de uma chamada a cada 2 s, com User-Agent identificado, e
+   > para no primeiro 403/429/503. Veja `docs/PESQUISA-FILIAIS.md`.
 
    > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
    > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em

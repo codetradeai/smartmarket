@@ -121,11 +121,26 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
       usarLocalizacao({ lojas: [CARREFOUR_CENTRO] })
       await renderizar({ grade })
 
-      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle('Carrefour Centro • 3.5 km')
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle('Carrefour Centro • 3,5 km')
 
       expect(indicacao).toHaveTextContent('Carrefour Centro')
-      expect(indicacao).toHaveTextContent('3.5 km')
+      expect(indicacao).toHaveTextContent('3,5 km')
       expect(indicacao.getAttribute('title')).not.toMatch(/Andradas|Porto Alegre|Rua/)
+    })
+
+    it.each([
+      [2.5, '2,5 km'],
+      [12, '12,0 km'],
+      [0.8, '0,8 km'],
+      [3.46, '3,5 km'],
+    ])('a distância %p aparece em formato brasileiro: %s, sem ponto decimal', async (distanciaKm, esperado) => {
+      usarLocalizacao({ lojas: [lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm })] })
+      await renderizar({ grade })
+
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(`Carrefour Centro • ${esperado}`)
+
+      expect(indicacao).toHaveTextContent(esperado)
+      expect(indicacao.textContent).not.toMatch(/\d\.\d/)
     })
 
     it('loja sem distância calculada: só o nome, sem "• km" nem undefined', async () => {

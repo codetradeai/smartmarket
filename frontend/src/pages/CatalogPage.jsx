@@ -159,9 +159,12 @@ function saveList(l) {
 // Referência estável para "nenhuma filial conhecida" (evita recalcular os cartões a cada render)
 const SEM_FILIAIS = Object.freeze({});
 
-// Indicação da loja nos cartões: só o nome e a distância ("3.5 km", quando a API a calculou).
+// Indicação da loja nos cartões: só o nome e a distância ("3,5 km", quando a API a calculou).
 // Nunca endereço nem nada que sugira preço por loja: o preço é da rede.
-const textoDistancia = (km) => (typeof km === "number" ? `${km.toFixed(1)} km` : null);
+const textoDistancia = (km) =>
+  typeof km === "number"
+    ? `${km.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`
+    : null;
 const tituloDaLoja = (filial, km) => [filial.nomeFilial, textoDistancia(km)].filter(Boolean).join(" • ");
 
 // Extrai o preço do produto para uma rede específica

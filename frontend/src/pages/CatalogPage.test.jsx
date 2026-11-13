@@ -29,7 +29,10 @@ jest.mock('../services', () => ({
 
 // O catálogo usa useLocalizacao, que lê useAuth. Aqui não há AuthProvider: o mock (função simples,
 // para sobreviver ao resetAllMocks) deixa o usuário logado, de modo que SÓ a flag
-// LOJAS_PROXIMAS_ATIVO (desligada) impeça as chamadas de lojas.
+// LOJAS_PROXIMAS_ATIVO (fixada em false abaixo) impeça as chamadas de lojas. O cenário com a flag
+// ligada está em CatalogPage.lojasProximas.test.jsx; fixar aqui mantém este arquivo independente
+// do valor real da flag em config/recursos.js.
+jest.mock('../config/recursos', () => ({ LOJAS_PROXIMAS_ATIVO: false }))
 jest.mock('../hooks/useAuth', () => ({
   useAuth: () => ({ isAuthenticated: true, user: { email: 'ana@exemplo.com' } }),
 }))

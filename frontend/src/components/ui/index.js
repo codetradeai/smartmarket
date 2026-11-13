@@ -12,4 +12,5 @@ export * from "./SearchSuggest"
 export * from "./RadarColeta"
 export * from "./MarqueeRedes"
 export { default as SeletorCepRaio } from "./SeletorCepRaio"
+export { default as AvisoServidorAcordando } from "./AvisoServidorAcordando"
 

@@ -37,6 +37,24 @@ function armazenamentos() {
   return lista
 }
 
+// Chaves do seletor de CEP antigo, que guardava o CEP (dado pessoal) no navegador. Hoje o CEP vive
+// so na conta (API): nada as le nem as grava, mas navegadores que usaram aquela versao ainda as tem.
+const CHAVES_LEGADAS_DE_LOCALIZACAO = ["sm_user_cep", "sm_user_raio_km"]
+
+/**
+ * Apaga do navegador o CEP e o raio guardados pela versao antiga. Nao lanca se o localStorage
+ * falhar e nao mexe em nenhuma outra chave.
+ */
+export function removerChavesLegadasDeLocalizacao() {
+  CHAVES_LEGADAS_DE_LOCALIZACAO.forEach((chave) => {
+    try {
+      localStorage.removeItem(chave)
+    } catch {
+      // sem localStorage: nao ha o que apagar
+    }
+  })
+}
+
 export function normalizarDono(email) {
   return typeof email === "string" ? email.trim().toLowerCase() : ""
 }
@@ -114,6 +132,9 @@ function restaurar(dono) {
  * token nem usuario (quem chama decide). Sem dono identificavel, nao faz nada.
  */
 export function guardarDadosPrivados() {
+  // Logout, 401 e sessao vencida passam por aqui: o CEP da versao antiga sai do navegador junto,
+  // mesmo quando nao ha dono identificavel (por isso vem antes do retorno antecipado).
+  removerChavesLegadasDeLocalizacao()
   const dono = donoAtual()
   if (!dono) return
   arquivar(dono)

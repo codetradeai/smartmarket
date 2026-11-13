@@ -237,17 +237,23 @@
    >           count(l.id) FILTER (WHERE l.latitude IS NULL OR l.longitude IS NULL) AS sem_coordenadas
    >    FROM mercado m LEFT JOIN loja l ON l.mercado_id = m.id AND l.codigo_externo <> 'padrao'
    >    WHERE m.id IN (1, 3, 6) GROUP BY m.id, m.nome ORDER BY m.id;
-   >    -- esperado: Fort 7, Asun 36, Zaffari 39 (82 no total); 5 sem coordenadas (as 2 sem CEP e 3 CEPs que as APIs não acharam)
+   >    -- esperado: Fort 7 (7 com coordenadas), Asun 36 (33 com), Zaffari 39 (35 com): 82 lojas, 75 com coordenadas, 7 sem
+   >    -- (Asun Guaíba, Asun Noiva do Mar, Asun Xangri-lá 2, Hipermercado Zaffari Otto Niemeyer, Zaffari Fernando Machado,
+   >    --  Zaffari Ipanema e Zaffari Hípica: sem coordenada confiável, então ficam sem distância)
    >    SELECT count(*) FROM loja WHERE codigo_externo = 'padrao';   -- continua 1 por mercado (8)
    >    SELECT count(*) FROM preco_loja;                              -- igual ao de antes (o 08 não toca em preço)
    >    ```
    > 5. **Desfazer:** restaure a branch de backup do Neon (Restore no console); isso apaga o que foi gravado
    >    depois do backup. Só apague a branch de backup depois de conferir tudo.
    >
-   > ⚠️ **Coordenadas por CEP são aproximadas.** A BrasilAPI devolve, para muitos CEPs, o centro do bairro ou
-   > da cidade, então várias lojas da mesma cidade ficam com a mesma coordenada (todas as de Porto Alegre
-   > nessa fonte, por exemplo). O raio por loja só distingue cidades, não bairros, até as coordenadas serem
-   > refinadas. Veja `docs/PESQUISA-FILIAIS.md`.
+   > **Origem das coordenadas.** As coordenadas das lojas vêm do endereço, pelo Nominatim (OpenStreetMap):
+   > *coordenadas © colaboradores do OpenStreetMap, via Nominatim* (licença ODbL). A geocodificação só aceita o
+   > resultado quando a cidade devolvida é a da loja e **anula** (deixa `NULL`, a loja fica sem distância) as lojas
+   > de uma mesma rede que terminarem no mesmo ponto: melhor sem distância do que distância errada. Duas lojas
+   > da Asun ainda usam a coordenada do CEP (centro da cidade, menos precisa): Asun Osório e Asun Xangri-lá.
+   > Como gerar de novo: `python scraper/geocodificar_lojas.py --por-endereco` e depois
+   > `python scraper/gerar_sql_lojas.py`. O ritmo é de uma chamada a cada 2 s, com User-Agent identificado, e
+   > para no primeiro 403/429/503. Veja `docs/PESQUISA-FILIAIS.md`.
 
    > ⚠️ **Passo manual — rodar UMA vez no Neon (banco que já recebeu o `03_carga.sql`)**:
    > `05_corrige_nome_normalizado.sql`. A carga original gravou `nome_normalizado` só em

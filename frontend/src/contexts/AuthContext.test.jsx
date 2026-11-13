@@ -69,6 +69,29 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('nome')).toHaveTextContent('Ana')
     })
 
+    it('na carga do app, com sessão válida, apaga o CEP guardado pela versão antiga e mantém a sessão e o raio', () => {
+      localStorage.setItem(TOKEN_KEY, jwtValido)
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem('sm_user_raio_km', '15')
+      localStorage.setItem('sm_raio_lojas_km', '5')
+
+      renderizar()
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+      expect(localStorage.getItem('sm_user_raio_km')).toBeNull()
+      expect(localStorage.getItem('sm_raio_lojas_km')).toBe('5')
+      expect(screen.getByTestId('autenticado')).toHaveTextContent('true')
+    })
+
+    it('na carga do app, sem sessão, também apaga o CEP legado', () => {
+      localStorage.setItem('sm_user_cep', '90010-000')
+
+      renderizar()
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+    })
+
     it('descarta token expirado e limpa o que estava guardado', () => {
       localStorage.setItem(TOKEN_KEY, jwtExpirado)
       localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
@@ -459,6 +482,24 @@ describe('AuthProvider', () => {
       expect(localStorage.getItem('sm_fav_markets:ana@email.com')).toBe('["3"]')
       expect(localStorage.getItem('sm_price_alerts:ana@email.com')).toBe('{"1":10}')
       expect(sessionStorage.getItem('sm_list:ana@email.com')).toBe('{"itens":[]}')
+    })
+
+    it('o logout apaga o CEP e o raio guardados pela versão antiga, e mantém o raio atual', () => {
+      localStorage.setItem(TOKEN_KEY, jwtValido)
+      localStorage.setItem(USER_KEY, JSON.stringify(usuarioSalvo))
+      renderizar()
+      // Aparece depois da carga (ex.: outra aba ainda na versão antiga).
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem('sm_user_raio_km', '15')
+      localStorage.setItem('sm_raio_lojas_km', '5')
+
+      act(() => {
+        capturado.atual.logout()
+      })
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+      expect(localStorage.getItem('sm_user_raio_km')).toBeNull()
+      expect(localStorage.getItem('sm_raio_lojas_km')).toBe('5')
     })
 
     it('encerra a sessao mesmo se o localStorage lancar erro', () => {

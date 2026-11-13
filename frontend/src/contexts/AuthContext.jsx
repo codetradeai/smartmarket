@@ -1,6 +1,11 @@
 import { createContext, useState, useMemo, useCallback } from "react"
 import authService from "../services/authService"
-import { CHAVES, ativarDadosDoUsuario, guardarDadosPrivados } from "../services/storageKeys"
+import {
+  CHAVES,
+  ativarDadosDoUsuario,
+  guardarDadosPrivados,
+  removerChavesLegadasDeLocalizacao,
+} from "../services/storageKeys"
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext(null)
@@ -39,6 +44,8 @@ function isTokenValid(token) {
 }
 
 function getStoredToken() {
+  // Carga do app: o CEP que a versão antiga deixou no navegador sai agora (hoje o CEP vive na conta).
+  removerChavesLegadasDeLocalizacao()
   try {
     const storedToken = localStorage.getItem(TOKEN_KEY)
     if (storedToken && isTokenValid(storedToken)) {

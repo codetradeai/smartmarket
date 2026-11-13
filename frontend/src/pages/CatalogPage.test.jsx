@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import CatalogPage from './CatalogPage'
 import { produtoService, mercadoService, favoritoService } from '../services'
+import lojaService from '../services/lojaService'
 import { PRODUCTS } from '../data'
 import { carregarProdutos } from '../utils/carregarProdutos'
 
@@ -23,6 +24,23 @@ jest.mock('../services', () => ({
     desfavoritarMercado: jest.fn(),
     favoritarProduto: jest.fn(),
     desfavoritarProduto: jest.fn(),
+  },
+}))
+
+// O catálogo usa useLocalizacao, que lê useAuth. Aqui não há AuthProvider: o mock (função simples,
+// para sobreviver ao resetAllMocks) deixa o usuário logado, de modo que SÓ a flag
+// LOJAS_PROXIMAS_ATIVO (desligada) impeça as chamadas de lojas.
+jest.mock('../hooks/useAuth', () => ({
+  useAuth: () => ({ isAuthenticated: true, user: { email: 'ana@exemplo.com' } }),
+}))
+jest.mock('../services/lojaService', () => ({
+  __esModule: true,
+  default: {
+    obterLocalizacao: jest.fn(),
+    lojasProximas: jest.fn(),
+    trocarCep: jest.fn(),
+    excluirLocalizacao: jest.fn(),
+    definirLojaPreferida: jest.fn(),
   },
 }))
 
@@ -91,6 +109,15 @@ describe('CatalogPage', () => {
       expect(screen.queryByRole('button', { name: 'Cachoeirinha' })).not.toBeInTheDocument()
       expect(screen.queryByText(/Até \d+ km/)).not.toBeInTheDocument()
       expect(screen.queryByText('📍')).not.toBeInTheDocument()
+    })
+
+    it('com o usuário logado e a flag desligada, o seletor não aparece e lojaService não é chamado', async () => {
+      await renderizar({}, { grade: true })
+
+      expect(screen.queryByText(/Informe seu CEP/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Carregando sua localização/)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText('Raio')).not.toBeInTheDocument()
+      Object.values(lojaService).forEach((chamada) => expect(chamada).not.toHaveBeenCalled())
     })
   })
 

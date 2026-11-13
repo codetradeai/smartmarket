@@ -1,218 +1,275 @@
-import { useState, useEffect } from "react";
-import { resolverCoordenadasCep, resolverCoordenadasCepSync } from "../../utils/proximidadeFiliais";
+import { useEffect, useId, useRef, useState } from "react";
+import { cepValido, mascararCep } from "../../utils/cep";
+import { mensagemDeErro } from "../../utils/mensagemDeErro";
+import { OPCOES_RAIO, RAIO_PADRAO, normalizarRaio } from "../../utils/raioLojas";
 
-const CIDADES_RAPIDAS = [
-  { nome: "Cachoeirinha", cep: "94910-000" },
-  { nome: "Porto Alegre", cep: "90010-000" },
-  { nome: "Canoas", cep: "92010-011" },
-  { nome: "Gravataí", cep: "94010-001" },
-];
+const ROTULOS_RAIO = {
+  3: "Até 3 km",
+  5: "Até 5 km",
+  10: "Até 10 km",
+  20: "Até 20 km",
+  todos: "Todas as distâncias",
+};
 
-const OPCOES_RAIO = [
-  { label: "Até 3 km", valor: 3 },
-  { label: "Até 5 km", valor: 5 },
-  { label: "Até 10 km", valor: 10 },
-  { label: "Até 20 km", valor: 20 },
-  { label: "Todas as distâncias", valor: "todos" },
-];
+const botaoSecundario =
+  "px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-brand-green text-brand-navy text-xs font-bold transition-all shadow-2xs cursor-pointer";
+const botaoPrimario =
+  "px-3 py-1.5 bg-brand-green text-white text-xs font-bold rounded-xl hover:bg-brand-green-hover transition-colors shadow-xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed";
+const botaoPerigo =
+  "px-3 py-1.5 bg-brand-error text-white text-xs font-bold rounded-xl hover:opacity-90 transition-opacity shadow-xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed";
+const botaoTexto =
+  "px-3 py-1.5 text-xs text-brand-muted hover:text-brand-navy font-bold cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed";
+const painelAbaixo = "mt-3 pt-3 border-t border-emerald-200/50";
 
-export function SeletorCepRaio({ onFiltroChange, className = "" }) {
-  const [cep, setCep] = useState(() => {
-    try {
-      return localStorage.getItem("sm_user_cep") || "94910-000";
-    } catch {
-      return "94910-000";
-    }
-  });
+/**
+ * Cartão de localização do catálogo: mostra o CEP do usuário, deixa trocá-lo ou removê-lo e escolher
+ * o raio das lojas. É só apresentação: quem busca e grava os dados (hook useLocalizacao) é o pai.
+ */
+export function SeletorCepRaio({
+  localizacao = null,
+  carregando = false,
+  erro = null,
+  raioKm = RAIO_PADRAO,
+  onMudarRaio,
+  onTrocarCep,
+  onExcluir,
+  className = "",
+}) {
+  const idCampoCep = useId();
+  const idAlerta = useId();
+  const idRaio = useId();
+  // "ver" (só o cartão), "editando" (formulário de CEP) ou "removendo" (confirmação): um por vez.
+  const [modo, setModo] = useState("ver");
+  const [cepDigitado, setCepDigitado] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [alerta, setAlerta] = useState(null);
+  // Para onde o foco do teclado deve ir depois da próxima mudança de modo ("campo", "cancelar" ou
+  // "abrir"). Fica pendente até o elemento existir; null = nada a fazer (ex.: ao montar o cartão).
+  const focoPedido = useRef(null);
+  const refCampoCep = useRef(null);
+  const refCancelarRemocao = useRef(null);
+  const refAbrirFormulario = useRef(null);
 
-  const [raioKm, setRaioKm] = useState(() => {
-    try {
-      const salvo = localStorage.getItem("sm_user_raio_km");
-      return salvo ? (salvo === "todos" ? "todos" : Number(salvo)) : 15;
-    } catch {
-      return 15;
-    }
-  });
-
-  const [geoInfo, setGeoInfo] = useState(() => resolverCoordenadasCepSync(cep));
-  const [isEditando, setIsEditando] = useState(false);
-  const [inputValor, setInputValor] = useState(cep);
-  const [carregando, setCarregando] = useState(false);
-
-  // Notifica pai na montagem e em alterações
   useEffect(() => {
-    async function atualizarGeo() {
-      setCarregando(true);
-      try {
-        const info = await resolverCoordenadasCep(cep);
-        setGeoInfo(info);
-        if (onFiltroChange) {
-          onFiltroChange({
-            cep,
-            raioKm,
-            cidade: info.cidade,
-            lat: info.lat,
-            lon: info.lon,
-          });
-        }
-      } catch {
-        const syncFallback = resolverCoordenadasCepSync(cep);
-        setGeoInfo(syncFallback);
-        if (onFiltroChange) {
-          onFiltroChange({
-            cep,
-            raioKm,
-            cidade: syncFallback.cidade,
-            lat: syncFallback.lat,
-            lon: syncFallback.lon,
-          });
-        }
-      } finally {
-        setCarregando(false);
-      }
+    const alvo = { campo: refCampoCep, cancelar: refCancelarRemocao, abrir: refAbrirFormulario }[focoPedido.current];
+    if (alvo?.current) {
+      alvo.current.focus();
+      focoPedido.current = null;
     }
-    atualizarGeo();
-  }, [cep, raioKm, onFiltroChange]);
+  });
 
-  function aplicarCep(novoCep) {
-    const limpo = String(novoCep).replace(/\D/g, "");
-    if (limpo.length === 8) {
-      const formatado = `${limpo.slice(0, 5)}-${limpo.slice(5)}`;
-      setCep(formatado);
-      setInputValor(formatado);
-      try {
-        localStorage.setItem("sm_user_cep", formatado);
-      } catch {
-        // fallback
-      }
-      setIsEditando(false);
-    }
+  const cep = typeof localizacao?.cep === "string" ? localizacao.cep.trim() : "";
+  const temCep = cep !== "";
+  const resolvida = temCep && localizacao.resolvida === true;
+  const lugar = [localizacao?.cidade, localizacao?.uf].filter(Boolean).join("/") || "você";
+
+  function irPara(novoModo) {
+    focoPedido.current = { editando: "campo", removendo: "cancelar", ver: "abrir" }[novoModo];
+    setModo(novoModo);
+    setCepDigitado("");
+    setAlerta(null);
   }
 
-  function handleSalvarManual(e) {
-    e.preventDefault();
-    aplicarCep(inputValor);
+  function digitarCep(evento) {
+    setCepDigitado(mascararCep(evento.target.value));
+    setAlerta(null);
   }
 
-  function handleMudarRaio(e) {
-    const val = e.target.value === "todos" ? "todos" : Number(e.target.value);
-    setRaioKm(val);
+  // Roda a ação do pai: sucesso volta ao cartão; falha mantém o painel aberto com a mensagem.
+  async function executar(acao, mensagemPadrao) {
+    setEnviando(true);
+    setAlerta(null);
     try {
-      localStorage.setItem("sm_user_raio_km", String(val));
-    } catch {
-      // fallback
+      await acao();
+      irPara("ver");
+    } catch (falha) {
+      setAlerta(mensagemDeErro(falha, mensagemPadrao));
+    } finally {
+      setEnviando(false);
     }
   }
+
+  function salvarCep(evento) {
+    evento.preventDefault();
+    if (!cepValido(cepDigitado)) {
+      setAlerta("Digite um CEP com 8 dígitos.");
+      return;
+    }
+    return executar(() => onTrocarCep?.(mascararCep(cepDigitado)), "Não foi possível alterar o CEP.");
+  }
+
+  function removerLocalizacao() {
+    return executar(() => onExcluir?.(), "Não foi possível remover a localização.");
+  }
+
+  const mostrarAcoes = !carregando && modo === "ver";
+  const mostrarRaio = !carregando && resolvida;
 
   return (
     <div className={`bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3 sm:p-4 text-brand-navy ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Bloco 1: Localização Atual */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center shrink-0 font-bold text-base shadow-xs">
+          <div
+            aria-hidden="true"
+            className="w-9 h-9 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center shrink-0 font-bold text-base shadow-xs"
+          >
             📍
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-black text-brand-navy tracking-tight">
-                Filiais próximas a {geoInfo.cidade || "Cachoeirinha"}
-              </span>
-              <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-slate-600">
-                CEP: {cep}
-              </span>
-              {carregando && (
-                <span className="text-[10px] text-brand-muted animate-pulse font-bold">
-                  localizando...
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-brand-muted truncate mt-0.5">
-              Preços e unidades ordenados pela sua distância física real
-            </p>
+            {carregando && (
+              <p role="status" className="text-xs font-black text-brand-navy tracking-tight">
+                Carregando sua localização…
+              </p>
+            )}
+            {!carregando && !temCep && erro && (
+              <p role="status" className="text-xs font-black text-brand-navy tracking-tight">
+                Não foi possível carregar sua localização agora. O catálogo continua funcionando.
+              </p>
+            )}
+            {!carregando && !temCep && !erro && (
+              <p className="text-xs font-black text-brand-navy tracking-tight">
+                Informe seu CEP para ver a loja mais próxima de cada rede.
+              </p>
+            )}
+            {!carregando && temCep && (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {resolvida && (
+                    <span className="text-xs font-black text-brand-navy tracking-tight">{`Lojas perto de ${lugar}`}</span>
+                  )}
+                  <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-slate-600">
+                    {`CEP: ${mascararCep(cep)}`}
+                  </span>
+                </div>
+                {!resolvida && (
+                  <p className="text-[11px] text-brand-muted mt-0.5">
+                    Não conseguimos localizar esse CEP; mostrando as lojas padrão.
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Bloco 2: Controles de CEP e Raio */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Botão de Alterar CEP */}
-          {isEditando ? (
-            <form onSubmit={handleSalvarManual} className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={inputValor}
-                onChange={(e) => setInputValor(e.target.value)}
-                placeholder="Ex: 94910-000"
-                maxLength={9}
-                className="w-28 px-2.5 py-1.5 bg-white border border-brand-green rounded-xl text-xs font-mono font-bold text-brand-navy focus:outline-none shadow-2xs"
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="px-2.5 py-1.5 bg-brand-green text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-xs cursor-pointer"
-              >
-                OK
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditando(false)}
-                className="px-2 py-1.5 text-xs text-slate-400 hover:text-slate-600 font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsEditando(true)}
-              className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-brand-green text-brand-navy text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1"
-            >
-              <span>Alterar CEP</span>
-            </button>
-          )}
-
-          {/* Seletor de Raio Máximo */}
-          <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
-            <span className="text-[11px] text-brand-muted font-bold whitespace-nowrap">
-              Raio:
-            </span>
-            <select
-              value={raioKm}
-              onChange={handleMudarRaio}
-              className="bg-transparent text-xs font-extrabold text-brand-green focus:outline-none cursor-pointer"
-            >
-              {OPCOES_RAIO.map((op) => (
-                <option key={op.valor} value={op.valor}>
-                  {op.label}
-                </option>
-              ))}
-            </select>
+        {(mostrarAcoes || mostrarRaio) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {mostrarAcoes && (
+              <>
+                <button
+                  ref={refAbrirFormulario}
+                  type="button"
+                  onClick={() => irPara("editando")}
+                  className={botaoSecundario}
+                >
+                  {temCep ? "Alterar CEP" : "Informar CEP"}
+                </button>
+                {temCep && (
+                  <button type="button" onClick={() => irPara("removendo")} className={botaoSecundario}>
+                    Remover minha localização
+                  </button>
+                )}
+              </>
+            )}
+            {mostrarRaio && (
+              <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 shadow-2xs">
+                <label htmlFor={idRaio} className="text-[11px] text-brand-muted font-bold whitespace-nowrap">
+                  Raio
+                </label>
+                <select
+                  id={idRaio}
+                  value={normalizarRaio(raioKm)}
+                  onChange={(evento) => onMudarRaio?.(normalizarRaio(evento.target.value))}
+                  className="bg-transparent text-xs font-extrabold text-brand-green focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green rounded cursor-pointer"
+                >
+                  {OPCOES_RAIO.map((valor) => (
+                    <option key={valor} value={valor}>
+                      {ROTULOS_RAIO[valor]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Atalhos Rápidos de Cidades Metropolitanas */}
-      <div className="flex items-center gap-1.5 pt-2.5 mt-2.5 border-t border-emerald-200/50 flex-wrap">
-        <span className="text-[10px] text-brand-muted font-bold uppercase tracking-wider mr-1">
-          Atalhos rápidos:
-        </span>
-        {CIDADES_RAPIDAS.map((c) => (
-          <button
-            key={c.nome}
-            type="button"
-            onClick={() => aplicarCep(c.cep)}
-            className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
-              cep === c.cep
-                ? "bg-brand-green text-white border-brand-green shadow-xs"
-                : "bg-white/90 text-slate-600 border-emerald-200/70 hover:border-brand-green hover:text-brand-green"
-            }`}
-          >
-            {c.nome}
+      {mostrarRaio && (
+        <p className="text-[11px] text-brand-muted mt-2">Lojas sem distância calculada continuam aparecendo.</p>
+      )}
+
+      {!carregando && modo === "editando" && (
+        <form onSubmit={salvarCep} noValidate className={`flex flex-wrap items-end gap-2 ${painelAbaixo}`}>
+          <div className="flex flex-col gap-1">
+            <label htmlFor={idCampoCep} className="text-[11px] font-bold text-brand-muted">
+              CEP
+            </label>
+            <input
+              ref={refCampoCep}
+              id={idCampoCep}
+              type="text"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              maxLength={9}
+              placeholder="00000-000"
+              value={cepDigitado}
+              onChange={digitarCep}
+              aria-invalid={alerta ? "true" : undefined}
+              aria-describedby={alerta ? idAlerta : undefined}
+              className="w-32 px-2.5 py-1.5 bg-white border border-brand-green rounded-xl text-xs font-mono font-bold text-brand-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green shadow-2xs"
+            />
+          </div>
+          <button type="submit" disabled={enviando} className={botaoPrimario}>
+            {enviando ? "Salvando…" : "Salvar"}
           </button>
-        ))}
-      </div>
+          <button type="button" onClick={() => irPara("ver")} disabled={enviando} className={botaoTexto}>
+            Cancelar
+          </button>
+          {alerta && <Alerta id={idAlerta}>{alerta}</Alerta>}
+        </form>
+      )}
+
+      {!carregando && modo === "removendo" && (
+        <div role="group" aria-label="Remover localização" className={`flex flex-col gap-2 ${painelAbaixo}`}>
+          <p className="text-xs text-brand-navy">
+            Usamos seu CEP só para indicar a loja mais próxima de cada rede. Ao remover, apagamos o CEP, a cidade e as
+            coordenadas da sua conta.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={removerLocalizacao} disabled={enviando} className={botaoPerigo}>
+              {enviando ? "Removendo…" : "Remover"}
+            </button>
+            <button
+              ref={refCancelarRemocao}
+              type="button"
+              onClick={() => irPara("ver")}
+              disabled={enviando}
+              className={botaoTexto}
+            >
+              Cancelar
+            </button>
+          </div>
+          {alerta && <Alerta>{alerta}</Alerta>}
+        </div>
+      )}
+
+      <p className="text-[11px] text-brand-muted mt-2.5 pt-2.5 border-t border-emerald-200/50">
+        O preço é o mesmo em toda a rede. A loja mais próxima aparece só como referência.
+      </p>
     </div>
   );
 }
 
-export default SeletorCepRaio;
+// Mensagem de erro de uma ação, em caixa branca para manter o contraste do texto vermelho.
+function Alerta({ id, children }) {
+  return (
+    <p
+      id={id}
+      role="alert"
+      className="w-full rounded-lg bg-white border border-red-200 px-2.5 py-1.5 text-xs font-semibold text-brand-error"
+    >
+      {children}
+    </p>
+  );
+}
 
+export default SeletorCepRaio;

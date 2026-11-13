@@ -4,6 +4,7 @@ import {
   chaveDoDono,
   guardarDadosPrivados,
   normalizarDono,
+  removerChavesLegadasDeLocalizacao,
 } from './storageKeys'
 
 // Dados privados vivem nas chaves "ativas" (as que as paginas leem). Ao encerrar a sessao eles
@@ -94,6 +95,28 @@ describe('storageKeys', () => {
       expect(sessionStorage.getItem('sm_list')).toBe('{"itens":[1]}')
     })
 
+    it('no logout, apaga também o CEP e o raio guardados pela versão antiga', () => {
+      localStorage.setItem(CHAVES.owner, 'ana@email.com')
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem('sm_user_raio_km', '15')
+      localStorage.setItem(CHAVES.raioLojas, '5')
+
+      guardarDadosPrivados()
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+      expect(localStorage.getItem('sm_user_raio_km')).toBeNull()
+      expect(localStorage.getItem('sm_user_cep:ana@email.com')).toBeNull()
+      expect(localStorage.getItem(CHAVES.raioLojas)).toBe('5')
+    })
+
+    it('mesmo sem dono identificável, apaga o CEP legado', () => {
+      localStorage.setItem('sm_user_cep', '90010-000')
+
+      guardarDadosPrivados()
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+    })
+
     it('funciona sem lancar erro quando o armazenamento esta vazio', () => {
       expect(() => guardarDadosPrivados()).not.toThrow()
       localStorage.setItem(CHAVES.owner, 'ana@email.com')
@@ -112,6 +135,63 @@ describe('storageKeys', () => {
       expect(() => guardarDadosPrivados()).not.toThrow()
 
       expect(localStorage.getItem('sm_fav_products')).toBe('["1"]')
+    })
+  })
+
+  describe('removerChavesLegadasDeLocalizacao', () => {
+    // O seletor antigo guardava o CEP e o raio no navegador; hoje o CEP vive só na conta.
+    it('remove sm_user_cep e sm_user_raio_km', () => {
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem('sm_user_raio_km', '15')
+
+      removerChavesLegadasDeLocalizacao()
+
+      expect(localStorage.getItem('sm_user_cep')).toBeNull()
+      expect(localStorage.getItem('sm_user_raio_km')).toBeNull()
+    })
+
+    it('não mexe em nenhuma outra chave', () => {
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem(CHAVES.token, 'abc123')
+      localStorage.setItem(CHAVES.raioLojas, '5')
+      localStorage.setItem(CHAVES.favProducts, '["1"]')
+      localStorage.setItem('sm_user_cep_outro', 'x')
+
+      removerChavesLegadasDeLocalizacao()
+
+      expect(localStorage.getItem(CHAVES.token)).toBe('abc123')
+      expect(localStorage.getItem('sm_raio_lojas_km')).toBe('5')
+      expect(localStorage.getItem('sm_fav_products')).toBe('["1"]')
+      expect(localStorage.getItem('sm_user_cep_outro')).toBe('x')
+    })
+
+    it('chamar duas vezes, ou sem nada para apagar, não dá erro', () => {
+      expect(() => removerChavesLegadasDeLocalizacao()).not.toThrow()
+      localStorage.setItem('sm_user_cep', '90010-000')
+      removerChavesLegadasDeLocalizacao()
+      expect(() => removerChavesLegadasDeLocalizacao()).not.toThrow()
+    })
+
+    it('com o localStorage lançando, não propaga o erro', () => {
+      jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('storage bloqueado')
+      })
+
+      expect(() => removerChavesLegadasDeLocalizacao()).not.toThrow()
+    })
+
+    it('se a primeira remoção falha, ainda tenta a segunda', () => {
+      localStorage.setItem('sm_user_cep', '90010-000')
+      localStorage.setItem('sm_user_raio_km', '15')
+      const removeItem = Storage.prototype.removeItem
+      jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (chave) {
+        if (chave === 'sm_user_cep') throw new Error('falhou')
+        return removeItem.call(this, chave)
+      })
+
+      removerChavesLegadasDeLocalizacao()
+
+      expect(localStorage.getItem('sm_user_raio_km')).toBeNull()
     })
   })
 

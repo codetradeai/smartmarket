@@ -12,6 +12,10 @@ jest.mock('../catalogoResumo', () => require('../test/resumoDe').resumoDe(requir
 // Flag ligada só neste arquivo; o hook de dados é trocado por um mock controlável.
 jest.mock('../config/recursos', () => ({ LOJAS_PROXIMAS_ATIVO: true }))
 jest.mock('../hooks/useLocalizacao', () => ({ useLocalizacao: jest.fn() }))
+// O catálogo também usa useLocalizacaoAtual, que lê useAuth; aqui não há AuthProvider.
+jest.mock('../hooks/useAuth', () => ({
+  useAuth: () => ({ isAuthenticated: true, user: { email: 'ana@exemplo.com' } }),
+}))
 jest.mock('../services', () => ({
   produtoService: { buscarCatalogoComPrecos: jest.fn() },
   mercadoService: { listar: jest.fn() },

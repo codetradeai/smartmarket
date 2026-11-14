@@ -7,6 +7,9 @@ import { produtoService, mercadoService, favoritoService } from "../services";
 import { ProductDetailModal, Product360HoverPreview, SeletorCepRaio, AvisoServidorAcordando } from "../components/ui";
 import { LOJAS_PROXIMAS_ATIVO } from "../config/recursos";
 import { useLocalizacao } from "../hooks/useLocalizacao";
+import { useLocalizacaoAtual } from "../hooks/useLocalizacaoAtual";
+import { OrigemDistanciaContext } from "../contexts/OrigemDistanciaContext";
+import { lojasAPartirDaPosicao } from "../utils/lojasAPartirDaPosicao";
 import { filiaisParaCartoes, redeMaisPerto } from "../utils/lojasDoCatalogo";
 import { deslocamentoParaRevelar } from "../utils/rolagemParaRevelar";
 import LojaDoCartao from "../components/LojaDoCartao";
@@ -1158,6 +1161,10 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
     trocarCep,
     excluir,
   } = useLocalizacao({ ativo: LOJAS_PROXIMAS_ATIVO });
+  // Localização atual do navegador (botão temporário, só nesta sessão): alternativa ao CEP. A posição vive
+  // só em memória e muda apenas de onde as distâncias são medidas; a escolha da loja segue a precedência
+  // (preferida, filial mais próxima, padrão) em lojasAPartirDaPosicao.
+  const localizacaoAtual = useLocalizacaoAtual({ temCep: Boolean(localizacao?.cep) });
   // Raio das lojas: preferência de tela (não pessoal) guardada no navegador. O CEP, não: vive na conta.
   const [raioKm, setRaioKm] = useState(() => {
     try {
@@ -1187,8 +1194,12 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   // formato dos cartões e indexadas pelo id da MESMA lista de redes que getProductPricing usa.
   const filiaisMaisProximas = useMemo(() => {
     if (!LOJAS_PROXIMAS_ATIVO) return SEM_FILIAIS;
-    return filiaisParaCartoes(lojas, markets, raioKm);
-  }, [lojas, markets, raioKm]);
+    const lojasDasDistancias =
+      localizacaoAtual.origem === "navegador"
+        ? lojasAPartirDaPosicao(localizacaoAtual.posicao, lojas, localizacaoAtual.filiais)
+        : lojas;
+    return filiaisParaCartoes(lojasDasDistancias, markets, raioKm);
+  }, [lojas, markets, raioKm, localizacaoAtual.origem, localizacaoAtual.posicao, localizacaoAtual.filiais]);
 
   // A rede com a loja mais perto (selo na fita de redes e frase no seletor). Nula sem distância ou com empate.
   const redeMaisPertoDaPagina = useMemo(
@@ -1402,6 +1413,7 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
   }, [filteredProducts, selectedCat]);
 
   return (
+    <OrigemDistanciaContext.Provider value={localizacaoAtual.origem}>
     <div className="flex flex-col min-h-screen bg-brand-bg text-brand-navy">
       {/* 1. TOPO FIXO E CONTROLES DE NAVEGAÇÃO */}
       <header className="bg-white border-b border-brand-border/80 sticky top-0 z-30 shadow-xs">
@@ -1529,6 +1541,15 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
                 erro={erroLocalizacao}
                 raioKm={raioKm}
                 redeMaisPerto={redeMaisPertoDaPagina}
+                origem={localizacaoAtual.origem}
+                localizacaoAtual={{
+                  suportado: localizacaoAtual.suportado,
+                  buscando: localizacaoAtual.buscando,
+                  mensagem: localizacaoAtual.mensagem,
+                  botaoOculto: localizacaoAtual.botaoOculto,
+                }}
+                onUsarLocalizacaoAtual={localizacaoAtual.usar}
+                onVoltarAoCep={localizacaoAtual.voltarAoCep}
                 onMudarRaio={mudarRaio}
                 onTrocarCep={trocarCep}
                 onExcluir={excluir}
@@ -1752,5 +1773,6 @@ function CatalogPageConteudo({ produtos: DEFAULT_PRODUCTS }) {
         onToggleFavorite={toggleFavProduct}
       />
     </div>
+    </OrigemDistanciaContext.Provider>
   );
 }

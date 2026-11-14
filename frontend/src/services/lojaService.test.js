@@ -32,6 +32,52 @@ describe('lojaService', () => {
     })
   })
 
+  describe('filiaisPublicas', () => {
+    const FILIAL = { mercadoId: 1, mercadoNome: 'Fort Atacadista', lojaId: 11, lojaNome: 'Fort Cachoeirinha', latitude: -29.95, longitude: -51.09 }
+
+    it('faz GET em /lojas/filiais com teto de 15 s, sem parâmetros nem corpo, e devolve a lista', async () => {
+      api.get.mockResolvedValue({ data: [FILIAL] })
+
+      await expect(lojaService.filiaisPublicas()).resolves.toEqual([FILIAL])
+      expect(api.get).toHaveBeenCalledTimes(1)
+      expect(api.get).toHaveBeenCalledWith('/lojas/filiais', { timeout: 15000 })
+    })
+
+    it('descarta item sem rede ou com coordenada inválida e fica com os válidos', async () => {
+      api.get.mockResolvedValue({
+        data: [
+          FILIAL,
+          { ...FILIAL, lojaId: 12, latitude: null },
+          { ...FILIAL, lojaId: 13, longitude: '-51.1' },
+          { ...FILIAL, lojaId: 14, mercadoId: null },
+          null,
+          'texto',
+        ],
+      })
+
+      await expect(lojaService.filiaisPublicas()).resolves.toEqual([FILIAL])
+    })
+
+    it.each([
+      ['objeto', { erro: 'x' }],
+      ['texto', 'nada'],
+      ['nulo', null],
+      ['indefinido', undefined],
+    ])('devolve lista vazia quando o corpo é %s (não é array)', async (_rotulo, corpo) => {
+      api.get.mockResolvedValue({ data: corpo })
+
+      await expect(lojaService.filiaisPublicas()).resolves.toEqual([])
+    })
+
+    it('a falha (429, 5xx, rede, tempo esgotado) sobe como veio, sem tentar de novo', async () => {
+      const falha = Object.assign(new Error('Too Many Requests'), { response: { status: 429 } })
+      api.get.mockRejectedValue(falha)
+
+      await expect(lojaService.filiaisPublicas()).rejects.toBe(falha)
+      expect(api.get).toHaveBeenCalledTimes(1)
+    })
+  })
+
   describe('obterLocalizacao', () => {
     it('faz GET em /usuarios/me/localizacao e devolve o corpo', async () => {
       const localizacao = { cep: '90010000', cidade: 'Porto Alegre', uf: 'RS' }

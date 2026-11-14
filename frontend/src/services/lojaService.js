@@ -1,5 +1,8 @@
 import api from "./api"
 
+// Teto da lista pública de filiais: bem menor que o do restante da API (que cobre o cold start do Render).
+const TEMPO_LIMITE_FILIAIS_MS = 15000
+
 export const lojaService = {
   /**
    * Lojas que atendem o usuário a partir do CEP cadastrado: vem uma loja por rede
@@ -8,6 +11,26 @@ export const lojaService = {
   async lojasProximas() {
     const response = await api.get("/lojas/proximas")
     return Array.isArray(response.data) ? response.data : []
+  },
+
+  /**
+   * Filiais por rede com coordenadas (público, sem login), para calcular a distância no navegador a partir
+   * da posição do usuário sem enviá-la a lugar nenhum. A chamada não leva parâmetro nem corpo, tem teto
+   * próprio de 15 s e não tenta de novo: quem chama decide o que fazer com a falha (429, 5xx, rede, tempo).
+   * Itens sem rede ou sem as duas coordenadas numéricas são descartados.
+   */
+  async filiaisPublicas() {
+    const response = await api.get("/lojas/filiais", { timeout: TEMPO_LIMITE_FILIAIS_MS })
+    if (!Array.isArray(response.data)) return []
+    return response.data.filter(
+      (filial) =>
+        filial != null &&
+        filial.mercadoId != null &&
+        typeof filial.latitude === "number" &&
+        Number.isFinite(filial.latitude) &&
+        typeof filial.longitude === "number" &&
+        Number.isFinite(filial.longitude),
+    )
   },
 
   /**

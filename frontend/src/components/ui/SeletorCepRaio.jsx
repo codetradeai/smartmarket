@@ -60,6 +60,17 @@ export function SeletorCepRaio({
   const refCampoCep = useRef(null);
   const refCancelarRemocao = useRef(null);
   const refAbrirFormulario = useRef(null);
+  const refUsarLocalizacao = useRef(null);
+  const refVoltarAoCep = useRef(null);
+  const origemAnterior = useRef(origem);
+
+  // Os dois botões da localização atual se substituem ao trocar a origem. Quem estava com o foco no
+  // botão que sumiu não pode cair no <body>: o foco vai para o botão que entrou (não ao montar o cartão).
+  useEffect(() => {
+    if (origemAnterior.current === origem) return;
+    origemAnterior.current = origem;
+    (origem === "navegador" ? refVoltarAoCep : refUsarLocalizacao).current?.focus();
+  }, [origem]);
 
   useEffect(() => {
     const alvo = { campo: refCampoCep, cancelar: refCancelarRemocao, abrir: refAbrirFormulario }[focoPedido.current];
@@ -192,16 +203,21 @@ export function SeletorCepRaio({
                   </button>
                 )}
                 {usandoNavegador && (
-                  <button type="button" onClick={() => onVoltarAoCep?.()} className={botaoSecundario}>
+                  <button ref={refVoltarAoCep} type="button" onClick={() => onVoltarAoCep?.()} className={botaoSecundario}>
                     {temCep ? "Voltar ao CEP" : "Parar de usar minha localização"}
                   </button>
                 )}
                 {!usandoNavegador && podeOferecerLocalizacao && (
+                  // aria-disabled (e não disabled) enquanto busca: o botão desabilitado perde o foco do teclado.
                   <button
+                    ref={refUsarLocalizacao}
                     type="button"
-                    onClick={() => onUsarLocalizacaoAtual?.()}
-                    disabled={localizacaoAtual.buscando === true}
-                    className={botaoSecundario}
+                    onClick={() => {
+                      if (localizacaoAtual.buscando !== true) onUsarLocalizacaoAtual?.();
+                    }}
+                    aria-disabled={localizacaoAtual.buscando === true ? "true" : undefined}
+                    aria-busy={localizacaoAtual.buscando === true ? "true" : undefined}
+                    className={`${botaoSecundario}${localizacaoAtual.buscando === true ? " opacity-60 cursor-wait" : ""}`}
                   >
                     {localizacaoAtual.buscando === true ? "Buscando sua localização…" : "Usar minha localização atual"}
                   </button>
@@ -231,10 +247,12 @@ export function SeletorCepRaio({
         )}
       </div>
 
-      {!carregando && localizacaoAtual?.mensagem && (
-        <p role="status" className="text-[11px] font-bold text-emerald-900 mt-2">
+      {/* A região de status existe antes da mensagem (leitor de tela só anuncia mudança numa região que
+          já estava no DOM) e continua depois de o botão sumir. */}
+      {!carregando && (localizacaoAtual?.suportado === true || localizacaoAtual?.mensagem) && (
+        <div role="status" className={localizacaoAtual.mensagem ? "text-[11px] font-bold text-emerald-900 mt-2" : undefined}>
           {localizacaoAtual.mensagem}
-        </p>
+        </div>
       )}
 
       {/* Logo abaixo de "Lojas perto de ...": o preço é da rede, a loja só ajuda a saber onde ir. */}

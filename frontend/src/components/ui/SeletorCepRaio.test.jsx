@@ -681,11 +681,24 @@ describe("SeletorCepRaio", () => {
       expect(screen.queryByRole("button", { name: /localização atual/ })).not.toBeInTheDocument();
     });
 
-    it("buscando: o botão fica desabilitado e diz que está buscando", () => {
-      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: { ...LOCAL, buscando: true } });
+    it("buscando: o botão diz que está buscando e fica aria-disabled (sem disabled, para não perder o foco), e o clique é ignorado", () => {
+      const onUsar = jest.fn();
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: { ...LOCAL, buscando: true }, onUsarLocalizacaoAtual: onUsar });
 
       const botao = screen.getByRole("button", { name: "Buscando sua localização…" });
-      expect(botao).toBeDisabled();
+      expect(botao).toHaveAttribute("aria-disabled", "true");
+      expect(botao).toHaveAttribute("aria-busy", "true");
+      expect(botao).not.toBeDisabled();
+      fireEvent.click(botao);
+      expect(onUsar).not.toHaveBeenCalled();
+    });
+
+    it("fora da busca o botão não é aria-disabled nem aria-busy", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+
+      const botao = screen.getByRole("button", { name: "Usar minha localização atual" });
+      expect(botao).not.toHaveAttribute("aria-disabled");
+      expect(botao).not.toHaveAttribute("aria-busy");
     });
 
     it("a mensagem de fallback aparece em role=status, mesmo depois de o botão sumir", () => {
@@ -714,10 +727,53 @@ describe("SeletorCepRaio", () => {
       expect(screen.getByRole("button", { name: "Usar minha localização atual" })).toBeInTheDocument();
     });
 
-    it("sem mensagem não há região de status", () => {
-      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+    it("a região de status já existe (vazia) antes da mensagem, e a mesma região recebe o texto depois", () => {
+      const { rerender } = renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+      const regiao = screen.getByRole("status");
+      expect(regiao).toBeEmptyDOMElement();
+
+      rerender({ localizacaoAtual: { ...LOCAL, mensagem: "Sem permissão de localização. Usando seu CEP." } });
+
+      expect(screen.getByRole("status")).toBe(regiao);
+      expect(regiao).toHaveTextContent("Sem permissão de localização. Usando seu CEP.");
+    });
+
+    it("sem o recurso (sem localizacaoAtual) não há região de status", () => {
+      renderizar({ localizacao: LOCALIZACAO });
 
       expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("sem suporte do navegador também não há região de status", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: { ...LOCAL, suportado: false } });
+
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    describe("foco ao trocar entre os botões", () => {
+      it("ao passar a usar a localização atual, o foco vai para \"Voltar ao CEP\"", () => {
+        const { rerender } = renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+        screen.getByRole("button", { name: "Usar minha localização atual" }).focus();
+
+        rerender({ origem: "navegador", onVoltarAoCep: jest.fn() });
+
+        expect(screen.getByRole("button", { name: "Voltar ao CEP" })).toHaveFocus();
+      });
+
+      it("ao voltar ao CEP, o foco vai para \"Usar minha localização atual\"", () => {
+        const { rerender } = renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL, origem: "navegador" });
+
+        rerender({ origem: "cep" });
+
+        expect(screen.getByRole("button", { name: "Usar minha localização atual" })).toHaveFocus();
+      });
+
+      it("ao montar o cartão o foco não é puxado para nenhum botão", () => {
+        renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL, origem: "navegador" });
+
+        expect(screen.getByRole("button", { name: "Voltar ao CEP" })).not.toHaveFocus();
+        expect(document.body).toHaveFocus();
+      });
     });
 
     it("não oferece o botão enquanto o painel de CEP está aberto", () => {

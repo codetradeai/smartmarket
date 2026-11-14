@@ -135,4 +135,42 @@ class LimiteFiliaisFilterTest {
 
         verify(chain, times(LIMITE * 2)).doFilter(any(), any());
     }
+
+    // --- Memoria do mapa de contadores: sem crescimento ilimitado ---
+
+    @Test
+    void entradasComAJanelaVencidaSaemDoMapaSemEsperarOTeto() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            executar(requisicao("GET", CAMINHO, "10.1.0." + i));
+        }
+        assertThat(filtro.contadoresAtivos()).isEqualTo(50);
+
+        relogio.avancar(Duration.ofSeconds(61));
+        executar(requisicao("GET", CAMINHO, "10.9.9.9"));
+
+        assertThat(filtro.contadoresAtivos()).isEqualTo(1);
+    }
+
+    @Test
+    void aLimpezaNaoApagaContadorDeJanelaAindaValida() throws Exception {
+        chamar(LIMITE, "10.0.0.1");
+        relogio.avancar(Duration.ofSeconds(30));
+        executar(requisicao("GET", CAMINHO, "10.0.0.2"));
+        relogio.avancar(Duration.ofSeconds(31)); // a do .1 venceu; a do .2 ainda vale
+        executar(requisicao("GET", CAMINHO, "10.0.0.3"));
+
+        assertThat(filtro.contadoresAtivos()).isEqualTo(2);
+    }
+
+    @Test
+    void noTetoDeDezMilEntradasOMapaEsvaziaEOsContadoresReiniciam() throws Exception {
+        chamar(LIMITE, "10.0.0.1"); // o .1 esta no limite
+        for (int i = 0; i < LimiteFiliaisFilter.TETO_DE_ENTRADAS; i++) {
+            executar(requisicao("GET", CAMINHO, "172.16." + (i / 250) + "." + (i % 250)));
+        }
+
+        assertThat(filtro.contadoresAtivos()).isLessThanOrEqualTo(LimiteFiliaisFilter.TETO_DE_ENTRADAS);
+        // O esvaziamento reiniciou os contadores: o .1, que estava no limite, volta a passar (falha aberta).
+        assertThat(executar(requisicao("GET", CAMINHO, "10.0.0.1")).getStatus()).isEqualTo(200);
+    }
 }

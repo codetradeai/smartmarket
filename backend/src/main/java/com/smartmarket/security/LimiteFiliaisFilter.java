@@ -32,6 +32,8 @@ public class LimiteFiliaisFilter extends OncePerRequestFilter {
 
     static final int MAXIMO_POR_MINUTO = 30;
     static final long JANELA_MS = 60_000L;
+    /** Teto do mapa de IPs: passou disso, o mapa é esvaziado (os contadores reiniciam, falha aberta). */
+    static final int TETO_DE_ENTRADAS = 10_000;
     private static final String CAMINHO = "/api/lojas/filiais";
 
     @Value("${security.rate-limit.enabled:true}")
@@ -49,6 +51,7 @@ public class LimiteFiliaisFilter extends OncePerRequestFilter {
 
     private final Clock clock;
     private final Map<String, Contador> contadores = new ConcurrentHashMap<>();
+    private volatile long proximaLimpezaMs;
 
     @Autowired
     public LimiteFiliaisFilter() {
@@ -72,6 +75,7 @@ public class LimiteFiliaisFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         long agora = clock.millis();
         String ip = request.getRemoteAddr();
+        limpar(agora, ip);
 
         Contador contador = contadores.compute(ip, (chave, atual) -> {
             if (atual == null || agora - atual.inicioMs >= JANELA_MS) {
@@ -92,5 +96,24 @@ public class LimiteFiliaisFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    /**
+     * Mantém o mapa pequeno sem agendador: a cada janela remove os contadores vencidos e, se ainda assim o
+     * mapa chegar ao teto com um IP novo, esvazia tudo (reinicia os contadores em vez de crescer sem fim).
+     */
+    private void limpar(long agora, String ip) {
+        if (agora >= proximaLimpezaMs) {
+            contadores.values().removeIf(c -> agora - c.inicioMs >= JANELA_MS);
+            proximaLimpezaMs = agora + JANELA_MS;
+        }
+        if (contadores.size() >= TETO_DE_ENTRADAS && !contadores.containsKey(ip)) {
+            contadores.clear();
+        }
+    }
+
+    /** Quantos IPs têm contador agora (para os testes conferirem que o mapa não cresce sem fim). */
+    int contadoresAtivos() {
+        return contadores.size();
     }
 }

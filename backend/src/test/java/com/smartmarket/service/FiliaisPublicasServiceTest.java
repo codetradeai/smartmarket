@@ -14,6 +14,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /** Filiais publicas: so lojas reais, com as duas coordenadas, de mercado ativo (o filtro e em Java). */
@@ -104,5 +106,47 @@ class FiliaisPublicasServiceTest {
         List<FilialPublicaResponse> lista = service.listar();
 
         org.junit.jupiter.api.Assertions.assertThrows(UnsupportedOperationException.class, () -> lista.add(null));
+    }
+
+    /** Relogio que o teste avanca na mao. */
+    private static final class RelogioMutavel extends Clock {
+        private Instant agora = Instant.parse("2026-11-14T12:00:00Z");
+
+        void avancar(java.time.Duration d) {
+            agora = agora.plus(d);
+        }
+
+        @Override public java.time.ZoneId getZone() { return ZoneOffset.UTC; }
+        @Override public Clock withZone(java.time.ZoneId zone) { return this; }
+        @Override public Instant instant() { return agora; }
+    }
+
+    @Test
+    void duasChamadasDentroDoTtlConsultamOBancoUmaVezSo() {
+        RelogioMutavel relogio = new RelogioMutavel();
+        FiliaisPublicasService comRelogio = new FiliaisPublicasService(lojaRepository, relogio);
+        when(lojaRepository.findAtivasComMercado()).thenReturn(List.of());
+
+        comRelogio.listar();
+        relogio.avancar(java.time.Duration.ofMinutes(9).plusSeconds(59));
+        comRelogio.listar();
+
+        verify(lojaRepository, times(1)).findAtivasComMercado();
+    }
+
+    @Test
+    void passadoOTtlDeDezMinutosConsultaDeNovoEPegaAMudanca() {
+        RelogioMutavel relogio = new RelogioMutavel();
+        FiliaisPublicasService comRelogio = new FiliaisPublicasService(lojaRepository, relogio);
+        Mercado fort = mercado(3, "Fort Atacadista");
+        when(lojaRepository.findAtivasComMercado()).thenReturn(List.of());
+        assertThat(comRelogio.listar()).isEmpty();
+
+        when(lojaRepository.findAtivasComMercado()).thenReturn(List.of(
+            loja(41, fort, "Fort Cachoeirinha", "f1", -29.95, -51.10, true)));
+        relogio.avancar(java.time.Duration.ofMinutes(10));
+
+        assertThat(comRelogio.listar()).hasSize(1);
+        verify(lojaRepository, times(2)).findAtivasComMercado();
     }
 }

@@ -24,7 +24,7 @@ describe('LojaDoCartao', () => {
       render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
 
       expect(screen.getByText('Carrefour Centro')).toBeInTheDocument()
-      expect(screen.getByText('3,5 km')).toBeInTheDocument()
+      expect(screen.getByText('≈ 3,5 km')).toBeInTheDocument()
     })
 
     it('mostra o prefixo quando ele é pedido e não mostra quando não é', () => {
@@ -68,7 +68,7 @@ describe('LojaDoCartao', () => {
       render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
 
       expect(
-        screen.getByTitle('Carrefour Centro • 3,5 km. O preço vale para toda a rede Carrefour; a loja é só referência.')
+        screen.getByTitle('Carrefour Centro • ≈ 3,5 km. O preço vale para toda a rede Carrefour; a loja é só referência.')
       ).toBeInTheDocument()
     })
 
@@ -175,7 +175,7 @@ describe('LojaDoCartao', () => {
   it('sem coordenadas o chip fica igual ao de antes, sem o link', () => {
     render(<LojaDoCartao filial={SEM_COORDENADAS} nomeRede="Carrefour" />)
 
-    expect(screen.getByText('Carrefour Centro').closest('[title]')).toHaveTextContent(/^📍\s*Carrefour Centro\s*3,5 km$/)
+    expect(screen.getByText('Carrefour Centro').closest('[title]')).toHaveTextContent(/^📍\s*Carrefour Centro\s*≈ 3,5 km\s*aproximadamente 3,5 km, em linha reta, a partir do seu CEP$/)
   })
 
   // O jsdom não faz layout: estas classes são a trava contra voltar ao chip de uma linha só, em que o
@@ -193,7 +193,7 @@ describe('LojaDoCartao', () => {
       const caixa = chip({ compacto })
 
       expect(caixa).toHaveClass('flex', 'flex-col')
-      expect(screen.getByText('3,5 km').parentElement).toHaveClass('flex', 'flex-wrap')
+      expect(screen.getByText('≈ 3,5 km').parentElement).toHaveClass('flex', 'flex-wrap')
     })
 
     it('o nome da loja é truncado só se for maior que o chip (max-w-full), e nunca encolhe a zero', () => {
@@ -219,7 +219,7 @@ describe('LojaDoCartao', () => {
     it('a distância, o preço e os links nunca encolhem (shrink-0), e os links ficam juntos, à direita', () => {
       chip({ preco: 7.9 })
 
-      expect(screen.getByText('3,5 km')).toHaveClass('shrink-0')
+      expect(screen.getByText('≈ 3,5 km')).toHaveClass('shrink-0')
       expect(screen.getByText('• R$ 7.90')).toHaveClass('shrink-0')
       const google = screen.getByRole('link', { name: /Como chegar/ })
       const waze = screen.getByRole('link', { name: /Waze/ })
@@ -227,6 +227,34 @@ describe('LojaDoCartao', () => {
       expect(waze).toHaveClass('shrink-0')
       expect(google.parentElement).toBe(waze.parentElement)
       expect(google.parentElement).toHaveClass('ml-auto', 'shrink-0')
+    })
+  })
+
+  describe('distância aproximada', () => {
+    const DICA = 'Distância em linha reta, calculada a partir do seu CEP'
+
+    it('o texto visual "≈ 3,5 km" fica escondido do leitor de tela e traz a dica no title', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+
+      const visual = screen.getByText('≈ 3,5 km')
+      expect(visual).toHaveAttribute('aria-hidden', 'true')
+      expect(visual).toHaveAttribute('title', DICA)
+      expect(screen.getByTitle(DICA)).toBe(visual)
+    })
+
+    it('ao lado entra o texto sr-only com a distância falada', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+
+      const falado = screen.getByText('aproximadamente 3,5 km, em linha reta, a partir do seu CEP')
+      expect(falado).toHaveClass('sr-only')
+      expect(falado).not.toHaveAttribute('aria-hidden')
+    })
+
+    it('sem distância não aparece "≈", dica nem texto falado', () => {
+      render(<LojaDoCartao filial={{ ...FILIAL, distanciaKm: null }} nomeRede="Carrefour" />)
+
+      expect(document.body.textContent).not.toMatch(/≈|aproximadamente/)
+      expect(screen.queryByTitle(DICA)).not.toBeInTheDocument()
     })
   })
 
@@ -241,14 +269,14 @@ describe('LojaDoCartao', () => {
     it('com distância e preço, o "•" fica entre os dois', () => {
       const linha = detalhes({ preco: 7.9 })
 
-      expect(linha.textContent).toMatch(/^3,5 km• R\$ 7\.90/)
+      expect(linha.textContent).toMatch(/^≈ 3,5 kmaproximadamente 3,5 km, em linha reta, a partir do seu CEP• R\$ 7\.90/)
       expect(linha.textContent.startsWith('•')).toBe(false)
     })
 
     it('com distância e links (sem preço), não há nenhum "•"', () => {
       const linha = detalhes()
 
-      expect(linha.textContent).toMatch(/^3,5 km/)
+      expect(linha.textContent).toMatch(/^≈ 3,5 km/)
       expect(linha.textContent).not.toMatch(/•/)
     })
 

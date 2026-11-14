@@ -41,6 +41,7 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     private final RateLimitingFilter rateLimitingFilter;
+    private final LimiteFiliaisFilter limiteFiliaisFilter;
     private final PapelDoBancoJwtConverter jwtConverter;
 
     // ---------------------------------------------------------------
@@ -66,6 +67,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .addFilterBefore(rateLimitingFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
+            .addFilterBefore(limiteFiliaisFilter, org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -80,6 +82,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/mercados/todos").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/mercados/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/precos/**").permitAll()
+                // Filiais públicas com coordenadas (só este caminho exato; /api/lojas/proximas continua com login)
+                .requestMatchers(HttpMethod.GET, "/api/lojas/filiais").permitAll()
                 // Escrita de produtos/mercados/preços restrita a ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/produtos").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/produtos/**").hasRole("ADMIN")
@@ -98,6 +102,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2
+                .bearerTokenResolver(new BearerTokenResolverFiliais())
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)));
 
         return http.build();

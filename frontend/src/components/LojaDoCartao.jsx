@@ -1,5 +1,5 @@
 import { linkComoChegar, linkWaze } from "../utils/linkComoChegar"
-import { DICA_DISTANCIA, textoDistancia, textoDistanciaFalado } from "../utils/textoDistancia"
+import { dicaDistancia, textoDistancia, textoDistanciaFalado } from "../utils/textoDistancia"
 
 const AVISO_PRECO = (rede) => `O preço vale para toda a rede ${rede}; a loja é só referência.`
 
@@ -43,8 +43,9 @@ function LinkDoMapa({ href, rotuloAcessivel, children }) {
  * - `rotulo`: texto antes do nome ("Loja de referência:", "Mais perto:"); sem ele só aparece o nome.
  * - `preco`: preço da rede (número), quando a linha também mostra o preço ("Mais perto: ... • R$ 7.90").
  * - `compacto`: versão dos cartões das prateleiras.
+ * - `origem`: de onde a distância foi medida, "cep" (padrão) ou "navegador" (posição atual); só muda a dica.
  */
-export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, preco = null, compacto = false }) {
+export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, preco = null, compacto = false, origem = "cep" }) {
   if (!filial) return null
 
   const distancia = textoDistancia(filial.distanciaKm)
@@ -76,10 +77,10 @@ export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, pre
           {distancia && (
             <>
               {/* "≈" é lido de forma inconsistente: o visual fica aria-hidden e o texto falado vai ao lado. */}
-              <span aria-hidden="true" title={DICA_DISTANCIA} className="text-emerald-700 font-extrabold shrink-0">
+              <span aria-hidden="true" title={dicaDistancia(origem)} className="text-emerald-700 font-extrabold shrink-0">
                 {distancia}
               </span>
-              <span className="sr-only">{textoDistanciaFalado(filial.distanciaKm)}</span>
+              <span className="sr-only">{textoDistanciaFalado(filial.distanciaKm, origem)}</span>
             </>
           )}
           {precoValido && (

@@ -258,6 +258,27 @@ describe('LojaDoCartao', () => {
     })
   })
 
+  describe('origem da distância', () => {
+    it('com origem "navegador" a dica e o texto falado dizem "a partir da sua localização", sem citar o CEP', () => {
+      render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" origem="navegador" />)
+
+      expect(screen.getByText('≈ 3,5 km')).toHaveAttribute(
+        'title',
+        'Distância em linha reta, calculada a partir da sua localização',
+      )
+      expect(screen.getByText('aproximadamente 3,5 km, em linha reta, a partir da sua localização')).toHaveClass('sr-only')
+      expect(document.body.textContent).not.toMatch(/CEP/)
+    })
+
+    it('sem origem (ou com "cep") continua dizendo "a partir do seu CEP"', () => {
+      const { rerender } = render(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" />)
+      expect(screen.getByText('≈ 3,5 km')).toHaveAttribute('title', 'Distância em linha reta, calculada a partir do seu CEP')
+
+      rerender(<LojaDoCartao filial={FILIAL} nomeRede="Carrefour" origem="cep" />)
+      expect(screen.getByText('aproximadamente 3,5 km, em linha reta, a partir do seu CEP')).toBeInTheDocument()
+    })
+  })
+
   describe('o "•" nunca fica solto no começo de uma linha', () => {
     // A linha de detalhes sempre começa pela distância (ou pelo preço, ou pelos links): o "•" só separa
     // a distância do preço. Assim, quando os itens quebram de linha, nenhuma linha começa com símbolo.

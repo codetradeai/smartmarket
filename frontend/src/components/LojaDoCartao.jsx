@@ -1,3 +1,5 @@
+import { useContext } from "react"
+import { OrigemDistanciaContext } from "../contexts/OrigemDistanciaContext"
 import { linkComoChegar, linkWaze } from "../utils/linkComoChegar"
 import { dicaDistancia, textoDistancia, textoDistanciaFalado } from "../utils/textoDistancia"
 
@@ -43,9 +45,12 @@ function LinkDoMapa({ href, rotuloAcessivel, children }) {
  * - `rotulo`: texto antes do nome ("Loja de referência:", "Mais perto:"); sem ele só aparece o nome.
  * - `preco`: preço da rede (número), quando a linha também mostra o preço ("Mais perto: ... • R$ 7.90").
  * - `compacto`: versão dos cartões das prateleiras.
- * - `origem`: de onde a distância foi medida, "cep" (padrão) ou "navegador" (posição atual); só muda a dica.
+ * - `origem`: de onde a distância foi medida, "cep" ou "navegador" (posição atual); só muda a dica. Sem a prop,
+ *   vale a do OrigemDistanciaContext (o catálogo a define), e sem contexto é "cep".
  */
-export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, preco = null, compacto = false, origem = "cep" }) {
+export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, preco = null, compacto = false, origem }) {
+  const origemDoContexto = useContext(OrigemDistanciaContext)
+  const origemDaDistancia = origem ?? origemDoContexto
   if (!filial) return null
 
   const distancia = textoDistancia(filial.distanciaKm)
@@ -77,10 +82,10 @@ export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, pre
           {distancia && (
             <>
               {/* "≈" é lido de forma inconsistente: o visual fica aria-hidden e o texto falado vai ao lado. */}
-              <span aria-hidden="true" title={dicaDistancia(origem)} className="text-emerald-700 font-extrabold shrink-0">
+              <span aria-hidden="true" title={dicaDistancia(origemDaDistancia)} className="text-emerald-700 font-extrabold shrink-0">
                 {distancia}
               </span>
-              <span className="sr-only">{textoDistanciaFalado(filial.distanciaKm, origem)}</span>
+              <span className="sr-only">{textoDistanciaFalado(filial.distanciaKm, origemDaDistancia)}</span>
             </>
           )}
           {precoValido && (

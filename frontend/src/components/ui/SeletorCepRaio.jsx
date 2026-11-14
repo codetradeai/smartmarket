@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { cepValido, mascararCep } from "../../utils/cep";
 import { mensagemDeErro } from "../../utils/mensagemDeErro";
 import { OPCOES_RAIO, RAIO_PADRAO, normalizarRaio } from "../../utils/raioLojas";
-import { DICA_DISTANCIA, textoDistancia, textoDistanciaFalado } from "../../utils/textoDistancia";
+import { dicaDistancia, textoDistancia, textoDistanciaFalado } from "../../utils/textoDistancia";
 
 const ROTULOS_RAIO = {
   3: "Até 3 km",
@@ -25,6 +25,11 @@ const painelAbaixo = "mt-3 pt-3 border-t border-emerald-200/50";
 /**
  * Cartão de localização do catálogo: mostra o CEP do usuário, deixa trocá-lo ou removê-lo e escolher
  * o raio das lojas. É só apresentação: quem busca e grava os dados (hook useLocalizacao) é o pai.
+ *
+ * Localização atual do navegador (botão temporário, por sessão, alternativa ao CEP; a posição nunca passa
+ * por aqui): `origem` diz de onde vêm as distâncias ("cep" ou "navegador") e `localizacaoAtual`
+ * ({ suportado, buscando, mensagem, botaoOculto }) controla o botão e a mensagem de fallback, que fica
+ * em role="status" mesmo depois de o botão sumir.
  */
 export function SeletorCepRaio({
   localizacao = null,
@@ -35,6 +40,10 @@ export function SeletorCepRaio({
   onMudarRaio,
   onTrocarCep,
   onExcluir,
+  origem = "cep",
+  localizacaoAtual = null,
+  onUsarLocalizacaoAtual,
+  onVoltarAoCep,
   className = "",
 }) {
   const idCampoCep = useId();
@@ -105,7 +114,9 @@ export function SeletorCepRaio({
   }
 
   const mostrarAcoes = !carregando && modo === "ver";
-  const mostrarRaio = !carregando && resolvida;
+  const usandoNavegador = origem === "navegador";
+  const mostrarRaio = !carregando && (resolvida || usandoNavegador);
+  const podeOferecerLocalizacao = localizacaoAtual?.suportado === true && localizacaoAtual.botaoOculto !== true;
 
   return (
     <div className={`bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-3 sm:p-4 text-brand-navy ${className}`}>
@@ -123,17 +134,27 @@ export function SeletorCepRaio({
                 Carregando sua localização…
               </p>
             )}
-            {!carregando && !temCep && erro && (
+            {!carregando && usandoNavegador && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-black text-brand-navy tracking-tight">Lojas perto da sua localização atual</span>
+                {temCep && (
+                  <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-slate-600">
+                    {`CEP: ${mascararCep(cep)}`}
+                  </span>
+                )}
+              </div>
+            )}
+            {!carregando && !usandoNavegador && !temCep && erro && (
               <p role="status" className="text-xs font-black text-brand-navy tracking-tight">
                 Não foi possível carregar sua localização agora. O catálogo continua funcionando.
               </p>
             )}
-            {!carregando && !temCep && !erro && (
+            {!carregando && !usandoNavegador && !temCep && !erro && (
               <p className="text-xs font-black text-brand-navy tracking-tight">
                 Informe seu CEP para ver a loja mais próxima de cada rede.
               </p>
             )}
-            {!carregando && temCep && (
+            {!carregando && !usandoNavegador && temCep && (
               <>
                 <div className="flex items-center gap-2 flex-wrap">
                   {resolvida && (
@@ -170,6 +191,21 @@ export function SeletorCepRaio({
                     Remover minha localização
                   </button>
                 )}
+                {usandoNavegador && (
+                  <button type="button" onClick={() => onVoltarAoCep?.()} className={botaoSecundario}>
+                    {temCep ? "Voltar ao CEP" : "Parar de usar minha localização"}
+                  </button>
+                )}
+                {!usandoNavegador && podeOferecerLocalizacao && (
+                  <button
+                    type="button"
+                    onClick={() => onUsarLocalizacaoAtual?.()}
+                    disabled={localizacaoAtual.buscando === true}
+                    className={botaoSecundario}
+                  >
+                    {localizacaoAtual.buscando === true ? "Buscando sua localização…" : "Usar minha localização atual"}
+                  </button>
+                )}
               </>
             )}
             {mostrarRaio && (
@@ -195,6 +231,12 @@ export function SeletorCepRaio({
         )}
       </div>
 
+      {!carregando && localizacaoAtual?.mensagem && (
+        <p role="status" className="text-[11px] font-bold text-emerald-900 mt-2">
+          {localizacaoAtual.mensagem}
+        </p>
+      )}
+
       {/* Logo abaixo de "Lojas perto de ...": o preço é da rede, a loja só ajuda a saber onde ir. */}
       <p className="text-[11px] text-brand-muted mt-2">
         O preço é o mesmo em toda a rede; a loja é só referência para você saber onde ir.
@@ -206,11 +248,11 @@ export function SeletorCepRaio({
           {textoDistancia(redeMaisPerto.distanciaKm) ? (
             <>
               {" ("}
-              <span aria-hidden="true" title={DICA_DISTANCIA}>
+              <span aria-hidden="true" title={dicaDistancia(origem)}>
                 {textoDistancia(redeMaisPerto.distanciaKm)}
               </span>
               {")."}
-              <span className="sr-only">{textoDistanciaFalado(redeMaisPerto.distanciaKm)}</span>
+              <span className="sr-only">{textoDistanciaFalado(redeMaisPerto.distanciaKm, origem)}</span>
             </>
           ) : (
             "."

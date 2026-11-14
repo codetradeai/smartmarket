@@ -648,4 +648,144 @@ describe("SeletorCepRaio", () => {
       });
     });
   });
+
+  describe("localização atual do navegador (botão temporário, por sessão)", () => {
+    const LOCAL = { suportado: true, buscando: false, mensagem: null, botaoOculto: false };
+    const REDE = { id: "fort", nome: "Fort Atacadista", distanciaKm: 2.5 };
+
+    it("sem a prop localizacaoAtual não há botão (comportamento de antes)", () => {
+      renderizar({ localizacao: LOCALIZACAO });
+
+      expect(screen.queryByRole("button", { name: /Usar minha localização atual/ })).not.toBeInTheDocument();
+    });
+
+    it("com suporte, mostra o botão e o clique chama onUsarLocalizacaoAtual", () => {
+      const onUsar = jest.fn();
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL, onUsarLocalizacaoAtual: onUsar });
+
+      fireEvent.click(screen.getByRole("button", { name: "Usar minha localização atual" }));
+
+      expect(onUsar).toHaveBeenCalledTimes(1);
+    });
+
+    it("quem ainda não configurou CEP também alcança o botão (ao lado de \"Informar CEP\")", () => {
+      renderizar({ localizacao: null, localizacaoAtual: LOCAL });
+
+      expect(screen.getByRole("button", { name: "Informar CEP" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Usar minha localização atual" })).toBeInTheDocument();
+    });
+
+    it("sem suporte do navegador o botão não aparece", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: { ...LOCAL, suportado: false } });
+
+      expect(screen.queryByRole("button", { name: /localização atual/ })).not.toBeInTheDocument();
+    });
+
+    it("buscando: o botão fica desabilitado e diz que está buscando", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: { ...LOCAL, buscando: true } });
+
+      const botao = screen.getByRole("button", { name: "Buscando sua localização…" });
+      expect(botao).toBeDisabled();
+    });
+
+    it("a mensagem de fallback aparece em role=status, mesmo depois de o botão sumir", () => {
+      renderizar({
+        localizacao: LOCALIZACAO,
+        localizacaoAtual: {
+          ...LOCAL,
+          botaoOculto: true,
+          mensagem: "Não foi possível usar sua localização agora. Usando seu CEP.",
+        },
+      });
+
+      expect(screen.queryByRole("button", { name: /localização atual/ })).not.toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Não foi possível usar sua localização agora. Usando seu CEP.",
+      );
+    });
+
+    it("com o botão visível, a mensagem de uma tentativa que falhou também fica em role=status", () => {
+      renderizar({
+        localizacao: LOCALIZACAO,
+        localizacaoAtual: { ...LOCAL, mensagem: "Sem permissão de localização. Usando seu CEP." },
+      });
+
+      expect(screen.getByRole("status")).toHaveTextContent("Sem permissão de localização. Usando seu CEP.");
+      expect(screen.getByRole("button", { name: "Usar minha localização atual" })).toBeInTheDocument();
+    });
+
+    it("sem mensagem não há região de status", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+
+      expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    });
+
+    it("não oferece o botão enquanto o painel de CEP está aberto", () => {
+      renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL });
+
+      fireEvent.click(screen.getByRole("button", { name: "Alterar CEP" }));
+
+      expect(screen.queryByRole("button", { name: /localização atual/ })).not.toBeInTheDocument();
+    });
+
+    describe("usando a posição do navegador (origem \"navegador\")", () => {
+      const props = { origem: "navegador", localizacaoAtual: LOCAL, redeMaisPerto: REDE };
+
+      it("diz que usa a localização atual e oferece \"Voltar ao CEP\" (com CEP)", () => {
+        const onVoltar = jest.fn();
+        renderizar({ ...props, localizacao: LOCALIZACAO, onVoltarAoCep: onVoltar });
+
+        expect(screen.getByText("Lojas perto da sua localização atual")).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Usar minha localização atual" })).not.toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Voltar ao CEP" }));
+        expect(onVoltar).toHaveBeenCalledTimes(1);
+      });
+
+      it("sem CEP configurado o botão de voltar diz \"Parar de usar minha localização\"", () => {
+        const onVoltar = jest.fn();
+        renderizar({ ...props, localizacao: null, onVoltarAoCep: onVoltar });
+
+        fireEvent.click(screen.getByRole("button", { name: "Parar de usar minha localização" }));
+
+        expect(onVoltar).toHaveBeenCalledTimes(1);
+        expect(screen.queryByRole("button", { name: "Voltar ao CEP" })).not.toBeInTheDocument();
+      });
+
+      it("mostra o raio e a rede mais perto mesmo sem CEP resolvido", () => {
+        renderizar({ ...props, localizacao: null });
+
+        expect(screen.getByLabelText("Raio")).toBeInTheDocument();
+        expect(screen.getByText(/A rede mais perto é Fort Atacadista/)).toBeInTheDocument();
+      });
+
+      it("não manda o usuário informar CEP nem diz que não achou o CEP", () => {
+        renderizar({ ...props, localizacao: { cep: "90010000", resolvida: false } });
+
+        expect(screen.queryByText(/Informe seu CEP/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Não conseguimos localizar esse CEP/)).not.toBeInTheDocument();
+      });
+
+      it("a dica e o texto falado da rede mais perto dizem \"a partir da sua localização\", sem citar o CEP", () => {
+        renderizar({ ...props, localizacao: LOCALIZACAO });
+
+        expect(screen.getByText("≈ 2,5 km")).toHaveAttribute(
+          "title",
+          "Distância em linha reta, calculada a partir da sua localização",
+        );
+        expect(
+          screen.getByText("aproximadamente 2,5 km, em linha reta, a partir da sua localização"),
+        ).toHaveClass("sr-only");
+        expect(screen.queryByTitle(/a partir do seu CEP/)).not.toBeInTheDocument();
+      });
+
+      it("a frase \"a partir do seu CEP\" volta quando a origem é o CEP", () => {
+        renderizar({ localizacao: LOCALIZACAO, localizacaoAtual: LOCAL, redeMaisPerto: REDE });
+
+        expect(screen.getByText("≈ 2,5 km")).toHaveAttribute(
+          "title",
+          "Distância em linha reta, calculada a partir do seu CEP",
+        );
+      });
+    });
+  });
 });

@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { cepValido, mascararCep } from "../../utils/cep";
 import { mensagemDeErro } from "../../utils/mensagemDeErro";
 import { OPCOES_RAIO, RAIO_PADRAO, normalizarRaio } from "../../utils/raioLojas";
-import { textoDistancia } from "../../utils/textoDistancia";
+import { DICA_DISTANCIA, textoDistancia, textoDistanciaFalado } from "../../utils/textoDistancia";
 
 const ROTULOS_RAIO = {
   3: "Até 3 km",
@@ -203,7 +203,18 @@ export function SeletorCepRaio({
       {mostrarRaio && redeMaisPerto?.nome && (
         <p className="text-[11px] font-bold text-emerald-900 mt-1">
           {`A rede mais perto é ${redeMaisPerto.nome}`}
-          {textoDistancia(redeMaisPerto.distanciaKm) ? ` (${textoDistancia(redeMaisPerto.distanciaKm)}).` : "."}
+          {textoDistancia(redeMaisPerto.distanciaKm) ? (
+            <>
+              {" ("}
+              <span aria-hidden="true" title={DICA_DISTANCIA}>
+                {textoDistancia(redeMaisPerto.distanciaKm)}
+              </span>
+              {")."}
+              <span className="sr-only">{textoDistanciaFalado(redeMaisPerto.distanciaKm)}</span>
+            </>
+          ) : (
+            "."
+          )}
         </p>
       )}
 

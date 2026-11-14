@@ -590,10 +590,22 @@ describe("SeletorCepRaio", () => {
     describe("rede mais perto", () => {
       const REDE = { id: "fort", nome: "Fort Atacadista", distanciaKm: 2.5 };
 
-      it("diz qual é a rede mais perto, com a distância em formato brasileiro", () => {
+      it("diz qual é a rede mais perto, com a distância aproximada em formato brasileiro", () => {
         renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: REDE });
 
-        expect(screen.getByText("A rede mais perto é Fort Atacadista (2,5 km).")).toBeInTheDocument();
+        const frase = screen.getByText(/A rede mais perto é Fort Atacadista/);
+        expect(frase).toHaveTextContent(/^A rede mais perto é Fort Atacadista \(≈ 2,5 km\)\./);
+      });
+
+      it("a distância visual fica aria-hidden com a dica no title, e o texto falado vai em sr-only", () => {
+        renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: REDE });
+
+        const visual = screen.getByText("≈ 2,5 km");
+        expect(visual).toHaveAttribute("aria-hidden", "true");
+        expect(visual).toHaveAttribute("title", "Distância em linha reta, calculada a partir do seu CEP");
+        const falado = screen.getByText("aproximadamente 2,5 km, em linha reta, a partir do seu CEP");
+        expect(falado).toHaveClass("sr-only");
+        expect(falado).not.toHaveAttribute("aria-hidden");
       });
 
       it("fica depois da frase do preço", () => {
@@ -626,6 +638,7 @@ describe("SeletorCepRaio", () => {
         renderizar({ localizacao: LOCALIZACAO, redeMaisPerto: { id: "fort", nome: "Fort Atacadista", distanciaKm: null } });
 
         expect(screen.getByText("A rede mais perto é Fort Atacadista.")).toBeInTheDocument();
+        expect(document.body.textContent).not.toMatch(/≈|aproximadamente/);
       });
 
       it("enquanto carrega a localização, não mostra a rede mais perto", () => {

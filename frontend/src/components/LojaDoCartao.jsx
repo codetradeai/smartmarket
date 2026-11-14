@@ -1,5 +1,5 @@
 import { linkComoChegar, linkWaze } from "../utils/linkComoChegar"
-import { textoDistancia } from "../utils/textoDistancia"
+import { DICA_DISTANCIA, textoDistancia, textoDistanciaFalado } from "../utils/textoDistancia"
 
 const AVISO_PRECO = (rede) => `O preço vale para toda a rede ${rede}; a loja é só referência.`
 
@@ -73,7 +73,15 @@ export default function LojaDoCartao({ filial, nomeRede = "", rotulo = null, pre
       </span>
       {temDetalhes && (
         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-          {distancia && <span className="text-emerald-700 font-extrabold shrink-0">{distancia}</span>}
+          {distancia && (
+            <>
+              {/* "≈" é lido de forma inconsistente: o visual fica aria-hidden e o texto falado vai ao lado. */}
+              <span aria-hidden="true" title={DICA_DISTANCIA} className="text-emerald-700 font-extrabold shrink-0">
+                {distancia}
+              </span>
+              <span className="sr-only">{textoDistanciaFalado(filial.distanciaKm)}</span>
+            </>
+          )}
           {precoValido && (
             <span className="font-extrabold shrink-0">
               {distancia ? "• " : ""}R$ {preco.toFixed(2)}

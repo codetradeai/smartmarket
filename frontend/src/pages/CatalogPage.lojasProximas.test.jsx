@@ -113,13 +113,13 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
 
     const cartao = cartaoDe('Atum Sólido')
     // Referência: Carrefour (a mais barata, R$ 7,90), com o prefixo do cartão completo.
-    const referencia = within(cartao).getByTitle(tituloDaReferencia('Carrefour Centro • 3,5 km'))
-    expect(referencia).toHaveTextContent(/^📍\s*Loja de referência:\s*Carrefour Centro\s*3,5 km$/)
+    const referencia = within(cartao).getByTitle(tituloDaReferencia('Carrefour Centro • ≈ 3,5 km'))
+    expect(referencia).toHaveTextContent(/^📍\s*Loja de referência:\s*Carrefour Centro\s*≈ 3,5 km\s*aproximadamente 3,5 km, em linha reta, a partir do seu CEP$/)
     // Fort (a mais perto, 2,5 km) só aparece na linha "Mais perto", com o preço da rede dela.
     const maisPerto = within(cartao).getByTitle(
-      'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
+      'Fort Cachoeirinha • ≈ 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
     )
-    expect(maisPerto).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
+    expect(maisPerto).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*≈ 2,5 km\s*aproximadamente 2,5 km, em linha reta, a partir do seu CEP\s*•\s*R\$ 9\.90$/)
     expect(within(cartao).getAllByText('Fort Cachoeirinha')).toHaveLength(1)
   })
 
@@ -131,10 +131,10 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
       usarLocalizacao({ lojas: [CARREFOUR_CENTRO] })
       await renderizar({ grade })
 
-      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(tituloDaReferencia('Carrefour Centro • 3,5 km'))
+      const indicacao = within(cartaoDe('Atum Sólido')).getByTitle(tituloDaReferencia('Carrefour Centro • ≈ 3,5 km'))
 
       expect(indicacao).toHaveTextContent('Carrefour Centro')
-      expect(indicacao).toHaveTextContent('3,5 km')
+      expect(indicacao).toHaveTextContent('≈ 3,5 km')
       expect(indicacao.getAttribute('title')).not.toMatch(/Andradas|Porto Alegre|Rua/)
     })
 
@@ -155,10 +155,10 @@ describe('CatalogPage com lojas próximas (flag ligada)', () => {
     })
 
     it.each([
-      [2.5, '2,5 km'],
-      [12, '12,0 km'],
-      [0.8, '0,8 km'],
-      [3.46, '3,5 km'],
+      [2.5, '≈ 2,5 km'],
+      [12, '≈ 12,0 km'],
+      [0.8, '≈ 0,8 km'],
+      [3.46, '≈ 3,5 km'],
     ])('a distância %p aparece em formato brasileiro: %s, sem ponto decimal', async (distanciaKm, esperado) => {
       usarLocalizacao({ lojas: [lojaDaApi({ ...CARREFOUR_CENTRO, distanciaKm })] })
       await renderizar({ grade })
@@ -312,7 +312,7 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
 
       await renderizar()
 
-      expect(screen.getByText('A rede mais perto é Fort Atacadista (2,5 km).')).toBeInTheDocument()
+      expect(screen.getByText(/^A rede mais perto é Fort Atacadista/)).toHaveTextContent(/^A rede mais perto é Fort Atacadista \(≈ 2,5 km\)\./)
     })
 
     it('o destaque acompanha o raio: com a Fort fora do raio, a mais perto passa a ser a Carrefour', async () => {
@@ -324,7 +324,7 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
 
       expect(within(redeNaFita('Carrefour')).getByText('Mais perto')).toBeInTheDocument()
       expect(screen.getAllByText('Mais perto')).toHaveLength(1)
-      expect(screen.getByText('A rede mais perto é Carrefour (3,5 km).')).toBeInTheDocument()
+      expect(screen.getByText(/^A rede mais perto é Carrefour/)).toHaveTextContent(/^A rede mais perto é Carrefour \(≈ 3,5 km\)\./)
     })
 
     it('nenhuma loja com distância: sem selo, sem frase e sem linha "Mais perto" nos cartões', async () => {
@@ -430,10 +430,10 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
         await renderizar({ grade })
 
         const linha = within(cartaoDe('Atum Sólido')).getByTitle(
-          'Fort Cachoeirinha • 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
+          'Fort Cachoeirinha • ≈ 2,5 km. O preço vale para toda a rede Fort Atacadista; a loja é só referência.'
         )
 
-        expect(linha).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*2,5 km\s*•\s*R\$ 9\.90$/)
+        expect(linha).toHaveTextContent(/^📍\s*Mais perto:\s*Fort Cachoeirinha\s*≈ 2,5 km\s*aproximadamente 2,5 km, em linha reta, a partir do seu CEP\s*•\s*R\$ 9\.90$/)
       })
 
       it('quando a mais perto É a mais barata, não repete: só a loja de referência', async () => {
@@ -494,7 +494,7 @@ describe('CatalogPage: rede mais perto e "Como chegar"', () => {
         expect(within(cartao).queryByRole('link')).not.toBeInTheDocument()
         expect(within(cartao).queryByText('Como chegar')).not.toBeInTheDocument()
         expect(within(cartao).getByText('Carrefour Centro')).toBeInTheDocument()
-        expect(within(cartao).getByText('3,5 km')).toBeInTheDocument()
+        expect(within(cartao).getByText('≈ 3,5 km')).toBeInTheDocument()
       })
 
       it('com coordenadas só numa das lojas, só ela tem links (Google Maps e Waze)', async () => {

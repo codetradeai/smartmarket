@@ -13,3 +13,13 @@ export function textoDistancia(km) {
   if (typeof km !== "number" || !Number.isFinite(km)) return null
   return `≈ ${km.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} km`
 }
+
+/**
+ * Mesma distância, escrita para leitor de tela: o "≈" é lido de forma inconsistente, então o texto visual
+ * fica `aria-hidden` e este vai num `sr-only` ao lado. `null` quando não há número.
+ */
+export function textoDistanciaFalado(km) {
+  const visual = textoDistancia(km)
+  if (!visual) return null
+  return `aproximadamente ${visual.replace("≈ ", "")}, em linha reta, a partir do seu CEP`
+}

@@ -1,4 +1,4 @@
-import { textoDistancia, DICA_DISTANCIA } from './textoDistancia'
+import { textoDistancia, textoDistanciaFalado, DICA_DISTANCIA } from './textoDistancia'
 
 describe('textoDistancia', () => {
   it.each([
@@ -19,5 +19,18 @@ describe('textoDistancia', () => {
 describe('DICA_DISTANCIA', () => {
   it('explica que é em linha reta e a partir do CEP', () => {
     expect(DICA_DISTANCIA).toBe('Distância em linha reta, calculada a partir do seu CEP')
+  })
+})
+
+describe('textoDistanciaFalado', () => {
+  it.each([
+    [2.3, 'aproximadamente 2,3 km, em linha reta, a partir do seu CEP'],
+    [12, 'aproximadamente 12,0 km, em linha reta, a partir do seu CEP'],
+  ])('%p vira "%s" (texto para leitor de tela, sem o símbolo ≈)', (km, esperado) => {
+    expect(textoDistanciaFalado(km)).toBe(esperado)
+  })
+
+  it.each([[null], [undefined], [NaN], ['3,5']])('%p não é distância: devolve null', (valor) => {
+    expect(textoDistanciaFalado(valor)).toBeNull()
   })
 })
